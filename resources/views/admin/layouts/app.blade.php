@@ -13,9 +13,9 @@
             <div class="h-16 flex items-center px-6 border-b border-gray-800">
                 <span class="text-lg font-semibold">RJ CMS</span>
             </div>
-            <nav class="p-4 space-y-1">
-                <a href="{{ route('admin.dashboard') }}" class="block px-3 py-2 rounded hover:bg-gray-800">Dashboard</a>
-                <a href="#" class="block px-3 py-2 rounded hover:bg-gray-800">Users</a>
+            <nav class="p-4 space-y-1 text-sm">
+                <a href="{{ route('admin.dashboard') }}" class="block px-3 py-2 rounded hover:bg-gray-800 {{ request()->routeIs('admin.dashboard') ? 'bg-gray-800' : '' }}">Dashboard</a>
+                <a href="{{ route('admin.users.index') }}" class="block px-3 py-2 rounded hover:bg-gray-800 {{ request()->routeIs('admin.users.*') ? 'bg-gray-800' : '' }}">Users</a>
                 <a href="#" class="block px-3 py-2 rounded hover:bg-gray-800">Themes</a>
                 <a href="#" class="block px-3 py-2 rounded hover:bg-gray-800">Posts</a>
                 <a href="#" class="block px-3 py-2 rounded hover:bg-gray-800">Pages</a>
