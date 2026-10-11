@@ -1,17 +1,24 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Dashboard') }}
-        </h2>
-    </x-slot>
+@extends('admin.layouts.app')
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    {{ __("You're logged in!") }}
-                </div>
-            </div>
+@section('title', __('Dashboard'))
+
+@section('content')
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="bg-white rounded shadow p-4">
+            <div class="text-sm text-gray-500">{{ __('Users') }}</div>
+            <div class="text-2xl font-semibold">{{ \App\Models\User::count() }}</div>
+        </div>
+        <div class="bg-white rounded shadow p-4">
+            <div class="text-sm text-gray-500">{{ __('Posts') }}</div>
+            <div class="text-2xl font-semibold">0</div>
+        </div>
+        <div class="bg-white rounded shadow p-4">
+            <div class="text-sm text-gray-500">{{ __('Pages') }}</div>
+            <div class="text-2xl font-semibold">0</div>
+        </div>
+        <div class="bg-white rounded shadow p-4">
+            <div class="text-sm text-gray-500">{{ __('Themes') }}</div>
+            <div class="text-2xl font-semibold">0</div>
         </div>
     </div>
-</x-app-layout>
+@endsection
