@@ -11,7 +11,7 @@
     <div class="flex min-h-screen">
         <aside class="w-64 bg-gray-900 text-gray-100 flex-shrink-0">
             <div class="h-16 flex items-center px-6 border-b border-gray-800">
-                <span class="text-lg font-semibold">RJ CMS</span>
+                <span class="text-lg font-semibold">{{ rj_get_option('site_name', 'RJ CMS') }}</span>
             </div>
             <nav class="p-4 space-y-1 text-sm">
                 <a href="{{ route('admin.dashboard') }}" class="block px-3 py-2 rounded hover:bg-gray-800 {{ request()->routeIs('admin.dashboard') ? 'bg-gray-800' : '' }}">{{ __('Dashboard') }}</a>
@@ -19,7 +19,7 @@
                 <a href="#" class="block px-3 py-2 rounded hover:bg-gray-800">{{ __('Themes') }}</a>
                 <a href="#" class="block px-3 py-2 rounded hover:bg-gray-800">{{ __('Posts') }}</a>
                 <a href="#" class="block px-3 py-2 rounded hover:bg-gray-800">{{ __('Pages') }}</a>
-                <a href="#" class="block px-3 py-2 rounded hover:bg-gray-800">{{ __('Settings') }}</a>
+                <a href="{{ route('admin.settings.index') }}" class="block px-3 py-2 rounded hover:bg-gray-800 {{ request()->routeIs('admin.settings.*') ? 'bg-gray-800' : '' }}">{{ __('Settings') }}</a>
             </nav>
         </aside>
 
