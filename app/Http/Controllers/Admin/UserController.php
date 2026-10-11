@@ -35,7 +35,7 @@ class UserController extends Controller
 
         User::create($data);
 
-        return redirect()->route('admin.users.index')->with('success', 'User created.');
+        return redirect()->route('admin.users.index')->with('success', __('User created.'));
     }
 
     public function edit(User $user)
@@ -61,17 +61,17 @@ class UserController extends Controller
 
         $user->update($data);
 
-        return redirect()->route('admin.users.index')->with('success', 'User updated.');
+        return redirect()->route('admin.users.index')->with('success', __('User updated.'));
     }
 
     public function destroy(User $user)
     {
         if ($user->id === auth()->id()) {
-            return back()->with('error', 'You cannot delete yourself.');
+            return back()->with('error', __('You cannot delete yourself.'));
         }
 
         $user->delete();
 
-        return redirect()->route('admin.users.index')->with('success', 'User deleted.');
+        return redirect()->route('admin.users.index')->with('success', __('User deleted.'));
     }
 }
