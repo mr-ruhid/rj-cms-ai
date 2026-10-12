@@ -238,22 +238,14 @@
                         </button>
 
                         <div x-show="langMenu" x-cloak x-transition class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1 rj-fade-in z-20">
-                            <a href="{{ route('admin.lang.switch', 'az') }}" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 {{ app()->getLocale() === 'az' ? 'bg-gray-50 font-medium' : '' }}">
-                                <img src="{{ asset('images/flags/az.svg') }}" alt="AZ" class="w-5 h-4 object-cover rounded-sm" onerror="this.style.display='none'">
-                                Azərbaycan
-                            </a>
-                            <a href="{{ route('admin.lang.switch', 'en') }}" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 {{ app()->getLocale() === 'en' ? 'bg-gray-50 font-medium' : '' }}">
-                                <img src="{{ asset('images/flags/en.svg') }}" alt="EN" class="w-5 h-4 object-cover rounded-sm" onerror="this.style.display='none'">
-                                English
-                            </a>
-                            <a href="{{ route('admin.lang.switch', 'ru') }}" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 {{ app()->getLocale() === 'ru' ? 'bg-gray-50 font-medium' : '' }}">
-                                <img src="{{ asset('images/flags/ru.svg') }}" alt="RU" class="w-5 h-4 object-cover rounded-sm" onerror="this.style.display='none'">
-                                Русский
-                            </a>
-                            <a href="{{ route('admin.lang.switch', 'tr') }}" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 {{ app()->getLocale() === 'tr' ? 'bg-gray-50 font-medium' : '' }}">
-                                <img src="{{ asset('images/flags/tr.svg') }}" alt="TR" class="w-5 h-4 object-cover rounded-sm" onerror="this.style.display='none'">
-                                Türkçe
-                            </a>
+                            @foreach (rj_available_locales() as $locale)
+                                <a href="{{ route('admin.lang.switch', $locale) }}" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 {{ app()->getLocale() === $locale ? 'bg-gray-50 font-medium' : '' }}">
+                                    @if (file_exists(public_path("images/flags/{$locale}.svg")))
+                                        <img src="{{ asset("images/flags/{$locale}.svg") }}" alt="{{ strtoupper($locale) }}" class="w-5 h-4 object-cover rounded-sm">
+                                    @endif
+                                    <span class="uppercase">{{ $locale }}</span>
+                                </a>
+                            @endforeach
                         </div>
                     </div>
 
