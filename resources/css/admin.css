@@ -1,16 +1,11 @@
-@import 'tailwindcss';
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-@theme {
-    --color-rj-purple: #7c3aed;
-    --color-rj-purple-light: #a855f7;
-    --color-rj-pink: #ec4899;
-    --color-rj-dark-1: #1a1030;
-    --color-rj-dark-2: #231243;
-    --color-rj-dark-3: #2d1754;
-}
-
-[x-cloak] {
-    display: none !important;
+@layer base {
+    [x-cloak] {
+        display: none !important;
+    }
 }
 
 .rj-scrollbar::-webkit-scrollbar {
