@@ -29,3 +29,31 @@ if (!function_exists('rj_flush_options')) {
         Option::flush();
     }
 }
+
+if (!function_exists('rj_available_locales')) {
+    function rj_available_locales(): array
+    {
+        $path = lang_path();
+        $locales = [];
+
+        if (is_dir($path)) {
+            foreach (scandir($path) as $item) {
+                if ($item === '.' || $item === '..') {
+                    continue;
+                }
+
+                if (is_dir($path . '/' . $item)) {
+                    $locales[] = $item;
+                } elseif (pathinfo($item, PATHINFO_EXTENSION) === 'json') {
+                    $locales[] = pathinfo($item, PATHINFO_FILENAME);
+                }
+            }
+        }
+
+        if (empty($locales)) {
+            $locales = [config('app.locale', 'en')];
+        }
+
+        return array_values(array_unique($locales));
+    }
+}
