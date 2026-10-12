@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\Settings\ReadingSettingsController;
 use App\Http\Controllers\Admin\Settings\DiscussionSettingsController;
 use App\Http\Controllers\Admin\Settings\MediaSettingsController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Admin\Settings\PermalinksSettingsController;
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', fn() => redirect()->route('admin.dashboard'))->name('home');
@@ -95,7 +96,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::get('/media', [MediaSettingsController::class, 'index'])->name('media');
         Route::put('/media', [MediaSettingsController::class, 'update'])->name('media.update');
 
-        Route::view('/permalinks', 'admin.coming-soon')->name('permalinks');
+        Route::get('/permalinks', [PermalinksSettingsController::class, 'index'])->name('permalinks');
+        Route::put('/permalinks', [PermalinksSettingsController::class, 'update'])->name('permalinks.update');
 
         Route::get('/language', [SettingsController::class, 'language'])->name('language');
         Route::put('/language', [SettingsController::class, 'updateLanguage'])->name('language.update');
