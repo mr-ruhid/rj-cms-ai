@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Mail\TestMail;
 use App\Models\Option;
+use App\Services\OpenRouterService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
@@ -294,6 +295,61 @@ class SettingsController extends Controller
         }
 
         return back()->with('success', __('Security settings saved.'));
+    }
+
+    public function ai()
+    {
+        $options = $this->getGroup('ai');
+
+        return view('admin.settings.ai', compact('options'));
+    }
+
+    public function updateAi(Request $request)
+    {
+        $data = $request->validate([
+            'ai_openrouter_api_key' => ['nullable', 'string', 'max:500'],
+            'ai_openrouter_endpoint' => ['required', 'url', 'max:255'],
+            'ai_default_model' => ['required', 'string', 'max:200'],
+            'ai_default_temperature' => ['nullable', 'numeric', 'between:0,2'],
+            'ai_default_max_tokens' => ['nullable', 'integer', 'min:1', 'max:32000'],
+            'ai_timeout' => ['nullable', 'integer', 'min:5', 'max:600'],
+            'ai_log_enabled' => ['nullable', 'boolean'],
+        ]);
+
+        $data['ai_log_enabled'] = $request->boolean('ai_log_enabled') ? '1' : '0';
+
+        if (empty($data['ai_openrouter_api_key'])) {
+            unset($data['ai_openrouter_api_key']);
+        }
+
+        foreach ($data as $name => $value) {
+            Option::set($name, $value, 'ai');
+        }
+
+        return back()->with('success', __('AI settings saved.'));
+    }
+
+    public function testAi()
+    {
+        $service = new OpenRouterService();
+        $result = $service->testConnection();
+
+        if ($result['success']) {
+            return back()->with('success', $result['message']);
+        }
+
+        return back()->with('error', __('Connection failed: :error', ['error' => $result['error'] ?? 'Unknown error']));
+    }
+
+    public function fetchAiModels()
+    {
+        $service = new OpenRouterService();
+
+        if (!$service->isConfigured()) {
+            return response()->json(['error' => 'API key is not configured.'], 422);
+        }
+
+        return response()->json($service->models());
     }
 
     protected function getGroup(string $group): array
