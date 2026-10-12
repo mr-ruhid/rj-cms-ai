@@ -17,7 +17,6 @@
 
 .rj-scrollbar::-webkit-scrollbar {
     width: 6px;
-    height: 6px;
 }
 
 .rj-scrollbar::-webkit-scrollbar-track {
@@ -25,19 +24,40 @@
 }
 
 .rj-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(156, 163, 175, 0.3);
+    background: rgba(255, 255, 255, 0.08);
     border-radius: 3px;
 }
 
 .rj-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: rgba(156, 163, 175, 0.5);
+    background: rgba(255, 255, 255, 0.16);
+}
+
+@keyframes rj-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .rj-fade-in {
-    animation: rjFadeIn 0.15s ease-out;
+    animation: rj-fade-in 0.18s ease-out;
 }
 
-@keyframes rjFadeIn {
-    from { opacity: 0; transform: translateY(-4px); }
-    to   { opacity: 1; transform: translateY(0); }
+@keyframes rj-slide-in {
+    from {
+        opacity: 0;
+        transform: translateX(-6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.rj-slide-in {
+    animation: rj-slide-in 0.18s ease-out;
 }
