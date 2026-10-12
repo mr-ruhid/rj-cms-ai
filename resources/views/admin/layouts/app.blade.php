@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', __('Dashboard')) - {{ config('app.name') }}</title>
-    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link rel="icon" type="image/png" href="{{ asset('images/favicon.png') }}">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
     @vite(['resources/css/admin.css', 'resources/js/app.js'])
     <style>:root { {!! rj_css_variables() !!} }</style>
