@@ -7,22 +7,21 @@
     <title>@yield('title', __('Dashboard')) - {{ config('app.name') }}</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <style>[x-cloak]{display:none!important}</style>
+    @vite(['resources/css/admin.css', 'resources/js/app.js'])
 </head>
 <body class="font-sans bg-gray-50 text-gray-900 antialiased">
-    <div class="flex min-h-screen" x-data="{ openMenu: null }">
+    <div class="flex min-h-screen" x-data="{ openMenu: null, userMenu: false, langMenu: false }">
 
-        <aside class="w-64 bg-gradient-to-b from-[#1a1030] via-[#231243] to-[#1a1030] text-gray-300 flex-shrink-0 flex flex-col">
+        <aside class="w-64 bg-gradient-to-b from-rj-dark-1 via-rj-dark-2 to-rj-dark-1 text-gray-300 flex-shrink-0 flex flex-col">
             <div class="h-20 flex items-center justify-center px-5 border-b border-white/5">
                 <a href="{{ route('admin.dashboard') }}">
                     <img src="{{ asset('images/logo.svg') }}" alt="Logo" class="h-12 w-auto">
                 </a>
             </div>
 
-            <nav class="flex-1 overflow-y-auto p-3 space-y-0.5 text-sm">
+            <nav class="rj-scrollbar flex-1 overflow-y-auto p-3 space-y-0.5 text-sm">
 
-                <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg transition {{ request()->routeIs('admin.dashboard') ? 'bg-gradient-to-r from-[#7c3aed]/30 to-[#ec4899]/20 text-white border-l-2 border-[#a855f7]' : 'hover:bg-white/5 hover:text-white' }}">
+                <a href="{{ route('admin.dashboard') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg transition {{ request()->routeIs('admin.dashboard') ? 'bg-gradient-to-r from-rj-purple/30 to-rj-pink/20 text-white border-l-2 border-rj-purple-light' : 'hover:bg-white/5 hover:text-white' }}">
                     <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h3a1 1 0 001-1V10"/></svg>
                     <span>{{ __('Dashboard') }}</span>
                 </a>
@@ -140,7 +139,7 @@
                     </div>
                 </div>
 
-                <a href="{{ route('admin.users.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg transition {{ request()->routeIs('admin.users.*') ? 'bg-gradient-to-r from-[#7c3aed]/30 to-[#ec4899]/20 text-white border-l-2 border-[#a855f7]' : 'hover:bg-white/5 hover:text-white' }}">
+                <a href="{{ route('admin.users.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg transition {{ request()->routeIs('admin.users.*') ? 'bg-gradient-to-r from-rj-purple/30 to-rj-pink/20 text-white border-l-2 border-rj-purple-light' : 'hover:bg-white/5 hover:text-white' }}">
                     <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                     <span>{{ __('Users') }}</span>
                 </a>
@@ -181,12 +180,12 @@
                     </div>
                 </div>
 
-                <a href="{{ route('admin.updates.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg transition {{ request()->routeIs('admin.updates.*') ? 'bg-gradient-to-r from-[#7c3aed]/30 to-[#ec4899]/20 text-white border-l-2 border-[#a855f7]' : 'hover:bg-white/5 hover:text-white' }}">
+                <a href="{{ route('admin.updates.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg transition {{ request()->routeIs('admin.updates.*') ? 'bg-gradient-to-r from-rj-purple/30 to-rj-pink/20 text-white border-l-2 border-rj-purple-light' : 'hover:bg-white/5 hover:text-white' }}">
                     <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
                     <span>{{ __('Updates') }}</span>
                 </a>
 
-                <a href="{{ route('admin.settings.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg transition {{ request()->routeIs('admin.settings.*') ? 'bg-gradient-to-r from-[#7c3aed]/30 to-[#ec4899]/20 text-white border-l-2 border-[#a855f7]' : 'hover:bg-white/5 hover:text-white' }}">
+                <a href="{{ route('admin.settings.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg transition {{ request()->routeIs('admin.settings.*') ? 'bg-gradient-to-r from-rj-purple/30 to-rj-pink/20 text-white border-l-2 border-rj-purple-light' : 'hover:bg-white/5 hover:text-white' }}">
                     <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>
                     <span>{{ __('Settings') }}</span>
                 </a>
@@ -215,8 +214,12 @@
 
             </nav>
 
-            <div class="p-3 border-t border-white/5 text-xs text-gray-500">
-                v{{ rj_get_option('rj_version', '1.0.0') }}
+            <div class="p-3 border-t border-white/5 text-xs text-gray-500 flex items-center justify-between">
+                <span>v{{ rj_get_option('rj_version', '1.0.0') }}</span>
+                <a href="{{ route('home') }}" target="_blank" class="hover:text-white transition flex items-center gap-1">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                    {{ __('View Site') }}
+                </a>
             </div>
         </aside>
 
@@ -226,32 +229,87 @@
                     <h1 class="text-lg font-semibold text-gray-900">@yield('title', __('Dashboard'))</h1>
                 </div>
 
-                <div class="flex items-center gap-4">
-                    <div class="flex items-center gap-3 pl-4 border-l border-gray-200">
-                        <div class="h-9 w-9 rounded-full bg-gradient-to-br from-[#7c3aed] to-[#ec4899] flex items-center justify-center text-white text-sm font-semibold">
-                            {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                <div class="flex items-center gap-2">
+
+                    <div class="relative" @click.away="langMenu = false">
+                        <button @click="langMenu = !langMenu" class="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition text-sm text-gray-600">
+                            <img src="{{ asset('images/flags/' . app()->getLocale() . '.svg') }}" alt="{{ app()->getLocale() }}" class="w-5 h-4 object-cover rounded-sm" onerror="this.style.display='none'">
+                            <span class="uppercase text-xs font-medium">{{ app()->getLocale() }}</span>
+                            <svg class="w-3.5 h-3.5 opacity-60" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                        </button>
+
+                        <div x-show="langMenu" x-cloak x-transition class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1 rj-fade-in z-20">
+                            <a href="{{ route('admin.lang.switch', 'az') }}" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 {{ app()->getLocale() === 'az' ? 'bg-gray-50 font-medium' : '' }}">
+                                <img src="{{ asset('images/flags/az.svg') }}" alt="AZ" class="w-5 h-4 object-cover rounded-sm" onerror="this.style.display='none'">
+                                Azərbaycan
+                            </a>
+                            <a href="{{ route('admin.lang.switch', 'en') }}" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 {{ app()->getLocale() === 'en' ? 'bg-gray-50 font-medium' : '' }}">
+                                <img src="{{ asset('images/flags/en.svg') }}" alt="EN" class="w-5 h-4 object-cover rounded-sm" onerror="this.style.display='none'">
+                                English
+                            </a>
+                            <a href="{{ route('admin.lang.switch', 'ru') }}" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 {{ app()->getLocale() === 'ru' ? 'bg-gray-50 font-medium' : '' }}">
+                                <img src="{{ asset('images/flags/ru.svg') }}" alt="RU" class="w-5 h-4 object-cover rounded-sm" onerror="this.style.display='none'">
+                                Русский
+                            </a>
+                            <a href="{{ route('admin.lang.switch', 'tr') }}" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 {{ app()->getLocale() === 'tr' ? 'bg-gray-50 font-medium' : '' }}">
+                                <img src="{{ asset('images/flags/tr.svg') }}" alt="TR" class="w-5 h-4 object-cover rounded-sm" onerror="this.style.display='none'">
+                                Türkçe
+                            </a>
                         </div>
-                        <div class="hidden sm:block">
-                            <div class="text-sm font-medium text-gray-900">{{ auth()->user()->name }}</div>
-                            <div class="text-xs text-gray-500">{{ ucfirst(auth()->user()->role) }}</div>
-                        </div>
-                        <form method="POST" action="{{ route('logout') }}">
-                            @csrf
-                            <button type="submit" class="text-sm text-gray-500 hover:text-red-600 transition">{{ __('Logout') }}</button>
-                        </form>
                     </div>
+
+                    <div class="relative" @click.away="userMenu = false">
+                        <button @click="userMenu = !userMenu" class="flex items-center gap-3 px-2 py-1.5 rounded-lg hover:bg-gray-100 transition">
+                            <div class="h-9 w-9 rounded-full bg-gradient-to-br from-rj-purple to-rj-pink flex items-center justify-center text-white text-sm font-semibold">
+                                {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
+                            </div>
+                            <div class="hidden sm:block text-left">
+                                <div class="text-sm font-medium text-gray-900">{{ auth()->user()->name }}</div>
+                                <div class="text-xs text-gray-500">{{ ucfirst(auth()->user()->role) }}</div>
+                            </div>
+                            <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                        </button>
+
+                        <div x-show="userMenu" x-cloak x-transition class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-100 py-1 rj-fade-in z-20">
+                            <div class="px-4 py-3 border-b border-gray-100">
+                                <div class="text-sm font-medium text-gray-900">{{ auth()->user()->name }}</div>
+                                <div class="text-xs text-gray-500 truncate">{{ auth()->user()->email }}</div>
+                            </div>
+
+                            <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                                {{ __('Profile') }}
+                            </a>
+
+                            <a href="{{ route('home') }}" target="_blank" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                                {{ __('View Site') }}
+                            </a>
+
+                            <div class="border-t border-gray-100 mt-1 pt-1">
+                                <form method="POST" action="{{ route('logout') }}">
+                                    @csrf
+                                    <button type="submit" class="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                                        {{ __('Logout') }}
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </header>
 
             <main class="p-6 flex-1">
                 @if (session('success'))
-                    <div class="mb-4 bg-green-50 border-l-4 border-green-500 text-green-800 px-4 py-3 rounded-r-lg">
+                    <div class="mb-4 bg-green-50 border-l-4 border-green-500 text-green-800 px-4 py-3 rounded-r-lg rj-fade-in">
                         {{ session('success') }}
                     </div>
                 @endif
 
                 @if (session('error'))
-                    <div class="mb-4 bg-red-50 border-l-4 border-red-500 text-red-800 px-4 py-3 rounded-r-lg">
+                    <div class="mb-4 bg-red-50 border-l-4 border-red-500 text-red-800 px-4 py-3 rounded-r-lg rj-fade-in">
                         {{ session('error') }}
                     </div>
                 @endif
