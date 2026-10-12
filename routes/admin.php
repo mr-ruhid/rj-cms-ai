@@ -5,6 +5,9 @@ use App\Http\Controllers\Admin\LangController;
 use App\Http\Controllers\Admin\ProfileController;
 use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\UserController;
+use App\Http\Controllers\Admin\Settings\ReadingSettingsController;
+use App\Http\Controllers\Admin\Settings\DiscussionSettingsController;
+use App\Http\Controllers\Admin\Settings\MediaSettingsController;
 use Illuminate\Support\Facades\Route;
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
@@ -29,8 +32,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::view('/pages', 'admin.coming-soon')->name('pages.index');
     Route::view('/pages/create', 'admin.coming-soon')->name('pages.create');
 
-    Route::get('/media', [\App\Http\Controllers\Admin\Settings\MediaSettingsController::class, 'index'])->name('media');
-    Route::put('/media', [\App\Http\Controllers\Admin\Settings\MediaSettingsController::class, 'update'])->name('media.update');
+    Route::view('/media', 'admin.coming-soon')->name('media.index');
     Route::view('/media/create', 'admin.coming-soon')->name('media.create');
 
     Route::view('/comments', 'admin.coming-soon')->name('comments.index');
@@ -83,11 +85,16 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
         Route::get('/writing', [SettingsController::class, 'writing'])->name('writing');
         Route::put('/writing', [SettingsController::class, 'updateWriting'])->name('writing.update');
-        Route::get('/reading', [\App\Http\Controllers\Admin\Settings\ReadingSettingsController::class, 'index'])->name('reading');
-        Route::put('/reading', [\App\Http\Controllers\Admin\Settings\ReadingSettingsController::class, 'update'])->name('reading.update');
-        Route::get('/discussion', [\App\Http\Controllers\Admin\Settings\DiscussionSettingsController::class, 'index'])->name('discussion');
-        Route::put('/discussion', [\App\Http\Controllers\Admin\Settings\DiscussionSettingsController::class, 'update'])->name('discussion.update');
-        Route::view('/media', 'admin.coming-soon')->name('media');
+
+        Route::get('/reading', [ReadingSettingsController::class, 'index'])->name('reading');
+        Route::put('/reading', [ReadingSettingsController::class, 'update'])->name('reading.update');
+
+        Route::get('/discussion', [DiscussionSettingsController::class, 'index'])->name('discussion');
+        Route::put('/discussion', [DiscussionSettingsController::class, 'update'])->name('discussion.update');
+
+        Route::get('/media', [MediaSettingsController::class, 'index'])->name('media');
+        Route::put('/media', [MediaSettingsController::class, 'update'])->name('media.update');
+
         Route::view('/permalinks', 'admin.coming-soon')->name('permalinks');
 
         Route::get('/language', [SettingsController::class, 'language'])->name('language');
