@@ -89,6 +89,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
         Route::get('/language', [SettingsController::class, 'language'])->name('language');
         Route::put('/language', [SettingsController::class, 'updateLanguage'])->name('language.update');
+        Route::post('/language/add', [SettingsController::class, 'addLanguage'])->name('language.add');
+        Route::delete('/language/{locale}', [SettingsController::class, 'removeLanguage'])->name('language.remove');
+        Route::get('/language/{locale}/translations', [SettingsController::class, 'translations'])->name('language.translations');
+        Route::put('/language/{locale}/translations', [SettingsController::class, 'updateTranslations'])->name('language.translations.update');
 
         Route::view('/colors', 'admin.coming-soon')->name('colors');
         Route::view('/seo', 'admin.coming-soon')->name('seo');
