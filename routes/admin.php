@@ -29,7 +29,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::view('/pages', 'admin.coming-soon')->name('pages.index');
     Route::view('/pages/create', 'admin.coming-soon')->name('pages.create');
 
-    Route::view('/media', 'admin.coming-soon')->name('media.index');
+    Route::get('/media', [\App\Http\Controllers\Admin\Settings\MediaSettingsController::class, 'index'])->name('media');
+    Route::put('/media', [\App\Http\Controllers\Admin\Settings\MediaSettingsController::class, 'update'])->name('media.update');
     Route::view('/media/create', 'admin.coming-soon')->name('media.create');
 
     Route::view('/comments', 'admin.coming-soon')->name('comments.index');
