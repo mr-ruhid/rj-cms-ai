@@ -196,6 +196,45 @@ class SettingsController extends Controller
         return back()->with('success', __('Translations saved.'));
     }
 
+        public function aiTranslate(string $locale)
+    {
+        if (!preg_match('/^[a-z]{2}(_[A-Z]{2})?$/', $locale)) {
+            return back()->with('error', __('Invalid locale.'));
+        }
+
+        $path = lang_path($locale . '.json');
+
+        if (!file_exists($path)) {
+            return back()->with('error', __('Language file not found.'));
+        }
+
+        if (!rj_get_option('ai_openrouter_api_key')) {
+            return back()->with('error', __('OpenRouter API key is not configured. Please set it in Settings → AI.'));
+        }
+
+        $service = new \App\Services\AiTranslatorService();
+        $result = $service->translateMissing($locale);
+
+        if (!$result['success']) {
+            return back()->with('error', __('AI translation failed: :error', ['error' => $result['error'] ?? 'Unknown error']));
+        }
+
+        if (($result['translated'] ?? 0) === 0) {
+            return back()->with('success', __('All keys are already translated.'));
+        }
+
+        $message = __('AI translated :count of :total missing keys.', [
+            'count' => $result['translated'],
+            'total' => $result['missing_total'] ?? $result['translated'],
+        ]);
+
+        if (!empty($result['errors'])) {
+            $message .= ' ' . __('Some batches failed.');
+        }
+
+        return back()->with('success', $message);
+    }
+
     public function email()
     {
         $options = $this->getGroup('email');
