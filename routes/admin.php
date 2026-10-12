@@ -129,7 +129,6 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::put('/cache', [CacheSettingsController::class, 'update'])->name('cache.update');
         Route::get('/social', [SocialSettingsController::class, 'index'])->name('social');
         Route::put('/social', [SocialSettingsController::class, 'update'])->name('social.update');
-        Route::view('/social', 'admin.coming-soon')->name('social');
         Route::view('/notifications', 'admin.coming-soon')->name('notifications');
         Route::view('/api', 'admin.coming-soon')->name('api');
 
