@@ -86,7 +86,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::view('/discussion', 'admin.coming-soon')->name('discussion');
         Route::view('/media', 'admin.coming-soon')->name('media');
         Route::view('/permalinks', 'admin.coming-soon')->name('permalinks');
-        Route::view('/language', 'admin.coming-soon')->name('language');
+
+        Route::get('/language', [SettingsController::class, 'language'])->name('language');
+        Route::put('/language', [SettingsController::class, 'updateLanguage'])->name('language.update');
+
         Route::view('/colors', 'admin.coming-soon')->name('colors');
         Route::view('/seo', 'admin.coming-soon')->name('seo');
         Route::get('/email', [SettingsController::class, 'email'])->name('email');
