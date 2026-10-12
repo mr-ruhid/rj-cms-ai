@@ -84,7 +84,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::put('/writing', [SettingsController::class, 'updateWriting'])->name('writing.update');
         Route::get('/reading', [\App\Http\Controllers\Admin\Settings\ReadingSettingsController::class, 'index'])->name('reading');
         Route::put('/reading', [\App\Http\Controllers\Admin\Settings\ReadingSettingsController::class, 'update'])->name('reading.update');
-        Route::view('/discussion', 'admin.coming-soon')->name('discussion');
+        Route::get('/discussion', [\App\Http\Controllers\Admin\Settings\DiscussionSettingsController::class, 'index'])->name('discussion');
+        Route::put('/discussion', [\App\Http\Controllers\Admin\Settings\DiscussionSettingsController::class, 'update'])->name('discussion.update');
         Route::view('/media', 'admin.coming-soon')->name('media');
         Route::view('/permalinks', 'admin.coming-soon')->name('permalinks');
 
