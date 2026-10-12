@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\Settings\PermalinksSettingsController;
 use App\Http\Controllers\Admin\Settings\ColorsSettingsController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\Settings\CacheSettingsController;
+use App\Http\Controllers\Admin\Settings\AdvancedSettingsController;
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', fn() => redirect()->route('admin.dashboard'))->name('home');
@@ -133,7 +134,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::post('/ai/test', [SettingsController::class, 'testAi'])->name('ai.test');
         Route::get('/ai/models', [SettingsController::class, 'fetchAiModels'])->name('ai.models');
 
-        Route::view('/advanced', 'admin.coming-soon')->name('advanced');
+        Route::get('/advanced', [AdvancedSettingsController::class, 'index'])->name('advanced');
+        Route::put('/advanced', [AdvancedSettingsController::class, 'update'])->name('advanced.update');
+        Route::post('/advanced/clear-logs', [AdvancedSettingsController::class, 'clearLogs'])->name('advanced.clear-logs');
         Route::view('/roles', 'admin.coming-soon')->name('roles');
     });
 
