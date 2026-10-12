@@ -61,3 +61,13 @@
 .rj-slide-in {
     animation: rj-slide-in 0.18s ease-out;
 }
+
+.rj-logo-mask {
+    background-image: linear-gradient(135deg, rgb(var(--rj-purple)) 0%, rgb(var(--rj-pink)) 100%);
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+}

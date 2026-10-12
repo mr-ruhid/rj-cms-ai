@@ -215,63 +215,17 @@ if (!function_exists('rj_css_variables')) {
     }
 }
 
-if (!function_exists('rj_logo_svg')) {
-    function rj_logo_svg(string $class = ''): string
+if (!function_exists('rj_logo_mask_url')) {
+    function rj_logo_mask_url(): ?string
     {
-        $path = public_path('images/logo.svg');
+        foreach (['svg', 'png', 'webp'] as $ext) {
+            $path = public_path("images/logo-white.{$ext}");
 
-        if (!file_exists($path)) {
-            return '<span class="' . e($class) . ' font-bold text-lg">RJ CMS</span>';
-        }
-
-        $svg = file_get_contents($path);
-
-        $svg = preg_replace('/<\?xml[^>]*\?>/', '', $svg);
-        $svg = preg_replace('/<!DOCTYPE[^>]*>/', '', $svg);
-        $svg = preg_replace('/<!--.*?-->/s', '', $svg);
-
-        $svg = preg_replace('/<style[^>]*>.*?<\/style>/is', '', $svg);
-
-        $svg = preg_replace_callback('/style="([^"]*)"/i', function ($m) {
-            $style = preg_replace('/(fill|stroke)\s*:\s*[^;"]+;?/i', '', $m[1]);
-            $style = trim($style, " ;\t\n\r\0\x0B");
-
-            return $style === '' ? '' : 'style="' . $style . '"';
-        }, $svg);
-
-        $svg = preg_replace_callback('/\sfill="([^"]*)"/i', function ($m) {
-            $v = strtolower(trim($m[1]));
-
-            if ($v === 'none' || $v === 'transparent' || $v === '' || strpos($v, 'url(') === 0) {
-                return $m[0];
-            }
-
-            return ' fill="currentColor"';
-        }, $svg);
-
-        $svg = preg_replace_callback('/\sstroke="([^"]*)"/i', function ($m) {
-            $v = strtolower(trim($m[1]));
-
-            if ($v === 'none' || $v === 'transparent' || $v === '' || strpos($v, 'url(') === 0) {
-                return $m[0];
-            }
-
-            return ' stroke="currentColor"';
-        }, $svg);
-
-        if (!preg_match('/<svg[^>]*\sfill=/i', $svg)) {
-            $svg = preg_replace('/<svg/', '<svg fill="currentColor"', $svg, 1);
-        }
-
-        if ($class !== '') {
-            if (preg_match('/<svg[^>]*\sclass="([^"]*)"/i', $svg, $m)) {
-                $newClass = trim($m[1] . ' ' . $class);
-                $svg = preg_replace('/<svg([^>]*)\sclass="[^"]*"/i', '<svg$1 class="' . e($newClass) . '"', $svg, 1);
-            } else {
-                $svg = preg_replace('/<svg/', '<svg class="' . e($class) . '"', $svg, 1);
+            if (file_exists($path)) {
+                return asset("images/logo-white.{$ext}");
             }
         }
 
-        return $svg;
+        return null;
     }
 }
