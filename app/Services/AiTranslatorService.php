@@ -162,7 +162,7 @@ class AiTranslatorService
 
     protected function localeName(string $locale): string
     {
-        $names = [
+        $staticNames = [
             'az' => 'Azerbaijani',
             'en' => 'English',
             'ru' => 'Russian',
@@ -182,6 +182,17 @@ class AiTranslatorService
             'fa' => 'Persian',
         ];
 
-        return $names[$locale] ?? $locale;
+        if (isset($staticNames[$locale])) {
+            return $staticNames[$locale];
+        }
+
+        if (class_exists(\Locale::class)) {
+            $display = \Locale::getDisplayLanguage($locale, 'en');
+            if ($display && $display !== $locale) {
+                return $display;
+            }
+        }
+
+        return $locale;
     }
 }
