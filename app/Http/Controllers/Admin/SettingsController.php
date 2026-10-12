@@ -99,6 +99,102 @@ class SettingsController extends Controller
         return back()->with('success', __('Language settings saved.'));
     }
 
+    public function addLanguage(Request $request)
+    {
+        $data = $request->validate([
+            'locale' => ['required', 'string', 'regex:/^[a-z]{2}(_[A-Z]{2})?$/'],
+        ]);
+
+        $path = lang_path($data['locale'] . '.json');
+
+        if (file_exists($path)) {
+            return back()->with('error', __('This language already exists.'));
+        }
+
+        file_put_contents($path, json_encode([], JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+
+        return back()->with('success', __('Language added: :locale', ['locale' => strtoupper($data['locale'])]));
+    }
+
+    public function removeLanguage(string $locale)
+    {
+        if (!preg_match('/^[a-z]{2}(_[A-Z]{2})?$/', $locale)) {
+            return back()->with('error', __('Invalid locale.'));
+        }
+
+        if ($locale === config('app.locale')) {
+            return back()->with('error', __('Cannot remove the default locale.'));
+        }
+
+        $path = lang_path($locale . '.json');
+
+        if (!file_exists($path)) {
+            return back()->with('error', __('Language not found.'));
+        }
+
+        @unlink($path);
+
+        return back()->with('success', __('Language removed: :locale', ['locale' => strtoupper($locale)]));
+    }
+
+    public function translations(string $locale)
+    {
+        if (!preg_match('/^[a-z]{2}(_[A-Z]{2})?$/', $locale)) {
+            abort(404);
+        }
+
+        $basePath = lang_path(config('app.locale') . '.json');
+        $targetPath = lang_path($locale . '.json');
+
+        if (!file_exists($targetPath)) {
+            abort(404);
+        }
+
+        $baseKeys = file_exists($basePath)
+            ? array_keys(json_decode(file_get_contents($basePath), true) ?? [])
+            : [];
+
+        $existing = json_decode(file_get_contents($targetPath), true) ?? [];
+
+        $allKeys = array_values(array_unique(array_merge($baseKeys, array_keys($existing))));
+        sort($allKeys);
+
+        $translations = [];
+        foreach ($allKeys as $key) {
+            $translations[$key] = $existing[$key] ?? '';
+        }
+
+        return view('admin.settings.translations', compact('locale', 'translations'));
+    }
+
+    public function updateTranslations(Request $request, string $locale)
+    {
+        if (!preg_match('/^[a-z]{2}(_[A-Z]{2})?$/', $locale)) {
+            abort(404);
+        }
+
+        $path = lang_path($locale . '.json');
+
+        if (!file_exists($path)) {
+            abort(404);
+        }
+
+        $data = $request->validate([
+            'translations' => ['nullable', 'array'],
+            'translations.*' => ['nullable', 'string'],
+        ]);
+
+        $translations = $data['translations'] ?? [];
+
+        $translations = array_filter($translations, fn($value) => $value !== null && $value !== '');
+
+        ksort($translations);
+
+        file_put_contents($path, json_encode($translations, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+
+        return back()->with('success', __('Translations saved.'));
+    }
+
     public function email()
     {
         $options = $this->getGroup('email');
