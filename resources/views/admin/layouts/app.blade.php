@@ -131,7 +131,6 @@
                     </button>
                     <div x-show="openMenu === 'ai'" x-cloak class="pl-11 mt-1 space-y-0.5">
                         <a href="{{ route('admin.ai.index') }}" class="block px-3 py-1.5 rounded-md text-gray-400 hover:text-white hover:bg-white/5">{{ __('Overview') }}</a>
-                        <a href="{{ route('admin.ai.settings') }}" class="block px-3 py-1.5 rounded-md text-gray-400 hover:text-white hover:bg-white/5">{{ __('Settings') }}</a>
                         <a href="{{ route('admin.ai.models') }}" class="block px-3 py-1.5 rounded-md text-gray-400 hover:text-white hover:bg-white/5">{{ __('Models') }}</a>
                         <a href="{{ route('admin.ai.prompts') }}" class="block px-3 py-1.5 rounded-md text-gray-400 hover:text-white hover:bg-white/5">{{ __('Prompts') }}</a>
                         <a href="{{ route('admin.ai.usage') }}" class="block px-3 py-1.5 rounded-md text-gray-400 hover:text-white hover:bg-white/5">{{ __('Usage') }}</a>
