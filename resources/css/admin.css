@@ -1,0 +1,61 @@
+@import 'tailwindcss';
+
+@theme {
+    --color-rj-purple: #7c3aed;
+    --color-rj-purple-light: #a855f7;
+    --color-rj-pink: #ec4899;
+    --color-rj-dark-1: #1a1030;
+    --color-rj-dark-2: #231243;
+    --color-rj-dark-3: #2d1754;
+}
+
+[x-cloak] {
+    display: none !important;
+}
+
+.rj-scrollbar::-webkit-scrollbar {
+    width: 6px;
+}
+
+.rj-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.rj-scrollbar::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 3px;
+}
+
+.rj-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.16);
+}
+
+@keyframes rj-fade-in {
+    from {
+        opacity: 0;
+        transform: translateY(-4px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.rj-fade-in {
+    animation: rj-fade-in 0.18s ease-out;
+}
+
+@keyframes rj-slide-in {
+    from {
+        opacity: 0;
+        transform: translateX(-6px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.rj-slide-in {
+    animation: rj-slide-in 0.18s ease-out;
+}
