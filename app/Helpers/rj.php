@@ -228,21 +228,46 @@ if (!function_exists('rj_logo_svg')) {
 
         $svg = preg_replace('/<\?xml[^>]*\?>/', '', $svg);
         $svg = preg_replace('/<!DOCTYPE[^>]*>/', '', $svg);
+        $svg = preg_replace('/<!--.*?-->/s', '', $svg);
 
-        $svg = preg_replace_callback('/fill="([^"]*)"/i', function ($matches) {
-            $v = strtolower(trim($matches[1]));
+        $svg = preg_replace('/<style[^>]*>.*?<\/style>/is', '', $svg);
 
-            return ($v === 'none' || $v === 'transparent' || $v === '') ? $matches[0] : 'fill="currentColor"';
+        $svg = preg_replace_callback('/style="([^"]*)"/i', function ($m) {
+            $style = preg_replace('/(fill|stroke)\s*:\s*[^;"]+;?/i', '', $m[1]);
+            $style = trim($style, " ;\t\n\r\0\x0B");
+
+            return $style === '' ? '' : 'style="' . $style . '"';
         }, $svg);
 
-        $svg = preg_replace_callback('/stroke="([^"]*)"/i', function ($matches) {
-            $v = strtolower(trim($matches[1]));
+        $svg = preg_replace_callback('/\sfill="([^"]*)"/i', function ($m) {
+            $v = strtolower(trim($m[1]));
 
-            return ($v === 'none' || $v === 'transparent' || $v === '') ? $matches[0] : 'stroke="currentColor"';
+            if ($v === 'none' || $v === 'transparent' || $v === '' || strpos($v, 'url(') === 0) {
+                return $m[0];
+            }
+
+            return ' fill="currentColor"';
         }, $svg);
 
-        if ($class !== '' && preg_match('/<svg([^>]*)>/', $svg, $m)) {
-            if (stripos($m[1], 'class=') === false) {
+        $svg = preg_replace_callback('/\sstroke="([^"]*)"/i', function ($m) {
+            $v = strtolower(trim($m[1]));
+
+            if ($v === 'none' || $v === 'transparent' || $v === '' || strpos($v, 'url(') === 0) {
+                return $m[0];
+            }
+
+            return ' stroke="currentColor"';
+        }, $svg);
+
+        if (!preg_match('/<svg[^>]*\sfill=/i', $svg)) {
+            $svg = preg_replace('/<svg/', '<svg fill="currentColor"', $svg, 1);
+        }
+
+        if ($class !== '') {
+            if (preg_match('/<svg[^>]*\sclass="([^"]*)"/i', $svg, $m)) {
+                $newClass = trim($m[1] . ' ' . $class);
+                $svg = preg_replace('/<svg([^>]*)\sclass="[^"]*"/i', '<svg$1 class="' . e($newClass) . '"', $svg, 1);
+            } else {
                 $svg = preg_replace('/<svg/', '<svg class="' . e($class) . '"', $svg, 1);
             }
         }
