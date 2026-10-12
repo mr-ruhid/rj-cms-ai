@@ -5,6 +5,8 @@ use App\Http\Controllers\Admin\SettingsController;
 use App\Http\Controllers\Admin\UserController;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/admin/lang/{locale}', [\App\Http\Controllers\Admin\LangController::class, 'switch'])->name('admin.lang.switch')->middleware('auth');
+
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', fn() => redirect()->route('admin.dashboard'))->name('home');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
