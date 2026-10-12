@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\Settings\AdvancedSettingsController;
 use App\Http\Controllers\Admin\Settings\SeoSettingsController;
 use App\Http\Controllers\Admin\Settings\SocialSettingsController;
 use App\Http\Controllers\Admin\Settings\BackupSettingsController;
+use App\Http\Controllers\Admin\UpdatesController;
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', fn() => redirect()->route('admin.dashboard'))->name('home');
@@ -83,7 +84,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::view('/tools/logs', 'admin.coming-soon')->name('tools.logs');
     Route::view('/tools/diagnostics', 'admin.coming-soon')->name('tools.diagnostics');
 
-    Route::view('/updates', 'admin.coming-soon')->name('updates.index');
+    Route::get('/updates', [UpdatesController::class, 'index'])->name('updates.index');
+    Route::post('/updates/check', [UpdatesController::class, 'check'])->name('updates.check');
+    Route::put('/updates', [UpdatesController::class, 'update'])->name('updates.update');
+    Route::post('/updates/run', [UpdatesController::class, 'run'])->name('updates.run');
 
     Route::prefix('settings')->name('settings.')->group(function () {
         Route::get('/', [SettingsController::class, 'index'])->name('index');
