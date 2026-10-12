@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Mail\TestMail;
 use App\Models\Option;
+use App\Services\AiTranslatorService;
 use App\Services\OpenRouterService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
@@ -62,6 +63,57 @@ class SettingsController extends Controller
         }
 
         return back()->with('success', __('Settings saved.'));
+    }
+
+    public function writing()
+    {
+        $options = $this->getGroup('writing');
+
+        $data = [
+            'categories' => $this->categories(),
+            'postFormats' => $this->postFormats(),
+            'editors' => $this->editors(),
+            'postStatuses' => $this->postStatuses(),
+        ];
+
+        return view('admin.settings.writing', compact('options', 'data'));
+    }
+
+    public function updateWriting(Request $request)
+    {
+        $data = $request->validate([
+            'default_category' => ['required', 'string', 'max:100'],
+            'default_post_format' => ['required', 'string', 'max:50'],
+            'default_editor' => ['required', 'in:classic,block,markdown'],
+            'default_post_status' => ['required', 'in:draft,pending,publish,private'],
+            'title_max_length' => ['nullable', 'integer', 'min:10', 'max:500'],
+            'allow_comments_default' => ['nullable', 'boolean'],
+            'allow_pingbacks' => ['nullable', 'boolean'],
+            'autosave_interval' => ['nullable', 'integer', 'min:10', 'max:600'],
+            'revision_count' => ['nullable', 'integer', 'min:1', 'max:100'],
+            'excerpt_length' => ['nullable', 'integer', 'min:10', 'max:200'],
+            'slug_max_length' => ['nullable', 'integer', 'min:10', 'max:200'],
+        ]);
+
+        $booleanKeys = ['allow_comments_default', 'allow_pingbacks'];
+
+        foreach ($booleanKeys as $key) {
+            $data[$key] = $request->boolean($key) ? '1' : '0';
+        }
+
+        $typeMap = [
+            'title_max_length' => 'number',
+            'autosave_interval' => 'number',
+            'revision_count' => 'number',
+            'excerpt_length' => 'number',
+            'slug_max_length' => 'number',
+        ];
+
+        foreach ($data as $name => $value) {
+            Option::set($name, $value, 'writing', $typeMap[$name] ?? 'text');
+        }
+
+        return back()->with('success', __('Writing settings saved.'));
     }
 
     public function language()
@@ -135,7 +187,50 @@ class SettingsController extends Controller
 
         @unlink($path);
 
+        Option::forget('lang_name_' . $locale);
+        Option::forget('lang_flag_' . $locale);
+
         return back()->with('success', __('Language removed: :locale', ['locale' => strtoupper($locale)]));
+    }
+
+    public function updateLanguageMeta(Request $request, string $locale)
+    {
+        if (!preg_match('/^[a-z]{2}(_[A-Z]{2})?$/', $locale)) {
+            return back()->with('error', __('Invalid locale.'));
+        }
+
+        $data = $request->validate([
+            'name' => ['nullable', 'string', 'max:100'],
+            'flag' => ['nullable', 'file', 'mimes:svg,png,jpg,jpeg,webp', 'max:512'],
+        ]);
+
+        if (!empty($data['name'])) {
+            Option::set('lang_name_' . $locale, $data['name'], 'language');
+        } else {
+            Option::forget('lang_name_' . $locale);
+        }
+
+        if ($request->hasFile('flag')) {
+            $dir = public_path('images/flags');
+
+            if (!is_dir($dir)) {
+                mkdir($dir, 0755, true);
+            }
+
+            $existing = rj_get_option('lang_flag_' . $locale);
+            if ($existing && file_exists($dir . '/' . $existing)) {
+                @unlink($dir . '/' . $existing);
+            }
+
+            $ext = strtolower($request->file('flag')->getClientOriginalExtension());
+            $filename = $locale . '.' . $ext;
+
+            $request->file('flag')->move($dir, $filename);
+
+            Option::set('lang_flag_' . $locale, $filename, 'language');
+        }
+
+        return back()->with('success', __('Language info updated.'));
     }
 
     public function translations(string $locale)
@@ -196,47 +291,7 @@ class SettingsController extends Controller
         return back()->with('success', __('Translations saved.'));
     }
 
-        public function updateLanguageMeta(Request $request, string $locale)
-    {
-        if (!preg_match('/^[a-z]{2}(_[A-Z]{2})?$/', $locale)) {
-            return back()->with('error', __('Invalid locale.'));
-        }
-
-        $data = $request->validate([
-            'name' => ['nullable', 'string', 'max:100'],
-            'flag' => ['nullable', 'file', 'mimes:svg,png,jpg,jpeg,webp', 'max:512'],
-        ]);
-
-        if (!empty($data['name'])) {
-            Option::set('lang_name_' . $locale, $data['name'], 'language');
-        } else {
-            Option::forget('lang_name_' . $locale);
-        }
-
-        if ($request->hasFile('flag')) {
-            $dir = public_path('images/flags');
-
-            if (!is_dir($dir)) {
-                mkdir($dir, 0755, true);
-            }
-
-            $existing = rj_get_option('lang_flag_' . $locale);
-            if ($existing && file_exists($dir . '/' . $existing)) {
-                @unlink($dir . '/' . $existing);
-            }
-
-            $ext = strtolower($request->file('flag')->getClientOriginalExtension());
-            $filename = $locale . '.' . $ext;
-
-            $request->file('flag')->move($dir, $filename);
-
-            Option::set('lang_flag_' . $locale, $filename, 'language');
-        }
-
-        return back()->with('success', __('Language info updated.'));
-    }
-
-        public function aiTranslate(string $locale)
+    public function aiTranslate(string $locale)
     {
         if (!preg_match('/^[a-z]{2}(_[A-Z]{2})?$/', $locale)) {
             return back()->with('error', __('Invalid locale.'));
@@ -252,7 +307,7 @@ class SettingsController extends Controller
             return back()->with('error', __('OpenRouter API key is not configured. Please set it in Settings → AI.'));
         }
 
-        $service = new \App\Services\AiTranslatorService();
+        $service = new AiTranslatorService();
         $result = $service->translateMissing($locale);
 
         if (!$result['success']) {
@@ -504,6 +559,53 @@ class SettingsController extends Controller
             4 => __('Thursday'),
             5 => __('Friday'),
             6 => __('Saturday'),
+        ];
+    }
+
+    protected function categories(): array
+    {
+        return [
+            'uncategorized' => __('Uncategorized'),
+            'news' => __('News'),
+            'blog' => __('Blog'),
+            'tutorials' => __('Tutorials'),
+            'reviews' => __('Reviews'),
+            'announcements' => __('Announcements'),
+        ];
+    }
+
+    protected function postFormats(): array
+    {
+        return [
+            'standard' => __('Standard'),
+            'aside' => __('Aside'),
+            'gallery' => __('Gallery'),
+            'link' => __('Link'),
+            'image' => __('Image'),
+            'quote' => __('Quote'),
+            'status' => __('Status'),
+            'video' => __('Video'),
+            'audio' => __('Audio'),
+            'chat' => __('Chat'),
+        ];
+    }
+
+    protected function editors(): array
+    {
+        return [
+            'classic' => __('Classic Editor'),
+            'block' => __('Block Editor'),
+            'markdown' => __('Markdown Editor'),
+        ];
+    }
+
+    protected function postStatuses(): array
+    {
+        return [
+            'draft' => __('Draft'),
+            'pending' => __('Pending Review'),
+            'publish' => __('Published'),
+            'private' => __('Private'),
         ];
     }
 }
