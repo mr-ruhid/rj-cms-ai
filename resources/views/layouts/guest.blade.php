@@ -12,9 +12,8 @@
 <body class="font-sans antialiased">
     <div class="min-h-screen flex">
         <div class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-gray-900 via-gray-800 to-black text-white flex-col justify-between p-12">
-            <div class="flex items-center gap-3">
-                <img src="{{ asset('images/logo.svg') }}" alt="Logo" class="h-10 w-auto">
-                <span class="text-xl font-semibold">{{ rj_get_option('site_name', 'RJ CMS') }}</span>
+            <div>
+                <img src="{{ asset('images/logo.svg') }}" alt="Logo" class="h-12 w-auto">
             </div>
 
             <div>
@@ -27,9 +26,8 @@
 
         <div class="w-full lg:w-1/2 flex items-center justify-center p-6 bg-gray-50">
             <div class="w-full max-w-md">
-                <div class="lg:hidden flex items-center justify-center gap-3 mb-8">
-                    <img src="{{ asset('images/logo.svg') }}" alt="Logo" class="h-10 w-auto">
-                    <span class="text-xl font-semibold text-gray-900">{{ rj_get_option('site_name', 'RJ CMS') }}</span>
+                <div class="lg:hidden flex items-center justify-center mb-8">
+                    <img src="{{ asset('images/logo.svg') }}" alt="Logo" class="h-12 w-auto">
                 </div>
 
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
