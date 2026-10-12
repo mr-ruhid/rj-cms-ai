@@ -92,6 +92,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::delete('/language/{locale}', [SettingsController::class, 'removeLanguage'])->name('language.remove');
         Route::get('/language/{locale}/translations', [SettingsController::class, 'translations'])->name('language.translations');
         Route::put('/language/{locale}/translations', [SettingsController::class, 'updateTranslations'])->name('language.translations.update');
+        Route::post('/language/{locale}/ai-translate', [SettingsController::class, 'aiTranslate'])->name('language.ai-translate');
 
         Route::view('/colors', 'admin.coming-soon')->name('colors');
         Route::view('/seo', 'admin.coming-soon')->name('seo');
