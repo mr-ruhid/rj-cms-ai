@@ -10,6 +10,7 @@ use App\Http\Controllers\Admin\Settings\DiscussionSettingsController;
 use App\Http\Controllers\Admin\Settings\MediaSettingsController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\Settings\PermalinksSettingsController;
+use App\Http\Controllers\Admin\Settings\ColorsSettingsController;
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', fn() => redirect()->route('admin.dashboard'))->name('home');
@@ -48,7 +49,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::view('/appearance/widgets', 'admin.coming-soon')->name('appearance.widgets');
     Route::view('/appearance/menus', 'admin.coming-soon')->name('appearance.menus');
     Route::view('/appearance/editor', 'admin.coming-soon')->name('appearance.editor');
-    Route::view('/appearance/colors', 'admin.coming-soon')->name('appearance.colors');
+    Route::get('/colors', [ColorsSettingsController::class, 'index'])->name('colors');
+    Route::put('/colors', [ColorsSettingsController::class, 'update'])->name('colors.update');
     Route::view('/appearance/options', 'admin.coming-soon')->name('appearance.options');
 
     Route::view('/plugins', 'admin.coming-soon')->name('plugins.index');
