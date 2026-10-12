@@ -57,3 +57,42 @@ if (!function_exists('rj_available_locales')) {
         return array_values(array_unique($locales));
     }
 }
+if (!function_exists('rj_lang_name')) {
+    function rj_lang_name(string $locale): string
+    {
+        $custom = rj_get_option('lang_name_' . $locale);
+
+        if ($custom) {
+            return $custom;
+        }
+
+        if (class_exists(\Locale::class)) {
+            $display = \Locale::getDisplayLanguage($locale, 'en');
+
+            if ($display && $display !== $locale) {
+                return $display;
+            }
+        }
+
+        return strtoupper($locale);
+    }
+}
+
+if (!function_exists('rj_lang_flag_url')) {
+    function rj_lang_flag_url(string $locale): ?string
+    {
+        $custom = rj_get_option('lang_flag_' . $locale);
+
+        if ($custom && file_exists(public_path('images/flags/' . $custom))) {
+            return asset('images/flags/' . $custom);
+        }
+
+        foreach (['svg', 'png', 'jpg', 'jpeg', 'webp'] as $ext) {
+            if (file_exists(public_path("images/flags/{$locale}.{$ext}"))) {
+                return asset("images/flags/{$locale}.{$ext}");
+            }
+        }
+
+        return null;
+    }
+}
