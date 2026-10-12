@@ -15,6 +15,7 @@ use App\Http\Controllers\Admin\Settings\CacheSettingsController;
 use App\Http\Controllers\Admin\Settings\AdvancedSettingsController;
 use App\Http\Controllers\Admin\Settings\SeoSettingsController;
 use App\Http\Controllers\Admin\Settings\SocialSettingsController;
+use App\Http\Controllers\Admin\Settings\BackupSettingsController;
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', fn() => redirect()->route('admin.dashboard'))->name('home');
@@ -124,7 +125,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::view('/payments', 'admin.coming-soon')->name('payments');
         Route::get('/security', [SettingsController::class, 'security'])->name('security');
         Route::put('/security', [SettingsController::class, 'updateSecurity'])->name('security.update');
-        Route::view('/backup', 'admin.coming-soon')->name('backup');
+        Route::get('/backup', [BackupSettingsController::class, 'index'])->name('backup');
+        Route::put('/backup', [BackupSettingsController::class, 'update'])->name('backup.update');
+        Route::post('/backup/create', [BackupSettingsController::class, 'create'])->name('backup.create');
+        Route::get('/backup/download/{file}', [BackupSettingsController::class, 'download'])->name('backup.download');
+        Route::delete('/backup/{file}', [BackupSettingsController::class, 'delete'])->name('backup.delete');
         Route::get('/cache', [CacheSettingsController::class, 'index'])->name('cache');
         Route::put('/cache', [CacheSettingsController::class, 'update'])->name('cache.update');
         Route::get('/social', [SocialSettingsController::class, 'index'])->name('social');
