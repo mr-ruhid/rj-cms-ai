@@ -3,75 +3,48 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\User;
+use App\Models\Option;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rules\Password;
 
-class UserController extends Controller
+class SettingsController extends Controller
 {
     public function index()
     {
-        $users = User::latest()->paginate(20);
-        return view('admin.users.index', compact('users'));
+        return view('admin.settings.index');
     }
 
-    public function create()
+    public function general()
     {
-        return view('admin.users.create');
+        $options = $this->getGroup('general');
+        return view('admin.settings.general', compact('options'));
     }
 
-    public function store(Request $request)
-    {
-        $data = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
-            'password' => ['required', Password::defaults()],
-            'role' => ['required', 'in:admin,user'],
-            'status' => ['required', 'in:active,inactive'],
-        ]);
-
-        $data['password'] = Hash::make($data['password']);
-
-        User::create($data);
-
-        return redirect()->route('admin.users.index')->with('success', __('User created.'));
-    }
-
-    public function edit(User $user)
-    {
-        return view('admin.users.edit', compact('user'));
-    }
-
-    public function update(Request $request, User $user)
+    public function updateGeneral(Request $request)
     {
         $data = $request->validate([
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'email', 'max:255', 'unique:users,email,' . $user->id],
-            'password' => ['nullable', Password::defaults()],
-            'role' => ['required', 'in:admin,user'],
-            'status' => ['required', 'in:active,inactive'],
+            'site_name' => ['required', 'string', 'max:255'],
+            'site_description' => ['nullable', 'string', 'max:500'],
+            'site_url' => ['required', 'url'],
+            'admin_email' => ['required', 'email'],
+            'timezone' => ['required', 'string'],
+            'date_format' => ['required', 'string'],
+            'time_format' => ['required', 'string'],
+            'language' => ['required', 'string'],
+            'currency' => ['required', 'string'],
         ]);
 
-        if (!empty($data['password'])) {
-            $data['password'] = Hash::make($data['password']);
-        } else {
-            unset($data['password']);
+        foreach ($data as $name => $value) {
+            $type = in_array($name, ['admin_email']) ? 'email' : 'text';
+            Option::set($name, $value, 'general', $type);
         }
 
-        $user->update($data);
-
-        return redirect()->route('admin.users.index')->with('success', __('User updated.'));
+        return back()->with('success', __('Settings saved.'));
     }
 
-    public function destroy(User $user)
+    protected function getGroup(string $group): array
     {
-        if ($user->id === auth()->id()) {
-            return back()->with('error', __('You cannot delete yourself.'));
-        }
-
-        $user->delete();
-
-        return redirect()->route('admin.users.index')->with('success', __('User deleted.'));
+        return Option::where('option_group', $group)
+            ->pluck('option_value', 'option_name')
+            ->toArray();
     }
 }
