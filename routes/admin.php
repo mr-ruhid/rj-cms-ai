@@ -52,7 +52,6 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::view('/plugins/editor', 'admin.coming-soon')->name('plugins.editor');
 
     Route::view('/ai', 'admin.coming-soon')->name('ai.index');
-    Route::view('/ai/settings', 'admin.coming-soon')->name('ai.settings');
     Route::view('/ai/models', 'admin.coming-soon')->name('ai.models');
     Route::view('/ai/prompts', 'admin.coming-soon')->name('ai.prompts');
     Route::view('/ai/usage', 'admin.coming-soon')->name('ai.usage');
@@ -107,7 +106,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::view('/social', 'admin.coming-soon')->name('social');
         Route::view('/notifications', 'admin.coming-soon')->name('notifications');
         Route::view('/api', 'admin.coming-soon')->name('api');
-        Route::view('/ai', 'admin.coming-soon')->name('ai');
+
+        Route::get('/ai', [SettingsController::class, 'ai'])->name('ai');
+        Route::put('/ai', [SettingsController::class, 'updateAi'])->name('ai.update');
+        Route::post('/ai/test', [SettingsController::class, 'testAi'])->name('ai.test');
+        Route::get('/ai/models', [SettingsController::class, 'fetchAiModels'])->name('ai.models');
+
         Route::view('/advanced', 'admin.coming-soon')->name('advanced');
         Route::view('/roles', 'admin.coming-soon')->name('roles');
     });
