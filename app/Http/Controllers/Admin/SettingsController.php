@@ -18,29 +18,85 @@ class SettingsController extends Controller
     public function general()
     {
         $options = $this->getGroup('general');
-        return view('admin.settings.general', compact('options'));
+
+        $data = [
+            'timezones' => $this->timezones(),
+            'dateFormats' => $this->dateFormats(),
+            'timeFormats' => $this->timeFormats(),
+            'currencies' => $this->currencies(),
+            'weekdays' => $this->weekdays(),
+            'locales' => rj_available_locales(),
+        ];
+
+        return view('admin.settings.general', compact('options', 'data'));
     }
 
     public function updateGeneral(Request $request)
     {
         $data = $request->validate([
             'site_name' => ['required', 'string', 'max:255'],
-            'site_description' => ['nullable', 'string', 'max:500'],
+            'site_tagline' => ['nullable', 'string', 'max:500'],
             'site_url' => ['required', 'url'],
             'admin_email' => ['required', 'email'],
             'timezone' => ['required', 'string'],
+            'locale' => ['required', 'string'],
             'date_format' => ['required', 'string'],
             'time_format' => ['required', 'string'],
-            'language' => ['required', 'string'],
-            'currency' => ['required', 'string'],
+            'week_starts_on' => ['required', 'integer', 'between:0,6'],
+            'currency' => ['required', 'string', 'max:8'],
+            'currency_position' => ['required', 'in:left,right'],
+            'thousands_separator' => ['nullable', 'string', 'max:3'],
+            'decimal_separator' => ['nullable', 'string', 'max:3'],
+            'decimal_digits' => ['nullable', 'integer', 'between:0,6'],
         ]);
 
+        $typeMap = [
+            'admin_email' => 'email',
+            'week_starts_on' => 'number',
+            'decimal_digits' => 'number',
+        ];
+
         foreach ($data as $name => $value) {
-            $type = in_array($name, ['admin_email']) ? 'email' : 'text';
-            Option::set($name, $value, 'general', $type);
+            Option::set($name, $value, 'general', $typeMap[$name] ?? 'text');
         }
 
         return back()->with('success', __('Settings saved.'));
+    }
+
+    public function language()
+    {
+        $options = $this->getGroup('language');
+
+        $data = [
+            'locales' => rj_available_locales(),
+        ];
+
+        return view('admin.settings.language', compact('options', 'data'));
+    }
+
+    public function updateLanguage(Request $request)
+    {
+        $data = $request->validate([
+            'admin_locale' => ['required', 'string'],
+            'frontend_locale' => ['required', 'string'],
+            'auto_detect_locale' => ['nullable', 'boolean'],
+            'rtl_support' => ['nullable', 'boolean'],
+            'ai_translation_enabled' => ['nullable', 'boolean'],
+            'ai_translation_provider' => ['nullable', 'string'],
+            'ai_translation_auto' => ['nullable', 'boolean'],
+        ]);
+
+        $booleanKeys = ['auto_detect_locale', 'rtl_support', 'ai_translation_enabled', 'ai_translation_auto'];
+
+        foreach ($booleanKeys as $key) {
+            $data[$key] = $request->boolean($key) ? '1' : '0';
+        }
+
+        foreach ($data as $name => $value) {
+            Option::set($name, $value, 'language');
+        }
+
+        return back()->with('success', __('Language settings saved.'));
     }
 
     public function email()
@@ -149,5 +205,74 @@ class SettingsController extends Controller
         return Option::where('option_group', $group)
             ->pluck('option_value', 'option_name')
             ->toArray();
+    }
+
+    protected function timezones(): array
+    {
+        return [
+            'Pacific/Midway', 'Pacific/Honolulu', 'America/Anchorage', 'America/Los_Angeles',
+            'America/Denver', 'America/Chicago', 'America/New_York', 'America/Sao_Paulo',
+            'Atlantic/Azores', 'Europe/London', 'Europe/Paris', 'Europe/Berlin',
+            'Europe/Moscow', 'Asia/Dubai', 'Asia/Baku', 'Asia/Karachi',
+            'Asia/Kolkata', 'Asia/Dhaka', 'Asia/Bangkok', 'Asia/Shanghai',
+            'Asia/Tokyo', 'Australia/Sydney', 'Pacific/Auckland', 'UTC',
+        ];
+    }
+
+    protected function dateFormats(): array
+    {
+        return [
+            'Y-m-d' => '2026-01-15',
+            'd/m/Y' => '15/01/2026',
+            'm/d/Y' => '01/15/2026',
+            'd.m.Y' => '15.01.2026',
+            'd M Y' => '15 Jan 2026',
+            'M d, Y' => 'Jan 15, 2026',
+            'F j, Y' => 'January 15, 2026',
+            'D, M j, Y' => 'Thu, Jan 15, 2026',
+        ];
+    }
+
+    protected function timeFormats(): array
+    {
+        return [
+            'H:i' => '14:30',
+            'H:i:s' => '14:30:45',
+            'h:i A' => '02:30 PM',
+            'h:i:s A' => '02:30:45 PM',
+            'g:i a' => '2:30 pm',
+        ];
+    }
+
+    protected function currencies(): array
+    {
+        return [
+            'USD' => 'US Dollar ($)',
+            'EUR' => 'Euro (€)',
+            'GBP' => 'British Pound (£)',
+            'AZN' => 'Azerbaijani Manat (₼)',
+            'TRY' => 'Turkish Lira (₺)',
+            'RUB' => 'Russian Ruble (₽)',
+            'JPY' => 'Japanese Yen (¥)',
+            'CNY' => 'Chinese Yuan (¥)',
+            'AED' => 'UAE Dirham (د.إ)',
+            'SAR' => 'Saudi Riyal (﷼)',
+            'INR' => 'Indian Rupee (₹)',
+            'CAD' => 'Canadian Dollar (C$)',
+            'AUD' => 'Australian Dollar (A$)',
+        ];
+    }
+
+    protected function weekdays(): array
+    {
+        return [
+            0 => __('Sunday'),
+            1 => __('Monday'),
+            2 => __('Tuesday'),
+            3 => __('Wednesday'),
+            4 => __('Thursday'),
+            5 => __('Friday'),
+            6 => __('Saturday'),
+        ];
     }
 }
