@@ -13,6 +13,7 @@ use App\Http\Controllers\Admin\Settings\ColorsSettingsController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\Settings\CacheSettingsController;
 use App\Http\Controllers\Admin\Settings\AdvancedSettingsController;
+use App\Http\Controllers\Admin\Settings\SeoSettingsController;
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', fn() => redirect()->route('admin.dashboard'))->name('home');
@@ -114,7 +115,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::get('/colors', [ColorsSettingsController::class, 'index'])->name('colors');
         Route::put('/colors', [ColorsSettingsController::class, 'update'])->name('colors.update');
 
-        Route::view('/seo', 'admin.coming-soon')->name('seo');
+        Route::get('/seo', [SeoSettingsController::class, 'index'])->name('seo');
+        Route::put('/seo', [SeoSettingsController::class, 'update'])->name('seo.update');
         Route::get('/email', [SettingsController::class, 'email'])->name('email');
         Route::put('/email', [SettingsController::class, 'updateEmail'])->name('email.update');
         Route::post('/email/test', [SettingsController::class, 'testEmail'])->name('email.test');
