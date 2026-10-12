@@ -80,7 +80,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::get('/general', [SettingsController::class, 'general'])->name('general');
         Route::put('/general', [SettingsController::class, 'updateGeneral'])->name('general.update');
 
-        Route::view('/writing', 'admin.coming-soon')->name('writing');
+        Route::get('/writing', [SettingsController::class, 'writing'])->name('writing');
+        Route::put('/writing', [SettingsController::class, 'updateWriting'])->name('writing.update');
         Route::view('/reading', 'admin.coming-soon')->name('reading');
         Route::view('/discussion', 'admin.coming-soon')->name('discussion');
         Route::view('/media', 'admin.coming-soon')->name('media');
