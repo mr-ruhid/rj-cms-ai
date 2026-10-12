@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\Settings\CacheSettingsController;
 use App\Http\Controllers\Admin\Settings\AdvancedSettingsController;
 use App\Http\Controllers\Admin\Settings\SeoSettingsController;
+use App\Http\Controllers\Admin\Settings\SocialSettingsController;
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', fn() => redirect()->route('admin.dashboard'))->name('home');
@@ -126,7 +127,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::view('/backup', 'admin.coming-soon')->name('backup');
         Route::get('/cache', [CacheSettingsController::class, 'index'])->name('cache');
         Route::put('/cache', [CacheSettingsController::class, 'update'])->name('cache.update');
-        Route::post('/cache/clear/{type}', [CacheSettingsController::class, 'clear'])->name('cache.clear');
+        Route::get('/social', [SocialSettingsController::class, 'index'])->name('social');
+        Route::put('/social', [SocialSettingsController::class, 'update'])->name('social.update');
         Route::view('/social', 'admin.coming-soon')->name('social');
         Route::view('/notifications', 'admin.coming-soon')->name('notifications');
         Route::view('/api', 'admin.coming-soon')->name('api');
