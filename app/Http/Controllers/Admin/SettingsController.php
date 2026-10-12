@@ -196,6 +196,46 @@ class SettingsController extends Controller
         return back()->with('success', __('Translations saved.'));
     }
 
+        public function updateLanguageMeta(Request $request, string $locale)
+    {
+        if (!preg_match('/^[a-z]{2}(_[A-Z]{2})?$/', $locale)) {
+            return back()->with('error', __('Invalid locale.'));
+        }
+
+        $data = $request->validate([
+            'name' => ['nullable', 'string', 'max:100'],
+            'flag' => ['nullable', 'file', 'mimes:svg,png,jpg,jpeg,webp', 'max:512'],
+        ]);
+
+        if (!empty($data['name'])) {
+            Option::set('lang_name_' . $locale, $data['name'], 'language');
+        } else {
+            Option::forget('lang_name_' . $locale);
+        }
+
+        if ($request->hasFile('flag')) {
+            $dir = public_path('images/flags');
+
+            if (!is_dir($dir)) {
+                mkdir($dir, 0755, true);
+            }
+
+            $existing = rj_get_option('lang_flag_' . $locale);
+            if ($existing && file_exists($dir . '/' . $existing)) {
+                @unlink($dir . '/' . $existing);
+            }
+
+            $ext = strtolower($request->file('flag')->getClientOriginalExtension());
+            $filename = $locale . '.' . $ext;
+
+            $request->file('flag')->move($dir, $filename);
+
+            Option::set('lang_flag_' . $locale, $filename, 'language');
+        }
+
+        return back()->with('success', __('Language info updated.'));
+    }
+
         public function aiTranslate(string $locale)
     {
         if (!preg_match('/^[a-z]{2}(_[A-Z]{2})?$/', $locale)) {
