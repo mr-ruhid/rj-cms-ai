@@ -2,12 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+    --rj-purple: 124 58 237;
+    --rj-purple-light: 168 85 247;
+    --rj-pink: 236 72 153;
+    --rj-dark-1: 26 16 48;
+    --rj-dark-2: 35 18 67;
+    --rj-dark-3: 45 23 84;
+}
+
 [x-cloak] {
     display: none !important;
 }
 
 .rj-scrollbar::-webkit-scrollbar {
     width: 6px;
+    height: 6px;
 }
 
 .rj-scrollbar::-webkit-scrollbar-track {
@@ -15,40 +25,19 @@
 }
 
 .rj-scrollbar::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.08);
+    background: rgba(156, 163, 175, 0.3);
     border-radius: 3px;
 }
 
 .rj-scrollbar::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.16);
-}
-
-@keyframes rj-fade-in {
-    from {
-        opacity: 0;
-        transform: translateY(-4px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
+    background: rgba(156, 163, 175, 0.5);
 }
 
 .rj-fade-in {
-    animation: rj-fade-in 0.18s ease-out;
+    animation: rjFadeIn 0.15s ease-out;
 }
 
-@keyframes rj-slide-in {
-    from {
-        opacity: 0;
-        transform: translateX(-6px);
-    }
-    to {
-        opacity: 1;
-        transform: translateX(0);
-    }
-}
-
-.rj-slide-in {
-    animation: rj-slide-in 0.18s ease-out;
+@keyframes rjFadeIn {
+    from { opacity: 0; transform: translateY(-4px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
