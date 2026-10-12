@@ -3,8 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Mail\TestMail;
 use App\Models\Option;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
 
 class SettingsController extends Controller
 {
@@ -70,6 +72,20 @@ class SettingsController extends Controller
         }
 
         return back()->with('success', __('Email settings saved.'));
+    }
+
+    public function testEmail(Request $request)
+    {
+        $data = $request->validate([
+            'test_email' => ['required', 'email'],
+        ]);
+
+        try {
+            Mail::to($data['test_email'])->send(new TestMail());
+            return back()->with('success', __('Test email sent to :email', ['email' => $data['test_email']]));
+        } catch (\Throwable $e) {
+            return back()->with('error', __('Failed to send: :message', ['message' => $e->getMessage()]));
+        }
     }
 
     protected function getGroup(string $group): array
