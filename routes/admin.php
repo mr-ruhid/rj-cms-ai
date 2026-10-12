@@ -91,6 +91,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::view('/seo', 'admin.coming-soon')->name('seo');
         Route::get('/email', [SettingsController::class, 'email'])->name('email');
         Route::put('/email', [SettingsController::class, 'updateEmail'])->name('email.update');
+        Route::post('/email/test', [SettingsController::class, 'testEmail'])->name('email.test');
         Route::view('/payments', 'admin.coming-soon')->name('payments');
         Route::view('/security', 'admin.coming-soon')->name('security');
         Route::view('/backup', 'admin.coming-soon')->name('backup');

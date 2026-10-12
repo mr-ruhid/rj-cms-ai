@@ -88,6 +88,62 @@ class SettingsController extends Controller
         }
     }
 
+    public function security()
+    {
+        $options = $this->getGroup('security');
+        return view('admin.settings.security', compact('options'));
+    }
+
+    public function updateSecurity(Request $request)
+    {
+        $data = $request->validate([
+            'admin_2fa_enabled' => ['nullable', 'boolean'],
+            'admin_2fa_method' => ['nullable', 'in:authenticator,email,sms'],
+            'frontend_2fa_enabled' => ['nullable', 'boolean'],
+            'frontend_2fa_mobile' => ['nullable', 'boolean'],
+            'frontend_2fa_email' => ['nullable', 'boolean'],
+            'frontend_2fa_authenticator' => ['nullable', 'boolean'],
+            'kyc_enabled' => ['nullable', 'boolean'],
+            'kyc_level' => ['nullable', 'in:none,basic,standard,advanced'],
+            'kyc_required_fields' => ['nullable', 'array'],
+            'login_limit' => ['nullable', 'integer', 'min:1', 'max:100'],
+            'login_lockout_minutes' => ['nullable', 'integer', 'min:1', 'max:1440'],
+            'force_https' => ['nullable', 'boolean'],
+            'captcha_enabled' => ['nullable', 'boolean'],
+            'ip_whitelist_enabled' => ['nullable', 'boolean'],
+            'ip_whitelist' => ['nullable', 'string'],
+        ]);
+
+        $booleanKeys = [
+            'admin_2fa_enabled',
+            'frontend_2fa_enabled',
+            'frontend_2fa_mobile',
+            'frontend_2fa_email',
+            'frontend_2fa_authenticator',
+            'kyc_enabled',
+            'force_https',
+            'captcha_enabled',
+            'ip_whitelist_enabled',
+        ];
+
+        foreach ($booleanKeys as $key) {
+            $data[$key] = $request->boolean($key) ? '1' : '0';
+        }
+
+        if (!isset($data['kyc_required_fields'])) {
+            $data['kyc_required_fields'] = [];
+        }
+
+        foreach ($data as $name => $value) {
+            if (is_array($value)) {
+                $value = json_encode($value);
+            }
+            Option::set($name, $value, 'security');
+        }
+
+        return back()->with('success', __('Security settings saved.'));
+    }
+
     protected function getGroup(string $group): array
     {
         return Option::where('option_group', $group)
