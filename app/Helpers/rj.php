@@ -214,3 +214,39 @@ if (!function_exists('rj_css_variables')) {
         return implode(' ', $vars);
     }
 }
+
+if (!function_exists('rj_logo_svg')) {
+    function rj_logo_svg(string $class = ''): string
+    {
+        $path = public_path('images/logo.svg');
+
+        if (!file_exists($path)) {
+            return '<span class="' . e($class) . ' font-bold text-lg">RJ CMS</span>';
+        }
+
+        $svg = file_get_contents($path);
+
+        $svg = preg_replace('/<\?xml[^>]*\?>/', '', $svg);
+        $svg = preg_replace('/<!DOCTYPE[^>]*>/', '', $svg);
+
+        $svg = preg_replace_callback('/fill="([^"]*)"/i', function ($matches) {
+            $v = strtolower(trim($matches[1]));
+
+            return ($v === 'none' || $v === 'transparent' || $v === '') ? $matches[0] : 'fill="currentColor"';
+        }, $svg);
+
+        $svg = preg_replace_callback('/stroke="([^"]*)"/i', function ($matches) {
+            $v = strtolower(trim($matches[1]));
+
+            return ($v === 'none' || $v === 'transparent' || $v === '') ? $matches[0] : 'stroke="currentColor"';
+        }, $svg);
+
+        if ($class !== '' && preg_match('/<svg([^>]*)>/', $svg, $m)) {
+            if (stripos($m[1], 'class=') === false) {
+                $svg = preg_replace('/<svg/', '<svg class="' . e($class) . '"', $svg, 1);
+            }
+        }
+
+        return $svg;
+    }
+}

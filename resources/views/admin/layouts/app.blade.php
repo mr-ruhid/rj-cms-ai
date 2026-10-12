@@ -7,8 +7,8 @@
     <title>@yield('title', __('Dashboard')) - {{ config('app.name') }}</title>
     <link rel="preconnect" href="https://fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
-    <style>:root { {!! rj_css_variables() !!} }</style>
     @vite(['resources/css/admin.css', 'resources/js/app.js'])
+    <style>:root { {!! rj_css_variables() !!} }</style>
 </head>
 <body class="font-sans bg-gray-50 text-gray-900 antialiased">
     <div class="flex min-h-screen" x-data="{ openMenu: null, userMenu: false, langMenu: false }">
