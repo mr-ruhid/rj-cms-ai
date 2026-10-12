@@ -15,8 +15,8 @@
 
         <aside class="w-64 bg-gradient-to-b from-rj-dark-1 via-rj-dark-2 to-rj-dark-1 text-gray-300 flex-shrink-0 flex flex-col">
             <div class="h-20 flex items-center justify-center px-5 border-b border-white/5">
-                <a href="{{ route('admin.dashboard') }}">
-                    <img src="{{ asset('images/logo.svg') }}" alt="Logo" class="h-12 w-auto">
+                <a href="{{ route('admin.dashboard') }}" class="text-rj-purple-light hover:opacity-90 transition inline-flex items-center">
+                    {!! rj_logo_svg('h-12 w-auto') !!}
                 </a>
             </div>
 
