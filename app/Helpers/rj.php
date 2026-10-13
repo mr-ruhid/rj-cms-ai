@@ -423,3 +423,44 @@ if (!function_exists('rj_menu_options')) {
             ->toArray();
     }
 }
+
+if (!function_exists('rj_menu_tree')) {
+    function rj_menu_tree(): array
+    {
+        if (!class_exists(\App\Models\Menu::class)) {
+            return [];
+        }
+
+        $menus = \App\Models\Menu::with('items.children')->get();
+        $result = [];
+
+        foreach ($menus as $menu) {
+            $roots = $menu->items->whereNull('parent_id')->sortBy('sort_order')->values();
+
+            $result[$menu->id] = [
+                'id' => $menu->id,
+                'name' => $menu->name,
+                'location' => $menu->location,
+                'items' => $roots->map(function ($item) {
+                    return [
+                        'id' => $item->id,
+                        'label' => $item->label,
+                        'url' => $item->resolvedUrl(),
+                        'target' => $item->target,
+                        'children' => $item->children->sortBy('sort_order')->values()->map(function ($child) {
+                            return [
+                                'id' => $child->id,
+                                'label' => $child->label,
+                                'url' => $child->resolvedUrl(),
+                                'target' => $child->target,
+                                'children' => [],
+                            ];
+                        })->toArray(),
+                    ];
+                })->toArray(),
+            ];
+        }
+
+        return $result;
+    }
+}
