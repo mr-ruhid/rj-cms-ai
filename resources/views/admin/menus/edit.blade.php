@@ -29,13 +29,12 @@
                     <p class="text-sm text-gray-500 mt-1">{{ __('Choose a type and add it to the menu.') }}</p>
                 </div>
 
-                <div class="p-6">
-                    <div class="flex gap-1 mb-4 flex-wrap border-b border-gray-100 -mb-px">
+                    <div class="flex gap-1 mb-4 overflow-x-auto rj-scrollbar border-b border-gray-100" style="margin-bottom:-1px;">
                         @foreach (\App\Models\MenuItem::types() as $key => $meta)
                             <button type="button"
                                     @click="activeType = '{{ $key }}'; loadOptions('{{ $key }}')"
                                     :class="activeType === '{{ $key }}' ? 'border-rj-purple text-rj-purple' : 'border-transparent text-gray-500 hover:text-gray-700'"
-                                    class="px-4 py-2 border-b-2 text-sm font-medium transition flex items-center gap-1.5">
+                                    class="px-3 py-2 border-b-2 text-xs font-medium transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0">
                                 <span>{{ $meta['icon'] }}</span>
                                 <span>{{ $meta['label'] }}</span>
                             </button>
