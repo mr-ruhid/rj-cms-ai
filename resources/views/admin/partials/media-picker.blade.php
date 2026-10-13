@@ -1,6 +1,6 @@
 <div x-data="mediaPicker()" x-init="init()" @open-media-picker.window="open($event.detail)">
 
-    <div x-show="isOpen" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4"
+    <div x-show="isOpen" x-cloak class="fixed inset-0 z-[9999] flex items-center justify-center p-4"
          @keydown.escape.window="close()">
 
         <div x-show="isOpen" x-transition.opacity
@@ -144,7 +144,7 @@ function mediaPicker() {
         init() {},
 
         open(detail) {
-            this.target = detail;
+            this.target = detail.value;
             this.selected = null;
             this.items = [];
             this.page = 1;
