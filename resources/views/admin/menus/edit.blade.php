@@ -225,6 +225,13 @@
 
 </div>
 
+<script>
+function toggleEdit(id) {
+    const el = document.getElementById('edit-item-' + id);
+    if (el) el.classList.toggle('hidden');
+}
+</script>
+
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.6/Sortable.min.js"></script>
 <script>
 function menuEditor() {
