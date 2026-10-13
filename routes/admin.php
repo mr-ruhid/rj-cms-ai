@@ -49,6 +49,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::view('/pages/create', 'admin.coming-soon')->name('pages.create');
 
     Route::get('/media', [MediaController::class, 'index'])->name('media.index');
+    Route::get('/media/picker', [MediaController::class, 'picker'])->name('media.picker');
     Route::get('/media/create', [MediaController::class, 'create'])->name('media.create');
     Route::post('/media', [MediaController::class, 'store'])->name('media.store');
     Route::post('/media/bulk-delete', [MediaController::class, 'bulkDestroy'])->name('media.bulk-delete');
