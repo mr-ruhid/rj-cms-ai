@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\Settings\SeoSettingsController;
 use App\Http\Controllers\Admin\Settings\SocialSettingsController;
 use App\Http\Controllers\Admin\Settings\BackupSettingsController;
 use App\Http\Controllers\Admin\UpdatesController;
+use App\Http\Controllers\Admin\MediaController;
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', fn() => redirect()->route('admin.dashboard'))->name('home');
@@ -40,8 +41,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::view('/pages', 'admin.coming-soon')->name('pages.index');
     Route::view('/pages/create', 'admin.coming-soon')->name('pages.create');
 
-    Route::view('/media', 'admin.coming-soon')->name('media.index');
-    Route::view('/media/create', 'admin.coming-soon')->name('media.create');
+    Route::get('/media', [MediaController::class, 'index'])->name('media.index');
+    Route::get('/media/create', [MediaController::class, 'create'])->name('media.create');
+    Route::post('/media', [MediaController::class, 'store'])->name('media.store');
+    Route::post('/media/bulk-delete', [MediaController::class, 'bulkDestroy'])->name('media.bulk-delete');
+    Route::get('/media/{medium}/edit', [MediaController::class, 'edit'])->name('media.edit');
+    Route::put('/media/{medium}', [MediaController::class, 'update'])->name('media.update');
+    Route::delete('/media/{medium}', [MediaController::class, 'destroy'])->name('media.destroy');
 
     Route::view('/comments', 'admin.coming-soon')->name('comments.index');
     Route::view('/comments/pending', 'admin.coming-soon')->name('comments.pending');
