@@ -262,14 +262,16 @@ function builderRender() {
                 `;
 
                 const hamburgerNav = `
-                    <nav class="${uid}-nav" style="width:100%; position:relative;">
-                        <input type="checkbox" id="${uid}-toggle" class="rj-burger-toggle" style="display:none;">
-                        <label for="${uid}-toggle" class="rj-burger-btn" style="display:inline-flex; align-items:center; justify-content:center; width:40px; height:40px; border-radius:8px; background:#f3f4f6; cursor:pointer; color:${textColor};">
-                            <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
-                        </label>
-                        <ul class="rj-burger-list" style="list-style:none; margin:0; padding:8px; position:absolute; top:calc(100% + 6px); ${align === 'right' ? 'right:0;' : align === 'center' ? 'left:50%; transform:translateX(-50%);' : 'left:0;'} min-width:220px; background:${dropdownBg}; ${dropdownBorder ? 'border:1px solid #e5e7eb;' : ''} border-radius:10px; box-shadow:0 12px 30px rgba(0,0,0,.15); opacity:0; visibility:hidden; transition:all .15s; z-index:50;">
-                            ${renderItems(items, 0)}
-                        </ul>
+                    <nav class="${uid}-nav" style="width:100%;">
+                        <div style="position:relative; display:inline-block;">
+                            <input type="checkbox" id="${uid}-toggle" class="rj-burger-toggle" style="display:none;">
+                            <label for="${uid}-toggle" class="rj-burger-btn" style="display:inline-flex; align-items:center; justify-content:center; width:42px; height:42px; border-radius:10px; background:#f3f4f6; cursor:pointer; color:${textColor}; transition:all .15s;">
+                                <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                            </label>
+                            <ul class="rj-burger-list" style="list-style:none; margin:0; padding:8px; position:absolute; top:calc(100% + 8px); left:0; min-width:200px; max-width:280px; background:${dropdownBg}; ${dropdownBorder ? 'border:1px solid #e5e7eb;' : ''} border-radius:10px; box-shadow:0 12px 30px rgba(0,0,0,.15); opacity:0; visibility:hidden; transform:translateY(-4px); transition:all .15s; z-index:50;">
+                                ${renderItems(items, 0)}
+                            </ul>
+                        </div>
                     </nav>
                 `;
 
@@ -278,8 +280,11 @@ function builderRender() {
                     .${uid}-nav li:hover > .rj-dropdown { opacity:1 !important; visibility:visible !important; transform:translateY(0) !important; }
                     .${uid}-nav .rj-dropdown .rj-hover-item:hover { background:${hoverColor}10 !important; color:${hoverColor} !important; }
                     .${uid}-nav .rj-dropdown .rj-hover-item { display:block; }
-                    .${uid}-nav .rj-burger-toggle:checked ~ .rj-burger-list { opacity:1 !important; visibility:visible !important; }
+                    .${uid}-nav .rj-burger-toggle:checked ~ .rj-burger-list { opacity:1 !important; visibility:visible !important; transform:translateY(0) !important; }
                     .${uid}-nav .rj-burger-btn:hover { background:${hoverColor}15; color:${hoverColor}; }
+                    .${uid}-nav .rj-burger-list .rj-mi { display:block; width:100%; }
+                    .${uid}-nav .rj-burger-list .rj-hover-item { display:block !important; width:100%; text-align:left; padding:10px 12px !important; }
+                    .${uid}-nav .rj-burger-list .rj-dropdown { position:static !important; opacity:1 !important; visibility:visible !important; transform:none !important; box-shadow:none !important; margin:2px 0 4px 16px !important; padding-left:8px !important; border-left:2px solid ${hoverColor}40 !important; }
                 `;
 
                 const infoBar = !this.preview
