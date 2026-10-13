@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\Settings\SocialSettingsController;
 use App\Http\Controllers\Admin\Settings\BackupSettingsController;
 use App\Http\Controllers\Admin\UpdatesController;
 use App\Http\Controllers\Admin\MediaController;
+use App\Http\Controllers\Admin\MediaCleanupController;
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', fn() => redirect()->route('admin.dashboard'))->name('home');
@@ -48,6 +49,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/media/{medium}/edit', [MediaController::class, 'edit'])->name('media.edit');
     Route::put('/media/{medium}', [MediaController::class, 'update'])->name('media.update');
     Route::delete('/media/{medium}', [MediaController::class, 'destroy'])->name('media.destroy');
+    Route::get('/media-cleanup', [MediaCleanupController::class, 'index'])->name('media.cleanup');
+    Route::post('/media-cleanup/delete', [MediaCleanupController::class, 'delete'])->name('media.cleanup.delete');
+    Route::post('/media-cleanup/prune-db', [MediaCleanupController::class, 'pruneDatabase'])->name('media.cleanup.prune-db');
 
     Route::view('/comments', 'admin.coming-soon')->name('comments.index');
     Route::view('/comments/pending', 'admin.coming-soon')->name('comments.pending');
