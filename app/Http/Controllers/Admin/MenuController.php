@@ -12,16 +12,12 @@ class MenuController extends Controller
     public function index()
     {
         $menus = Menu::withCount('items')->orderBy('name')->get();
-
-        return view('admin.menus.index', compact('menus'));
-    }
-
-    public function create()
-    {
         $locations = Menu::locations();
 
-        return view('admin.menus.create', compact('locations'));
+        return view('admin.menus.index', compact('menus', 'locations'));
     }
+
+
 
     public function store(Request $request)
     {
