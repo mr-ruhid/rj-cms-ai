@@ -1,0 +1,419 @@
+@verbatim
+<script>
+function builderState() {
+    const L = window.RJ;
+
+    return {
+        widgets: L.widgets,
+        categories: L.categories || {},
+        blocks: L.blocks,
+        selectedBlock: null,
+        widgetSearch: '',
+        catFilter: 'all',
+        saving: false,
+        saved: true,
+        savedSnap: '',
+        history: [],
+        historyIndex: -1,
+        clipboard: null,
+        mediaPickerTarget: null,
+        dragging: null,
+        dragTarget: null,
+        showLayoutPicker: false,
+        _inited: false,
+
+        panel: 'add',
+        panelOpen: true,
+        editTab: 'content',
+        collapsed: {},
+        navCollapsed: {},
+        favs: rjStore.get('rj.favs', []),
+        recents: rjStore.get('rj.recent', []),
+        prefs: Object.assign({ outlines: true, autosave: false, zoom: 100 }, rjStore.get('rj.prefs', {})),
+
+        device: 'desktop',
+        preview: false,
+        previewRun: 0,
+        animPlayId: null,
+        toast: { show: false, message: '', type: 'success' },
+
+        templateType: L.templateType,
+        baseLocale: L.baseLocale,
+        locales: (function (l) { return Array.isArray(l) ? l : Object.keys(l || {}); })(L.locales),
+        activeLocale: L.baseLocale,
+        translatableFields: ['text', 'alt', 'caption', 'title', 'subtitle', 'description', 'label', 'button_text', 'content', 'placeholder'],
+
+        devices: [
+            { id: 'desktop', label: 'Desktop', svg: rjSVG('<path d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>') },
+            { id: 'tablet',  label: 'Tablet',  svg: rjSVG('<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M11 18h2"/>') },
+            { id: 'mobile',  label: 'Mobile',  svg: rjSVG('<rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2"/>') },
+        ],
+
+        layoutPresets: [
+            { key: '1col',   title: '1 Column',   rows: [[1]] },
+            { key: '2col',   title: '2 Columns',  rows: [[1, 1]] },
+            { key: '3col',   title: '3 Columns',  rows: [[1, 1, 1]] },
+            { key: '4col',   title: '4 Columns',  rows: [[1, 1, 1, 1]] },
+            { key: '2row',   title: '2 Rows',     rows: [[1], [1]] },
+            { key: '1plus2', title: '1 + 2',      rows: [[1], [1, 1]] },
+            { key: '2row3',  title: '2 Rows × 3', rows: [[1, 1, 1], [1, 1, 1]] },
+        ],
+
+        shortcuts: [
+            ['Ctrl S', 'Save'], ['Ctrl Z', 'Undo'], ['Ctrl Shift Z', 'Redo'], ['Ctrl D', 'Duplicate'],
+            ['Ctrl C / V', 'Copy / Paste'], ['Del', 'Delete'], ['Alt ↑ / ↓', 'Move up / down'], ['P', 'Preview'], ['Esc', 'Deselect / exit preview'],
+        ],
+
+        advancedSchema: [
+            { name: '_animation', label: 'Entrance animation', type: 'select', default: 'none', options: {
+                none: 'None', fadeIn: 'Fade In', fadeInUp: 'Fade In Up', fadeInDown: 'Fade In Down',
+                fadeInLeft: 'Fade In Left', fadeInRight: 'Fade In Right', zoomIn: 'Zoom In',
+                bounceIn: 'Bounce In', flipInX: 'Flip In X', rotateIn: 'Rotate In',
+                slideUp: 'Slide Reveal', blurIn: 'Blur In', pulse: 'Pulse',
+            }},
+            { name: '_animation_duration', label: 'Duration', type: 'select', default: 'md', options: { sm: 'Fast (300ms)', md: 'Normal (600ms)', lg: 'Slow (1s)', xl: 'Very slow (1.5s)' } },
+            { name: '_animation_delay', label: 'Delay', type: 'select', default: '0', options: { '0': 'None', '200ms': '200ms', '400ms': '400ms', '600ms': '600ms', '1s': '1s' } },
+            { name: '_hover', label: 'Hover effect', type: 'select', default: 'none', options: { none: 'None', grow: 'Grow', lift: 'Lift + shadow', glow: 'Glow', tilt: '3D tilt', float: 'Float' } },
+            { name: '_hide_desktop', label: 'Hide on desktop', type: 'toggle' },
+            { name: '_hide_tablet', label: 'Hide on tablet', type: 'toggle' },
+            { name: '_hide_mobile', label: 'Hide on mobile', type: 'toggle' },
+            { name: '_css_class', label: 'Custom CSS class', type: 'text' },
+        ],
+
+        /* ───────── getters ───────── */
+        get canUndo() { return this.historyIndex > 0; },
+        get canRedo() { return this.historyIndex < this.history.length - 1; },
+
+        get shownPanel() {
+            if (this.panel === 'edit' && !this.selectedBlock) return 'add';
+            return this.panel;
+        },
+
+        get currentBlock() {
+            if (!this.selectedBlock) return null;
+            return this.findBlock(this.selectedBlock);
+        },
+
+        get currentSchema() {
+            if (!this.currentBlock) return [];
+            const w = this.widgets.find(x => x.id === this.currentBlock.type);
+            return w ? (w.schema || []) : [];
+        },
+
+        get currentSettings() {
+            if (!this.currentBlock) return {};
+            return this.currentBlock.settings || {};
+        },
+
+        get activeFields() {
+            if (this.editTab === 'advanced') return this.advancedSchema;
+            const wantStyle = this.editTab === 'style';
+            return this.currentSchema.filter(f => this.isStyleField(f) === wantStyle);
+        },
+
+        get breadcrumb() {
+            if (!this.selectedBlock) return [];
+            return this.findPath(this.selectedBlock) || [];
+        },
+
+        get categoryList() {
+            const keys = Object.keys(this.categories);
+            const used = new Set(this.widgets.map(w => w.category));
+            const list = keys.filter(k => used.has(k)).map(k => ({ key: k, label: this.categories[k].label || k, icon: this.categories[k].icon || '' }));
+            const extra = [...used].filter(k => !keys.includes(k));
+            if (extra.length) list.push({ key: '__other', label: 'Other', icon: '•' });
+            return list;
+        },
+
+        get widgetSections() {
+            const q = this.widgetSearch.trim().toLowerCase();
+            const match = (w) => !q || w.name.toLowerCase().includes(q) || w.id.toLowerCase().includes(q);
+            const byId = (id) => this.widgets.find(w => w.id === id);
+            const out = [];
+
+            if (!q && this.catFilter === 'all') {
+                out.push({ key: '__fav', kind: 'fav', icon: '☆', label: this.t('Favourite elements'), items: this.favs.map(byId).filter(Boolean) });
+                const rec = this.recents.map(byId).filter(Boolean);
+                if (rec.length) out.push({ key: '__rec', kind: 'rec', icon: '◷', label: this.t('Recently used'), items: rec });
+            }
+
+            const known = Object.keys(this.categories);
+            this.categoryList.forEach(c => {
+                if (this.catFilter !== 'all' && this.catFilter !== c.key) return;
+                const items = this.widgets.filter(w => (c.key === '__other' ? !known.includes(w.category) : w.category === c.key) && match(w));
+                if (items.length) out.push({ key: c.key, kind: 'cat', icon: c.icon, label: c.label, items });
+            });
+
+            return out;
+        },
+
+        get sectionTemplates() {
+            if (!this.hasWidget('heading') || !this.hasWidget('text')) return [];
+            const list = [
+                { key: 'hero', title: 'Hero', desc: 'Large headline with a short intro.' },
+                { key: 'features', title: 'Three features', desc: 'Three columns, each with a title and text.' },
+                { key: 'cta', title: 'Call to action', desc: 'Dark banner with a headline and one line.' },
+            ];
+            if (this.hasWidget('image')) list.splice(2, 0, { key: 'split', title: 'Image + text', desc: 'Picture on the left, copy on the right.' });
+            return list;
+        },
+
+        get historyList() {
+            return this.history.map((h, i) => ({ i, label: h.label, t: h.t })).reverse();
+        },
+
+        get deviceLabel() {
+            const d = this.devices.find(x => x.id === this.device);
+            return d ? d.label : 'Desktop';
+        },
+
+        get deviceWidthLabel() {
+            return { desktop: this.t('Full width'), tablet: '820 px', mobile: '420 px' }[this.device];
+        },
+
+        get canvasStyle() {
+            const z = this.prefs.zoom;
+            const zoom = (!this.preview && z !== 100) ? ` zoom:${z / 100};` : '';
+            if (this.preview) {
+                if (this.device === 'desktop') return 'max-width:100%;' + 'background:#fff; min-height:100%;';
+                const w = this.device === 'tablet' ? '820px' : '420px';
+                return `max-width:${w}; background:#fff; box-shadow:0 0 0 1px #cfd3db, 0 20px 50px rgba(17,24,39,.18); margin-top:24px; margin-bottom:24px; border-radius:18px; overflow:hidden;`;
+            }
+            if (this.device === 'desktop') return 'max-width:1152px;' + zoom;
+            const w = this.device === 'tablet' ? '820px' : '420px';
+            return `max-width:${w}; padding:24px 12px;${zoom}`;
+        },
+
+        /* ───────── lifecycle ───────── */
+        init() {
+            if (this._inited) return;
+            this._inited = true;
+
+            this.savedSnap = JSON.stringify(this.blocks);
+            this.pushHistory(this.t('Initial state'));
+
+            this.$watch('activeLocale', () => { if (this.preview) this.runPreviewAnimations(); });
+            this.$watch('selectedBlock', (v) => { if (v) this.editTab = this.editTab || 'content'; });
+
+            setTimeout(() => { window.__builder = this; }, 50);
+            window.__builder = this;
+
+            setInterval(() => {
+                if (this.prefs.autosave && !this.saved && !this.saving && !this.preview) this.save(true);
+            }, 30000);
+        },
+
+        t(s) { return (L.i18n && L.i18n[s]) || s; },
+
+        onKey(e) {
+            const t = e.target;
+            const typing = t && (['INPUT', 'TEXTAREA', 'SELECT'].includes(t.tagName) || t.isContentEditable);
+            const mod = e.ctrlKey || e.metaKey;
+            const key = (e.key || '').toLowerCase();
+
+            if (mod && key === 's') { e.preventDefault(); this.save(); return; }
+            if (key === 'escape') {
+                if (this.preview) this.togglePreview();
+                else if (!typing) this.selectedBlock = null;
+                return;
+            }
+            if (typing) return;
+            if (!mod && !e.altKey && key === 'p') { e.preventDefault(); this.togglePreview(); return; }
+            if (this.preview) return;
+
+            if (mod && key === 'z') { e.preventDefault(); e.shiftKey ? this.redo() : this.undo(); return; }
+            if (mod && key === 'y') { e.preventDefault(); this.redo(); return; }
+            if (mod && key === 'd' && this.selectedBlock) { e.preventDefault(); this.duplicateSelected(); return; }
+            if (mod && key === 'c' && this.selectedBlock && !String(window.getSelection()).length) { e.preventDefault(); this.copySelected(); return; }
+            if (mod && key === 'v') { e.preventDefault(); this.pasteBlock(); return; }
+            if (e.altKey && key === 'arrowup' && this.selectedBlock) { e.preventDefault(); this.moveUp(this.selectedBlock); return; }
+            if (e.altKey && key === 'arrowdown' && this.selectedBlock) { e.preventDefault(); this.moveDown(this.selectedBlock); return; }
+            if ((key === 'delete' || key === 'backspace') && this.selectedBlock) { e.preventDefault(); this.removeSelected(); }
+        },
+
+        showToast(message, type) {
+            this.toast = { show: true, message, type: type || 'success' };
+            clearTimeout(this._toastTimer);
+            this._toastTimer = setTimeout(() => { this.toast.show = false; }, 2200);
+        },
+
+        /* ───────── panels / favourites / prefs ───────── */
+        openPanel(name) {
+            if (this.shownPanel === name && this.panelOpen) { this.panelOpen = false; return; }
+            this.panel = name;
+            this.panelOpen = true;
+        },
+
+        isFav(id) { return this.favs.includes(id); },
+        toggleFav(id) {
+            this.favs = this.isFav(id) ? this.favs.filter(x => x !== id) : [...this.favs, id];
+            rjStore.set('rj.favs', this.favs);
+        },
+        touchRecent(id) {
+            if (id === 'container') return;
+            this.recents = [id, ...this.recents.filter(x => x !== id)].slice(0, 6);
+            rjStore.set('rj.recent', this.recents);
+        },
+        isCollapsed(key) { return !this.widgetSearch && !!this.collapsed[key]; },
+        toggleSec(key) { this.collapsed = Object.assign({}, this.collapsed, { [key]: !this.collapsed[key] }); },
+        setPref(key, value) {
+            this.prefs = Object.assign({}, this.prefs, { [key]: value });
+            rjStore.set('rj.prefs', this.prefs);
+        },
+
+        ago(ts) {
+            const s = Math.round((Date.now() - ts) / 1000);
+            if (s < 10) return this.t('now');
+            if (s < 60) return s + 's';
+            if (s < 3600) return Math.floor(s / 60) + 'm';
+            return Math.floor(s / 3600) + 'h';
+        },
+
+        /* ───────── helpers ───────── */
+        esc(s) {
+            return String(s == null ? '' : s)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        },
+
+        isStyleField(f) {
+            if (f.tab) return f.tab === 'style';
+            return /color|background|bg|padding|margin|gap|border|radius|rounded|size|align|width|height|font|weight|shadow|spacing|opacity/i.test(f.name);
+        },
+
+        isTranslatableField(name) {
+            if (this.templateType !== 'page') return false;
+            return this.translatableFields.includes(name);
+        },
+
+        getBlockField(block, name) {
+            const s = block.settings || {};
+            if (!this.isTranslatableField(name) || this.activeLocale === this.baseLocale) return s[name];
+            const tr = (s.translations || {})[this.activeLocale] || {};
+            return tr[name] !== undefined ? tr[name] : s[name];
+        },
+
+        getBlockText(block) {
+            return this.getBlockField(block, 'text') || '';
+        },
+
+        setBlockField(block, name, value) {
+            const s = block.settings = block.settings || {};
+            if (!this.isTranslatableField(name) || this.activeLocale === this.baseLocale) {
+                s[name] = value;
+                return;
+            }
+            if (!s.translations) s.translations = {};
+            if (!s.translations[this.activeLocale]) s.translations[this.activeLocale] = {};
+            s.translations[this.activeLocale][name] = value;
+        },
+
+        fieldValue(field) {
+            const b = this.currentBlock;
+            if (b) {
+                const v = this.getBlockField(b, field.name);
+                if (v !== undefined && v !== null) return v;
+            }
+            return field.default !== undefined ? field.default : '';
+        },
+
+        isDefault(field) {
+            const b = this.currentBlock;
+            if (!b) return true;
+            const v = this.getBlockField(b, field.name);
+            if (v === undefined || v === null) return true;
+            const d = field.default !== undefined ? field.default : '';
+            return String(v) === String(d) || (field.type === 'toggle' && !v && !d);
+        },
+
+        resetField(field) {
+            const b = this.currentBlock;
+            if (!b) return;
+            if (this.isTranslatableField(field.name) && this.activeLocale !== this.baseLocale) {
+                const tr = (b.settings.translations || {})[this.activeLocale];
+                if (tr) delete tr[field.name];
+            } else {
+                this.setBlockField(b, field.name, field.default !== undefined ? field.default : '');
+            }
+            this.markDirty();
+            this.commitSoon(this.t('Edited') + ' ' + this.blockLabel(b.type));
+        },
+
+        colorHex(v) {
+            return /^#[0-9a-f]{6}$/i.test(v || '') ? v : '#000000';
+        },
+
+        hasWidget(id) { return this.widgets.some(w => w.id === id); },
+
+        blockLabel(type) {
+            const w = this.widgets.find(x => x.id === type);
+            return w ? w.name : type;
+        },
+
+        currentBlockTypeLabel() {
+            return this.currentBlock ? this.blockLabel(this.currentBlock.type) : '';
+        },
+
+        generateId() {
+            return 'blk_' + Math.random().toString(36).slice(2, 11);
+        },
+
+        findBlock(id, list) {
+            list = list || this.blocks;
+            for (const b of list) {
+                if (b.id === id) return b;
+                if (b.children && b.children.length) {
+                    const found = this.findBlock(id, b.children);
+                    if (found) return found;
+                }
+            }
+            return null;
+        },
+
+        findBlockAndParent(id, list, parent) {
+            list = list || this.blocks;
+            parent = parent || null;
+            for (let i = 0; i < list.length; i++) {
+                if (list[i].id === id) return { block: list[i], parent: parent, index: i, list: list };
+                if (list[i].children && list[i].children.length) {
+                    const found = this.findBlockAndParent(id, list[i].children, list[i]);
+                    if (found) return found;
+                }
+            }
+            return null;
+        },
+
+        findPath(id, list, trail) {
+            list = list || this.blocks;
+            trail = trail || [];
+            for (const b of list) {
+                const next = trail.concat([b]);
+                if (b.id === id) return next;
+                if (b.children && b.children.length) {
+                    const found = this.findPath(id, b.children, next);
+                    if (found) return found;
+                }
+            }
+            return null;
+        },
+
+        emptySlot() {
+            return this.createBlock('container', { columns: '1' });
+        },
+
+        createBlock(widgetId, settingsOverride) {
+            const w = this.widgets.find(x => x.id === widgetId);
+            const defaults = w ? JSON.parse(JSON.stringify(w.defaults || {})) : {};
+            const settings = Object.assign({}, defaults, settingsOverride || {});
+
+            return {
+                id: this.generateId(),
+                type: widgetId,
+                settings: settings,
+                children: [],
+            };
+        },
+    };
+}
+</script>
+@endverbatim
