@@ -1,6 +1,6 @@
 <div x-data="mediaPicker()" x-init="init()" @open-media-picker.window="open($event.detail)">
 
-    <div x-show="isOpen" x-cloak class="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+    <div x-show="isOpen" x-cloak class="fixed inset-y-0 right-0 left-64 z-[9999] flex items-center justify-center p-4"
          @keydown.escape.window="close()">
 
         <div x-show="isOpen" x-transition.opacity
