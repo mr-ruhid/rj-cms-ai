@@ -11,6 +11,7 @@ window.RJ = {
     categories: @json($categoriesData),
     blocks: @json($blocksData),
     i18n: @json($i18n),
+    menus: @json($menusData ?? []),
 };
 </script>
 
