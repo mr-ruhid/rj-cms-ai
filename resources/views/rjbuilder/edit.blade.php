@@ -102,8 +102,8 @@
             </div>
         </aside>
 
-        <main class="flex-1 bg-gray-50 overflow-y-auto rj-scrollbar relative">
-            <div class="min-h-full py-12 px-6">
+        <main class="flex-1 bg-gray-50 overflow-y-auto rj-scrollbar relative" style="overscroll-behavior: contain;">
+            <div class="min-h-full py-12 px-6 pb-32">
 
                 <div x-show="blocks.length === 0" class="max-w-5xl mx-auto">
                     <div class="text-center mb-10">
@@ -185,7 +185,7 @@
                         <div class="w-full h-1 bg-rj-purple rounded-full"></div>
                     </div>
 
-                    <div class="mt-10 flex items-center justify-center">
+                    <div class="mt-10 mb-20 flex items-center justify-center">
                         <button type="button" @click="showLayoutPicker = true"
                                 class="group flex items-center gap-3 px-6 py-4 rounded-2xl border-2 border-dashed border-gray-300 hover:border-rj-purple hover:bg-rj-purple/5 transition">
                             <div class="w-10 h-10 rounded-full bg-white border-2 border-gray-300 group-hover:border-rj-purple group-hover:bg-rj-purple/10 flex items-center justify-center transition">
@@ -292,34 +292,28 @@
             </div>
 
             <div class="flex items-center justify-center gap-3 flex-wrap">
-
                 <button type="button" @click="addLayout('1col'); showLayoutPicker = false" class="group w-16 h-16 rounded-xl border-2 border-gray-200 bg-white hover:border-rj-purple hover:shadow-lg transition flex items-center justify-center" title="1 Column">
                     <div class="w-8 h-8 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
                 </button>
-
                 <button type="button" @click="addLayout('2col'); showLayoutPicker = false" class="group w-16 h-16 rounded-xl border-2 border-gray-200 bg-white hover:border-rj-purple hover:shadow-lg transition flex items-center justify-center gap-0.5" title="2 Columns">
                     <div class="w-3 h-8 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
                     <div class="w-3 h-8 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
                 </button>
-
                 <button type="button" @click="addLayout('3col'); showLayoutPicker = false" class="group w-16 h-16 rounded-xl border-2 border-gray-200 bg-white hover:border-rj-purple hover:shadow-lg transition flex items-center justify-center gap-0.5" title="3 Columns">
                     <div class="w-2.5 h-8 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
                     <div class="w-2.5 h-8 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
                     <div class="w-2.5 h-8 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
                 </button>
-
                 <button type="button" @click="addLayout('4col'); showLayoutPicker = false" class="group w-16 h-16 rounded-xl border-2 border-gray-200 bg-white hover:border-rj-purple hover:shadow-lg transition flex items-center justify-center gap-0.5" title="4 Columns">
                     <div class="w-2 h-8 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
                     <div class="w-2 h-8 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
                     <div class="w-2 h-8 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
                     <div class="w-2 h-8 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
                 </button>
-
                 <button type="button" @click="addLayout('2row'); showLayoutPicker = false" class="group w-16 h-16 rounded-xl border-2 border-gray-200 bg-white hover:border-rj-purple hover:shadow-lg transition flex flex-col items-center justify-center gap-0.5" title="2 Rows">
                     <div class="w-8 h-3.5 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
                     <div class="w-8 h-3.5 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
                 </button>
-
                 <button type="button" @click="addLayout('1plus2'); showLayoutPicker = false" class="group w-16 h-16 rounded-xl border-2 border-gray-200 bg-white hover:border-rj-purple hover:shadow-lg transition flex flex-col items-center justify-center gap-0.5" title="1 + 2">
                     <div class="w-8 h-3.5 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
                     <div class="flex gap-0.5">
@@ -327,7 +321,6 @@
                         <div class="w-3.5 h-3.5 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
                     </div>
                 </button>
-
                 <button type="button" @click="addLayout('2row3'); showLayoutPicker = false" class="group w-16 h-16 rounded-xl border-2 border-gray-200 bg-white hover:border-rj-purple hover:shadow-lg transition flex flex-col items-center justify-center gap-0.5" title="2 Rows x 3">
                     <div class="flex gap-0.5">
                         <div class="w-2 h-3.5 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
@@ -340,7 +333,6 @@
                         <div class="w-2 h-3.5 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
                     </div>
                 </button>
-
             </div>
 
             <div class="mt-8 text-center">
@@ -707,7 +699,7 @@ function builder() {
                         <button type="button" onclick="event.stopPropagation(); window.__builder.duplicateBlock('${bid}')" style="width:20px;height:20px;border-radius:9999px;background:transparent;border:0;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;line-height:1;" onmouseover="this.style.background='rgba(255,255,255,0.15)'" onmouseout="this.style.background='transparent'" title="Duplicate">⧉</button>
                         <button type="button" onclick="event.stopPropagation(); window.__builder.removeBlock('${bid}')" style="width:20px;height:20px;border-radius:9999px;background:transparent;border:0;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;line-height:1;" onmouseover="this.style.background='rgba(239,68,68,0.5)'" onmouseout="this.style.background='transparent'" title="Delete">✕</button>
                     </div>
-                    <div style="${isSelected ? 'outline:2px solid #7c3aed; outline-offset:-2px;' : ''} border-radius:12px; pointer-events:none;">${anim}</div>
+                    <div style="${isSelected ? 'outline:2px solid #7c3aed; outline-offset:-2px;' : ''} border-radius:12px;">${anim}</div>
                 </div>
             `;
         },
@@ -739,16 +731,15 @@ function builder() {
                     inner = this.renderBlockHtml(child, bid, i);
                 } else {
                     inner = `
-                        <div class="min-h-[80px] flex flex-col items-center justify-center text-gray-300 pointer-events-none">
-                            <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-                            <span class="text-[9px] uppercase tracking-wider">${i + 1}</span>
+                        <div class="min-h-[80px] flex flex-col items-center justify-center text-gray-300">
+                            <svg class="w-5 h-5 mb-1 pointer-events-none" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                            <span class="text-[9px] uppercase tracking-wider pointer-events-none">${i + 1}</span>
                         </div>
                     `;
                 }
 
                 slotsHtml += `
                     <div class="relative min-h-[80px] rounded-lg border-2 border-dashed transition"
-                         style="${isFullWidth ? 'max-width:100%;' : ''}"
                          :class="dragTarget === '${bid}:${i}' ? 'border-rj-purple bg-rj-purple/10' : 'border-gray-200 hover:border-gray-300'"
                          ondragover="event.preventDefault(); event.stopPropagation(); window.__builder.dragTarget = '${bid}:${i}';"
                          ondrop="event.preventDefault(); event.stopPropagation(); window.__builder.dropInto('${bid}', ${i});"
