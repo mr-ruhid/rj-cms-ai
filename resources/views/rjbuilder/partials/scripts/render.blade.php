@@ -228,44 +228,76 @@ function builderRender() {
                 const hoverStyle = settings.hover_style || 'underline';
                 const dropdownBg = settings.dropdown_bg || '#ffffff';
                 const dropdownBorder = settings.dropdown_border === 'yes';
+                const mobileBehavior = settings.mobile_behavior || 'hamburger';
+
+                const isNarrow = this.device === 'mobile' || this.device === 'tablet';
+                const useHamburger = isNarrow && mobileBehavior === 'hamburger';
 
                 const alignMap = { left: 'flex-start', center: 'center', right: 'flex-end' };
-                const flexDir = layout === 'vertical' ? 'column' : 'row';
                 const justifyMap = { left: 'flex-start', center: 'center', right: 'flex-end' };
+                const flexDir = layout === 'vertical' ? 'column' : 'row';
                 const alignItems = layout === 'vertical' ? alignMap[align] : 'center';
                 const justifyContent = layout === 'vertical' ? 'flex-start' : justifyMap[align];
 
-                const navStyle = `display:flex; flex-direction:${flexDir}; gap:${gap}; align-items:${alignItems}; justify-content:${justifyContent}; padding:0.75rem 1rem;`;
+                const uid = 'rj-menu-' + Math.random().toString(36).slice(2, 9);
 
-                const hoverClass = 'rj-menu-item-' + Math.random().toString(36).slice(2, 8);
+                const renderItems = (list, depth) => {
+                    return list.map(it => {
+                        const hasKids = it.children && it.children.length > 0;
+                        const itemStyle = `display:inline-block; color:${textColor}; font-size:${fontSize}; font-weight:${fontWeight}; text-decoration:none; padding:8px 12px; border-radius:6px; border-bottom:2px solid transparent; transition:all .15s; white-space:nowrap;`;
 
-                let hoverCss = '.' + hoverClass + ':hover { color:' + hoverColor + ' !important;';
-                if (hoverStyle === 'underline' || hoverStyle === 'both') hoverCss += ' border-bottom-color:' + hoverColor + ' !important;';
-                if (hoverStyle === 'background' || hoverStyle === 'both') hoverCss += ' background:' + hoverColor + '15 !important;';
-                hoverCss += ' }';
+                        return `<li class="rj-mi" style="position:relative; list-style:none;">
+                            <a href="${esc(it.url || '#')}" target="${esc(it.target || '_self')}" class="rj-hover-item" style="${itemStyle}">${esc(it.label)}${hasKids ? ' <span style="font-size:9px; opacity:.6;">▾</span>' : ''}</a>
+                            ${hasKids ? `<ul class="rj-dropdown" style="position:absolute; top:100%; left:0; min-width:180px; background:${dropdownBg}; ${dropdownBorder ? 'border:1px solid #e5e7eb;' : ''} border-radius:8px; box-shadow:0 12px 30px rgba(0,0,0,.12); padding:6px; margin:6px 0 0; opacity:0; visibility:hidden; transform:translateY(-4px); transition:all .15s; z-index:50; list-style:none;">${renderItems(it.children, depth + 1)}</ul>` : ''}
+                        </li>`;
+                    }).join('');
+                };
 
-                if (!this.preview) {
-                    const dirLabel = layout === 'horizontal' ? 'Horizontal' : 'Vertical';
-                    const itemCount = items.length;
-                    return `<div style="margin:0.5rem 1rem; border:1px dashed #d1d5db; border-radius:10px; background:#fafafa; padding:0.75rem 1rem;">
-                                <div style="display:flex; align-items:center; gap:10px; color:#374151; font-size:12px; font-weight:600; margin-bottom:10px;">
-                                    <span style="width:24px; height:24px; display:flex; align-items:center; justify-content:center; color:#8b5cf6;">
-                                        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
-                                    </span>
-                                    <span>${esc(menuName)}</span>
-                                    <span style="color:#9ca3af; font-weight:400;">· ${dirLabel} · ${align} · ${itemCount} items</span>
-                                </div>
-                                <div style="${navStyle}">
-                                    ${items.length === 0 ? '<span style="color:#9ca3af; font-size:12px;">' + esc(this.t('No items in this menu.')) + '</span>' : items.map(it => {
-                                        const subCount = (it.children || []).length;
-                                        return `<span style="display:inline-flex; align-items:center; gap:4px; color:${textColor}; font-size:${fontSize}; font-weight:${fontWeight}; border-bottom:1px solid transparent; padding:4px 0;">
-                                            ${esc(it.label)}
-                                            ${subCount > 0 ? '<span style="font-size:10px; color:#9ca3af;">▾ ' + subCount + '</span>' : ''}
-                                        </span>`;
-                                    }).join('')}
-                                </div>
-                            </div>`;
-                }
+                const desktopNav = `
+                    <nav class="${uid}-nav" style="width:100%;">
+                        <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:${flexDir}; gap:${gap}; align-items:${alignItems}; justify-content:${justifyContent}; flex-wrap:wrap;">
+                            ${renderItems(items, 0)}
+                        </ul>
+                    </nav>
+                `;
+
+                const hamburgerNav = `
+                    <nav class="${uid}-nav" style="width:100%; position:relative;">
+                        <input type="checkbox" id="${uid}-toggle" class="rj-burger-toggle" style="display:none;">
+                        <label for="${uid}-toggle" class="rj-burger-btn" style="display:inline-flex; align-items:center; justify-content:center; width:40px; height:40px; border-radius:8px; background:#f3f4f6; cursor:pointer; color:${textColor};">
+                            <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                        </label>
+                        <ul class="rj-burger-list" style="list-style:none; margin:0; padding:8px; position:absolute; top:calc(100% + 6px); ${align === 'right' ? 'right:0;' : align === 'center' ? 'left:50%; transform:translateX(-50%);' : 'left:0;'} min-width:220px; background:${dropdownBg}; ${dropdownBorder ? 'border:1px solid #e5e7eb;' : ''} border-radius:10px; box-shadow:0 12px 30px rgba(0,0,0,.15); opacity:0; visibility:hidden; transition:all .15s; z-index:50;">
+                            ${renderItems(items, 0)}
+                        </ul>
+                    </nav>
+                `;
+
+                const navStyle = useHamburger ? '' : `padding:0.75rem 1rem;`;
+
+                const baseCss = `
+                    .${uid}-nav .rj-hover-item:hover { color:${hoverColor} !important; ${hoverStyle === 'underline' || hoverStyle === 'both' ? 'border-bottom-color:' + hoverColor + ' !important;' : ''} ${hoverStyle === 'background' || hoverStyle === 'both' ? 'background:' + hoverColor + '15 !important;' : ''} }
+                    .${uid}-nav li:hover > .rj-dropdown { opacity:1 !important; visibility:visible !important; transform:translateY(0) !important; }
+                    .${uid}-nav .rj-dropdown .rj-hover-item:hover { background:${hoverColor}10 !important; color:${hoverColor} !important; }
+                    .${uid}-nav .rj-dropdown .rj-hover-item { display:block; }
+                    .${uid}-nav .rj-burger-toggle:checked ~ .rj-burger-list { opacity:1 !important; visibility:visible !important; }
+                    .${uid}-nav .rj-burger-btn:hover { background:${hoverColor}15; color:${hoverColor}; }
+                `;
+
+                const infoBar = !this.preview
+                    ? `<div style="display:flex; align-items:center; gap:10px; color:#6b7280; font-size:11px; font-weight:600; margin-bottom:6px; text-transform:uppercase; letter-spacing:.05em;">
+                           <span style="color:#8b5cf6;">${esc(menuName)}</span>
+                           <span style="color:#c4c7d3;">·</span>
+                           <span>${useHamburger ? 'Hamburger' : (layout === 'horizontal' ? 'Horizontal' : 'Vertical')} · ${align}</span>
+                       </div>`
+                    : '';
+
+                return `<style>${baseCss}</style>
+                    <div style="padding:0.5rem 1rem;">
+                        ${infoBar}
+                        ${useHamburger ? hamburgerNav : desktopNav}
+                    </div>`;
+            }
 
                 const renderItems = (list, depth) => {
                     return list.map(it => {
