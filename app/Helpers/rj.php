@@ -229,6 +229,7 @@ if (!function_exists('rj_logo_mask_url')) {
         return null;
     }
 }
+
 if (!function_exists('rj_social_providers')) {
     function rj_social_providers(): array
     {
@@ -409,6 +410,10 @@ if (!function_exists('rj_social_regions')) {
 if (!function_exists('rj_menu_options')) {
     function rj_menu_options(): array
     {
+        if (!class_exists(\App\Models\Menu::class)) {
+            return [];
+        }
+
         return \App\Models\Menu::orderBy('name')
             ->get()
             ->mapWithKeys(function ($menu) {

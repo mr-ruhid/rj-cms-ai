@@ -455,7 +455,7 @@
                         <div style="width:100%; height:4px; border-radius:9999px; background:#7c3aed;"></div>
                     </div>
 
-                    <div x-show="!preview" style="margin-top:40px; text-align:center; padding-bottom:20px;">
+                    <div x-show="!preview" style="margin-top:40px; display:flex; justify-content:center; padding-bottom:20px;">
                         <button type="button" class="rj-addsec" @click.stop="showLayoutPicker = true">
                             <span style="width:40px; height:40px; border-radius:50%; border:2px solid #c3c7d0; display:flex; align-items:center; justify-content:center; color:#9ca3af;">
                                 <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
