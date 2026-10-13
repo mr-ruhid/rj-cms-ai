@@ -20,6 +20,7 @@ use App\Http\Controllers\Admin\UpdatesController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\MediaCleanupController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\BuilderController;
 use App\Http\Controllers\Admin\TagController;
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
@@ -103,6 +104,17 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::view('/tools/backup', 'admin.coming-soon')->name('tools.backup');
     Route::view('/tools/logs', 'admin.coming-soon')->name('tools.logs');
     Route::view('/tools/diagnostics', 'admin.coming-soon')->name('tools.diagnostics');
+
+    Route::prefix('rjbuilder')->name('rjbuilder.')->group(function () {
+        Route::get('/', [BuilderController::class, 'index'])->name('index');
+        Route::get('/create', [BuilderController::class, 'create'])->name('create');
+        Route::post('/', [BuilderController::class, 'store'])->name('store');
+        Route::get('/{template}/edit', [BuilderController::class, 'edit'])->name('edit');
+        Route::put('/{template}', [BuilderController::class, 'update'])->name('update');
+        Route::delete('/{template}', [BuilderController::class, 'destroy'])->name('destroy');
+        Route::post('/{template}/duplicate', [BuilderController::class, 'duplicate'])->name('duplicate');
+        Route::post('/{template}/set-default', [BuilderController::class, 'setDefault'])->name('set-default');
+    });
 
     Route::get('/updates', [UpdatesController::class, 'index'])->name('updates.index');
     Route::post('/updates/check', [UpdatesController::class, 'check'])->name('updates.check');
