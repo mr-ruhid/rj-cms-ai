@@ -98,14 +98,27 @@
                                             <p class="text-xs text-gray-500 mt-1">{{ __('Recommended: 150-160 characters.') }}</p>
                                         </div>
 
-                                        <div>
-                                            <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('SEO Image URL') }}</label>
-                                            <input type="text"
-                                                   name="translations[{{ $locale }}][seo_image]"
-                                                   value="{{ old("translations.{$locale}.seo_image") }}"
-                                                   placeholder="https://..."
-                                                   class="w-full rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm font-mono">
-                                            <p class="text-xs text-gray-500 mt-1">{{ __('Open Graph image for social sharing.') }}</p>
+                                        <div x-data="{ seoImage: '{{ old("translations.{$locale}.seo_image") }}' }"
+                                             @media-selected.window="if ($event.detail.target === $refs.seoImageInput) seoImage = $event.detail.url">
+                                            <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('SEO Image') }}</label>
+                                            <p class="text-xs text-gray-500 mb-3">{{ __('Open Graph image for social sharing.') }}</p>
+
+                                            <div x-show="seoImage" class="rounded-lg overflow-hidden border border-gray-200 relative mb-3">
+                                                <img :src="seoImage" alt="SEO" class="w-full h-32 object-cover">
+                                                <button type="button" @click="seoImage = ''; $refs.seoImageInput.value = ''"
+                                                        class="absolute top-2 right-2 w-7 h-7 rounded-full bg-red-600 text-white flex items-center justify-center hover:bg-red-700 transition">
+                                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                                </button>
+                                            </div>
+
+                                            <input type="hidden" name="translations[{{ $locale }}][seo_image]" x-ref="seoImageInput" :value="seoImage">
+
+                                            <button type="button"
+                                                    @click="$dispatch('open-media-picker', { value: $refs.seoImageInput })"
+                                                    class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border-2 border-dashed border-gray-300 text-gray-700 text-sm font-medium hover:border-rj-purple hover:bg-rj-purple/5 transition">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                                <span x-text="seoImage ? '{{ __('Change Image') }}' : '{{ __('Select from Media Library') }}'"></span>
+                                            </button>
                                         </div>
                                     </div>
                                 </div>
@@ -200,15 +213,13 @@
 
                     <div class="p-6 space-y-4">
 
-                        <template x-if="imageUrl">
-                            <div class="rounded-lg overflow-hidden border border-gray-200 relative">
-                                <img :src="imageUrl" alt="Featured" class="w-full h-40 object-cover">
-                                <button type="button" @click="imageUrl = ''; $refs.imageInput.value = ''"
-                                        class="absolute top-2 right-2 w-7 h-7 rounded-full bg-red-600 text-white flex items-center justify-center hover:bg-red-700 transition">
-                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                                </button>
-                            </div>
-                        </template>
+                        <div x-show="imageUrl" class="rounded-lg overflow-hidden border border-gray-200 relative">
+                            <img :src="imageUrl" alt="Featured" class="w-full h-40 object-cover">
+                            <button type="button" @click="imageUrl = ''; $refs.imageInput.value = ''"
+                                    class="absolute top-2 right-2 w-7 h-7 rounded-full bg-red-600 text-white flex items-center justify-center hover:bg-red-700 transition">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                            </button>
+                        </div>
 
                         <input type="hidden" name="image" x-ref="imageInput" :value="imageUrl">
 
