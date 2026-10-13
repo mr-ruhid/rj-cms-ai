@@ -72,6 +72,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::view('/comments/spam', 'admin.coming-soon')->name('comments.spam');
     Route::view('/comments/trash', 'admin.coming-soon')->name('comments.trash');
 
+    Route::redirect('/appearance/menus', '/admin/menus')->name('appearance.menus');
+
     Route::prefix('menus')->name('menus.')->group(function () {
         Route::get('/', [MenuController::class, 'index'])->name('index');
         Route::get('/create', [MenuController::class, 'create'])->name('create');
