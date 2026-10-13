@@ -20,6 +20,7 @@
     $locales = rj_available_locales();
     $baseLocale = config('app.locale');
     $menusData = rj_menu_options();
+    $menuItemsData = rj_menu_tree();
 
     $i18n = collect([
         'Add element', 'Sections', 'Navigator', 'History', 'Settings', 'Edit element', 'Back', 'Undo', 'Redo',
