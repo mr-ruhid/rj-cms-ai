@@ -200,6 +200,51 @@ function builderRender() {
                 return `<div style="display:inline-block; margin:${alignMap[align] || '0 auto 0 0'}; padding:0.5rem 1rem;">${imgHtml}</div>`;
             }
 
+            if (block.type === 'menu') {
+                const menuId = String(settings.menu_id || '');
+                const menuOption = this.menuOptions.find(m => String(m.id) === menuId);
+                const menuName = menuOption ? menuOption.label : null;
+
+                if (!menuId || !menuName) {
+                    if (this.preview) return '';
+                    return `<div style="padding:14px 16px; margin:0.5rem 1rem; display:flex; align-items:center; gap:12px; border:1px dashed #d1d5db; border-radius:10px; background:#fafafa; color:#6b7280; font-size:12px;">
+                                <span style="width:28px; height:28px; display:flex; align-items:center; justify-content:center; color:#8b5cf6; flex-shrink:0;" class="rj-ico">
+                                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                                </span>
+                                <span style="font-weight:600; color:#374151;">${esc(this.t('Menu'))}</span>
+                                <span style="color:#9ca3af;">— ${esc(this.t('— Select menu —'))}</span>
+                            </div>`;
+                }
+
+                const layout = settings.layout || 'horizontal';
+                const align = settings.align || 'right';
+                const gap = { none: '0', sm: '12px', md: '24px', lg: '36px', xl: '48px' }[settings.gap || 'md'];
+                const fontSize = { sm: '13px', base: '15px', lg: '17px' }[settings.font_size || 'base'];
+                const fontWeight = settings.font_weight || '500';
+                const textColor = settings.text_color || '#111827';
+
+                const alignMap = { left: 'flex-start', center: 'center', right: 'flex-end' };
+                const flexDir = layout === 'vertical' ? 'column' : 'row';
+                const displayStyle = `display:flex; flex-direction:${flexDir}; gap:${gap}; align-items:${layout === 'vertical' ? alignMap[align] : 'center'}; justify-content:${layout === 'vertical' ? 'flex-start' : alignMap[align]}; padding:0.75rem 1rem;`;
+
+                if (!this.preview) {
+                    const dirLabel = layout === 'horizontal' ? 'Horizontal' : 'Vertical';
+                    return `<div style="margin:0.5rem 1rem; border:1px dashed #d1d5db; border-radius:10px; background:#fafafa; ${displayStyle}">
+                                <div style="display:flex; align-items:center; gap:10px; color:#374151; font-size:12px; font-weight:600;">
+                                    <span style="width:24px; height:24px; display:flex; align-items:center; justify-content:center; color:#8b5cf6;">
+                                        <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                                    </span>
+                                    <span>${esc(menuName)}</span>
+                                    <span style="color:#9ca3af; font-weight:400;">· ${dirLabel} · ${align}</span>
+                                </div>
+                            </div>`;
+                }
+
+                return `<nav style="${displayStyle}" data-menu-id="${menuId}">
+                            <a href="#" style="color:${textColor}; font-size:${fontSize}; font-weight:${fontWeight}; text-decoration:none; padding:4px 0;">${esc(menuName)}</a>
+                        </nav>`;
+            }
+
             const w = this.widgets.find(x => x.id === block.type);
             if (this.preview) return '';
             return `<div style="padding:14px 16px; margin:0.5rem 1rem; display:flex; align-items:center; gap:12px; border:1px dashed #d1d5db; border-radius:10px; background:#fafafa; color:#6b7280; font-size:12px;">
