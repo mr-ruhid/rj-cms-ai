@@ -323,24 +323,24 @@
                         <span x-show="activeLocale !== baseLocale" style="opacity:.8;">— <span x-text="t('fields marked 🌐 are translated; others are shared.')"></span></span>
                     </div>
 
-                    <div x-show="editTab === 'content'" style="margin-bottom:16px; padding:10px 12px; background:rgba(139,92,246,.06); border:1px solid rgba(139,92,246,.2); border-radius:8px;">
-                        <div style="display:flex; align-items:center; gap:6px; margin-bottom:8px;">
-                            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" style="color:#a78bfa;"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.46 12C3.73 7.94 7.52 5 12 5s8.27 2.94 9.54 7c-1.27 4.06-5.06 7-9.54 7S3.73 16.06 2.46 12z"/></svg>
-                            <span style="font-size:11px; font-weight:600; color:#c4b5fd; text-transform:uppercase; letter-spacing:.05em;">{{ __('Visible on') }}</span>
-                        </div>
-                        <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:6px;">
-                            <label style="display:flex; align-items:center; gap:6px; cursor:pointer; padding:6px 8px; background:var(--bg2); border-radius:6px; font-size:11px; color:#d4d6df; border:1px solid var(--line);">
-                                <input type="checkbox" :checked="!currentSettings._hide_desktop" @change="updateSetting('_hide_desktop', !$event.target.checked)" style="accent-color:#8b5cf6; cursor:pointer;">
-                                <span>💻 {{ __('Desktop') }}</span>
-                            </label>
-                            <label style="display:flex; align-items:center; gap:6px; cursor:pointer; padding:6px 8px; background:var(--bg2); border-radius:6px; font-size:11px; color:#d4d6df; border:1px solid var(--line);">
-                                <input type="checkbox" :checked="!currentSettings._hide_tablet" @change="updateSetting('_hide_tablet', !$event.target.checked)" style="accent-color:#8b5cf6; cursor:pointer;">
-                                <span>📱 {{ __('Tablet') }}</span>
-                            </label>
-                            <label style="display:flex; align-items:center; gap:6px; cursor:pointer; padding:6px 8px; background:var(--bg2); border-radius:6px; font-size:11px; color:#d4d6df; border:1px solid var(--line);">
-                                <input type="checkbox" :checked="!currentSettings._hide_mobile" @change="updateSetting('_hide_mobile', !$event.target.checked)" style="accent-color:#8b5cf6; cursor:pointer;">
-                                <span>📱 {{ __('Mobile') }}</span>
-                            </label>
+                    <div x-show="editTab === 'content'" style="margin-bottom:18px;">
+                        <div style="font-size:11px; font-weight:600; color:#8e919d; text-transform:uppercase; letter-spacing:.05em; margin-bottom:8px;">{{ __('Visible on') }}</div>
+                        <div style="display:flex; gap:4px; padding:3px; background:#15161a; border:1px solid #383a43; border-radius:8px;">
+                            <button type="button" @click="updateSetting('_hide_desktop', currentSettings._hide_desktop ? false : true)"
+                                    :data-on="!currentSettings._hide_desktop"
+                                    class="rj-vis-btn">
+                                {{ __('Desktop') }}
+                            </button>
+                            <button type="button" @click="updateSetting('_hide_tablet', currentSettings._hide_tablet ? false : true)"
+                                    :data-on="!currentSettings._hide_tablet"
+                                    class="rj-vis-btn">
+                                {{ __('Tablet') }}
+                            </button>
+                            <button type="button" @click="updateSetting('_hide_mobile', currentSettings._hide_mobile ? false : true)"
+                                    :data-on="!currentSettings._hide_mobile"
+                                    class="rj-vis-btn">
+                                {{ __('Mobile') }}
+                            </button>
                         </div>
                     </div>
 
