@@ -29,114 +29,126 @@
                     <p class="text-sm text-gray-500 mt-1">{{ __('Choose a type and add it to the menu.') }}</p>
                 </div>
 
-                    <div class="flex gap-1 mb-4 overflow-x-auto rj-scrollbar border-b border-gray-100" style="margin-bottom:-1px;">
+                <div class="border-b border-gray-100 mb-4" 
+                     x-data="{
+                         scrollTabs(e) {
+                             if (e.deltaY !== 0) {
+                                 this.$refs.tabContainer.scrollLeft += e.deltaY;
+                                 e.preventDefault();
+                             }
+                         }
+                     }">
+                    <div x-ref="tabContainer"
+                         @wheel="scrollTabs"
+                         class="flex gap-1 px-6 overflow-x-auto rj-scrollbar snap-x scroll-smooth" 
+                         style="margin-bottom:-1px;">
                         @foreach (\App\Models\MenuItem::types() as $key => $meta)
                             <button type="button"
                                     @click="activeType = '{{ $key }}'; loadOptions('{{ $key }}')"
                                     :class="activeType === '{{ $key }}' ? 'border-rj-purple text-rj-purple' : 'border-transparent text-gray-500 hover:text-gray-700'"
-                                    class="px-3 py-2 border-b-2 text-xs font-medium transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0">
+                                    class="px-3 py-2 border-b-2 text-xs font-medium transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 snap-start">
                                 <span>{{ $meta['icon'] }}</span>
                                 <span>{{ $meta['label'] }}</span>
                             </button>
                         @endforeach
                     </div>
+                </div>
 
-                    <form method="POST" action="{{ route('admin.menus.items.store', $menu) }}" class="space-y-4" @submit="resetAfterSubmit()">
-                        @csrf
-                        <input type="hidden" name="type" :value="activeType">
+                <form method="POST" action="{{ route('admin.menus.items.store', $menu) }}" class="space-y-4 px-6 pb-6" @submit="resetAfterSubmit()">
+                    @csrf
+                    <input type="hidden" name="type" :value="activeType">
 
-                        <div x-show="activeType === 'custom'">
-                            <label class="block text-sm font-medium text-gray-700 mb-1.5">
-                                {{ __('Label') }} <span class="text-red-500">*</span>
-                                <span class="text-xs font-normal text-gray-400 ml-1">({{ strtoupper(config('app.locale')) }})</span>
-                            </label>
-                            <input type="text" name="label" x-model="customLabel"
-                                   placeholder="{{ __('e.g. Home') }}"
-                                   class="w-full rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm">
+                    <div x-show="activeType === 'custom'">
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">
+                            {{ __('Label') }} <span class="text-red-500">*</span>
+                            <span class="text-xs font-normal text-gray-400 ml-1">({{ strtoupper(config('app.locale')) }})</span>
+                        </label>
+                        <input type="text" name="label" x-model="customLabel"
+                               placeholder="{{ __('e.g. Home') }}"
+                               class="w-full rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm">
 
-                            @php $locales = rj_available_locales(); @endphp
-                            @if (count($locales) > 1)
-                                <div class="mt-3" x-data="{ openTranslations: false }">
-                                    <button type="button" @click="openTranslations = !openTranslations"
-                                            class="text-xs text-rj-purple hover:underline flex items-center gap-1">
-                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
-                                        {{ __('Translations') }} ({{ count($locales) - 1 }})
-                                    </button>
+                        @php $locales = rj_available_locales(); @endphp
+                        @if (count($locales) > 1)
+                            <div class="mt-3" x-data="{ openTranslations: false }">
+                                <button type="button" @click="openTranslations = !openTranslations"
+                                        class="text-xs text-rj-purple hover:underline flex items-center gap-1">
+                                    <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                                    {{ __('Translations') }} ({{ count($locales) - 1 }})
+                                </button>
 
-                                    <div x-show="openTranslations" x-cloak class="mt-3 space-y-3 pl-4 border-l-2 border-gray-100">
-                                        @foreach ($locales as $locale)
-                                            @if ($locale === config('app.locale')) @continue @endif
-                                            <div>
-                                                <label class="block text-xs font-medium text-gray-600 mb-1">
-                                                    {{ rj_lang_name($locale) }} <span class="uppercase text-gray-400">({{ $locale }})</span>
-                                                </label>
-                                                <input type="text" name="translations[{{ $locale }}]"
-                                                       placeholder="{{ __('Optional') }}"
-                                                       class="w-full rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-xs">
-                                            </div>
-                                        @endforeach
-                                    </div>
+                                <div x-show="openTranslations" x-cloak class="mt-3 space-y-3 pl-4 border-l-2 border-gray-100">
+                                    @foreach ($locales as $locale)
+                                        @if ($locale === config('app.locale')) @continue @endif
+                                        <div>
+                                            <label class="block text-xs font-medium text-gray-600 mb-1">
+                                                {{ rj_lang_name($locale) }} <span class="uppercase text-gray-400">({{ $locale }})</span>
+                                            </label>
+                                            <input type="text" name="translations[{{ $locale }}]"
+                                                   placeholder="{{ __('Optional') }}"
+                                                   class="w-full rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-xs">
+                                        </div>
+                                    @endforeach
                                 </div>
-                            @endif
-                        </div>
+                            </div>
+                        @endif
+                    </div>
 
-                        <div x-show="activeType !== 'custom'">
-                            <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Select') }} <span class="text-red-500">*</span></label>
-                            <select name="object_id" x-model="selectedObjectId" @change="onObjectSelect($event)"
-                                    class="w-full rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm">
-                                <option value="">{{ __('— Choose —') }}</option>
-                                <template x-for="opt in options" :key="opt.id">
-                                    <option :value="opt.id" x-text="opt.label"></option>
-                                </template>
+                    <div x-show="activeType !== 'custom'">
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Select') }} <span class="text-red-500">*</span></label>
+                        <select name="object_id" x-model="selectedObjectId" @change="onObjectSelect($event)"
+                                class="w-full rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm">
+                            <option value="">{{ __('— Choose —') }}</option>
+                            <template x-for="opt in options" :key="opt.id">
+                                <option :value="opt.id" x-text="opt.label"></option>
+                            </template>
+                        </select>
+                        <p x-show="activeType !== 'custom' && options.length === 0 && !loadingOptions"
+                           class="text-xs text-gray-500 mt-1">
+                            {{ __('No items available yet.') }}
+                        </p>
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('URL') }}</label>
+                        <input type="text" name="url" x-model="url"
+                               placeholder="{{ __('https://example.com or /path') }}"
+                               class="w-full rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm font-mono">
+                    </div>
+
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Parent') }}</label>
+                        <select name="parent_id" class="w-full rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm">
+                            <option value="">{{ __('— Top level —') }}</option>
+                            @foreach ($menu->rootItems as $item)
+                                <option value="{{ $item->id }}">{{ $item->label }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Target') }}</label>
+                            <select name="target" class="w-full rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm">
+                                <option value="_self">{{ __('Same window') }}</option>
+                                <option value="_blank">{{ __('New window') }}</option>
                             </select>
-                            <p x-show="activeType !== 'custom' && options.length === 0 && !loadingOptions"
-                               class="text-xs text-gray-500 mt-1">
-                                {{ __('No items available yet.') }}
-                            </p>
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('URL') }}</label>
-                            <input type="text" name="url" x-model="url"
-                                   placeholder="{{ __('https://example.com or /path') }}"
+                            <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('CSS Class') }}</label>
+                            <input type="text" name="css_class"
+                                   placeholder="{{ __('Optional') }}"
                                    class="w-full rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm font-mono">
                         </div>
+                    </div>
 
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Parent') }}</label>
-                            <select name="parent_id" class="w-full rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm">
-                                <option value="">{{ __('— Top level —') }}</option>
-                                @foreach ($menu->rootItems as $item)
-                                    <option value="{{ $item->id }}">{{ $item->label }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Target') }}</label>
-                                <select name="target" class="w-full rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm">
-                                    <option value="_self">{{ __('Same window') }}</option>
-                                    <option value="_blank">{{ __('New window') }}</option>
-                                </select>
-                            </div>
-
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('CSS Class') }}</label>
-                                <input type="text" name="css_class"
-                                       placeholder="{{ __('Optional') }}"
-                                       class="w-full rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm font-mono">
-                            </div>
-                        </div>
-
-                        <div class="pt-2">
-                            <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-rj-purple to-rj-pink text-white text-sm font-medium hover:opacity-90 transition">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-                                {{ __('Add to Menu') }}
-                            </button>
-                        </div>
-                    </form>
-                </div>
+                    <div class="pt-2">
+                        <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-rj-purple to-rj-pink text-white text-sm font-medium hover:opacity-90 transition">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                            {{ __('Add to Menu') }}
+                        </button>
+                    </div>
+                </form>
             </div>
 
             <div class="bg-white rounded-lg shadow-sm border border-gray-100">
