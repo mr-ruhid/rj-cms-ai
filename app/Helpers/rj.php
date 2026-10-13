@@ -405,3 +405,16 @@ if (!function_exists('rj_social_regions')) {
         ];
     }
 }
+
+if (!function_exists('rj_menu_options')) {
+    function rj_menu_options(): array
+    {
+        return \App\Models\Menu::orderBy('name')
+            ->get()
+            ->mapWithKeys(function ($menu) {
+                $loc = $menu->location ? ' — ' . $menu->locationLabel() : '';
+                return [$menu->id => $menu->name . $loc];
+            })
+            ->toArray();
+    }
+}
