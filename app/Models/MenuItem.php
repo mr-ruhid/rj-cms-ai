@@ -13,6 +13,7 @@ class MenuItem extends Model
         'parent_id',
         'type',
         'label',
+        'translations',
         'url',
         'target',
         'object_id',
@@ -26,6 +27,7 @@ class MenuItem extends Model
     protected $casts = [
         'is_active' => 'boolean',
         'sort_order' => 'integer',
+        'translations' => 'array',
     ];
 
     public function menu()
@@ -62,6 +64,19 @@ class MenuItem extends Model
     public function typeLabel(): string
     {
         return static::types()[$this->type]['label'] ?? $this->type;
+    }
+
+        public function labelFor(?string $locale = null): string
+    {
+        $locale = $locale ?: app()->getLocale();
+
+        if ($locale === config('app.locale')) {
+            return $this->label;
+        }
+
+        $t = $this->translations[$locale] ?? null;
+
+        return $t ?: $this->label;
     }
 
     public function resolvedUrl(): string
