@@ -9,6 +9,55 @@ use Illuminate\Http\Request;
 
 class MenuItemController extends Controller
 {
+    public function store(Request $request, Menu $menu)
+    {
+        $data = $request->validate([
+            'type' => ['required', 'in:custom,page,post,category,tag'],
+            'label' => ['required', 'string', 'max:200'],
+            'translations' => ['nullable', 'array'],
+            'translations.*' => ['nullable', 'string', 'max:200'],
+            'url' => ['nullable', 'string', 'max:500'],
+            'object_id' => ['nullable', 'integer'],
+            'parent_id' => ['nullable', 'integer', 'exists:rj_menu_items,id'],
+            'target' => ['nullable', 'in:_self,_blank'],
+            'css_class' => ['nullable', 'string', 'max:100'],
+            'icon' => ['nullable', 'string', 'max:100'],
+        ]);
+
+        if ($data['type'] === 'custom' && empty($data['url'])) {
+            return back()->with('error', __('URL is required for custom links.'))->withInput();
+        }
+
+        $translations = null;
+
+        if ($data['type'] === 'custom' && !empty($data['translations'])) {
+            $translations = array_filter($data['translations'], fn($v) => !empty($v));
+            $translations = !empty($translations) ? $translations : null;
+        }
+
+        $sortOrder = MenuItem::where('menu_id', $menu->id)
+            ->where('parent_id', $data['parent_id'] ?? null)
+            ->max('sort_order') + 1;
+
+        MenuItem::create([
+            'menu_id' => $menu->id,
+            'parent_id' => $data['parent_id'] ?? null,
+            'type' => $data['type'],
+            'label' => $data['label'],
+            'translations' => $translations,
+            'url' => $data['url'] ?? null,
+            'target' => $data['target'] ?? '_self',
+            'object_id' => $data['object_id'] ?? null,
+            'object_type' => $data['type'] !== 'custom' ? $data['type'] : null,
+            'sort_order' => $sortOrder,
+            'css_class' => $data['css_class'] ?? null,
+            'icon' => $data['icon'] ?? null,
+            'is_active' => true,
+        ]);
+
+        return back()->with('success', __('Menu item added.'));
+    }
+
     public function update(Request $request, Menu $menu, MenuItem $item)
     {
         if ($item->menu_id !== $menu->id) {
@@ -36,28 +85,6 @@ class MenuItemController extends Controller
         } else {
             unset($data['translations']);
         }
-
-        $item->update($data);
-
-        return back()->with('success', __('Menu item updated.'));
-    }
-
-    public function update(Request $request, Menu $menu, MenuItem $item)
-    {
-        if ($item->menu_id !== $menu->id) {
-            abort(404);
-        }
-
-        $data = $request->validate([
-            'label' => ['required', 'string', 'max:200'],
-            'url' => ['nullable', 'string', 'max:500'],
-            'target' => ['nullable', 'in:_self,_blank'],
-            'css_class' => ['nullable', 'string', 'max:100'],
-            'icon' => ['nullable', 'string', 'max:100'],
-            'is_active' => ['nullable', 'boolean'],
-        ]);
-
-        $data['is_active'] = $request->boolean('is_active');
 
         $item->update($data);
 
