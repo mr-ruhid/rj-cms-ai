@@ -58,6 +58,51 @@ class MediaController extends Controller
         return view('admin.media.index', compact('media', 'stats'));
     }
 
+        public function picker(Request $request)
+    {
+        $query = Media::latest();
+
+        if ($type = $request->input('type')) {
+            if ($type === 'image') {
+                $query->where('mime_type', 'like', 'image/%');
+            } elseif ($type === 'video') {
+                $query->where('mime_type', 'like', 'video/%');
+            } elseif ($type === 'audio') {
+                $query->where('mime_type', 'like', 'audio/%');
+            } elseif ($type === 'document') {
+                $query->where('mime_type', 'not like', 'image/%')
+                    ->where('mime_type', 'not like', 'video/%')
+                    ->where('mime_type', 'not like', 'audio/%');
+            }
+        }
+
+        if ($search = $request->input('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('original_name', 'like', "%{$search}%")
+                    ->orWhere('title', 'like', "%{$search}%")
+                    ->orWhere('alt_text', 'like', "%{$search}%");
+            });
+        }
+
+        $total = $query->count();
+        $items = $query->paginate(30)->items();
+
+        $items = collect($items)->map(fn($m) => [
+            'id' => $m->id,
+            'url' => $m->url,
+            'original_name' => $m->original_name,
+            'mime_type' => $m->mime_type,
+            'size_human' => $m->humanSize(),
+            'type' => $m->type(),
+            'alt_text' => $m->alt_text,
+        ])->values()->toArray();
+
+        return response()->json([
+            'items' => $items,
+            'total' => $total,
+        ]);
+    }
+
     public function create()
     {
         return view('admin.media.create');
