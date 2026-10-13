@@ -203,7 +203,9 @@ function builderRender() {
             if (block.type === 'menu') {
                 const menuId = String(settings.menu_id || '');
                 const menuOption = this.menuOptions.find(m => String(m.id) === menuId);
+                const menuTree = this.menuTrees[menuId] || null;
                 const menuName = menuOption ? menuOption.label : null;
+                const items = menuTree ? (menuTree.items || []) : [];
 
                 if (!menuId || !menuName) {
                     if (this.preview) return '';
@@ -222,29 +224,73 @@ function builderRender() {
                 const fontSize = { sm: '13px', base: '15px', lg: '17px' }[settings.font_size || 'base'];
                 const fontWeight = settings.font_weight || '500';
                 const textColor = settings.text_color || '#111827';
+                const hoverColor = settings.hover_color || '#7c3aed';
+                const hoverStyle = settings.hover_style || 'underline';
+                const dropdownBg = settings.dropdown_bg || '#ffffff';
+                const dropdownBorder = settings.dropdown_border === 'yes';
 
                 const alignMap = { left: 'flex-start', center: 'center', right: 'flex-end' };
                 const flexDir = layout === 'vertical' ? 'column' : 'row';
-                const displayStyle = `display:flex; flex-direction:${flexDir}; gap:${gap}; align-items:${layout === 'vertical' ? alignMap[align] : 'center'}; justify-content:${layout === 'vertical' ? 'flex-start' : alignMap[align]}; padding:0.75rem 1rem;`;
+                const justifyMap = { left: 'flex-start', center: 'center', right: 'flex-end' };
+                const alignItems = layout === 'vertical' ? alignMap[align] : 'center';
+                const justifyContent = layout === 'vertical' ? 'flex-start' : justifyMap[align];
+
+                const navStyle = `display:flex; flex-direction:${flexDir}; gap:${gap}; align-items:${alignItems}; justify-content:${justifyContent}; padding:0.75rem 1rem;`;
+
+                const hoverClass = 'rj-menu-item-' + Math.random().toString(36).slice(2, 8);
+
+                let hoverCss = '.' + hoverClass + ':hover { color:' + hoverColor + ' !important;';
+                if (hoverStyle === 'underline' || hoverStyle === 'both') hoverCss += ' border-bottom-color:' + hoverColor + ' !important;';
+                if (hoverStyle === 'background' || hoverStyle === 'both') hoverCss += ' background:' + hoverColor + '15 !important;';
+                hoverCss += ' }';
 
                 if (!this.preview) {
                     const dirLabel = layout === 'horizontal' ? 'Horizontal' : 'Vertical';
-                    return `<div style="margin:0.5rem 1rem; border:1px dashed #d1d5db; border-radius:10px; background:#fafafa; ${displayStyle}">
-                                <div style="display:flex; align-items:center; gap:10px; color:#374151; font-size:12px; font-weight:600;">
+                    const itemCount = items.length;
+                    return `<div style="margin:0.5rem 1rem; border:1px dashed #d1d5db; border-radius:10px; background:#fafafa; padding:0.75rem 1rem;">
+                                <div style="display:flex; align-items:center; gap:10px; color:#374151; font-size:12px; font-weight:600; margin-bottom:10px;">
                                     <span style="width:24px; height:24px; display:flex; align-items:center; justify-content:center; color:#8b5cf6;">
                                         <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
                                     </span>
                                     <span>${esc(menuName)}</span>
-                                    <span style="color:#9ca3af; font-weight:400;">· ${dirLabel} · ${align}</span>
+                                    <span style="color:#9ca3af; font-weight:400;">· ${dirLabel} · ${align} · ${itemCount} items</span>
+                                </div>
+                                <div style="${navStyle}">
+                                    ${items.length === 0 ? '<span style="color:#9ca3af; font-size:12px;">' + esc(this.t('No items in this menu.')) + '</span>' : items.map(it => {
+                                        const subCount = (it.children || []).length;
+                                        return `<span style="display:inline-flex; align-items:center; gap:4px; color:${textColor}; font-size:${fontSize}; font-weight:${fontWeight}; border-bottom:1px solid transparent; padding:4px 0;">
+                                            ${esc(it.label)}
+                                            ${subCount > 0 ? '<span style="font-size:10px; color:#9ca3af;">▾ ' + subCount + '</span>' : ''}
+                                        </span>`;
+                                    }).join('')}
                                 </div>
                             </div>`;
                 }
 
-                return `<nav style="${displayStyle}" data-menu-id="${menuId}">
-                            <a href="#" style="color:${textColor}; font-size:${fontSize}; font-weight:${fontWeight}; text-decoration:none; padding:4px 0;">${esc(menuName)}</a>
-                        </nav>`;
-            }
+                const renderItems = (list, depth) => {
+                    return list.map(it => {
+                        const hasKids = it.children && it.children.length > 0;
+                        const itemStyle = `display:inline-block; color:${textColor}; font-size:${fontSize}; font-weight:${fontWeight}; text-decoration:none; padding:6px 10px; border-radius:6px; border-bottom:2px solid transparent; transition:all .15s; position:relative;`;
 
+                        return `<li style="position:relative; list-style:none;">
+                            <a href="${esc(it.url || '#')}" target="${esc(it.target || '_self')}" class="rj-hover-item" style="${itemStyle}">${esc(it.label)}${hasKids ? ' <span style="font-size:9px; opacity:.6;">▾</span>' : ''}</a>
+                            ${hasKids ? `<ul style="position:absolute; top:100%; left:0; min-width:180px; background:${dropdownBg}; ${dropdownBorder ? 'border:1px solid #e5e7eb;' : ''} border-radius:8px; box-shadow:0 12px 30px rgba(0,0,0,.12); padding:6px; margin:6px 0 0; opacity:0; visibility:hidden; transform:translateY(-4px); transition:all .15s; z-index:50;" class="rj-dropdown">${renderItems(it.children, depth + 1)}</ul>` : ''}
+                        </li>`;
+                    }).join('');
+                };
+
+                return `<style>
+                    .${hoverClass} .rj-hover-item:hover { color:${hoverColor} !important; ${hoverStyle === 'underline' || hoverStyle === 'both' ? 'border-bottom-color:' + hoverColor + ' !important;' : ''} ${hoverStyle === 'background' || hoverStyle === 'both' ? 'background:' + hoverColor + '15 !important;' : ''} }
+                    .${hoverClass} li:hover > .rj-dropdown { opacity:1 !important; visibility:visible !important; transform:translateY(0) !important; }
+                    .${hoverClass} .rj-dropdown .rj-hover-item:hover { background:${hoverColor}10 !important; color:${hoverColor} !important; }
+                </style>
+                <nav class="${hoverClass}" style="${navStyle}">
+                    <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:${flexDir}; gap:${gap}; align-items:${alignItems}; flex-wrap:wrap;">
+                        ${renderItems(items, 0)}
+                    </ul>
+                </nav>`;
+            }
+            
             const w = this.widgets.find(x => x.id === block.type);
             if (this.preview) return '';
             return `<div style="padding:14px 16px; margin:0.5rem 1rem; display:flex; align-items:center; gap:12px; border:1px dashed #d1d5db; border-radius:10px; background:#fafafa; color:#6b7280; font-size:12px;">
