@@ -35,13 +35,26 @@ class ContainerWidget extends BaseWidget
     {
         return [
             [
-                'name' => 'direction',
+                'name' => 'width',
                 'type' => 'select',
-                'label' => __('Direction'),
-                'default' => 'column',
+                'label' => __('Width'),
+                'default' => 'boxed',
                 'options' => [
-                    'column' => __('Vertical (stack)'),
-                    'row' => __('Horizontal (side by side)'),
+                    'boxed' => __('Boxed') . ' — ' . __('Centered with max width'),
+                    'full' => __('Full Width') . ' — ' . __('Edge to edge'),
+                ],
+            ],
+            [
+                'name' => 'columns',
+                'type' => 'select',
+                'label' => __('Columns'),
+                'default' => '1',
+                'options' => [
+                    '1' => '1 ' . __('Column'),
+                    '2' => '2 ' . __('Columns'),
+                    '3' => '3 ' . __('Columns'),
+                    '4' => '4 ' . __('Columns'),
+                    '6' => '6 ' . __('Columns'),
                 ],
             ],
             [
@@ -79,12 +92,12 @@ class ContainerWidget extends BaseWidget
             [
                 'name' => 'align',
                 'type' => 'select',
-                'label' => __('Alignment'),
+                'label' => __('Vertical Align'),
                 'default' => 'stretch',
                 'options' => [
-                    'start' => __('Start'),
+                    'start' => __('Top'),
                     'center' => __('Center'),
-                    'end' => __('End'),
+                    'end' => __('Bottom'),
                     'stretch' => __('Stretch'),
                 ],
             ],
@@ -116,6 +129,6 @@ class ContainerWidget extends BaseWidget
 
     public function render(array $settings): string
     {
-        return '<div class="rj-container-placeholder p-4 text-center text-xs text-gray-400 border-2 border-dashed border-gray-300 rounded-lg">' . $this->escape(__('Container — add widgets inside')) . '</div>';
+        return '';
     }
 }
