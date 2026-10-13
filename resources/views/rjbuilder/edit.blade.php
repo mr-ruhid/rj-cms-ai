@@ -102,96 +102,88 @@
             </div>
         </aside>
 
-        <main class="flex-1 bg-gray-100 overflow-y-auto rj-scrollbar">
-            <div class="min-h-full p-6">
+        <main class="flex-1 bg-gray-50 overflow-y-auto rj-scrollbar relative">
+            <div class="min-h-full py-10 px-6">
 
-                <div x-show="blocks.length === 0" class="min-h-[calc(100vh-160px)] flex items-center justify-center">
-                    <div class="max-w-3xl w-full">
-                        <div class="text-center mb-10">
-                            <div class="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-rj-purple to-rj-pink flex items-center justify-center mb-4 shadow-lg shadow-rj-purple/20">
-                                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zM14 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/></svg>
+                <div x-show="blocks.length === 0" class="max-w-5xl mx-auto">
+                    <div class="text-center mb-10 pt-16">
+                        <h2 class="text-xl font-semibold text-gray-900 mb-2">{{ __('Select a wrap layout') }}</h2>
+                        <p class="text-sm text-gray-500">{{ __('Choose a structure to start building.') }}</p>
+                    </div>
+
+                    <div class="flex items-center justify-center gap-3 flex-wrap mb-10">
+
+                        <button type="button" @click="addLayout('1col')"
+                                class="group w-20 h-20 rounded-xl border-2 border-gray-200 bg-white hover:border-rj-purple hover:shadow-lg transition flex items-center justify-center"
+                                title="{{ __('1 Column') }}">
+                            <div class="w-10 h-10 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
+                        </button>
+
+                        <button type="button" @click="addLayout('2col')"
+                                class="group w-20 h-20 rounded-xl border-2 border-gray-200 bg-white hover:border-rj-purple hover:shadow-lg transition flex items-center justify-center gap-1"
+                                title="{{ __('2 Columns') }}">
+                            <div class="w-4 h-10 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
+                            <div class="w-4 h-10 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
+                        </button>
+
+                        <button type="button" @click="addLayout('3col')"
+                                class="group w-20 h-20 rounded-xl border-2 border-gray-200 bg-white hover:border-rj-purple hover:shadow-lg transition flex items-center justify-center gap-1"
+                                title="{{ __('3 Columns') }}">
+                            <div class="w-3 h-10 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
+                            <div class="w-3 h-10 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
+                            <div class="w-3 h-10 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
+                        </button>
+
+                        <button type="button" @click="addLayout('4col')"
+                                class="group w-20 h-20 rounded-xl border-2 border-gray-200 bg-white hover:border-rj-purple hover:shadow-lg transition flex items-center justify-center gap-1"
+                                title="{{ __('4 Columns') }}">
+                            <div class="w-2.5 h-10 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
+                            <div class="w-2.5 h-10 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
+                            <div class="w-2.5 h-10 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
+                            <div class="w-2.5 h-10 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
+                        </button>
+
+                        <button type="button" @click="addLayout('2row')"
+                                class="group w-20 h-20 rounded-xl border-2 border-gray-200 bg-white hover:border-rj-purple hover:shadow-lg transition flex flex-col items-center justify-center gap-1"
+                                title="{{ __('2 Rows') }}">
+                            <div class="w-10 h-4 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
+                            <div class="w-10 h-4 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
+                        </button>
+
+                        <button type="button" @click="addLayout('1plus2')"
+                                class="group w-20 h-20 rounded-xl border-2 border-gray-200 bg-white hover:border-rj-purple hover:shadow-lg transition flex flex-col items-center justify-center gap-1"
+                                title="{{ __('1 + 2') }}">
+                            <div class="w-10 h-4 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
+                            <div class="flex gap-1">
+                                <div class="w-4.5 h-4 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition" style="width: 18px;"></div>
+                                <div class="w-4.5 h-4 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition" style="width: 18px;"></div>
                             </div>
-                            <h2 class="text-2xl font-bold text-gray-900 mb-2">{{ __('Choose a layout') }}</h2>
-                            <p class="text-sm text-gray-500">{{ __('Start with a structure, then drag widgets into each section.') }}</p>
-                        </div>
+                        </button>
 
-                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        <button type="button" @click="addLayout('2row3')"
+                                class="group w-20 h-20 rounded-xl border-2 border-gray-200 bg-white hover:border-rj-purple hover:shadow-lg transition flex flex-col items-center justify-center gap-1"
+                                title="{{ __('2 Rows x 3') }}">
+                            <div class="flex gap-0.5">
+                                <div class="w-2.5 h-4 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
+                                <div class="w-2.5 h-4 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
+                                <div class="w-2.5 h-4 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
+                            </div>
+                            <div class="flex gap-0.5">
+                                <div class="w-2.5 h-4 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
+                                <div class="w-2.5 h-4 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
+                                <div class="w-2.5 h-4 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
+                            </div>
+                        </button>
 
-                            <button type="button" @click="addLayout('1col')"
-                                    class="group bg-white rounded-2xl border-2 border-gray-200 hover:border-rj-purple hover:shadow-lg transition p-6 text-left">
-                                <div class="aspect-[4/3] rounded-lg bg-gray-50 border border-gray-200 flex flex-col gap-2 p-3 mb-4 group-hover:bg-rj-purple/5 group-hover:border-rj-purple/30 transition">
-                                    <div class="flex-1 bg-rj-purple/20 rounded"></div>
-                                </div>
-                                <div class="text-sm font-semibold text-gray-900 group-hover:text-rj-purple">{{ __('Single Column') }}</div>
-                                <div class="text-xs text-gray-500 mt-0.5">{{ __('Full-width content') }}</div>
-                            </button>
+                    </div>
 
-                            <button type="button" @click="addLayout('2col')"
-                                    class="group bg-white rounded-2xl border-2 border-gray-200 hover:border-rj-purple hover:shadow-lg transition p-6 text-left">
-                                <div class="aspect-[4/3] rounded-lg bg-gray-50 border border-gray-200 flex gap-2 p-3 mb-4 group-hover:bg-rj-purple/5 group-hover:border-rj-purple/30 transition">
-                                    <div class="flex-1 bg-rj-purple/20 rounded"></div>
-                                    <div class="flex-1 bg-rj-purple/20 rounded"></div>
-                                </div>
-                                <div class="text-sm font-semibold text-gray-900 group-hover:text-rj-purple">{{ __('2 Columns') }}</div>
-                                <div class="text-xs text-gray-500 mt-0.5">{{ __('Two equal sections') }}</div>
-                            </button>
-
-                            <button type="button" @click="addLayout('3col')"
-                                    class="group bg-white rounded-2xl border-2 border-gray-200 hover:border-rj-purple hover:shadow-lg transition p-6 text-left">
-                                <div class="aspect-[4/3] rounded-lg bg-gray-50 border border-gray-200 flex gap-2 p-3 mb-4 group-hover:bg-rj-purple/5 group-hover:border-rj-purple/30 transition">
-                                    <div class="flex-1 bg-rj-purple/20 rounded"></div>
-                                    <div class="flex-1 bg-rj-purple/20 rounded"></div>
-                                    <div class="flex-1 bg-rj-purple/20 rounded"></div>
-                                </div>
-                                <div class="text-sm font-semibold text-gray-900 group-hover:text-rj-purple">{{ __('3 Columns') }}</div>
-                                <div class="text-xs text-gray-500 mt-0.5">{{ __('Three equal sections') }}</div>
-                            </button>
-
-                            <button type="button" @click="addLayout('4col')"
-                                    class="group bg-white rounded-2xl border-2 border-gray-200 hover:border-rj-purple hover:shadow-lg transition p-6 text-left">
-                                <div class="aspect-[4/3] rounded-lg bg-gray-50 border border-gray-200 flex gap-2 p-3 mb-4 group-hover:bg-rj-purple/5 group-hover:border-rj-purple/30 transition">
-                                    <div class="flex-1 bg-rj-purple/20 rounded"></div>
-                                    <div class="flex-1 bg-rj-purple/20 rounded"></div>
-                                    <div class="flex-1 bg-rj-purple/20 rounded"></div>
-                                    <div class="flex-1 bg-rj-purple/20 rounded"></div>
-                                </div>
-                                <div class="text-sm font-semibold text-gray-900 group-hover:text-rj-purple">{{ __('4 Columns') }}</div>
-                                <div class="text-xs text-gray-500 mt-0.5">{{ __('Four equal sections') }}</div>
-                            </button>
-
-                            <button type="button" @click="addLayout('2row')"
-                                    class="group bg-white rounded-2xl border-2 border-gray-200 hover:border-rj-purple hover:shadow-lg transition p-6 text-left">
-                                <div class="aspect-[4/3] rounded-lg bg-gray-50 border border-gray-200 flex flex-col gap-2 p-3 mb-4 group-hover:bg-rj-purple/5 group-hover:border-rj-purple/30 transition">
-                                    <div class="flex-1 bg-rj-purple/20 rounded"></div>
-                                    <div class="flex-1 bg-rj-purple/20 rounded"></div>
-                                </div>
-                                <div class="text-sm font-semibold text-gray-900 group-hover:text-rj-purple">{{ __('2 Rows') }}</div>
-                                <div class="text-xs text-gray-500 mt-0.5">{{ __('Stacked sections') }}</div>
-                            </button>
-
-                            <button type="button" @click="addLayout('1plus2')"
-                                    class="group bg-white rounded-2xl border-2 border-gray-200 hover:border-rj-purple hover:shadow-lg transition p-6 text-left">
-                                <div class="aspect-[4/3] rounded-lg bg-gray-50 border border-gray-200 flex flex-col gap-2 p-3 mb-4 group-hover:bg-rj-purple/5 group-hover:border-rj-purple/30 transition">
-                                    <div class="flex-1 bg-rj-purple/20 rounded"></div>
-                                    <div class="flex-1 flex gap-2">
-                                        <div class="flex-1 bg-rj-purple/20 rounded"></div>
-                                        <div class="flex-1 bg-rj-purple/20 rounded"></div>
-                                    </div>
-                                </div>
-                                <div class="text-sm font-semibold text-gray-900 group-hover:text-rj-purple">{{ __('1 + 2') }}</div>
-                                <div class="text-xs text-gray-500 mt-0.5">{{ __('Top full, bottom split') }}</div>
-                            </button>
-
-                            <button type="button" @click="addBlank()"
-                                    class="group bg-white rounded-2xl border-2 border-dashed border-gray-300 hover:border-rj-purple hover:shadow-lg transition p-6 text-left col-span-2 md:col-span-1">
-                                <div class="aspect-[4/3] rounded-lg bg-gray-50 border border-dashed border-gray-300 flex items-center justify-center p-3 mb-4 group-hover:bg-rj-purple/5 group-hover:border-rj-purple/30 transition">
-                                    <svg class="w-8 h-8 text-gray-400 group-hover:text-rj-purple" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-                                </div>
-                                <div class="text-sm font-semibold text-gray-900 group-hover:text-rj-purple">{{ __('Start Blank') }}</div>
-                                <div class="text-xs text-gray-500 mt-0.5">{{ __('Add widgets manually') }}</div>
-                            </button>
-
-                        </div>
+                    <div class="text-center">
+                        <div class="text-xs text-gray-400 uppercase tracking-wider mb-4">{{ __('or start from scratch') }}</div>
+                        <button type="button" @click="addBlank()"
+                                class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-gradient-to-r from-rj-purple to-rj-pink text-white text-sm font-medium hover:opacity-90 transition">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                            {{ __('Start Blank') }}
+                        </button>
                     </div>
                 </div>
 
@@ -214,6 +206,19 @@
                          :class="dragTarget === 'root:' + blocks.length ? 'h-10 opacity-100' : 'h-2 opacity-0'"
                          class="transition-all flex items-center">
                         <div class="w-full h-1 bg-rj-purple rounded-full"></div>
+                    </div>
+
+                    <div class="mt-8 flex items-center justify-center">
+                        <button type="button" @click="showLayoutPicker = true"
+                                class="group flex items-center gap-3 px-6 py-4 rounded-2xl border-2 border-dashed border-gray-300 hover:border-rj-purple hover:bg-rj-purple/5 transition">
+                            <div class="w-10 h-10 rounded-full bg-white border-2 border-gray-300 group-hover:border-rj-purple group-hover:bg-rj-purple/10 flex items-center justify-center transition">
+                                <svg class="w-5 h-5 text-gray-400 group-hover:text-rj-purple transition" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                            </div>
+                            <div class="text-left">
+                                <div class="text-sm font-semibold text-gray-900 group-hover:text-rj-purple">{{ __('Add New Section') }}</div>
+                                <div class="text-xs text-gray-500">{{ __('Choose another layout below') }}</div>
+                            </div>
+                        </button>
                     </div>
                 </div>
 
@@ -309,6 +314,96 @@
         </aside>
     </div>
 
+    <div x-show="showLayoutPicker" x-cloak class="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+         @keydown.escape.window="showLayoutPicker = false">
+        <div x-show="showLayoutPicker" x-transition.opacity @click="showLayoutPicker = false" class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+
+        <div x-show="showLayoutPicker"
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0 scale-95"
+             x-transition:enter-end="opacity-100 scale-100"
+             class="relative bg-white rounded-2xl shadow-2xl w-full max-w-3xl p-8">
+
+            <div class="text-center mb-8">
+                <h2 class="text-lg font-semibold text-gray-900 mb-2">{{ __('Add New Section') }}</h2>
+                <p class="text-sm text-gray-500">{{ __('Choose a layout for the new section.') }}</p>
+            </div>
+
+            <div class="flex items-center justify-center gap-3 flex-wrap">
+
+                <button type="button" @click="addLayout('1col'); showLayoutPicker = false"
+                        class="group w-16 h-16 rounded-xl border-2 border-gray-200 bg-white hover:border-rj-purple hover:shadow-lg transition flex items-center justify-center"
+                        title="{{ __('1 Column') }}">
+                    <div class="w-8 h-8 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
+                </button>
+
+                <button type="button" @click="addLayout('2col'); showLayoutPicker = false"
+                        class="group w-16 h-16 rounded-xl border-2 border-gray-200 bg-white hover:border-rj-purple hover:shadow-lg transition flex items-center justify-center gap-0.5"
+                        title="{{ __('2 Columns') }}">
+                    <div class="w-3 h-8 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
+                    <div class="w-3 h-8 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
+                </button>
+
+                <button type="button" @click="addLayout('3col'); showLayoutPicker = false"
+                        class="group w-16 h-16 rounded-xl border-2 border-gray-200 bg-white hover:border-rj-purple hover:shadow-lg transition flex items-center justify-center gap-0.5"
+                        title="{{ __('3 Columns') }}">
+                    <div class="w-2.5 h-8 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
+                    <div class="w-2.5 h-8 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
+                    <div class="w-2.5 h-8 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
+                </button>
+
+                <button type="button" @click="addLayout('4col'); showLayoutPicker = false"
+                        class="group w-16 h-16 rounded-xl border-2 border-gray-200 bg-white hover:border-rj-purple hover:shadow-lg transition flex items-center justify-center gap-0.5"
+                        title="{{ __('4 Columns') }}">
+                    <div class="w-2 h-8 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
+                    <div class="w-2 h-8 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
+                    <div class="w-2 h-8 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
+                    <div class="w-2 h-8 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
+                </button>
+
+                <button type="button" @click="addLayout('2row'); showLayoutPicker = false"
+                        class="group w-16 h-16 rounded-xl border-2 border-gray-200 bg-white hover:border-rj-purple hover:shadow-lg transition flex flex-col items-center justify-center gap-0.5"
+                        title="{{ __('2 Rows') }}">
+                    <div class="w-8 h-3.5 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
+                    <div class="w-8 h-3.5 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
+                </button>
+
+                <button type="button" @click="addLayout('1plus2'); showLayoutPicker = false"
+                        class="group w-16 h-16 rounded-xl border-2 border-gray-200 bg-white hover:border-rj-purple hover:shadow-lg transition flex flex-col items-center justify-center gap-0.5"
+                        title="{{ __('1 + 2') }}">
+                    <div class="w-8 h-3.5 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
+                    <div class="flex gap-0.5">
+                        <div class="w-3.5 h-3.5 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
+                        <div class="w-3.5 h-3.5 border-2 border-dashed border-gray-300 group-hover:border-rj-purple transition"></div>
+                    </div>
+                </button>
+
+                <button type="button" @click="addLayout('2row3'); showLayoutPicker = false"
+                        class="group w-16 h-16 rounded-xl border-2 border-gray-200 bg-white hover:border-rj-purple hover:shadow-lg transition flex flex-col items-center justify-center gap-0.5"
+                        title="{{ __('2 Rows x 3') }}">
+                    <div class="flex gap-0.5">
+                        <div class="w-2 h-3.5 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
+                        <div class="w-2 h-3.5 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
+                        <div class="w-2 h-3.5 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
+                    </div>
+                    <div class="flex gap-0.5">
+                        <div class="w-2 h-3.5 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
+                        <div class="w-2 h-3.5 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
+                        <div class="w-2 h-3.5 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
+                    </div>
+                </button>
+
+            </div>
+
+            <div class="mt-8 text-center">
+                <button type="button" @click="showLayoutPicker = false" class="text-sm text-gray-500 hover:text-gray-700">
+                    {{ __('Cancel') }}
+                </button>
+            </div>
+
+        </div>
+    </div>
+
     @include('admin.partials.media-picker')
 </div>
 
@@ -326,6 +421,7 @@ function builder() {
         mediaPickerTarget: null,
         dragging: null,
         dragTarget: null,
+        showLayoutPicker: false,
 
         get canUndo() { return this.historyIndex > 0; },
         get canRedo() { return this.historyIndex < this.history.length - 1; },
@@ -409,6 +505,7 @@ function builder() {
                 '4col': { cols: 4 },
                 '2row': { cols: 1, rows: 2 },
                 '1plus2': { special: true },
+                '2row3': { rows: 2, rowCols: 3 },
             };
 
             const p = presets[preset];
@@ -429,6 +526,16 @@ function builder() {
                 const bottomRow = this.createBlock('container', { columns: '2' });
                 bottomRow.children = [this.createBlock('container', { columns: '1' }), this.createBlock('container', { columns: '1' })];
                 container.children.push(bottomRow);
+            } else if (p.rowCols) {
+                container.settings.columns = '1';
+                for (let r = 0; r < p.rows; r++) {
+                    const row = this.createBlock('container', { columns: String(p.rowCols) });
+                    row.children = [];
+                    for (let c = 0; c < p.rowCols; c++) {
+                        row.children.push(this.createBlock('container', { columns: '1' }));
+                    }
+                    container.children.push(row);
+                }
             } else if (p.rows && p.rows > 1) {
                 for (let r = 0; r < p.rows; r++) {
                     container.children.push(this.createBlock('container', { columns: '1' }));
@@ -639,7 +746,7 @@ function builder() {
             const bid = block.id;
 
             return `
-                <div class="relative bg-white rounded-lg border border-gray-200 transition group ${isSelected ? 'ring-2 ring-rj-purple shadow-lg' : 'hover:shadow-md'}"
+                <div class="relative transition group ${isSelected ? 'ring-2 ring-rj-purple' : ''}"
                      onclick="event.stopPropagation(); window.__builder.selectBlock('${bid}')">
                     <div class="absolute -top-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1 bg-rj-dark-1 text-white rounded-full px-2 py-1 shadow-lg ${isSelected ? '' : 'opacity-0 group-hover:opacity-100'} transition-opacity">
                         <span class="text-[10px] font-medium uppercase tracking-wider px-1.5">${this.blockLabel(block.type)}</span>
@@ -657,7 +764,7 @@ function builder() {
                             <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                         </button>
                     </div>
-                    <div class="p-1 pointer-events-none">${anim}</div>
+                    <div class="pointer-events-none">${anim}</div>
                 </div>
             `;
         },
@@ -669,7 +776,7 @@ function builder() {
             const paddingMap = { none: '0', sm: '0.5rem', md: '1rem', lg: '1.5rem', xl: '2.5rem' };
             const bg = settings.background || 'transparent';
             const gap = gapMap[settings.gap] || '1rem';
-            const padding = paddingMap[settings.padding] || '0';
+            const padding = paddingMap[settings.padding] || '1rem';
             const minHeight = settings.min_height && settings.min_height !== 'auto' ? { sm: '200px', md: '400px', lg: '600px' }[settings.min_height] : 'auto';
             const border = settings.border === 'solid' ? '2px solid #e5e7eb' : settings.border === 'dashed' ? '2px dashed #e5e7eb' : 'none';
             const alignMap = { start: 'flex-start', center: 'center', end: 'flex-end', stretch: 'stretch' };
@@ -687,18 +794,16 @@ function builder() {
                     inner = this.renderBlockHtml(child, bid, i);
                 } else {
                     inner = `
-                        <div class="min-h-[100px] flex flex-col items-center justify-center text-gray-300 pointer-events-none">
-                            <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-                            <span class="text-[10px] uppercase tracking-wider">${i + 1}</span>
+                        <div class="min-h-[80px] flex flex-col items-center justify-center text-gray-300 pointer-events-none">
+                            <svg class="w-5 h-5 mb-1" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                            <span class="text-[9px] uppercase tracking-wider">${i + 1}</span>
                         </div>
                     `;
                 }
 
-                const isDragTarget = `dragTarget === '${bid}:${i}'`;
-
                 slotsHtml += `
-                    <div class="relative min-h-[100px] rounded-lg border-2 border-dashed transition"
-                         :class="dragTarget === '${bid}:${i}' ? 'border-rj-purple bg-rj-purple/5' : 'border-transparent hover:border-gray-200'"
+                    <div class="relative min-h-[80px] rounded-lg border-2 border-dashed transition"
+                         :class="dragTarget === '${bid}:${i}' ? 'border-rj-purple bg-rj-purple/10' : 'border-gray-200 hover:border-gray-300'"
                          ondragover="event.preventDefault(); event.stopPropagation(); window.__builder.dragTarget = '${bid}:${i}';"
                          ondrop="event.preventDefault(); event.stopPropagation(); window.__builder.dropInto('${bid}', ${i});"
                          ondragleave="window.__builder.dragTarget = null;">
@@ -708,7 +813,7 @@ function builder() {
             }
 
             return `
-                <div class="m-3 rounded-lg" style="background:${bg}; padding:${padding}; border:${border}; min-height:${minHeight};">
+                <div class="rounded-xl" style="background:${bg}; padding:${padding}; border:${border}; min-height:${minHeight};">
                     <div style="display:grid; grid-template-columns: repeat(${cols}, minmax(0, 1fr)); gap:${gap}; align-items:${align};">
                         ${slotsHtml}
                     </div>
