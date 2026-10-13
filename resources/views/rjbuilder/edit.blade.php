@@ -98,8 +98,9 @@
             </div>
         </div>
 
-                {{-- Language switcher (page type only) --}}
-        <div x-show="templateType === 'page'" class="flex items-center gap-1 p-1 rounded-xl" style="background:rgba(255,255,255,0.06);">
+        <div class="flex items-center gap-3">
+        {{-- Language switcher (page type only) --}}
+        <div x-show="templateType === 'page' && locales.length > 1" x-cloak class="flex items-center gap-1 p-1 rounded-xl" style="background:rgba(255,255,255,0.06);">
             <template x-for="loc in locales" :key="loc">
                 <button type="button" @click="activeLocale = loc"
                         :style="activeLocale === loc ? 'background:rgba(124,58,237,0.5); color:#fff;' : 'color:#94a3b8;'"
@@ -108,9 +109,6 @@
                         :title="'{{ __('Edit content in') }} ' + loc"></button>
             </template>
         </div>
-
-        {{-- Device switcher --}}
-        <div class="flex items-center gap-1 p-1 rounded-xl" style="background:rgba(255,255,255,0.06); color:#94a3b8;">
 
         {{-- Device switcher --}}
         <div class="flex items-center gap-1 p-1 rounded-xl" style="background:rgba(255,255,255,0.06); color:#94a3b8;">
@@ -123,6 +121,7 @@
             <button type="button" class="rj-device w-9 h-8 rounded-lg flex items-center justify-center transition" :data-active="device === 'mobile'" @click="setDevice('mobile')" title="{{ __('Mobile') }}">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="7" y="2" width="10" height="20" rx="2"/><path stroke-linecap="round" d="M11 18h2"/></svg>
             </button>
+        </div>
         </div>
 
         <div class="flex items-center justify-end gap-2" style="width:30%;">
@@ -364,8 +363,9 @@
 
                 <div x-show="selectedBlock" x-cloak class="space-y-4">
 
-                                        <div x-show="rightTab === 'content' && templateType === 'page'" class="text-[11px] px-3 py-2 rounded-lg mb-3" style="background:rgba(124,58,237,.08); color:#5b21b6;">
-                        ✏️ {{ __('Editing in') }}: <strong x-text="activeLocale.toUpperCase()"></strong>
+                    <div x-show="rightTab === 'content' && templateType === 'page' && locales.length > 1" class="text-[11px] px-3 py-2 rounded-lg" style="background:rgba(124,58,237,.08); color:#5b21b6;">
+                        🌐 {{ __('Editing in') }}: <strong x-text="activeLocale.toUpperCase()"></strong>
+                        <span x-show="activeLocale !== baseLocale" style="opacity:.75;">— {{ __('fields marked 🌐 are translated; others are shared.') }}</span>
                     </div>
 
                     <div x-show="activeFields.length === 0" class="text-xs text-center py-6" style="color:#9ca3af;">{{ __('No options in this tab.') }}</div>
@@ -373,7 +373,7 @@
                     <template x-for="field in activeFields" :key="rightTab + field.name">
                         <div>
                             <template x-if="field.type !== 'toggle'">
-                                <label class="block text-xs font-medium mb-1.5" style="color:#374151;" x-text="field.label"></label>
+                                <label class="block text-xs font-medium mb-1.5" style="color:#374151;" x-text="field.label + (templateType === 'page' && locales.length > 1 && isTranslatableField(field.name) ? ' 🌐' : '')"></label>
                             </template>
 
                             <template x-if="field.type === 'text'">
@@ -561,8 +561,10 @@ function builder() {
 
         templateType: RJ.templateType,
         baseLocale: RJ.baseLocale,
-        locales: @json($locales),
+        locales: (function (l) { return Array.isArray(l) ? l : Object.keys(l || {}); })(@json($locales)),
         activeLocale: RJ.baseLocale,
+        // settings keys that are translated per language (add your own widget fields here)
+        translatableFields: ['text', 'alt', 'caption', 'title', 'subtitle', 'description', 'label', 'button_text', 'content', 'placeholder'],
 
         // Built-in "Motion / Advanced" fields (available on every widget)
         advancedSchema: [
@@ -661,25 +663,20 @@ function builder() {
             return /color|background|bg|padding|margin|gap|border|radius|rounded|size|align|width|height|font|weight|shadow|spacing|opacity/i.test(f.name);
         },
 
-                isTranslatableField(name) {
+        isTranslatableField(name) {
             if (this.templateType !== 'page') return false;
-            return ['text', 'alt', 'caption', 'title', 'description'].includes(name);
-        },
-
-        getBlockText(block) {
-            const s = block.settings || {};
-            if (this.templateType !== 'page') return s.text || '';
-            if (this.activeLocale === this.baseLocale) return s.text || '';
-            const t = (s.translations || {})[this.activeLocale];
-            return (t && t.text) || s.text || '';
+            return this.translatableFields.includes(name);
         },
 
         getBlockField(block, name) {
             const s = block.settings || {};
-            if (!this.isTranslatableField(name)) return s[name];
-            if (this.activeLocale === this.baseLocale) return s[name];
+            if (!this.isTranslatableField(name) || this.activeLocale === this.baseLocale) return s[name];
             const t = (s.translations || {})[this.activeLocale] || {};
-            return t[name] !== undefined ? t[name] : s[name];
+            return t[name] !== undefined ? t[name] : s[name]; // fall back to base language
+        },
+
+        getBlockText(block) {
+            return this.getBlockField(block, 'text') || '';
         },
 
         setBlockField(block, name, value) {
@@ -695,9 +692,10 @@ function builder() {
 
         fieldValue(field) {
             const b = this.currentBlock;
-            if (!b) return field.default !== undefined ? field.default : '';
-            const v = this.getBlockField(b, field.name);
-            if (v !== undefined && v !== null) return v;
+            if (b) {
+                const v = this.getBlockField(b, field.name);
+                if (v !== undefined && v !== null) return v;
+            }
             return field.default !== undefined ? field.default : '';
         },
 
@@ -1086,8 +1084,7 @@ function builder() {
                 el.contentEditable = 'false';
                 el.style.outline = '';
                 const txt = el.innerText.replace(/\n+$/, '');
-                const old = this.getBlockText(b);
-                if (old !== txt) {
+                if (this.getBlockText(b) !== txt) {
                     this.setBlockField(b, 'text', txt);
                     this.markDirty();
                     this.pushHistory();
@@ -1290,8 +1287,29 @@ function builder() {
             const inline = this.preview ? '' : `class="rj-inline-edit" ondblclick="event.stopPropagation(); window.__builder.startInline(this, '${bid}')"`;
             const mobile = this.device === 'mobile';
 
+            if (block.type === 'heading') {
+                const level = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(settings.level) ? settings.level : 'h2';
+                const sizes = { h1: '2rem', h2: '1.5rem', h3: '1.25rem', h4: '1.125rem', h5: '1rem', h6: '0.875rem' };
+                const mobileSizes = { h1: '1.6rem', h2: '1.3rem', h3: '1.15rem', h4: '1.05rem', h5: '1rem', h6: '0.875rem' };
+                const aligns = { left: 'left', center: 'center', right: 'right' };
+                const size = (mobile ? mobileSizes : sizes)[level];
+                return `<${level} ${inline} style="font-size:${size}; font-weight:700; text-align:${aligns[settings.align] || 'left'}; color:${esc(settings.color || '#111827')}; padding:0.75rem 1rem; margin:0;">${esc(this.getBlockField(block, 'text') || 'Heading')}</${level}>`;
             }
 
+            if (block.type === 'text') {
+                const aligns = { left: 'left', center: 'center', right: 'right', justify: 'justify' };
+                const sizes = { sm: '0.875rem', base: '1rem', lg: '1.125rem', xl: '1.25rem' };
+                return `<p ${inline} style="font-size:${sizes[settings.size] || '1rem'}; text-align:${aligns[settings.align] || 'left'}; color:${esc(settings.color || '#374151')}; padding:0.75rem 1rem; line-height:1.6; white-space:pre-wrap; margin:0;">${esc(this.getBlockField(block, 'text') || 'Text')}</p>`;
+            }
+
+            if (block.type === 'image') {
+                if (!settings.url) return `<div style="padding:2rem; text-align:center; color:#9ca3af; font-size:0.75rem;">${this.preview ? '' : 'Image'}</div>`;
+                const aligns = { left: '0 auto 0 0', center: '0 auto', right: '0 0 0 auto' };
+                const widths = { auto: 'auto', full: '100%', half: '50%', third: '33.333%' };
+                const rounded = { none: '0', sm: '4px', md: '8px', lg: '16px', full: '9999px' };
+                const width = mobile ? '100%' : (widths[settings.width] || '100%');
+                return `<figure style="padding:0.75rem 1rem; margin:0;"><img src="${esc(settings.url)}" alt="${esc(this.getBlockField(block, 'alt') || '')}" style="width:${width}; max-width:100%; border-radius:${rounded[settings.rounded] || '8px'}; margin:${aligns[settings.align] || '0 auto'}; display:block;"></figure>`;
+            }
 
             const w = this.widgets.find(x => x.id === block.type);
             return `<div style="padding:1rem; text-align:center; font-size:0.75rem; color:#6b7280;">${esc(w ? w.name : block.type)}</div>`;
@@ -1314,7 +1332,7 @@ function builder() {
                 const s = b.settings || {};
                 const hint = isContainer
                     ? `${parseInt(s.columns) || 1} col`
-                    : this.esc(String(s.text || s.alt || '').slice(0, 22));
+                    : this.esc(String(this.getBlockField(b, 'text') || this.getBlockField(b, 'alt') || '').slice(0, 22));
                 const anim = s._animation && s._animation !== 'none' ? ' <span style="color:#a855f7;">✦</span>' : '';
                 const row = `
                     <div class="rj-nav flex items-center gap-2 rounded-md pr-2 py-1.5 text-xs"
