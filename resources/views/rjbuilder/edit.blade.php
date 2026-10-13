@@ -84,7 +84,7 @@
                                     <button type="button"
                                             draggable="true"
                                             @dragstart="startDragNew('{{ $widget->id() }}', $event)"
-                                            @click="addWidget('{{ $widget->id() }}')"
+                                            @click="quickAdd('{{ $widget->id() }}')"
                                             x-show="widgetVisible('{{ strtolower($widget->name()) }}', '{{ $widget->id() }}')"
                                             class="group flex flex-col items-center justify-center gap-2 px-3 py-4 rounded-lg border border-gray-200 hover:border-rj-purple hover:bg-rj-purple/5 transition cursor-grab active:cursor-grabbing">
                                         <div class="w-9 h-9 rounded-lg bg-gray-100 group-hover:bg-rj-purple/10 flex items-center justify-center text-gray-600 group-hover:text-rj-purple transition">
@@ -99,89 +99,122 @@
                         </div>
                     @endif
                 @endforeach
-
-                @if (empty($grouped))
-                    <div class="p-6 text-center text-xs text-gray-400">
-                        {{ __('No widgets available. Run composer dump-autoload.') }}
-                    </div>
-                @endif
             </div>
         </aside>
 
-        <main class="flex-1 bg-gray-100 overflow-y-auto rj-scrollbar relative">
+        <main class="flex-1 bg-gray-100 overflow-y-auto rj-scrollbar">
             <div class="min-h-full p-6">
 
-                <div x-show="blocks.length === 0"
-                     @dragover.prevent="onDragOver($event, 0)"
-                     @drop.prevent="onDrop($event, 0)"
-                     :class="dragOverIndex === 0 ? 'border-rj-purple bg-rj-purple/10' : 'border-gray-300'"
-                     class="min-h-[calc(100vh-160px)] flex items-center justify-center border-2 border-dashed rounded-2xl transition">
-                    <div class="text-center max-w-md pointer-events-none">
-                        <div class="w-20 h-20 mx-auto rounded-2xl bg-white border-2 border-dashed border-gray-300 flex items-center justify-center mb-4">
-                            <svg class="w-9 h-9 text-gray-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                <div x-show="blocks.length === 0" class="min-h-[calc(100vh-160px)] flex items-center justify-center">
+                    <div class="max-w-3xl w-full">
+                        <div class="text-center mb-10">
+                            <div class="w-16 h-16 mx-auto rounded-2xl bg-gradient-to-br from-rj-purple to-rj-pink flex items-center justify-center mb-4 shadow-lg shadow-rj-purple/20">
+                                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zM14 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/></svg>
+                            </div>
+                            <h2 class="text-2xl font-bold text-gray-900 mb-2">{{ __('Choose a layout') }}</h2>
+                            <p class="text-sm text-gray-500">{{ __('Start with a structure, then drag widgets into each section.') }}</p>
                         </div>
-                        <h3 class="text-base font-semibold text-gray-900 mb-1">{{ __('Start building') }}</h3>
-                        <p class="text-sm text-gray-500">{{ __('Drag a widget from the left panel, or click it to add.') }}</p>
+
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+
+                            <button type="button" @click="addLayout('1col')"
+                                    class="group bg-white rounded-2xl border-2 border-gray-200 hover:border-rj-purple hover:shadow-lg transition p-6 text-left">
+                                <div class="aspect-[4/3] rounded-lg bg-gray-50 border border-gray-200 flex flex-col gap-2 p-3 mb-4 group-hover:bg-rj-purple/5 group-hover:border-rj-purple/30 transition">
+                                    <div class="flex-1 bg-rj-purple/20 rounded"></div>
+                                </div>
+                                <div class="text-sm font-semibold text-gray-900 group-hover:text-rj-purple">{{ __('Single Column') }}</div>
+                                <div class="text-xs text-gray-500 mt-0.5">{{ __('Full-width content') }}</div>
+                            </button>
+
+                            <button type="button" @click="addLayout('2col')"
+                                    class="group bg-white rounded-2xl border-2 border-gray-200 hover:border-rj-purple hover:shadow-lg transition p-6 text-left">
+                                <div class="aspect-[4/3] rounded-lg bg-gray-50 border border-gray-200 flex gap-2 p-3 mb-4 group-hover:bg-rj-purple/5 group-hover:border-rj-purple/30 transition">
+                                    <div class="flex-1 bg-rj-purple/20 rounded"></div>
+                                    <div class="flex-1 bg-rj-purple/20 rounded"></div>
+                                </div>
+                                <div class="text-sm font-semibold text-gray-900 group-hover:text-rj-purple">{{ __('2 Columns') }}</div>
+                                <div class="text-xs text-gray-500 mt-0.5">{{ __('Two equal sections') }}</div>
+                            </button>
+
+                            <button type="button" @click="addLayout('3col')"
+                                    class="group bg-white rounded-2xl border-2 border-gray-200 hover:border-rj-purple hover:shadow-lg transition p-6 text-left">
+                                <div class="aspect-[4/3] rounded-lg bg-gray-50 border border-gray-200 flex gap-2 p-3 mb-4 group-hover:bg-rj-purple/5 group-hover:border-rj-purple/30 transition">
+                                    <div class="flex-1 bg-rj-purple/20 rounded"></div>
+                                    <div class="flex-1 bg-rj-purple/20 rounded"></div>
+                                    <div class="flex-1 bg-rj-purple/20 rounded"></div>
+                                </div>
+                                <div class="text-sm font-semibold text-gray-900 group-hover:text-rj-purple">{{ __('3 Columns') }}</div>
+                                <div class="text-xs text-gray-500 mt-0.5">{{ __('Three equal sections') }}</div>
+                            </button>
+
+                            <button type="button" @click="addLayout('4col')"
+                                    class="group bg-white rounded-2xl border-2 border-gray-200 hover:border-rj-purple hover:shadow-lg transition p-6 text-left">
+                                <div class="aspect-[4/3] rounded-lg bg-gray-50 border border-gray-200 flex gap-2 p-3 mb-4 group-hover:bg-rj-purple/5 group-hover:border-rj-purple/30 transition">
+                                    <div class="flex-1 bg-rj-purple/20 rounded"></div>
+                                    <div class="flex-1 bg-rj-purple/20 rounded"></div>
+                                    <div class="flex-1 bg-rj-purple/20 rounded"></div>
+                                    <div class="flex-1 bg-rj-purple/20 rounded"></div>
+                                </div>
+                                <div class="text-sm font-semibold text-gray-900 group-hover:text-rj-purple">{{ __('4 Columns') }}</div>
+                                <div class="text-xs text-gray-500 mt-0.5">{{ __('Four equal sections') }}</div>
+                            </button>
+
+                            <button type="button" @click="addLayout('2row')"
+                                    class="group bg-white rounded-2xl border-2 border-gray-200 hover:border-rj-purple hover:shadow-lg transition p-6 text-left">
+                                <div class="aspect-[4/3] rounded-lg bg-gray-50 border border-gray-200 flex flex-col gap-2 p-3 mb-4 group-hover:bg-rj-purple/5 group-hover:border-rj-purple/30 transition">
+                                    <div class="flex-1 bg-rj-purple/20 rounded"></div>
+                                    <div class="flex-1 bg-rj-purple/20 rounded"></div>
+                                </div>
+                                <div class="text-sm font-semibold text-gray-900 group-hover:text-rj-purple">{{ __('2 Rows') }}</div>
+                                <div class="text-xs text-gray-500 mt-0.5">{{ __('Stacked sections') }}</div>
+                            </button>
+
+                            <button type="button" @click="addLayout('1plus2')"
+                                    class="group bg-white rounded-2xl border-2 border-gray-200 hover:border-rj-purple hover:shadow-lg transition p-6 text-left">
+                                <div class="aspect-[4/3] rounded-lg bg-gray-50 border border-gray-200 flex flex-col gap-2 p-3 mb-4 group-hover:bg-rj-purple/5 group-hover:border-rj-purple/30 transition">
+                                    <div class="flex-1 bg-rj-purple/20 rounded"></div>
+                                    <div class="flex-1 flex gap-2">
+                                        <div class="flex-1 bg-rj-purple/20 rounded"></div>
+                                        <div class="flex-1 bg-rj-purple/20 rounded"></div>
+                                    </div>
+                                </div>
+                                <div class="text-sm font-semibold text-gray-900 group-hover:text-rj-purple">{{ __('1 + 2') }}</div>
+                                <div class="text-xs text-gray-500 mt-0.5">{{ __('Top full, bottom split') }}</div>
+                            </button>
+
+                            <button type="button" @click="addBlank()"
+                                    class="group bg-white rounded-2xl border-2 border-dashed border-gray-300 hover:border-rj-purple hover:shadow-lg transition p-6 text-left col-span-2 md:col-span-1">
+                                <div class="aspect-[4/3] rounded-lg bg-gray-50 border border-dashed border-gray-300 flex items-center justify-center p-3 mb-4 group-hover:bg-rj-purple/5 group-hover:border-rj-purple/30 transition">
+                                    <svg class="w-8 h-8 text-gray-400 group-hover:text-rj-purple" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                                </div>
+                                <div class="text-sm font-semibold text-gray-900 group-hover:text-rj-purple">{{ __('Start Blank') }}</div>
+                                <div class="text-xs text-gray-500 mt-0.5">{{ __('Add widgets manually') }}</div>
+                            </button>
+
+                        </div>
                     </div>
                 </div>
 
-                <div x-show="blocks.length > 0" class="max-w-4xl mx-auto">
-
+                <div x-show="blocks.length > 0" class="max-w-5xl mx-auto">
                     <template x-for="(block, index) in blocks" :key="block.id">
                         <div>
-                            <div @dragover.prevent="onDragOver($event, index)"
-                                 @drop.prevent="onDrop($event, index)"
-                                 @dragleave="onDragLeave()"
-                                 :class="dragOverIndex === index ? 'h-10 opacity-100' : 'h-2 opacity-0'"
+                            <div @dragover.prevent="onDragOver($event, 'root', index)"
+                                 @drop.prevent="onDrop($event, 'root', index)"
+                                 :class="dragTarget === 'root:' + index ? 'h-10 opacity-100' : 'h-2 opacity-0'"
                                  class="transition-all flex items-center">
                                 <div class="w-full h-1 bg-rj-purple rounded-full"></div>
                             </div>
 
-                            <div @click="selectBlock(block.id)"
-                                 @mouseenter="hoveredBlock = block.id"
-                                 @mouseleave="hoveredBlock = null"
-                                 :class="selectedBlock === block.id ? 'ring-2 ring-rj-purple shadow-lg' : 'hover:shadow-md'"
-                                 class="relative bg-white rounded-lg border border-gray-200 transition group cursor-pointer">
-
-                                <div x-show="selectedBlock === block.id || hoveredBlock === block.id" x-cloak
-                                     class="absolute -top-3 left-1/2 -translate-x-1/2 z-10 flex items-center gap-1 bg-rj-dark-1 text-white rounded-full px-2 py-1 shadow-lg">
-                                    <span class="text-[10px] font-medium uppercase tracking-wider px-1.5" x-text="blockLabel(block.type)"></span>
-                                    <div class="w-px h-3 bg-white/20"></div>
-                                    <button type="button" @click.stop="moveUp(index)" :disabled="index === 0"
-                                            class="w-5 h-5 rounded-full hover:bg-white/10 flex items-center justify-center disabled:opacity-30"
-                                            title="Move up">
-                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"/></svg>
-                                    </button>
-                                    <button type="button" @click.stop="moveDown(index)" :disabled="index === blocks.length - 1"
-                                            class="w-5 h-5 rounded-full hover:bg-white/10 flex items-center justify-center disabled:opacity-30"
-                                            title="Move down">
-                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
-                                    </button>
-                                    <button type="button" @click.stop="duplicateBlock(index)"
-                                            class="w-5 h-5 rounded-full hover:bg-white/10 flex items-center justify-center"
-                                            title="Duplicate">
-                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                                    </button>
-                                    <button type="button" @click.stop="removeBlock(index)"
-                                            class="w-5 h-5 rounded-full hover:bg-red-500/30 flex items-center justify-center"
-                                            title="Delete">
-                                        <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                                    </button>
-                                </div>
-
-                                <div class="p-1 pointer-events-none" x-html="renderBlock(block)"></div>
-                            </div>
+                            <div x-html="renderBlockHtml(block, 'root', index)"></div>
                         </div>
                     </template>
 
-                    <div @dragover.prevent="onDragOver($event, blocks.length)"
-                         @drop.prevent="onDrop($event, blocks.length)"
-                         @dragleave="onDragLeave()"
-                         :class="dragOverIndex === blocks.length ? 'h-10 opacity-100' : 'h-2 opacity-0'"
+                    <div @dragover.prevent="onDragOver($event, 'root', blocks.length)"
+                         @drop.prevent="onDrop($event, 'root', blocks.length)"
+                         :class="dragTarget === 'root:' + blocks.length ? 'h-10 opacity-100' : 'h-2 opacity-0'"
                          class="transition-all flex items-center">
                         <div class="w-full h-1 bg-rj-purple rounded-full"></div>
                     </div>
-
                 </div>
 
             </div>
@@ -281,29 +314,25 @@
 
 <script>
 function builder() {
-    const widgets = @json($widgetsData);
-
     return {
-        widgets: widgets,
+        widgets: @json($widgetsData),
         blocks: @json($blocksData),
         selectedBlock: null,
-        hoveredBlock: null,
         widgetSearch: '',
         saving: false,
         saved: true,
         history: [],
         historyIndex: -1,
         mediaPickerTarget: null,
-
         dragging: null,
-        dragOverIndex: -1,
+        dragTarget: null,
 
         get canUndo() { return this.historyIndex > 0; },
         get canRedo() { return this.historyIndex < this.history.length - 1; },
 
         get currentBlock() {
             if (!this.selectedBlock) return null;
-            return this.blocks.find(b => b.id === this.selectedBlock) || null;
+            return this.findBlock(this.selectedBlock);
         },
 
         get currentSchema() {
@@ -319,6 +348,7 @@ function builder() {
 
         init() {
             this.pushHistory();
+            setTimeout(() => { window.__builder = this; }, 50);
         },
 
         widgetVisible(name, id) {
@@ -346,20 +376,125 @@ function builder() {
             return 'blk_' + Math.random().toString(36).substr(2, 9);
         },
 
-        addWidget(widgetId) {
-            this.addWidgetAt(widgetId, this.blocks.length);
+        findBlock(id, list) {
+            list = list || this.blocks;
+            for (const b of list) {
+                if (b.id === id) return b;
+                if (b.children && b.children.length) {
+                    const found = this.findBlock(id, b.children);
+                    if (found) return found;
+                }
+            }
+            return null;
         },
 
-        addWidgetAt(widgetId, index) {
-            const w = this.widgets.find(x => x.id === widgetId);
-            if (!w) return;
+        findBlockAndParent(id, list, parent) {
+            list = list || this.blocks;
+            parent = parent || null;
+            for (let i = 0; i < list.length; i++) {
+                if (list[i].id === id) return { block: list[i], parent: parent, index: i, list: list };
+                if (list[i].children && list[i].children.length) {
+                    const found = this.findBlockAndParent(id, list[i].children, list[i]);
+                    if (found) return found;
+                }
+            }
+            return null;
+        },
 
-            const block = {
+        addLayout(preset) {
+            const presets = {
+                '1col': { cols: 1 },
+                '2col': { cols: 2 },
+                '3col': { cols: 3 },
+                '4col': { cols: 4 },
+                '2row': { cols: 1, rows: 2 },
+                '1plus2': { special: true },
+            };
+
+            const p = presets[preset];
+            if (!p) return;
+
+            const container = this.createBlock('container', {
+                columns: String(p.cols || 1),
+                gap: 'md',
+                padding: 'md',
+                align: 'stretch',
+            });
+
+            container.children = [];
+
+            if (p.special) {
+                container.settings.columns = '2';
+                container.children.push(this.createBlock('container', { columns: '1' }));
+                const bottomRow = this.createBlock('container', { columns: '2' });
+                bottomRow.children = [this.createBlock('container', { columns: '1' }), this.createBlock('container', { columns: '1' })];
+                container.children.push(bottomRow);
+            } else if (p.rows && p.rows > 1) {
+                for (let r = 0; r < p.rows; r++) {
+                    container.children.push(this.createBlock('container', { columns: '1' }));
+                }
+            } else {
+                for (let i = 0; i < p.cols; i++) {
+                    container.children.push(this.createBlock('container', { columns: '1' }));
+                }
+            }
+
+            this.blocks.push(container);
+            this.selectedBlock = container.id;
+            this.markDirty();
+            this.pushHistory();
+        },
+
+        addBlank() {
+            const container = this.createBlock('container', {
+                columns: '1',
+                gap: 'md',
+                padding: 'md',
+            });
+            container.children = [this.createBlock('container', { columns: '1' })];
+            this.blocks.push(container);
+            this.selectedBlock = container.id;
+            this.markDirty();
+            this.pushHistory();
+        },
+
+        createBlock(widgetId, settingsOverride) {
+            const w = this.widgets.find(x => x.id === widgetId);
+            const defaults = w ? JSON.parse(JSON.stringify(w.defaults || {})) : {};
+            const settings = Object.assign({}, defaults, settingsOverride || {});
+
+            return {
                 id: this.generateId(),
                 type: widgetId,
-                settings: JSON.parse(JSON.stringify(w.defaults || {})),
+                settings: settings,
+                children: [],
             };
-            this.blocks.splice(index, 0, block);
+        },
+
+        quickAdd(widgetId) {
+            if (this.selectedBlock) {
+                const block = this.findBlock(this.selectedBlock);
+                if (block && block.type === 'container') {
+                    if (!block.children) block.children = [];
+                    const newBlock = this.createBlock(widgetId);
+                    let emptyIndex = block.children.findIndex(c => c.type === 'container' && (!c.children || c.children.length === 0));
+                    if (emptyIndex === -1) {
+                        block.children.push(newBlock);
+                    } else {
+                        block.children[emptyIndex] = newBlock;
+                    }
+                    this.selectedBlock = newBlock.id;
+                    this.markDirty();
+                    this.pushHistory();
+                    return;
+                }
+            }
+            this.insertAt(widgetId, this.blocks, this.blocks.length);
+        },
+
+        insertAt(widgetId, list, index) {
+            const block = this.createBlock(widgetId);
+            list.splice(index, 0, block);
             this.selectedBlock = block.id;
             this.markDirty();
             this.pushHistory();
@@ -371,64 +506,99 @@ function builder() {
             event.dataTransfer.setData('text/plain', widgetId);
         },
 
-        onDragOver(event, index) {
+        onDragOver(event, parentKey, index) {
             event.preventDefault();
-            this.dragOverIndex = index;
+            this.dragTarget = parentKey + ':' + index;
         },
 
-        onDragLeave() {
-            this.dragOverIndex = -1;
-        },
-
-        onDrop(event, index) {
+        onDrop(event, parentKey, index) {
             event.preventDefault();
-            this.dragOverIndex = -1;
+            this.dragTarget = null;
 
-            if (this.dragging && this.dragging.type === 'new') {
-                this.addWidgetAt(this.dragging.widgetId, index);
+            if (!this.dragging || this.dragging.type !== 'new') { this.dragging = null; return; }
+
+            if (parentKey === 'root') {
+                this.insertAt(this.dragging.widgetId, this.blocks, index);
             }
+            this.dragging = null;
+        },
+
+        dropInto(containerId, slotIndex) {
+            this.dragTarget = null;
+            if (!this.dragging || this.dragging.type !== 'new') { this.dragging = null; return; }
+
+            const container = this.findBlock(containerId);
+            if (!container) { this.dragging = null; return; }
+
+            if (!container.children) container.children = [];
+
+            let slot = container.children[slotIndex];
+
+            if (slot && slot.type === 'container') {
+                if (!slot.children) slot.children = [];
+                if (slot.children.length === 0) {
+                    slot.children.push(this.createBlock(this.dragging.widgetId));
+                    this.selectedBlock = slot.children[0].id;
+                } else {
+                    container.children.splice(slotIndex + 1, 0, this.createBlock(this.dragging.widgetId));
+                }
+            } else {
+                const newBlock = this.createBlock(this.dragging.widgetId);
+                container.children[slotIndex] = newBlock;
+                this.selectedBlock = newBlock.id;
+            }
+
+            this.markDirty();
+            this.pushHistory();
             this.dragging = null;
         },
 
         endDrag() {
             this.dragging = null;
-            this.dragOverIndex = -1;
+            this.dragTarget = null;
         },
 
-        selectBlock(id) {
-            this.selectedBlock = id;
-        },
+        selectBlock(id) { this.selectedBlock = id; },
 
-        removeBlock(index) {
-            this.blocks.splice(index, 1);
-            if (!this.blocks.find(b => b.id === this.selectedBlock)) this.selectedBlock = null;
+        removeBlock(id) {
+            const found = this.findBlockAndParent(id);
+            if (!found) return;
+            found.list.splice(found.index, 1);
+            if (this.selectedBlock === id) this.selectedBlock = null;
             this.markDirty();
             this.pushHistory();
         },
 
-        duplicateBlock(index) {
-            const original = this.blocks[index];
-            const copy = {
-                id: this.generateId(),
-                type: original.type,
-                settings: JSON.parse(JSON.stringify(original.settings || {})),
-            };
-            this.blocks.splice(index + 1, 0, copy);
+        duplicateBlock(id) {
+            const found = this.findBlockAndParent(id);
+            if (!found) return;
+            const copy = JSON.parse(JSON.stringify(found.block));
+            this.reassignIds(copy);
+            found.list.splice(found.index + 1, 0, copy);
             this.selectedBlock = copy.id;
             this.markDirty();
             this.pushHistory();
         },
 
-        moveUp(index) {
-            if (index === 0) return;
-            [this.blocks[index - 1], this.blocks[index]] = [this.blocks[index], this.blocks[index - 1]];
+        reassignIds(block) {
+            block.id = this.generateId();
+            if (block.children && block.children.length) {
+                for (const child of block.children) this.reassignIds(child);
+            }
+        },
+
+        moveUp(id) {
+            const found = this.findBlockAndParent(id);
+            if (!found || found.index === 0) return;
+            [found.list[found.index - 1], found.list[found.index]] = [found.list[found.index], found.list[found.index - 1]];
             this.markDirty();
             this.pushHistory();
         },
 
-        moveDown(index) {
-            if (index === this.blocks.length - 1) return;
-            [this.blocks[index + 1], this.blocks[index]] = [this.blocks[index], this.blocks[index + 1]];
+        moveDown(id) {
+            const found = this.findBlockAndParent(id);
+            if (!found || found.index === found.list.length - 1) return;
+            [found.list[found.index + 1], found.list[found.index]] = [found.list[found.index], found.list[found.index + 1]];
             this.markDirty();
             this.pushHistory();
         },
@@ -440,81 +610,148 @@ function builder() {
             this.markDirty();
         },
 
-        duplicateSelected() {
-            const index = this.blocks.findIndex(b => b.id === this.selectedBlock);
-            if (index !== -1) this.duplicateBlock(index);
-        },
-
-        removeSelected() {
-            const index = this.blocks.findIndex(b => b.id === this.selectedBlock);
-            if (index !== -1) this.removeBlock(index);
-        },
+        duplicateSelected() { if (this.selectedBlock) this.duplicateBlock(this.selectedBlock); },
+        removeSelected() { if (this.selectedBlock) this.removeBlock(this.selectedBlock); },
 
         openMediaPicker(fieldName) {
             this.mediaPickerTarget = fieldName;
             const mockInput = document.createElement('input');
             mockInput.type = 'hidden';
-
             const handler = (e) => {
                 this.updateSetting(this.mediaPickerTarget, e.detail.url);
                 window.removeEventListener('media-selected', handler);
             };
             window.addEventListener('media-selected', handler);
-
-            window.dispatchEvent(new CustomEvent('open-media-picker', {
-                detail: { value: mockInput }
-            }));
+            window.dispatchEvent(new CustomEvent('open-media-picker', { detail: { value: mockInput } }));
         },
 
-        renderBlock(block) {
+        renderBlockHtml(block, parentKey, index) {
             const w = this.widgets.find(x => x.id === block.type);
             if (!w) return '<div class="p-3 text-xs text-red-500">Unknown widget</div>';
 
+            const isSelected = this.selectedBlock === block.id;
+            let innerHtml = block.type === 'container' ? this.renderContainer(block) : this.renderSimpleWidget(block);
+
+            const anim = block.settings && block.settings._animation && block.settings._animation !== 'none'
+                ? this.animationWrapper(innerHtml, block.settings)
+                : innerHtml;
+
+            const bid = block.id;
+
+            return `
+                <div class="relative bg-white rounded-lg border border-gray-200 transition group ${isSelected ? 'ring-2 ring-rj-purple shadow-lg' : 'hover:shadow-md'}"
+                     onclick="event.stopPropagation(); window.__builder.selectBlock('${bid}')">
+                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1 bg-rj-dark-1 text-white rounded-full px-2 py-1 shadow-lg ${isSelected ? '' : 'opacity-0 group-hover:opacity-100'} transition-opacity">
+                        <span class="text-[10px] font-medium uppercase tracking-wider px-1.5">${this.blockLabel(block.type)}</span>
+                        <div class="w-px h-3 bg-white/20"></div>
+                        <button type="button" onclick="event.stopPropagation(); window.__builder.moveUp('${bid}')" class="w-5 h-5 rounded-full hover:bg-white/10 flex items-center justify-center" title="Move up">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"/></svg>
+                        </button>
+                        <button type="button" onclick="event.stopPropagation(); window.__builder.moveDown('${bid}')" class="w-5 h-5 rounded-full hover:bg-white/10 flex items-center justify-center" title="Move down">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                        </button>
+                        <button type="button" onclick="event.stopPropagation(); window.__builder.duplicateBlock('${bid}')" class="w-5 h-5 rounded-full hover:bg-white/10 flex items-center justify-center" title="Duplicate">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                        </button>
+                        <button type="button" onclick="event.stopPropagation(); window.__builder.removeBlock('${bid}')" class="w-5 h-5 rounded-full hover:bg-red-500/30 flex items-center justify-center" title="Delete">
+                            <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                        </button>
+                    </div>
+                    <div class="p-1 pointer-events-none">${anim}</div>
+                </div>
+            `;
+        },
+
+        renderContainer(block) {
             const settings = block.settings || {};
-            let html = '';
+            const cols = parseInt(settings.columns) || 1;
+            const gapMap = { none: '0', sm: '0.5rem', md: '1rem', lg: '1.5rem', xl: '2rem' };
+            const paddingMap = { none: '0', sm: '0.5rem', md: '1rem', lg: '1.5rem', xl: '2.5rem' };
+            const bg = settings.background || 'transparent';
+            const gap = gapMap[settings.gap] || '1rem';
+            const padding = paddingMap[settings.padding] || '0';
+            const minHeight = settings.min_height && settings.min_height !== 'auto' ? { sm: '200px', md: '400px', lg: '600px' }[settings.min_height] : 'auto';
+            const border = settings.border === 'solid' ? '2px solid #e5e7eb' : settings.border === 'dashed' ? '2px dashed #e5e7eb' : 'none';
+            const alignMap = { start: 'flex-start', center: 'center', end: 'flex-end', stretch: 'stretch' };
+            const align = alignMap[settings.align] || 'stretch';
+
+            const children = block.children || [];
+            const bid = block.id;
+
+            let slotsHtml = '';
+            for (let i = 0; i < cols; i++) {
+                const child = children[i];
+                let inner = '';
+
+                if (child) {
+                    inner = this.renderBlockHtml(child, bid, i);
+                } else {
+                    inner = `
+                        <div class="min-h-[100px] flex flex-col items-center justify-center text-gray-300 pointer-events-none">
+                            <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                            <span class="text-[10px] uppercase tracking-wider">${i + 1}</span>
+                        </div>
+                    `;
+                }
+
+                const isDragTarget = `dragTarget === '${bid}:${i}'`;
+
+                slotsHtml += `
+                    <div class="relative min-h-[100px] rounded-lg border-2 border-dashed transition"
+                         :class="dragTarget === '${bid}:${i}' ? 'border-rj-purple bg-rj-purple/5' : 'border-transparent hover:border-gray-200'"
+                         ondragover="event.preventDefault(); event.stopPropagation(); window.__builder.dragTarget = '${bid}:${i}';"
+                         ondrop="event.preventDefault(); event.stopPropagation(); window.__builder.dropInto('${bid}', ${i});"
+                         ondragleave="window.__builder.dragTarget = null;">
+                        ${inner}
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="m-3 rounded-lg" style="background:${bg}; padding:${padding}; border:${border}; min-height:${minHeight};">
+                    <div style="display:grid; grid-template-columns: repeat(${cols}, minmax(0, 1fr)); gap:${gap}; align-items:${align};">
+                        ${slotsHtml}
+                    </div>
+                </div>
+            `;
+        },
+
+        renderSimpleWidget(block) {
+            const settings = block.settings || {};
+            const escape = (s) => { const d = document.createElement('div'); d.textContent = s || ''; return d.innerHTML; };
 
             if (block.type === 'heading') {
                 const level = settings.level || 'h2';
                 const sizes = { h1: 'text-3xl', h2: 'text-2xl', h3: 'text-xl', h4: 'text-lg', h5: 'text-base', h6: 'text-sm' };
                 const aligns = { left: 'text-left', center: 'text-center', right: 'text-right' };
-                html = '<' + level + ' class="' + (sizes[level] || 'text-2xl') + ' font-bold ' + (aligns[settings.align] || 'text-left') + ' py-3 px-4" style="color:' + (settings.color || '#111827') + '">' + this.escapeHtml(settings.text || 'Heading') + '</' + level + '>';
-            } else if (block.type === 'text') {
-                const aligns = { left: 'text-left', center: 'text-center', right: 'text-right', justify: 'text-justify' };
-                const sizes = { sm: 'text-sm', base: 'text-base', lg: 'text-lg', xl: 'text-xl' };
-                html = '<p class="' + (sizes[settings.size] || 'text-base') + ' ' + (aligns[settings.align] || 'text-left') + ' py-3 px-4 leading-relaxed" style="color:' + (settings.color || '#374151') + '; white-space: pre-wrap;">' + this.escapeHtml(settings.text || 'Text') + '</p>';
-            } else if (block.type === 'image') {
-                if (!settings.url) {
-                    html = '<div class="py-8 text-center text-gray-400 text-xs">' + this.escapeHtml('Image') + '</div>';
-                } else {
-                    const aligns = { left: 'mr-auto', center: 'mx-auto', right: 'ml-auto' };
-                    const widths = { auto: 'w-auto', full: 'w-full', half: 'w-1/2', third: 'w-1/3' };
-                    const rounded = { none: 'rounded-none', sm: 'rounded', md: 'rounded-lg', lg: 'rounded-2xl', full: 'rounded-full' };
-                    html = '<figure class="py-3 px-4"><img src="' + settings.url + '" alt="' + this.escapeHtml(settings.alt || '') + '" class="' + (widths[settings.width] || 'w-full') + ' ' + (rounded[settings.rounded] || 'rounded-lg') + ' ' + (aligns[settings.align] || 'mx-auto') + '"></figure>';
-                }
-            } else if (block.type === 'container') {
-                html = '<div class="m-3 p-6 text-center border-2 border-dashed border-gray-300 rounded-lg bg-gray-50/50" style="min-height: 80px;"><div class="text-xs font-medium text-gray-400 uppercase tracking-wide">' + this.escapeHtml('Container') + '</div><div class="text-[10px] text-gray-400 mt-1">' + this.escapeHtml('Drop widgets inside') + '</div></div>';
-            } else {
-                html = '<div class="p-4 text-center text-xs text-gray-500">' + w.name + '</div>';
+                return `<${level} class="${sizes[level] || 'text-2xl'} font-bold ${aligns[settings.align] || 'text-left'} py-3 px-4" style="color:${settings.color || '#111827'}">${escape(settings.text || 'Heading')}</${level}>`;
             }
 
-            return this.wrapAnimation(html, settings);
+            if (block.type === 'text') {
+                const aligns = { left: 'text-left', center: 'text-center', right: 'text-right', justify: 'text-justify' };
+                const sizes = { sm: 'text-sm', base: 'text-base', lg: 'text-lg', xl: 'text-xl' };
+                return `<p class="${sizes[settings.size] || 'text-base'} ${aligns[settings.align] || 'text-left'} py-3 px-4 leading-relaxed" style="color:${settings.color || '#374151'}; white-space: pre-wrap;">${escape(settings.text || 'Text')}</p>`;
+            }
+
+            if (block.type === 'image') {
+                if (!settings.url) return `<div class="py-8 text-center text-gray-400 text-xs">${escape('Image')}</div>`;
+                const aligns = { left: 'mr-auto', center: 'mx-auto', right: 'ml-auto' };
+                const widths = { auto: 'w-auto', full: 'w-full', half: 'w-1/2', third: 'w-1/3' };
+                const rounded = { none: 'rounded-none', sm: 'rounded', md: 'rounded-lg', lg: 'rounded-2xl', full: 'rounded-full' };
+                return `<figure class="py-3 px-4"><img src="${settings.url}" alt="${escape(settings.alt || '')}" class="${widths[settings.width] || 'w-full'} ${rounded[settings.rounded] || 'rounded-lg'} ${aligns[settings.align] || 'mx-auto'}"></figure>`;
+            }
+
+            const w = this.widgets.find(x => x.id === block.type);
+            return `<div class="p-4 text-center text-xs text-gray-500">${w ? w.name : block.type}</div>`;
         },
 
-        wrapAnimation(html, settings) {
-            const anim = settings._animation || 'none';
-            if (anim === 'none') return html;
+        animationWrapper(html, settings) {
             const dur = settings._animation_duration || 'md';
             const delay = settings._animation_delay || '0';
             const durations = { sm: '300ms', md: '600ms', lg: '1000ms', xl: '1500ms' };
-            let style = 'animation-duration: ' + (durations[dur] || '600ms') + ';';
-            if (delay !== '0') style += ' animation-delay: ' + delay + ';';
-            return '<div class="rj-animate rj-animate-' + anim + '" style="' + style + '">' + html + '</div>';
-        },
-
-        escapeHtml(str) {
-            const div = document.createElement('div');
-            div.textContent = str;
-            return div.innerHTML;
+            let style = `animation-duration: ${durations[dur] || '600ms'};`;
+            if (delay !== '0') style += ` animation-delay: ${delay};`;
+            return `<div class="rj-animate rj-animate-${settings._animation}" style="${style}">${html}</div>`;
         },
 
         markDirty() { this.saved = false; },
