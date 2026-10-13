@@ -29,24 +29,62 @@
                     <p class="text-sm text-gray-500 mt-1">{{ __('Choose a type and add it to the menu.') }}</p>
                 </div>
 
+                <!-- Sürükleyərək Kaydırma və Gizli Scrollbar Bölümü -->
+                <style>
+                    /* Chrome, Safari və Edge üçün scrollbar-ı gizlətmək */
+                    .no-scrollbar::-webkit-scrollbar {
+                        display: none;
+                    }
+                </style>
+
                 <div class="border-b border-gray-100 mb-4" 
                      x-data="{
+                         isDragging: false,
+                         isMoved: false,
+                         startX: 0,
+                         scrollLeft: 0,
                          scrollTabs(e) {
                              if (e.deltaY !== 0) {
                                  this.$refs.tabContainer.scrollLeft += e.deltaY;
                                  e.preventDefault();
                              }
+                         },
+                         startDrag(e) {
+                             this.isDragging = true;
+                             this.isMoved = false;
+                             this.startX = e.pageX - this.$refs.tabContainer.offsetLeft;
+                             this.scrollLeft = this.$refs.tabContainer.scrollLeft;
+                         },
+                         stopDrag() {
+                             this.isDragging = false;
+                         },
+                         doDrag(e) {
+                             if (!this.isDragging) return;
+                             const x = e.pageX - this.$refs.tabContainer.offsetLeft;
+                             const walk = (x - this.startX) * 2;
+                             
+                             if (Math.abs(x - this.startX) > 5) {
+                                 this.isMoved = true;
+                                 e.preventDefault();
+                             }
+                             
+                             this.$refs.tabContainer.scrollLeft = this.scrollLeft - walk;
                          }
                      }">
                     <div x-ref="tabContainer"
                          @wheel="scrollTabs"
-                         class="flex gap-1 px-6 overflow-x-auto rj-scrollbar snap-x scroll-smooth" 
-                         style="margin-bottom:-1px;">
+                         @mousedown="startDrag"
+                         @mouseleave="stopDrag"
+                         @mouseup="stopDrag"
+                         @mousemove="doDrag"
+                         :class="isDragging ? 'cursor-grabbing' : 'cursor-grab'"
+                         class="flex gap-1 px-6 overflow-x-auto snap-x scroll-smooth select-none no-scrollbar" 
+                         style="margin-bottom:-1px; scrollbar-width: none; -ms-overflow-style: none;">
                         @foreach (\App\Models\MenuItem::types() as $key => $meta)
                             <button type="button"
-                                    @click="activeType = '{{ $key }}'; loadOptions('{{ $key }}')"
+                                    @click="if(!isMoved) { activeType = '{{ $key }}'; loadOptions('{{ $key }}') }"
                                     :class="activeType === '{{ $key }}' ? 'border-rj-purple text-rj-purple' : 'border-transparent text-gray-500 hover:text-gray-700'"
-                                    class="px-3 py-2 border-b-2 text-xs font-medium transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 snap-start">
+                                    class="px-3 py-2 border-b-2 text-xs font-medium transition flex items-center gap-1.5 whitespace-nowrap flex-shrink-0 snap-start pointer-events-auto">
                                 <span>{{ $meta['icon'] }}</span>
                                 <span>{{ $meta['label'] }}</span>
                             </button>
