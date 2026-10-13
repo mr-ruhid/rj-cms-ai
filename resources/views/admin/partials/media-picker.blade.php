@@ -1,12 +1,12 @@
 <div x-data="mediaPicker()" x-init="init()" @open-media-picker.window="open($event.detail)">
 
-    <div x-show="isOpen" x-cloak class="fixed inset-y-0 right-0 z-[9999] flex items-center justify-center p-4"
-         style="left: 16rem;"
-         @keydown.escape.window="close()">
+    <div x-show="isOpen" x-cloak
+         @keydown.escape.window="close()"
+         style="position: fixed; top: 0; right: 0; bottom: 0; left: 16rem; z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 1rem;">
 
         <div x-show="isOpen" x-transition.opacity
              @click="close()"
-             class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+             style="position: absolute; top: 0; right: 0; bottom: 0; left: 0; background: rgba(0,0,0,0.6); backdrop-filter: blur(4px);"></div>
 
         <div x-show="isOpen"
              x-transition:enter="transition ease-out duration-200"
@@ -15,7 +15,8 @@
              x-transition:leave="transition ease-in duration-150"
              x-transition:leave-start="opacity-100 scale-100"
              x-transition:leave-end="opacity-0 scale-95"
-             class="relative bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden">
+             class="relative bg-white rounded-2xl shadow-2xl w-full max-w-5xl flex flex-col overflow-hidden"
+             style="max-height: 90vh;">
 
             <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between flex-shrink-0">
                 <div>
@@ -52,7 +53,7 @@
                 </label>
             </div>
 
-            <div class="flex-1 overflow-y-auto rj-scrollbar p-4">
+            <div class="flex-1 overflow-y-auto rj-scrollbar p-4" style="min-height: 200px;">
 
                 <div x-show="loading" class="py-12 text-center">
                     <svg class="w-8 h-8 mx-auto text-rj-purple animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path></svg>
