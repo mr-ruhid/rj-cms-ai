@@ -19,9 +19,25 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    @if (session('error'))
+        <div class="bg-red-50 border-l-4 border-red-500 text-red-800 px-4 py-3 rounded-r-lg">
+            {{ session('error') }}
+        </div>
+    @endif
 
-        <div class="lg:col-span-2 space-y-6">
+    @if ($errors->any())
+        <div class="bg-red-50 border-l-4 border-red-500 text-red-800 px-4 py-3 rounded-r-lg">
+            <ul class="list-disc list-inside text-sm space-y-1">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 min-w-0">
+
+        <div class="lg:col-span-2 space-y-6 min-w-0">
 
             <div class="bg-white rounded-lg shadow-sm border border-gray-100">
                 <div class="px-6 py-4 border-b border-gray-100">
@@ -29,15 +45,11 @@
                     <p class="text-sm text-gray-500 mt-1">{{ __('Choose a type and add it to the menu.') }}</p>
                 </div>
 
-                <!-- Sürükleyərək Kaydırma və Gizli Scrollbar Bölümü -->
                 <style>
-                    /* Chrome, Safari və Edge üçün scrollbar-ı gizlətmək */
-                    .no-scrollbar::-webkit-scrollbar {
-                        display: none;
-                    }
+                    .no-scrollbar::-webkit-scrollbar { display: none; }
                 </style>
 
-                <div class="border-b border-gray-100 mb-4" 
+                <div class="border-b border-gray-100 mb-4"
                      x-data="{
                          isDragging: false,
                          isMoved: false,
@@ -55,19 +67,15 @@
                              this.startX = e.pageX - this.$refs.tabContainer.offsetLeft;
                              this.scrollLeft = this.$refs.tabContainer.scrollLeft;
                          },
-                         stopDrag() {
-                             this.isDragging = false;
-                         },
+                         stopDrag() { this.isDragging = false; },
                          doDrag(e) {
                              if (!this.isDragging) return;
                              const x = e.pageX - this.$refs.tabContainer.offsetLeft;
                              const walk = (x - this.startX) * 2;
-                             
                              if (Math.abs(x - this.startX) > 5) {
                                  this.isMoved = true;
                                  e.preventDefault();
                              }
-                             
                              this.$refs.tabContainer.scrollLeft = this.scrollLeft - walk;
                          }
                      }">
@@ -78,7 +86,7 @@
                          @mouseup="stopDrag"
                          @mousemove="doDrag"
                          :class="isDragging ? 'cursor-grabbing' : 'cursor-grab'"
-                         class="flex gap-1 px-6 overflow-x-auto snap-x scroll-smooth select-none no-scrollbar" 
+                         class="flex gap-1 px-6 overflow-x-auto snap-x scroll-smooth select-none no-scrollbar"
                          style="margin-bottom:-1px; scrollbar-width: none; -ms-overflow-style: none;">
                         @foreach (\App\Models\MenuItem::types() as $key => $meta)
                             <button type="button"
@@ -92,7 +100,7 @@
                     </div>
                 </div>
 
-                <form method="POST" action="{{ route('admin.menus.items.store', $menu) }}" class="space-y-4 px-6 pb-6" @submit="resetAfterSubmit()">
+                <form method="POST" action="{{ route('admin.menus.items.store', $menu) }}" class="space-y-4 px-6 pb-6">
                     @csrf
                     <input type="hidden" name="type" :value="activeType">
 
@@ -101,9 +109,12 @@
                             {{ __('Label') }} <span class="text-red-500">*</span>
                             <span class="text-xs font-normal text-gray-400 ml-1">({{ strtoupper(config('app.locale')) }})</span>
                         </label>
-                        <input type="text" name="label" x-model="customLabel"
+                        <input type="text" name="label" value="{{ old('label') }}"
                                placeholder="{{ __('e.g. Home') }}"
                                class="w-full rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm">
+                        @error('label')
+                            <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                        @enderror
 
                         @php $locales = rj_available_locales(); @endphp
                         @if (count($locales) > 1)
@@ -122,6 +133,7 @@
                                                 {{ rj_lang_name($locale) }} <span class="uppercase text-gray-400">({{ $locale }})</span>
                                             </label>
                                             <input type="text" name="translations[{{ $locale }}]"
+                                                   value="{{ old('translations.' . $locale) }}"
                                                    placeholder="{{ __('Optional') }}"
                                                    class="w-full rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-xs">
                                         </div>
@@ -148,7 +160,7 @@
 
                     <div>
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('URL') }}</label>
-                        <input type="text" name="url" x-model="url"
+                        <input type="text" name="url" value="{{ old('url') }}" x-model="url"
                                placeholder="{{ __('https://example.com or /path') }}"
                                class="w-full rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm font-mono">
                     </div>
@@ -157,8 +169,8 @@
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Parent') }}</label>
                         <select name="parent_id" class="w-full rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm">
                             <option value="">{{ __('— Top level —') }}</option>
-                            @foreach ($menu->rootItems as $item)
-                                <option value="{{ $item->id }}">{{ $item->label }}</option>
+                            @foreach ($menu->items->whereNull('parent_id') as $item)
+                                <option value="{{ $item->id }}" {{ old('parent_id') == $item->id ? 'selected' : '' }}>{{ $item->label }}</option>
                             @endforeach
                         </select>
                     </div>
@@ -174,7 +186,7 @@
 
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('CSS Class') }}</label>
-                            <input type="text" name="css_class"
+                            <input type="text" name="css_class" value="{{ old('css_class') }}"
                                    placeholder="{{ __('Optional') }}"
                                    class="w-full rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm font-mono">
                         </div>
@@ -216,7 +228,7 @@
 
         </div>
 
-        <div class="space-y-6">
+        <div class="space-y-6 min-w-0">
 
             <form method="POST" action="{{ route('admin.menus.update', $menu) }}" class="bg-white rounded-lg shadow-sm border border-gray-100">
                 @csrf
@@ -286,7 +298,6 @@ function toggleEdit(id) {
 function menuEditor() {
     return {
         activeType: 'custom',
-        customLabel: '',
         selectedObjectId: '',
         url: '',
         options: [],
@@ -316,10 +327,6 @@ function menuEditor() {
             const id = e.target.value;
             const opt = this.options.find(o => String(o.id) === String(id));
             this.url = opt ? opt.url : '';
-        },
-
-        resetAfterSubmit() {
-            this.customLabel = '';
         }
     }
 }
