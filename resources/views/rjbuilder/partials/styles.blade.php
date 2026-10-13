@@ -192,5 +192,24 @@
     .rj-modal > .bg { position: absolute; inset: 0; background: rgba(0,0,0,.6); backdrop-filter: blur(4px); }
     .rj-modal > .box { position: relative; background: #fff; color: #111827; border-radius: 18px; width: 100%; max-width: 720px; padding: 32px; box-shadow: 0 25px 50px -12px rgba(0,0,0,.4); }
     .rj-toast { position: fixed; top: 64px; right: 24px; padding: 10px 16px; border-radius: 8px; color: #fff; font-size: 13px; font-weight: 500; z-index: 10000; box-shadow: 0 10px 30px rgba(0,0,0,.25); }
+
+    /* Visibility segmented control */
+    .rj-vis-btn {
+        flex: 1;
+        padding: 7px 0;
+        border: 0;
+        border-radius: 6px;
+        background: transparent;
+        color: #8e919d;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background .15s, color .15s;
+        font-family: inherit;
+    }
+    .rj-vis-btn:hover { color: #d4d6df; }
+    .rj-vis-btn[data-on="true"] { background: #8b5cf6; color: #fff; box-shadow: 0 1px 3px rgba(139,92,246,.4); }
+    .rj-vis-btn[data-on="false"] { text-decoration: line-through; text-decoration-color: #dc2626; text-decoration-thickness: 2px; }
+</style>
 </style>
 @endverbatim
