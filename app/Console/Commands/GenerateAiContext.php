@@ -346,6 +346,10 @@ class GenerateAiContext extends Command
                 continue;
             }
 
+            $action = $route->getActionName();
+            $controller = '—';
+            $status = '❌ coming-soon';
+
             if (str_contains($action, 'Controller') && str_contains($action, '@')) {
                 $parts = explode('@', $action);
                 $controllerClass = class_basename($parts[0] ?? '');
