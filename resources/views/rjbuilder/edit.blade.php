@@ -15,6 +15,9 @@
     })->values()->toArray();
 
     $blocksData = $template->content['blocks'] ?? [];
+    $templateType = $template->type;
+    $locales = rj_available_locales();
+    $baseLocale = config('app.locale');
 @endphp
 
 @verbatim
@@ -94,6 +97,20 @@
                 <div class="text-[10px] uppercase tracking-wider" style="color:#a855f7;">{{ $template->typeLabel() }}</div>
             </div>
         </div>
+
+                {{-- Language switcher (page type only) --}}
+        <div x-show="templateType === 'page'" class="flex items-center gap-1 p-1 rounded-xl" style="background:rgba(255,255,255,0.06);">
+            <template x-for="loc in locales" :key="loc">
+                <button type="button" @click="activeLocale = loc"
+                        :style="activeLocale === loc ? 'background:rgba(124,58,237,0.5); color:#fff;' : 'color:#94a3b8;'"
+                        class="px-3 h-8 rounded-lg text-xs font-semibold uppercase transition"
+                        x-text="loc"
+                        :title="'{{ __('Edit content in') }} ' + loc"></button>
+            </template>
+        </div>
+
+        {{-- Device switcher --}}
+        <div class="flex items-center gap-1 p-1 rounded-xl" style="background:rgba(255,255,255,0.06); color:#94a3b8;">
 
         {{-- Device switcher --}}
         <div class="flex items-center gap-1 p-1 rounded-xl" style="background:rgba(255,255,255,0.06); color:#94a3b8;">
@@ -347,6 +364,10 @@
 
                 <div x-show="selectedBlock" x-cloak class="space-y-4">
 
+                                        <div x-show="rightTab === 'content' && templateType === 'page'" class="text-[11px] px-3 py-2 rounded-lg mb-3" style="background:rgba(124,58,237,.08); color:#5b21b6;">
+                        ✏️ {{ __('Editing in') }}: <strong x-text="activeLocale.toUpperCase()"></strong>
+                    </div>
+
                     <div x-show="activeFields.length === 0" class="text-xs text-center py-6" style="color:#9ca3af;">{{ __('No options in this tab.') }}</div>
 
                     <template x-for="field in activeFields" :key="rightTab + field.name">
@@ -509,6 +530,8 @@ const RJ = {
     csrf: @json(csrf_token()),
     name: @json($template->name),
     status: @json($template->status),
+    templateType: @json($templateType),
+    baseLocale: @json($baseLocale),
 };
 
 // IntersectionObserver must live outside Alpine's reactive proxy.
@@ -535,6 +558,11 @@ function builder() {
         preview: false,
         animPlayId: null,
         toast: { show: false, message: '', type: 'success' },
+
+        templateType: RJ.templateType,
+        baseLocale: RJ.baseLocale,
+        locales: @json($locales),
+        activeLocale: RJ.baseLocale,
 
         // Built-in "Motion / Advanced" fields (available on every widget)
         advancedSchema: [
@@ -633,8 +661,42 @@ function builder() {
             return /color|background|bg|padding|margin|gap|border|radius|rounded|size|align|width|height|font|weight|shadow|spacing|opacity/i.test(f.name);
         },
 
+                isTranslatableField(name) {
+            if (this.templateType !== 'page') return false;
+            return ['text', 'alt', 'caption', 'title', 'description'].includes(name);
+        },
+
+        getBlockText(block) {
+            const s = block.settings || {};
+            if (this.templateType !== 'page') return s.text || '';
+            if (this.activeLocale === this.baseLocale) return s.text || '';
+            const t = (s.translations || {})[this.activeLocale];
+            return (t && t.text) || s.text || '';
+        },
+
+        getBlockField(block, name) {
+            const s = block.settings || {};
+            if (!this.isTranslatableField(name)) return s[name];
+            if (this.activeLocale === this.baseLocale) return s[name];
+            const t = (s.translations || {})[this.activeLocale] || {};
+            return t[name] !== undefined ? t[name] : s[name];
+        },
+
+        setBlockField(block, name, value) {
+            const s = block.settings = block.settings || {};
+            if (!this.isTranslatableField(name) || this.activeLocale === this.baseLocale) {
+                s[name] = value;
+                return;
+            }
+            if (!s.translations) s.translations = {};
+            if (!s.translations[this.activeLocale]) s.translations[this.activeLocale] = {};
+            s.translations[this.activeLocale][name] = value;
+        },
+
         fieldValue(field) {
-            const v = this.currentSettings[field.name];
+            const b = this.currentBlock;
+            if (!b) return field.default !== undefined ? field.default : '';
+            const v = this.getBlockField(b, field.name);
             if (v !== undefined && v !== null) return v;
             return field.default !== undefined ? field.default : '';
         },
@@ -980,8 +1042,7 @@ function builder() {
 
         updateSetting(name, value) {
             if (!this.currentBlock) return;
-            if (!this.currentBlock.settings) this.currentBlock.settings = {};
-            this.currentBlock.settings[name] = value;
+            this.setBlockField(this.currentBlock, name, value);
             this.markDirty();
             this.commitSoon();
 
@@ -1025,9 +1086,9 @@ function builder() {
                 el.contentEditable = 'false';
                 el.style.outline = '';
                 const txt = el.innerText.replace(/\n+$/, '');
-                if (!b.settings) b.settings = {};
-                if (b.settings.text !== txt) {
-                    b.settings.text = txt;
+                const old = this.getBlockText(b);
+                if (old !== txt) {
+                    this.setBlockField(b, 'text', txt);
                     this.markDirty();
                     this.pushHistory();
                 }
@@ -1229,29 +1290,8 @@ function builder() {
             const inline = this.preview ? '' : `class="rj-inline-edit" ondblclick="event.stopPropagation(); window.__builder.startInline(this, '${bid}')"`;
             const mobile = this.device === 'mobile';
 
-            if (block.type === 'heading') {
-                const level = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(settings.level) ? settings.level : 'h2';
-                const sizes = { h1: '2rem', h2: '1.5rem', h3: '1.25rem', h4: '1.125rem', h5: '1rem', h6: '0.875rem' };
-                const mobileSizes = { h1: '1.6rem', h2: '1.3rem', h3: '1.15rem', h4: '1.05rem', h5: '1rem', h6: '0.875rem' };
-                const aligns = { left: 'left', center: 'center', right: 'right' };
-                const size = (mobile ? mobileSizes : sizes)[level];
-                return `<${level} ${inline} style="font-size:${size}; font-weight:700; text-align:${aligns[settings.align] || 'left'}; color:${esc(settings.color || '#111827')}; padding:0.75rem 1rem; margin:0;">${esc(settings.text || 'Heading')}</${level}>`;
             }
 
-            if (block.type === 'text') {
-                const aligns = { left: 'left', center: 'center', right: 'right', justify: 'justify' };
-                const sizes = { sm: '0.875rem', base: '1rem', lg: '1.125rem', xl: '1.25rem' };
-                return `<p ${inline} style="font-size:${sizes[settings.size] || '1rem'}; text-align:${aligns[settings.align] || 'left'}; color:${esc(settings.color || '#374151')}; padding:0.75rem 1rem; line-height:1.6; white-space:pre-wrap; margin:0;">${esc(settings.text || 'Text')}</p>`;
-            }
-
-            if (block.type === 'image') {
-                if (!settings.url) return `<div style="padding:2rem; text-align:center; color:#9ca3af; font-size:0.75rem;">${this.preview ? '' : 'Image'}</div>`;
-                const aligns = { left: '0 auto 0 0', center: '0 auto', right: '0 0 0 auto' };
-                const widths = { auto: 'auto', full: '100%', half: '50%', third: '33.333%' };
-                const rounded = { none: '0', sm: '4px', md: '8px', lg: '16px', full: '9999px' };
-                const width = mobile ? '100%' : (widths[settings.width] || '100%');
-                return `<figure style="padding:0.75rem 1rem; margin:0;"><img src="${esc(settings.url)}" alt="${esc(settings.alt || '')}" style="width:${width}; max-width:100%; border-radius:${rounded[settings.rounded] || '8px'}; margin:${aligns[settings.align] || '0 auto'}; display:block;"></figure>`;
-            }
 
             const w = this.widgets.find(x => x.id === block.type);
             return `<div style="padding:1rem; text-align:center; font-size:0.75rem; color:#6b7280;">${esc(w ? w.name : block.type)}</div>`;
