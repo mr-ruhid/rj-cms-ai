@@ -19,6 +19,7 @@
     $templateType = $template->type;
     $locales = rj_available_locales();
     $baseLocale = config('app.locale');
+    $menusData = rj_menu_options();
 
     $i18n = collect([
         'Add element', 'Sections', 'Navigator', 'History', 'Settings', 'Edit element', 'Back', 'Undo', 'Redo',
@@ -37,6 +38,7 @@
         'Select Image', 'Change Image', 'Copied', 'Pasted', 'Nothing to paste', 'Auto-saved', 'Save failed', 'Network error — not saved',
         'Session expired — reload the page and try again', 'Added', 'Moved', 'Deleted', 'Duplicated', 'Edited', 'Initial state',
         'Hidden on', 'Image', 'Unknown widget', 'Drop here', 'Save (Ctrl+S)', 'Close panel', 'Open panel', 'Logo',
+        'Menu', '— Select menu —', 'No menus yet.', 'Create one →',
     ])->unique()->mapWithKeys(fn ($s) => [$s => __($s)])->toArray();
 @endphp
 
@@ -382,6 +384,25 @@
                                 </div>
                             </template>
 
+                            <template x-if="field.type === 'menu'">
+                                <div>
+                                    <template x-if="menuOptions.length === 0">
+                                        <p class="rj-help" style="text-align:center; padding:12px; background:rgba(245,158,11,.08); border:1px dashed rgba(245,158,11,.3); border-radius:6px; color:#fbbf24;">
+                                            {{ __('No menus yet.') }} <a href="{{ route('admin.menus.index') }}" target="_blank" style="color:#a78bfa; text-decoration:underline;">{{ __('Create one →') }}</a>
+                                        </p>
+                                    </template>
+
+                                    <template x-if="menuOptions.length > 0">
+                                        <select class="rj-in" @change="updateSetting(field.name, $event.target.value)">
+                                            <option value="">{{ __('— Select menu —') }}</option>
+                                            <template x-for="m in menuOptions" :key="m.id">
+                                                <option :value="m.id" :selected="String(fieldValue(field)) === String(m.id)" x-text="m.label"></option>
+                                            </template>
+                                        </select>
+                                    </template>
+                                </div>
+                            </template>
+
                             <p class="rj-help" x-show="field.help" x-text="field.help"></p>
                         </div>
                     </template>
@@ -455,7 +476,7 @@
                         <div style="width:100%; height:4px; border-radius:9999px; background:#7c3aed;"></div>
                     </div>
 
-                    <div x-show="!preview" style="margin-top:40px; display:flex; justify-content:center; padding-bottom:20px;">
+                    <div x-show="!preview" style="margin-top:40px; text-align:center; padding-bottom:20px;">
                         <button type="button" class="rj-addsec" @click.stop="showLayoutPicker = true">
                             <span style="width:40px; height:40px; border-radius:50%; border:2px solid #c3c7d0; display:flex; align-items:center; justify-content:center; color:#9ca3af;">
                                 <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
