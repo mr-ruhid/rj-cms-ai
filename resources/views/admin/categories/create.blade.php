@@ -190,21 +190,34 @@
                     </div>
                 </div>
 
-                <div class="bg-white rounded-lg shadow-sm border border-gray-100">
+                <div class="bg-white rounded-lg shadow-sm border border-gray-100"
+                     x-data="{ imageUrl: '{{ old('image') }}' }"
+                     @media-selected.window="if ($event.detail.target === $refs.imageInput) imageUrl = $event.detail.url">
                     <div class="px-6 py-4 border-b border-gray-100">
                         <h3 class="text-base font-semibold text-gray-900">{{ __('Featured Image') }}</h3>
                         <p class="text-sm text-gray-500 mt-1">{{ __('Category thumbnail (any language).') }}</p>
                     </div>
 
-                    <div class="p-6">
-                        <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Image URL') }}</label>
-                        <input type="text" name="image" value="{{ old('image') }}"
-                               placeholder="{{ __('/uploads/2026/10/image.jpg') }}"
-                               class="w-full rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm font-mono">
-                        <p class="text-xs text-gray-500 mt-1">
-                            {{ __('Paste URL from') }}
-                            <a href="{{ route('admin.media.index') }}" class="text-rj-purple hover:underline">{{ __('Media Library') }}</a>
-                        </p>
+                    <div class="p-6 space-y-4">
+
+                        <template x-if="imageUrl">
+                            <div class="rounded-lg overflow-hidden border border-gray-200 relative">
+                                <img :src="imageUrl" alt="Featured" class="w-full h-40 object-cover">
+                                <button type="button" @click="imageUrl = ''; $refs.imageInput.value = ''"
+                                        class="absolute top-2 right-2 w-7 h-7 rounded-full bg-red-600 text-white flex items-center justify-center hover:bg-red-700 transition">
+                                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                </button>
+                            </div>
+                        </template>
+
+                        <input type="hidden" name="image" x-ref="imageInput" :value="imageUrl">
+
+                        <button type="button"
+                                @click="$dispatch('open-media-picker', { value: $refs.imageInput })"
+                                class="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg border-2 border-dashed border-gray-300 text-gray-700 text-sm font-medium hover:border-rj-purple hover:bg-rj-purple/5 transition">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                            <span x-text="imageUrl ? '{{ __('Change Image') }}' : '{{ __('Select from Media Library') }}'"></span>
+                        </button>
                     </div>
                 </div>
 

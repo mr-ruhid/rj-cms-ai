@@ -314,5 +314,9 @@
             </main>
         </div>
     </div>
+
+    @include('admin.partials.media-picker')
+
+    
 </body>
 </html>
