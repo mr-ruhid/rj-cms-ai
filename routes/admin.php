@@ -22,6 +22,8 @@ use App\Http\Controllers\Admin\MediaCleanupController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\BuilderController;
 use App\Http\Controllers\Admin\TagController;
+use App\Http\Controllers\Admin\MenuController;
+use App\Http\Controllers\Admin\MenuItemController;
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', fn() => redirect()->route('admin.dashboard'))->name('home');
@@ -70,11 +72,27 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::view('/comments/spam', 'admin.coming-soon')->name('comments.spam');
     Route::view('/comments/trash', 'admin.coming-soon')->name('comments.trash');
 
+    Route::prefix('menus')->name('menus.')->group(function () {
+        Route::get('/', [MenuController::class, 'index'])->name('index');
+        Route::get('/create', [MenuController::class, 'create'])->name('create');
+        Route::post('/', [MenuController::class, 'store'])->name('store');
+        Route::post('/locations', [MenuController::class, 'addLocation'])->name('locations.store');
+        Route::get('/{menu}/edit', [MenuController::class, 'edit'])->name('edit');
+        Route::put('/{menu}', [MenuController::class, 'update'])->name('update');
+        Route::delete('/{menu}', [MenuController::class, 'destroy'])->name('destroy');
+
+        Route::post('/{menu}/items', [MenuItemController::class, 'store'])->name('items.store');
+        Route::put('/{menu}/items/{item}', [MenuItemController::class, 'update'])->name('items.update');
+        Route::delete('/{menu}/items/{item}', [MenuItemController::class, 'destroy'])->name('items.destroy');
+        Route::post('/{menu}/items/reorder', [MenuItemController::class, 'reorder'])->name('items.reorder');
+        Route::get('/items/options', [MenuItemController::class, 'options'])->name('items.options');
+    });
+
+
     Route::view('/appearance', 'admin.coming-soon')->name('appearance.index');
     Route::view('/appearance/themes', 'admin.coming-soon')->name('appearance.themes');
     Route::view('/appearance/customize', 'admin.coming-soon')->name('appearance.customize');
     Route::view('/appearance/widgets', 'admin.coming-soon')->name('appearance.widgets');
-    Route::view('/appearance/menus', 'admin.coming-soon')->name('appearance.menus');
     Route::view('/appearance/editor', 'admin.coming-soon')->name('appearance.editor');
     Route::view('/appearance/colors', 'admin.coming-soon')->name('appearance.colors');
     Route::view('/appearance/options', 'admin.coming-soon')->name('appearance.options');
