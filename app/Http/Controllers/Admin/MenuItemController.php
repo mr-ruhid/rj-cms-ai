@@ -1,0 +1,130 @@
+<?php
+
+namespace App\Http\Controllers\Admin;
+
+use App\Http\Controllers\Controller;
+use App\Models\Menu;
+use App\Models\MenuItem;
+use Illuminate\Http\Request;
+
+class MenuItemController extends Controller
+{
+    public function store(Request $request, Menu $menu)
+    {
+        $data = $request->validate([
+            'type' => ['required', 'in:custom,page,post,category,tag'],
+            'label' => ['required', 'string', 'max:200'],
+            'url' => ['nullable', 'string', 'max:500'],
+            'object_id' => ['nullable', 'integer'],
+            'parent_id' => ['nullable', 'integer', 'exists:rj_menu_items,id'],
+            'target' => ['nullable', 'in:_self,_blank'],
+            'css_class' => ['nullable', 'string', 'max:100'],
+            'icon' => ['nullable', 'string', 'max:100'],
+        ]);
+
+        if ($data['type'] === 'custom' && empty($data['url'])) {
+            return back()->with('error', __('URL is required for custom links.'))->withInput();
+        }
+
+        $sortOrder = MenuItem::where('menu_id', $menu->id)
+            ->where('parent_id', $data['parent_id'] ?? null)
+            ->max('sort_order') + 1;
+
+        $item = MenuItem::create([
+            'menu_id' => $menu->id,
+            'parent_id' => $data['parent_id'] ?? null,
+            'type' => $data['type'],
+            'label' => $data['label'],
+            'url' => $data['url'] ?? null,
+            'target' => $data['target'] ?? '_self',
+            'object_id' => $data['object_id'] ?? null,
+            'object_type' => $data['type'] !== 'custom' ? $data['type'] : null,
+            'sort_order' => $sortOrder,
+            'css_class' => $data['css_class'] ?? null,
+            'icon' => $data['icon'] ?? null,
+            'is_active' => true,
+        ]);
+
+        return back()->with('success', __('Menu item added.'));
+    }
+
+    public function update(Request $request, Menu $menu, MenuItem $item)
+    {
+        if ($item->menu_id !== $menu->id) {
+            abort(404);
+        }
+
+        $data = $request->validate([
+            'label' => ['required', 'string', 'max:200'],
+            'url' => ['nullable', 'string', 'max:500'],
+            'target' => ['nullable', 'in:_self,_blank'],
+            'css_class' => ['nullable', 'string', 'max:100'],
+            'icon' => ['nullable', 'string', 'max:100'],
+            'is_active' => ['nullable', 'boolean'],
+        ]);
+
+        $data['is_active'] = $request->boolean('is_active');
+
+        $item->update($data);
+
+        return back()->with('success', __('Menu item updated.'));
+    }
+
+    public function destroy(Menu $menu, MenuItem $item)
+    {
+        if ($item->menu_id !== $menu->id) {
+            abort(404);
+        }
+
+        $item->children()->update(['parent_id' => $item->parent_id]);
+        $item->delete();
+
+        return back()->with('success', __('Menu item deleted.'));
+    }
+
+    public function reorder(Request $request, Menu $menu)
+    {
+        $data = $request->validate([
+            'items' => ['required', 'array'],
+            'items.*.id' => ['required', 'integer'],
+            'items.*.parent_id' => ['nullable', 'integer'],
+            'items.*.sort_order' => ['required', 'integer'],
+        ]);
+
+        foreach ($data['items'] as $item) {
+            MenuItem::where('id', $item['id'])
+                ->where('menu_id', $menu->id)
+                ->update([
+                    'parent_id' => $item['parent_id'] ?? null,
+                    'sort_order' => $item['sort_order'],
+                ]);
+        }
+
+        return response()->json(['success' => true]);
+    }
+
+    public function options(Request $request)
+    {
+        $type = $request->input('type');
+
+        $result = [];
+
+        if ($type === 'category') {
+            $categories = \App\Models\Category::with('translations')->ordered()->get();
+            foreach ($categories as $c) {
+                $result[] = ['id' => $c->id, 'label' => $c->name, 'url' => '/category/' . $c->slug];
+            }
+        } elseif ($type === 'tag') {
+            $tags = \App\Models\Tag::with('translations')->ordered()->get();
+            foreach ($tags as $t) {
+                $result[] = ['id' => $t->id, 'label' => $t->name, 'url' => '/tag/' . $t->slug];
+            }
+        } elseif ($type === 'page') {
+            $result = [];
+        } elseif ($type === 'post') {
+            $result = [];
+        }
+
+        return response()->json($result);
+    }
+}
