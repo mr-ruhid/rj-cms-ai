@@ -12,7 +12,7 @@ window.RJ = {
     blocks: @json($blocksData),
     i18n: @json($i18n),
     menus: @json($menusData ?? []),
-    menuItems: @json($menuItemsData ?? {}),
+    menuItems: @json($menuItemsData ?: []),
 };
 </script>
 
