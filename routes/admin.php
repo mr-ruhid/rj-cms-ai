@@ -20,6 +20,7 @@ use App\Http\Controllers\Admin\UpdatesController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\MediaCleanupController;
 use App\Http\Controllers\Admin\CategoryController;
+use App\Http\Controllers\Admin\TagController;
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', fn() => redirect()->route('admin.dashboard'))->name('home');
@@ -43,8 +44,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/posts/categories/{category}/edit', [CategoryController::class, 'edit'])->name('posts.categories.edit');
     Route::put('/posts/categories/{category}', [CategoryController::class, 'update'])->name('posts.categories.update');
     Route::delete('/posts/categories/{category}', [CategoryController::class, 'destroy'])->name('posts.categories.destroy');
-    Route::view('/posts/tags', 'admin.coming-soon')->name('posts.tags');
-
+    Route::get('/posts/tags', [TagController::class, 'index'])->name('posts.tags');
+    Route::post('/posts/tags', [TagController::class, 'store'])->name('posts.tags.store');
+    Route::put('/posts/tags/{tag}', [TagController::class, 'update'])->name('posts.tags.update');
+    Route::delete('/posts/tags/{tag}', [TagController::class, 'destroy'])->name('posts.tags.destroy');
     Route::view('/pages', 'admin.coming-soon')->name('pages.index');
     Route::view('/pages/create', 'admin.coming-soon')->name('pages.create');
 
