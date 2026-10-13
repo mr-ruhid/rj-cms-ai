@@ -5,32 +5,97 @@
 @section('content')
 <div class="space-y-6">
 
-    <div class="flex items-center justify-between gap-4 flex-wrap">
-        <div>
-            <h2 class="text-base font-semibold text-gray-900">{{ __('Menus') }}</h2>
-            <p class="text-sm text-gray-500 mt-1">{{ __('Create navigation menus and assign them to header, footer or custom locations.') }}</p>
-        </div>
-
-        <a href="{{ route('admin.menus.create') }}"
-           class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-rj-purple to-rj-pink text-white text-sm font-medium hover:opacity-90 transition">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-            {{ __('Add New Menu') }}
-        </a>
+    <div>
+        <h2 class="text-base font-semibold text-gray-900">{{ __('Menus') }}</h2>
+        <p class="text-sm text-gray-500 mt-1">{{ __('Create navigation menus and assign them to header, footer or custom locations.') }}</p>
     </div>
 
-    @if ($menus->isEmpty())
-        <div class="bg-white rounded-lg shadow-sm border border-gray-100 p-16 text-center">
-            <svg class="w-16 h-16 mx-auto text-gray-300" fill="none" stroke="currentColor" stroke-width="1.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
-            <p class="mt-4 text-sm text-gray-500">{{ __('No menus yet.') }}</p>
-            <p class="mt-1 text-xs text-gray-400">{{ __('Create your first menu to use in your header or footer.') }}</p>
-            <a href="{{ route('admin.menus.create') }}"
-               class="inline-flex items-center gap-2 mt-4 px-4 py-2 rounded-lg bg-gradient-to-r from-rj-purple to-rj-pink text-white text-sm font-medium hover:opacity-90 transition">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-                {{ __('Create First Menu') }}
-            </a>
+    <div class="bg-white rounded-lg shadow-sm border border-gray-100" x-data="{ showNewLocation: false }">
+        <div class="px-6 py-4 border-b border-gray-100">
+            <h3 class="text-base font-semibold text-gray-900">{{ __('Create New Menu') }}</h3>
+            <p class="text-sm text-gray-500 mt-1">{{ __('Give your menu a name and assign it to a location.') }}</p>
         </div>
-    @else
-        <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+
+        <form method="POST" action="{{ route('admin.menus.store') }}" class="p-6 space-y-4">
+            @csrf
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Menu Name') }} <span class="text-red-500">*</span></label>
+                    <input type="text" name="name" value="{{ old('name') }}" required
+                           placeholder="{{ __('e.g. Main Menu') }}"
+                           class="w-full rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm">
+                    @error('name')
+                        <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Location') }}</label>
+                    <select name="location" class="w-full rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm">
+                        <option value="">{{ __('— Not assigned —') }}</option>
+                        @foreach ($locations as $key => $label)
+                            <option value="{{ $key }}" {{ old('location') === $key ? 'selected' : '' }}>{{ $label }}</option>
+                        @endforeach
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Description') }}</label>
+                    <input type="text" name="description" value="{{ old('description') }}"
+                           placeholder="{{ __('Optional note') }}"
+                           class="w-full rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm">
+                </div>
+            </div>
+
+            <div class="flex items-center gap-3 pt-1">
+                <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-rj-purple to-rj-pink text-white text-sm font-medium hover:opacity-90 transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                    {{ __('Create Menu') }}
+                </button>
+
+                <button type="button" @click="showNewLocation = !showNewLocation"
+                        class="text-sm text-rj-purple hover:underline">
+                    {{ __('+ Add custom location') }}
+                </button>
+            </div>
+        </form>
+
+        <div x-show="showNewLocation" x-cloak x-transition class="px-6 py-4 border-t border-gray-100 bg-gray-50">
+            <form method="POST" action="{{ route('admin.menus.locations.store') }}" class="flex items-end gap-3 flex-wrap">
+                @csrf
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">{{ __('Key') }}</label>
+                    <input type="text" name="key" required pattern="[a-z0-9_\-]+"
+                           placeholder="topbar"
+                           class="w-32 rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-xs font-mono lowercase">
+                </div>
+                <div>
+                    <label class="block text-xs font-medium text-gray-700 mb-1">{{ __('Label') }}</label>
+                    <input type="text" name="label" required
+                           placeholder="{{ __('Top Bar') }}"
+                           class="w-48 rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-xs">
+                </div>
+                <button type="submit" class="inline-flex items-center px-3 py-2 rounded-lg bg-gray-900 text-white text-xs font-medium hover:bg-gray-800 transition">
+                    {{ __('Add Location') }}
+                </button>
+                <p class="text-xs text-gray-500">{{ __('Lowercase letters, numbers, hyphens only.') }}</p>
+            </form>
+        </div>
+    </div>
+
+    <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
+        <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+            <h3 class="text-base font-semibold text-gray-900">{{ __('Existing Menus') }}</h3>
+            <span class="text-xs text-gray-500">{{ $menus->count() }} {{ __('menu(s)') }}</span>
+        </div>
+
+        @if ($menus->isEmpty())
+            <div class="p-12 text-center">
+                <svg class="w-12 h-12 mx-auto text-gray-300" fill="none" stroke="currentColor" stroke-width="1.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                <p class="mt-3 text-sm text-gray-500">{{ __('No menus yet. Create one above.') }}</p>
+            </div>
+        @else
             <table class="w-full text-sm">
                 <thead class="bg-gray-50 border-b border-gray-100">
                     <tr>
@@ -113,8 +178,8 @@
                     @endforeach
                 </tbody>
             </table>
-        </div>
-    @endif
+        @endif
+    </div>
 
 </div>
 @endsection
