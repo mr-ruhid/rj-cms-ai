@@ -317,6 +317,5 @@
 
     @include('admin.partials.media-picker')
 
-    
 </body>
 </html>
