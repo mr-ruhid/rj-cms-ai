@@ -81,9 +81,6 @@ function builderState() {
             { name: '_animation_duration', label: 'Duration', type: 'select', default: 'md', options: { sm: 'Fast (300ms)', md: 'Normal (600ms)', lg: 'Slow (1s)', xl: 'Very slow (1.5s)' } },
             { name: '_animation_delay', label: 'Delay', type: 'select', default: '0', options: { '0': 'None', '200ms': '200ms', '400ms': '400ms', '600ms': '600ms', '1s': '1s' } },
             { name: '_hover', label: 'Hover effect', type: 'select', default: 'none', options: { none: 'None', grow: 'Grow', lift: 'Lift + shadow', glow: 'Glow', tilt: '3D tilt', float: 'Float' } },
-            { name: '_hide_desktop', label: 'Hide on desktop', type: 'toggle' },
-            { name: '_hide_tablet', label: 'Hide on tablet', type: 'toggle' },
-            { name: '_hide_mobile', label: 'Hide on mobile', type: 'toggle' },
             { name: '_css_class', label: 'Custom CSS class', type: 'text' },
         ],
 
