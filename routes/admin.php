@@ -76,7 +76,6 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     Route::prefix('menus')->name('menus.')->group(function () {
         Route::get('/', [MenuController::class, 'index'])->name('index');
-        Route::get('/create', [MenuController::class, 'create'])->name('create');
         Route::post('/', [MenuController::class, 'store'])->name('store');
         Route::post('/locations', [MenuController::class, 'addLocation'])->name('locations.store');
         Route::get('/{menu}/edit', [MenuController::class, 'edit'])->name('edit');
