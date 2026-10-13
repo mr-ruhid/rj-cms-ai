@@ -84,6 +84,7 @@ class WidgetRegistry
     public static function categories(): array
     {
         return [
+            'header' => ['label' => __('Header'), 'icon' => '🎯'],
             'basic' => ['label' => __('Basic'), 'icon' => '📦'],
             'media' => ['label' => __('Media'), 'icon' => '🖼️'],
             'layout' => ['label' => __('Layout'), 'icon' => '📐'],
