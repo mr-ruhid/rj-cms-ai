@@ -268,19 +268,27 @@
 
 </div>
 
+@php
+    $widgetsData = collect(\App\Widgets\WidgetRegistry::all())->map(function ($w) {
+        return [
+            'id' => $w->id(),
+            'name' => $w->name(),
+            'category' => $w->category(),
+            'schema' => $w->schema(),
+            'defaults' => $w->defaults(),
+        ];
+    })->values()->toArray();
+
+    $blocksData = $template->content['blocks'] ?? [];
+@endphp
+
 <script>
 function builder() {
-    const widgets = @json(collect(\App\Widgets\WidgetRegistry::all())->map(fn($w) => [
-        'id' => $w->id(),
-        'name' => $w->name(),
-        'category' => $w->category(),
-        'schema' => $w->schema(),
-        'defaults' => $w->defaults(),
-    ]));
+    const widgets = @json($widgetsData);
 
     return {
         widgets: widgets,
-        blocks: @json($template->content['blocks'] ?? []),
+        blocks: @json($blocksData),
         selectedBlock: null,
         hoveredBlock: null,
         widgetSearch: '',
