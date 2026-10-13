@@ -76,6 +76,11 @@ class BuilderController extends Controller
         return view('admin.rjbuilder.edit', compact('template'));
     }
 
+    public function build(Template $template)
+    {
+        return view('rjbuilder.edit', compact('template'));
+    }
+
     public function update(Request $request, Template $template)
     {
         $data = $request->validate([
@@ -90,6 +95,14 @@ class BuilderController extends Controller
             'status' => $data['status'] ?? $template->status,
         ]);
 
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => __('Template saved.'),
+                'blocks_count' => count($data['content']['blocks'] ?? []),
+            ]);
+        }
+
         return back()->with('success', __('Template saved.'));
     }
 
@@ -99,9 +112,10 @@ class BuilderController extends Controller
             return back()->with('error', __('Cannot delete the default template. Set another as default first.'));
         }
 
+        $type = $template->type;
         $template->delete();
 
-        return redirect()->route('admin.rjbuilder.index', ['type' => $template->type])
+        return redirect()->route('admin.rjbuilder.index', ['type' => $type])
             ->with('success', __('Template deleted.'));
     }
 
