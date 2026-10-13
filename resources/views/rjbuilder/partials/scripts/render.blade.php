@@ -273,8 +273,6 @@ function builderRender() {
                     </nav>
                 `;
 
-                const navStyle = useHamburger ? '' : `padding:0.75rem 1rem;`;
-
                 const baseCss = `
                     .${uid}-nav .rj-hover-item:hover { color:${hoverColor} !important; ${hoverStyle === 'underline' || hoverStyle === 'both' ? 'border-bottom-color:' + hoverColor + ' !important;' : ''} ${hoverStyle === 'background' || hoverStyle === 'both' ? 'background:' + hoverColor + '15 !important;' : ''} }
                     .${uid}-nav li:hover > .rj-dropdown { opacity:1 !important; visibility:visible !important; transform:translateY(0) !important; }
@@ -299,30 +297,6 @@ function builderRender() {
                     </div>`;
             }
 
-                const renderItems = (list, depth) => {
-                    return list.map(it => {
-                        const hasKids = it.children && it.children.length > 0;
-                        const itemStyle = `display:inline-block; color:${textColor}; font-size:${fontSize}; font-weight:${fontWeight}; text-decoration:none; padding:6px 10px; border-radius:6px; border-bottom:2px solid transparent; transition:all .15s; position:relative;`;
-
-                        return `<li style="position:relative; list-style:none;">
-                            <a href="${esc(it.url || '#')}" target="${esc(it.target || '_self')}" class="rj-hover-item" style="${itemStyle}">${esc(it.label)}${hasKids ? ' <span style="font-size:9px; opacity:.6;">▾</span>' : ''}</a>
-                            ${hasKids ? `<ul style="position:absolute; top:100%; left:0; min-width:180px; background:${dropdownBg}; ${dropdownBorder ? 'border:1px solid #e5e7eb;' : ''} border-radius:8px; box-shadow:0 12px 30px rgba(0,0,0,.12); padding:6px; margin:6px 0 0; opacity:0; visibility:hidden; transform:translateY(-4px); transition:all .15s; z-index:50;" class="rj-dropdown">${renderItems(it.children, depth + 1)}</ul>` : ''}
-                        </li>`;
-                    }).join('');
-                };
-
-                return `<style>
-                    .${hoverClass} .rj-hover-item:hover { color:${hoverColor} !important; ${hoverStyle === 'underline' || hoverStyle === 'both' ? 'border-bottom-color:' + hoverColor + ' !important;' : ''} ${hoverStyle === 'background' || hoverStyle === 'both' ? 'background:' + hoverColor + '15 !important;' : ''} }
-                    .${hoverClass} li:hover > .rj-dropdown { opacity:1 !important; visibility:visible !important; transform:translateY(0) !important; }
-                    .${hoverClass} .rj-dropdown .rj-hover-item:hover { background:${hoverColor}10 !important; color:${hoverColor} !important; }
-                </style>
-                <nav class="${hoverClass}" style="${navStyle}">
-                    <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:${flexDir}; gap:${gap}; align-items:${alignItems}; flex-wrap:wrap;">
-                        ${renderItems(items, 0)}
-                    </ul>
-                </nav>`;
-            }
-            
             const w = this.widgets.find(x => x.id === block.type);
             if (this.preview) return '';
             return `<div style="padding:14px 16px; margin:0.5rem 1rem; display:flex; align-items:center; gap:12px; border:1px dashed #d1d5db; border-radius:10px; background:#fafafa; color:#6b7280; font-size:12px;">
