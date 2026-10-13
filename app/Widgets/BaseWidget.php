@@ -39,6 +39,105 @@ abstract class BaseWidget implements WidgetContract
         return '';
     }
 
+    public function advancedSchema(): array
+    {
+        return [
+            [
+                'name' => '_animation',
+                'type' => 'select',
+                'label' => __('Animation'),
+                'default' => 'none',
+                'options' => [
+                    'none' => __('None'),
+                    'fade-in' => __('Fade In'),
+                    'slide-up' => __('Slide Up'),
+                    'slide-down' => __('Slide Down'),
+                    'slide-left' => __('Slide Left'),
+                    'slide-right' => __('Slide Right'),
+                    'zoom-in' => __('Zoom In'),
+                    'zoom-out' => __('Zoom Out'),
+                ],
+            ],
+            [
+                'name' => '_animation_delay',
+                'type' => 'select',
+                'label' => __('Animation Delay'),
+                'default' => '0',
+                'options' => [
+                    '0' => '0s',
+                    '100ms' => '0.1s',
+                    '200ms' => '0.2s',
+                    '300ms' => '0.3s',
+                    '500ms' => '0.5s',
+                    '700ms' => '0.7s',
+                    '1000ms' => '1s',
+                ],
+            ],
+            [
+                'name' => '_animation_duration',
+                'type' => 'select',
+                'label' => __('Animation Duration'),
+                'default' => 'md',
+                'options' => [
+                    'sm' => __('Fast') . ' — 0.3s',
+                    'md' => __('Normal') . ' — 0.6s',
+                    'lg' => __('Slow') . ' — 1s',
+                    'xl' => __('Very Slow') . ' — 1.5s',
+                ],
+            ],
+        ];
+    }
+
+    public function advancedDefaults(): array
+    {
+        $defaults = [];
+
+        foreach ($this->advancedSchema() as $field) {
+            if (array_key_exists('default', $field)) {
+                $defaults[$field['name']] = $field['default'];
+            }
+        }
+
+        return $defaults;
+    }
+
+    public function fullSchema(): array
+    {
+        return array_merge($this->schema(), $this->advancedSchema());
+    }
+
+    public function fullDefaults(): array
+    {
+        return array_merge($this->defaults(), $this->advancedDefaults());
+    }
+
+    public function applyAnimation(string $html, array $settings): string
+    {
+        $animation = $settings['_animation'] ?? 'none';
+
+        if ($animation === 'none' || $animation === '') {
+            return $html;
+        }
+
+        $duration = $settings['_animation_duration'] ?? 'md';
+        $delay = $settings['_animation_delay'] ?? '0';
+
+        $durations = [
+            'sm' => '300ms',
+            'md' => '600ms',
+            'lg' => '1000ms',
+            'xl' => '1500ms',
+        ];
+
+        $style = 'animation-duration: ' . ($durations[$duration] ?? '600ms') . ';';
+
+        if ($delay !== '0' && $delay !== '') {
+            $style .= ' animation-delay: ' . $delay . ';';
+        }
+
+        return '<div class="rj-animate rj-animate-' . $this->escape($animation) . '" style="' . $style . '">' . $html . '</div>';
+    }
+
     protected function setting(array $settings, string $key, $default = null)
     {
         return $settings[$key] ?? $default;
