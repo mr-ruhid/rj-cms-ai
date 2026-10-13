@@ -43,6 +43,11 @@ function builderState() {
         activeLocale: L.baseLocale,
         translatableFields: ['text', 'alt', 'caption', 'title', 'subtitle', 'description', 'label', 'button_text', 'content', 'placeholder'],
 
+        menuOptions: (function () {
+            const m = L.menus || {};
+            return Object.keys(m).map(id => ({ id: id, label: m[id] }));
+        })(),
+
         devices: [
             { id: 'desktop', label: 'Desktop', svg: rjSVG('<path d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>') },
             { id: 'tablet',  label: 'Tablet',  svg: rjSVG('<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M11 18h2"/>') },
