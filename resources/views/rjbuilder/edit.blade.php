@@ -103,66 +103,45 @@
         </aside>
 
         <main class="flex-1 bg-gray-50 overflow-y-auto rj-scrollbar relative">
-            <div class="min-h-full py-10 px-6">
+            <div class="min-h-full py-12 px-6">
 
                 <div x-show="blocks.length === 0" class="max-w-5xl mx-auto">
-                    <div class="text-center mb-10 pt-16">
+                    <div class="text-center mb-10">
                         <h2 class="text-xl font-semibold text-gray-900 mb-2">{{ __('Select a wrap layout') }}</h2>
                         <p class="text-sm text-gray-500">{{ __('Choose a structure to start building.') }}</p>
                     </div>
 
                     <div class="flex items-center justify-center gap-3 flex-wrap mb-10">
-
-                        <button type="button" @click="addLayout('1col')"
-                                class="group w-20 h-20 rounded-xl border-2 border-gray-200 bg-white hover:border-rj-purple hover:shadow-lg transition flex items-center justify-center"
-                                title="{{ __('1 Column') }}">
+                        <button type="button" @click="addLayout('1col')" class="group w-20 h-20 rounded-xl border-2 border-gray-200 bg-white hover:border-rj-purple hover:shadow-lg transition flex items-center justify-center" title="1 Column">
                             <div class="w-10 h-10 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
                         </button>
-
-                        <button type="button" @click="addLayout('2col')"
-                                class="group w-20 h-20 rounded-xl border-2 border-gray-200 bg-white hover:border-rj-purple hover:shadow-lg transition flex items-center justify-center gap-1"
-                                title="{{ __('2 Columns') }}">
+                        <button type="button" @click="addLayout('2col')" class="group w-20 h-20 rounded-xl border-2 border-gray-200 bg-white hover:border-rj-purple hover:shadow-lg transition flex items-center justify-center gap-1" title="2 Columns">
                             <div class="w-4 h-10 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
                             <div class="w-4 h-10 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
                         </button>
-
-                        <button type="button" @click="addLayout('3col')"
-                                class="group w-20 h-20 rounded-xl border-2 border-gray-200 bg-white hover:border-rj-purple hover:shadow-lg transition flex items-center justify-center gap-1"
-                                title="{{ __('3 Columns') }}">
+                        <button type="button" @click="addLayout('3col')" class="group w-20 h-20 rounded-xl border-2 border-gray-200 bg-white hover:border-rj-purple hover:shadow-lg transition flex items-center justify-center gap-1" title="3 Columns">
                             <div class="w-3 h-10 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
                             <div class="w-3 h-10 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
                             <div class="w-3 h-10 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
                         </button>
-
-                        <button type="button" @click="addLayout('4col')"
-                                class="group w-20 h-20 rounded-xl border-2 border-gray-200 bg-white hover:border-rj-purple hover:shadow-lg transition flex items-center justify-center gap-1"
-                                title="{{ __('4 Columns') }}">
+                        <button type="button" @click="addLayout('4col')" class="group w-20 h-20 rounded-xl border-2 border-gray-200 bg-white hover:border-rj-purple hover:shadow-lg transition flex items-center justify-center gap-1" title="4 Columns">
                             <div class="w-2.5 h-10 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
                             <div class="w-2.5 h-10 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
                             <div class="w-2.5 h-10 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
                             <div class="w-2.5 h-10 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
                         </button>
-
-                        <button type="button" @click="addLayout('2row')"
-                                class="group w-20 h-20 rounded-xl border-2 border-gray-200 bg-white hover:border-rj-purple hover:shadow-lg transition flex flex-col items-center justify-center gap-1"
-                                title="{{ __('2 Rows') }}">
+                        <button type="button" @click="addLayout('2row')" class="group w-20 h-20 rounded-xl border-2 border-gray-200 bg-white hover:border-rj-purple hover:shadow-lg transition flex flex-col items-center justify-center gap-1" title="2 Rows">
                             <div class="w-10 h-4 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
                             <div class="w-10 h-4 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
                         </button>
-
-                        <button type="button" @click="addLayout('1plus2')"
-                                class="group w-20 h-20 rounded-xl border-2 border-gray-200 bg-white hover:border-rj-purple hover:shadow-lg transition flex flex-col items-center justify-center gap-1"
-                                title="{{ __('1 + 2') }}">
+                        <button type="button" @click="addLayout('1plus2')" class="group w-20 h-20 rounded-xl border-2 border-gray-200 bg-white hover:border-rj-purple hover:shadow-lg transition flex flex-col items-center justify-center gap-1" title="1 + 2">
                             <div class="w-10 h-4 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
                             <div class="flex gap-1">
-                                <div class="w-4.5 h-4 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition" style="width: 18px;"></div>
-                                <div class="w-4.5 h-4 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition" style="width: 18px;"></div>
+                                <div class="h-4 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition" style="width:18px"></div>
+                                <div class="h-4 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition" style="width:18px"></div>
                             </div>
                         </button>
-
-                        <button type="button" @click="addLayout('2row3')"
-                                class="group w-20 h-20 rounded-xl border-2 border-gray-200 bg-white hover:border-rj-purple hover:shadow-lg transition flex flex-col items-center justify-center gap-1"
-                                title="{{ __('2 Rows x 3') }}">
+                        <button type="button" @click="addLayout('2row3')" class="group w-20 h-20 rounded-xl border-2 border-gray-200 bg-white hover:border-rj-purple hover:shadow-lg transition flex flex-col items-center justify-center gap-1" title="2 Rows x 3">
                             <div class="flex gap-0.5">
                                 <div class="w-2.5 h-4 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
                                 <div class="w-2.5 h-4 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
@@ -174,20 +153,18 @@
                                 <div class="w-2.5 h-4 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
                             </div>
                         </button>
-
                     </div>
 
                     <div class="text-center">
                         <div class="text-xs text-gray-400 uppercase tracking-wider mb-4">{{ __('or start from scratch') }}</div>
-                        <button type="button" @click="addBlank()"
-                                class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-gradient-to-r from-rj-purple to-rj-pink text-white text-sm font-medium hover:opacity-90 transition">
+                        <button type="button" @click="addBlank()" class="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-gradient-to-r from-rj-purple to-rj-pink text-white text-sm font-medium hover:opacity-90 transition">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
                             {{ __('Start Blank') }}
                         </button>
                     </div>
                 </div>
 
-                <div x-show="blocks.length > 0" class="max-w-5xl mx-auto">
+                <div x-show="blocks.length > 0" class="max-w-6xl mx-auto">
                     <template x-for="(block, index) in blocks" :key="block.id">
                         <div>
                             <div @dragover.prevent="onDragOver($event, 'root', index)"
@@ -208,7 +185,7 @@
                         <div class="w-full h-1 bg-rj-purple rounded-full"></div>
                     </div>
 
-                    <div class="mt-8 flex items-center justify-center">
+                    <div class="mt-10 flex items-center justify-center">
                         <button type="button" @click="showLayoutPicker = true"
                                 class="group flex items-center gap-3 px-6 py-4 rounded-2xl border-2 border-dashed border-gray-300 hover:border-rj-purple hover:bg-rj-purple/5 transition">
                             <div class="w-10 h-10 rounded-full bg-white border-2 border-gray-300 group-hover:border-rj-purple group-hover:bg-rj-purple/10 flex items-center justify-center transition">
@@ -216,7 +193,7 @@
                             </div>
                             <div class="text-left">
                                 <div class="text-sm font-semibold text-gray-900 group-hover:text-rj-purple">{{ __('Add New Section') }}</div>
-                                <div class="text-xs text-gray-500">{{ __('Choose another layout below') }}</div>
+                                <div class="text-xs text-gray-500">{{ __('Choose a layout below') }}</div>
                             </div>
                         </button>
                     </div>
@@ -248,22 +225,15 @@
                             <label class="block text-xs font-medium text-gray-700 mb-1.5" x-text="field.label"></label>
 
                             <template x-if="field.type === 'text'">
-                                <input type="text" :value="currentSettings[field.name] || ''"
-                                       @input="updateSetting(field.name, $event.target.value)"
-                                       class="w-full rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm">
+                                <input type="text" :value="currentSettings[field.name] || ''" @input="updateSetting(field.name, $event.target.value)" class="w-full rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm">
                             </template>
 
                             <template x-if="field.type === 'textarea'">
-                                <textarea :value="currentSettings[field.name] || ''"
-                                          @input="updateSetting(field.name, $event.target.value)"
-                                          rows="4"
-                                          class="w-full rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm"></textarea>
+                                <textarea :value="currentSettings[field.name] || ''" @input="updateSetting(field.name, $event.target.value)" rows="4" class="w-full rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm"></textarea>
                             </template>
 
                             <template x-if="field.type === 'select'">
-                                <select :value="currentSettings[field.name] || ''"
-                                        @change="updateSetting(field.name, $event.target.value)"
-                                        class="w-full rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm">
+                                <select :value="currentSettings[field.name] || ''" @change="updateSetting(field.name, $event.target.value)" class="w-full rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm">
                                     <template x-for="(label, value) in field.options" :key="value">
                                         <option :value="value" x-text="label"></option>
                                     </template>
@@ -272,12 +242,8 @@
 
                             <template x-if="field.type === 'color'">
                                 <div class="flex items-center gap-2">
-                                    <input type="color" :value="currentSettings[field.name] || '#000000'"
-                                           @input="updateSetting(field.name, $event.target.value)"
-                                           class="w-10 h-9 rounded-lg border border-gray-300 cursor-pointer">
-                                    <input type="text" :value="currentSettings[field.name] || ''"
-                                           @input="updateSetting(field.name, $event.target.value)"
-                                           class="flex-1 rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-xs font-mono">
+                                    <input type="color" :value="currentSettings[field.name] || '#000000'" @input="updateSetting(field.name, $event.target.value)" class="w-10 h-9 rounded-lg border border-gray-300 cursor-pointer">
+                                    <input type="text" :value="currentSettings[field.name] || ''" @input="updateSetting(field.name, $event.target.value)" class="flex-1 rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-xs font-mono">
                                 </div>
                             </template>
 
@@ -285,13 +251,11 @@
                                 <div>
                                     <div x-show="currentSettings[field.name]" class="mb-2 rounded-lg overflow-hidden border border-gray-200 relative">
                                         <img :src="currentSettings[field.name]" class="w-full h-24 object-cover">
-                                        <button type="button" @click="updateSetting(field.name, '')"
-                                                class="absolute top-1 right-1 w-6 h-6 rounded-full bg-red-600 text-white flex items-center justify-center">
+                                        <button type="button" @click="updateSetting(field.name, '')" class="absolute top-1 right-1 w-6 h-6 rounded-full bg-red-600 text-white flex items-center justify-center">
                                             <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
                                         </button>
                                     </div>
-                                    <button type="button" @click="openMediaPicker(field.name)"
-                                            class="w-full inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg border-2 border-dashed border-gray-300 text-gray-600 text-xs font-medium hover:border-rj-purple hover:bg-rj-purple/5 transition">
+                                    <button type="button" @click="openMediaPicker(field.name)" class="w-full inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg border-2 border-dashed border-gray-300 text-gray-600 text-xs font-medium hover:border-rj-purple hover:bg-rj-purple/5 transition">
                                         <span x-text="currentSettings[field.name] ? '{{ __('Change Image') }}' : '{{ __('Select Image') }}'"></span>
                                     </button>
                                 </div>
@@ -300,12 +264,10 @@
                     </template>
 
                     <div class="pt-4 border-t border-gray-100 flex items-center gap-2">
-                        <button type="button" @click="duplicateSelected()"
-                                class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-gray-300 text-xs text-gray-700 hover:bg-gray-50 transition">
+                        <button type="button" @click="duplicateSelected()" class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-gray-300 text-xs text-gray-700 hover:bg-gray-50 transition">
                             {{ __('Duplicate') }}
                         </button>
-                        <button type="button" @click="removeSelected()"
-                                class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-red-200 text-xs text-red-600 hover:bg-red-50 transition">
+                        <button type="button" @click="removeSelected()" class="flex-1 inline-flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg border border-red-200 text-xs text-red-600 hover:bg-red-50 transition">
                             {{ __('Delete') }}
                         </button>
                     </div>
@@ -331,56 +293,42 @@
 
             <div class="flex items-center justify-center gap-3 flex-wrap">
 
-                <button type="button" @click="addLayout('1col'); showLayoutPicker = false"
-                        class="group w-16 h-16 rounded-xl border-2 border-gray-200 bg-white hover:border-rj-purple hover:shadow-lg transition flex items-center justify-center"
-                        title="{{ __('1 Column') }}">
+                <button type="button" @click="addLayout('1col'); showLayoutPicker = false" class="group w-16 h-16 rounded-xl border-2 border-gray-200 bg-white hover:border-rj-purple hover:shadow-lg transition flex items-center justify-center" title="1 Column">
                     <div class="w-8 h-8 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
                 </button>
 
-                <button type="button" @click="addLayout('2col'); showLayoutPicker = false"
-                        class="group w-16 h-16 rounded-xl border-2 border-gray-200 bg-white hover:border-rj-purple hover:shadow-lg transition flex items-center justify-center gap-0.5"
-                        title="{{ __('2 Columns') }}">
+                <button type="button" @click="addLayout('2col'); showLayoutPicker = false" class="group w-16 h-16 rounded-xl border-2 border-gray-200 bg-white hover:border-rj-purple hover:shadow-lg transition flex items-center justify-center gap-0.5" title="2 Columns">
                     <div class="w-3 h-8 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
                     <div class="w-3 h-8 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
                 </button>
 
-                <button type="button" @click="addLayout('3col'); showLayoutPicker = false"
-                        class="group w-16 h-16 rounded-xl border-2 border-gray-200 bg-white hover:border-rj-purple hover:shadow-lg transition flex items-center justify-center gap-0.5"
-                        title="{{ __('3 Columns') }}">
+                <button type="button" @click="addLayout('3col'); showLayoutPicker = false" class="group w-16 h-16 rounded-xl border-2 border-gray-200 bg-white hover:border-rj-purple hover:shadow-lg transition flex items-center justify-center gap-0.5" title="3 Columns">
                     <div class="w-2.5 h-8 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
                     <div class="w-2.5 h-8 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
                     <div class="w-2.5 h-8 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
                 </button>
 
-                <button type="button" @click="addLayout('4col'); showLayoutPicker = false"
-                        class="group w-16 h-16 rounded-xl border-2 border-gray-200 bg-white hover:border-rj-purple hover:shadow-lg transition flex items-center justify-center gap-0.5"
-                        title="{{ __('4 Columns') }}">
+                <button type="button" @click="addLayout('4col'); showLayoutPicker = false" class="group w-16 h-16 rounded-xl border-2 border-gray-200 bg-white hover:border-rj-purple hover:shadow-lg transition flex items-center justify-center gap-0.5" title="4 Columns">
                     <div class="w-2 h-8 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
                     <div class="w-2 h-8 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
                     <div class="w-2 h-8 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
                     <div class="w-2 h-8 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
                 </button>
 
-                <button type="button" @click="addLayout('2row'); showLayoutPicker = false"
-                        class="group w-16 h-16 rounded-xl border-2 border-gray-200 bg-white hover:border-rj-purple hover:shadow-lg transition flex flex-col items-center justify-center gap-0.5"
-                        title="{{ __('2 Rows') }}">
+                <button type="button" @click="addLayout('2row'); showLayoutPicker = false" class="group w-16 h-16 rounded-xl border-2 border-gray-200 bg-white hover:border-rj-purple hover:shadow-lg transition flex flex-col items-center justify-center gap-0.5" title="2 Rows">
                     <div class="w-8 h-3.5 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
                     <div class="w-8 h-3.5 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
                 </button>
 
-                <button type="button" @click="addLayout('1plus2'); showLayoutPicker = false"
-                        class="group w-16 h-16 rounded-xl border-2 border-gray-200 bg-white hover:border-rj-purple hover:shadow-lg transition flex flex-col items-center justify-center gap-0.5"
-                        title="{{ __('1 + 2') }}">
+                <button type="button" @click="addLayout('1plus2'); showLayoutPicker = false" class="group w-16 h-16 rounded-xl border-2 border-gray-200 bg-white hover:border-rj-purple hover:shadow-lg transition flex flex-col items-center justify-center gap-0.5" title="1 + 2">
                     <div class="w-8 h-3.5 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
                     <div class="flex gap-0.5">
                         <div class="w-3.5 h-3.5 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
-                        <div class="w-3.5 h-3.5 border-2 border-dashed border-gray-300 group-hover:border-rj-purple transition"></div>
+                        <div class="w-3.5 h-3.5 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
                     </div>
                 </button>
 
-                <button type="button" @click="addLayout('2row3'); showLayoutPicker = false"
-                        class="group w-16 h-16 rounded-xl border-2 border-gray-200 bg-white hover:border-rj-purple hover:shadow-lg transition flex flex-col items-center justify-center gap-0.5"
-                        title="{{ __('2 Rows x 3') }}">
+                <button type="button" @click="addLayout('2row3'); showLayoutPicker = false" class="group w-16 h-16 rounded-xl border-2 border-gray-200 bg-white hover:border-rj-purple hover:shadow-lg transition flex flex-col items-center justify-center gap-0.5" title="2 Rows x 3">
                     <div class="flex gap-0.5">
                         <div class="w-2 h-3.5 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
                         <div class="w-2 h-3.5 border-2 border-dashed border-gray-300 group-hover:border-rj-purple rounded transition"></div>
@@ -400,7 +348,6 @@
                     {{ __('Cancel') }}
                 </button>
             </div>
-
         </div>
     </div>
 
@@ -516,13 +463,17 @@ function builder() {
                 gap: 'md',
                 padding: 'md',
                 align: 'stretch',
+                width: 'boxed',
             });
 
             container.children = [];
 
             if (p.special) {
-                container.settings.columns = '2';
-                container.children.push(this.createBlock('container', { columns: '1' }));
+                container.settings.columns = '1';
+                const topRow = this.createBlock('container', { columns: '1' });
+                topRow.children = [this.createBlock('container', { columns: '1' })];
+                container.children.push(topRow);
+
                 const bottomRow = this.createBlock('container', { columns: '2' });
                 bottomRow.children = [this.createBlock('container', { columns: '1' }), this.createBlock('container', { columns: '1' })];
                 container.children.push(bottomRow);
@@ -537,6 +488,7 @@ function builder() {
                     container.children.push(row);
                 }
             } else if (p.rows && p.rows > 1) {
+                container.settings.columns = '1';
                 for (let r = 0; r < p.rows; r++) {
                     container.children.push(this.createBlock('container', { columns: '1' }));
                 }
@@ -557,6 +509,7 @@ function builder() {
                 columns: '1',
                 gap: 'md',
                 padding: 'md',
+                width: 'boxed',
             });
             container.children = [this.createBlock('container', { columns: '1' })];
             this.blocks.push(container);
@@ -746,25 +699,15 @@ function builder() {
             const bid = block.id;
 
             return `
-                <div class="relative transition group ${isSelected ? 'ring-2 ring-rj-purple' : ''}"
-                     onclick="event.stopPropagation(); window.__builder.selectBlock('${bid}')">
-                    <div class="absolute -top-3 left-1/2 -translate-x-1/2 z-20 flex items-center gap-1 bg-rj-dark-1 text-white rounded-full px-2 py-1 shadow-lg ${isSelected ? '' : 'opacity-0 group-hover:opacity-100'} transition-opacity">
-                        <span class="text-[10px] font-medium uppercase tracking-wider px-1.5">${this.blockLabel(block.type)}</span>
-                        <div class="w-px h-3 bg-white/20"></div>
-                        <button type="button" onclick="event.stopPropagation(); window.__builder.moveUp('${bid}')" class="w-5 h-5 rounded-full hover:bg-white/10 flex items-center justify-center" title="Move up">
-                            <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 15l7-7 7 7"/></svg>
-                        </button>
-                        <button type="button" onclick="event.stopPropagation(); window.__builder.moveDown('${bid}')" class="w-5 h-5 rounded-full hover:bg-white/10 flex items-center justify-center" title="Move down">
-                            <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
-                        </button>
-                        <button type="button" onclick="event.stopPropagation(); window.__builder.duplicateBlock('${bid}')" class="w-5 h-5 rounded-full hover:bg-white/10 flex items-center justify-center" title="Duplicate">
-                            <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                        </button>
-                        <button type="button" onclick="event.stopPropagation(); window.__builder.removeBlock('${bid}')" class="w-5 h-5 rounded-full hover:bg-red-500/30 flex items-center justify-center" title="Delete">
-                            <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                        </button>
+                <div class="relative transition" onclick="event.stopPropagation(); window.__builder.selectBlock('${bid}')">
+                    <div style="position:absolute;top:-14px;left:50%;transform:translateX(-50%);z-index:30;display:flex;align-items:center;gap:2px;background:#1a1030;color:#fff;border-radius:9999px;padding:2px 6px;box-shadow:0 4px 12px rgba(0,0,0,0.2);opacity:${isSelected ? 1 : 0};pointer-events:${isSelected ? 'auto' : 'none'};transition:opacity 0.15s;">
+                        <span style="font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;padding:0 4px;color:#a855f7;">${this.blockLabel(block.type)}</span>
+                        <button type="button" onclick="event.stopPropagation(); window.__builder.moveUp('${bid}')" style="width:20px;height:20px;border-radius:9999px;background:transparent;border:0;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;line-height:1;" onmouseover="this.style.background='rgba(255,255,255,0.15)'" onmouseout="this.style.background='transparent'" title="Move up">↑</button>
+                        <button type="button" onclick="event.stopPropagation(); window.__builder.moveDown('${bid}')" style="width:20px;height:20px;border-radius:9999px;background:transparent;border:0;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;line-height:1;" onmouseover="this.style.background='rgba(255,255,255,0.15)'" onmouseout="this.style.background='transparent'" title="Move down">↓</button>
+                        <button type="button" onclick="event.stopPropagation(); window.__builder.duplicateBlock('${bid}')" style="width:20px;height:20px;border-radius:9999px;background:transparent;border:0;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;line-height:1;" onmouseover="this.style.background='rgba(255,255,255,0.15)'" onmouseout="this.style.background='transparent'" title="Duplicate">⧉</button>
+                        <button type="button" onclick="event.stopPropagation(); window.__builder.removeBlock('${bid}')" style="width:20px;height:20px;border-radius:9999px;background:transparent;border:0;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;line-height:1;" onmouseover="this.style.background='rgba(239,68,68,0.5)'" onmouseout="this.style.background='transparent'" title="Delete">✕</button>
                     </div>
-                    <div class="pointer-events-none">${anim}</div>
+                    <div style="${isSelected ? 'outline:2px solid #7c3aed; outline-offset:-2px;' : ''} border-radius:12px; pointer-events:none;">${anim}</div>
                 </div>
             `;
         },
@@ -781,6 +724,8 @@ function builder() {
             const border = settings.border === 'solid' ? '2px solid #e5e7eb' : settings.border === 'dashed' ? '2px dashed #e5e7eb' : 'none';
             const alignMap = { start: 'flex-start', center: 'center', end: 'flex-end', stretch: 'stretch' };
             const align = alignMap[settings.align] || 'stretch';
+
+            const isFullWidth = settings.width === 'full';
 
             const children = block.children || [];
             const bid = block.id;
@@ -803,6 +748,7 @@ function builder() {
 
                 slotsHtml += `
                     <div class="relative min-h-[80px] rounded-lg border-2 border-dashed transition"
+                         style="${isFullWidth ? 'max-width:100%;' : ''}"
                          :class="dragTarget === '${bid}:${i}' ? 'border-rj-purple bg-rj-purple/10' : 'border-gray-200 hover:border-gray-300'"
                          ondragover="event.preventDefault(); event.stopPropagation(); window.__builder.dragTarget = '${bid}:${i}';"
                          ondrop="event.preventDefault(); event.stopPropagation(); window.__builder.dropInto('${bid}', ${i});"
@@ -812,8 +758,12 @@ function builder() {
                 `;
             }
 
+            const outerStyle = isFullWidth
+                ? `background:${bg}; padding:${padding}; border:${border}; min-height:${minHeight}; width:100%; margin:0;`
+                : `background:${bg}; padding:${padding}; border:${border}; min-height:${minHeight}; max-width:1100px; margin:0 auto; width:100%;`;
+
             return `
-                <div class="rounded-xl" style="background:${bg}; padding:${padding}; border:${border}; min-height:${minHeight};">
+                <div class="rounded-xl" style="${outerStyle}">
                     <div style="display:grid; grid-template-columns: repeat(${cols}, minmax(0, 1fr)); gap:${gap}; align-items:${align};">
                         ${slotsHtml}
                     </div>
