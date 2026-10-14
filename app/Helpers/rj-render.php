@@ -1,6 +1,47 @@
 <?php
 
+use App\DynamicTags\TagRegistry;
 use App\Widgets\WidgetRegistry;
+
+if (!function_exists('rj_resolve_dynamic')) {
+    function rj_resolve_dynamic($value)
+    {
+        if (!is_array($value)) {
+            return $value;
+        }
+
+        if (($value['source'] ?? '') !== 'dynamic') {
+            return $value;
+        }
+
+        $tag = $value['tag'] ?? '';
+
+        if ($tag === '') {
+            return '';
+        }
+
+        $options = $value['options'] ?? [];
+
+        if (!is_array($options)) {
+            $options = [];
+        }
+
+        return TagRegistry::resolve($tag, $options);
+    }
+}
+
+if (!function_exists('rj_resolve_dynamics')) {
+    function rj_resolve_dynamics(array $settings): array
+    {
+        foreach ($settings as $key => $value) {
+            if (is_array($value) && ($value['source'] ?? '') === 'dynamic') {
+                $settings[$key] = rj_resolve_dynamic($value);
+            }
+        }
+
+        return $settings;
+    }
+}
 
 if (!function_exists('rj_render_block')) {
     function rj_render_block(array $block): string
@@ -18,6 +59,8 @@ if (!function_exists('rj_render_block')) {
         }
 
         $settings = $block['settings'] ?? [];
+        $settings = rj_resolve_dynamics($settings);
+
         $children = $block['children'] ?? [];
 
         if ($type === 'container') {
@@ -80,5 +123,12 @@ if (!function_exists('rj_render_template_id')) {
         }
 
         return rj_render_template($id);
+    }
+}
+
+if (!function_exists('rj_do_shortcode')) {
+    function rj_do_shortcode(string $code): string
+    {
+        return '';
     }
 }
