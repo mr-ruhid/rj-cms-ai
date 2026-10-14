@@ -49,6 +49,10 @@ function builderState() {
 
         menuTrees: L.menuItems || {},
 
+        globalColors: L.globalColors || [],
+        globalFonts: L.globalFonts || [],
+        globalSpacing: L.globalSpacing || [],
+
         devices: [
             { id: 'desktop', label: 'Desktop', svg: rjSVG('<path d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>') },
             { id: 'tablet',  label: 'Tablet',  svg: rjSVG('<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M11 18h2"/>') },
@@ -171,6 +175,31 @@ function builderState() {
 
         get deviceWidthLabel() {
             return { desktop: this.t('Full width'), tablet: '820 px', mobile: '420 px' }[this.device];
+        },
+
+        get globalColorList() {
+            return (this.globalColors || []).map(c => ({
+                id: c.id,
+                name: c.name || c.id,
+                color: c.color || '#000000',
+            }));
+        },
+
+        get globalFontList() {
+            return (this.globalFonts || []).map(f => ({
+                id: f.id,
+                name: f.name || f.id,
+                family: f.family || 'Inter, sans-serif',
+                weight: f.weight || '400',
+            }));
+        },
+
+        get globalSpacingList() {
+            return (this.globalSpacing || []).map(s => ({
+                id: s.id,
+                name: s.name || s.id,
+                value: s.value || '0',
+            }));
         },
 
         get canvasStyle() {
