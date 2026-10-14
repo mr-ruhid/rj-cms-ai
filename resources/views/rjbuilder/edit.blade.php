@@ -44,6 +44,7 @@
         'Hidden on', 'Image', 'Unknown widget', 'Drop here', 'Save (Ctrl+S)', 'Close panel', 'Open panel', 'Logo',
         'Menu', '— Select menu —', 'No menus yet.', 'Create one →', 'Visible on',
         'Top', 'Right', 'Bottom', 'Left', 'Link values together',
+        'Global Colors', 'Global Fonts', 'Responsive',
     ])->unique()->mapWithKeys(fn ($s) => [$s => __($s)])->toArray();
 @endphp
 
@@ -360,12 +361,7 @@
                                 </label>
                             </template>
 
-                            <template x-if="field.type !== 'toggle' && field.type !== 'dimensions'">
-                                <div class="rj-lbl">
-                                    <span x-text="field.label + (templateType === 'page' && locales.length > 1 && isTranslatableField(field.name) ? ' 🌐' : '')"></span>
-                                    <button type="button" class="rj-reset" x-show="!isDefault(field)" @click="resetField(field)" :title="t('Reset to default')">↺</button>
-                                </div>
-                            </template>
+                            @include('rjbuilder.partials.fields.label')
 
                             <template x-if="field.type === 'text' || field.type === 'url' || field.type === 'email'">
                                 <input type="text" class="rj-in" :value="fieldValue(field)" :placeholder="field.placeholder || ''" @input="updateSetting(field.name, $event.target.value)">
@@ -394,12 +390,9 @@
                                 </select>
                             </template>
 
-                            <template x-if="field.type === 'color'">
-                                <div style="display:flex; align-items:center; gap:8px;">
-                                    <input type="color" :value="colorHex(fieldValue(field))" @input="updateSetting(field.name, $event.target.value)" style="width:40px; height:36px; border:1px solid var(--line); border-radius:6px; background:#15161a; cursor:pointer; padding:2px;">
-                                    <input type="text" class="rj-in" style="font-family:monospace; font-size:12px;" :value="fieldValue(field)" @input="updateSetting(field.name, $event.target.value)">
-                                </div>
-                            </template>
+                            @include('rjbuilder.partials.fields.color')
+
+                            @include('rjbuilder.partials.fields.font')
 
                             <template x-if="field.type === 'media'">
                                 <div>
