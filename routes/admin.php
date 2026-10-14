@@ -155,6 +155,16 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
             Route::delete('/{submission}', [\App\Http\Controllers\Admin\FormSubmissionController::class, 'destroy'])->name('destroy');
         });
     });
+
+    Route::prefix('global-widgets')->name('global-widgets.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\GlobalWidgetController::class, 'index'])->name('index');
+        Route::post('/', [\App\Http\Controllers\Admin\GlobalWidgetController::class, 'store'])->name('store');
+        Route::get('/options', [\App\Http\Controllers\Admin\GlobalWidgetController::class, 'options'])->name('options');
+        Route::get('/{globalWidget}/edit', [\App\Http\Controllers\Admin\GlobalWidgetController::class, 'edit'])->name('edit');
+        Route::put('/{globalWidget}', [\App\Http\Controllers\Admin\GlobalWidgetController::class, 'update'])->name('update');
+        Route::delete('/{globalWidget}', [\App\Http\Controllers\Admin\GlobalWidgetController::class, 'destroy'])->name('destroy');
+        Route::post('/{globalWidget}/duplicate', [\App\Http\Controllers\Admin\GlobalWidgetController::class, 'duplicate'])->name('duplicate');
+    });
     
     Route::get('/updates', [UpdatesController::class, 'index'])->name('updates.index');
     Route::post('/updates/check', [UpdatesController::class, 'check'])->name('updates.check');
