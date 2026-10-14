@@ -2,81 +2,72 @@
 
 namespace App\Widgets;
 
-use App\Widgets\Contracts\WidgetContract;
-use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Log;
+use App\Widgets\Builtin\ContainerWidget;
+use App\Widgets\Builtin\HeadingWidget;
+use App\Widgets\Builtin\ImageWidget;
+use App\Widgets\Builtin\LogoWidget;
+use App\Widgets\Builtin\MenuWidget;
+use App\Widgets\Builtin\TextWidget;
 
 class WidgetRegistry
 {
-    protected static array $widgets = [];
+    protected static ?array $cache = null;
 
-    protected static bool $discovered = false;
-
-    public static function register(string $widgetClass): void
+    public static function discover(): array
     {
-        if (!class_exists($widgetClass)) {
-            Log::warning("Widget class does not exist: {$widgetClass}");
-            return;
+        if (static::$cache !== null) {
+            return static::$cache;
         }
 
-        try {
-            $instance = new $widgetClass();
+        $builtin = [
+            new HeadingWidget(),
+            new TextWidget(),
+            new ImageWidget(),
+            new ContainerWidget(),
+            new LogoWidget(),
+            new MenuWidget(),
+        ];
 
-            if (!$instance instanceof WidgetContract) {
-                Log::warning("Widget does not implement WidgetContract: {$widgetClass}");
-                return;
-            }
+        $uploaded = static::discoverUploaded();
 
-            static::$widgets[$instance->id()] = $instance;
-        } catch (\Throwable $e) {
-            Log::error("Failed to register widget: {$widgetClass}", [
-                'error' => $e->getMessage(),
-            ]);
-        }
+        static::$cache = array_merge($builtin, $uploaded);
+
+        return static::$cache;
     }
 
-    public static function discover(): void
+    protected static function discoverUploaded(): array
     {
-        if (static::$discovered) {
-            return;
-        }
-
-        static::discoverBuiltin();
-        static::discoverUploaded();
-
-        static::$discovered = true;
+        return [];
     }
 
     public static function all(): array
     {
-        static::discover();
-
-        return static::$widgets;
+        return static::discover();
     }
 
-    public static function get(string $id): ?WidgetContract
+    public static function get(string $id): ?BaseWidget
     {
-        static::discover();
+        foreach (static::discover() as $widget) {
+            if ($widget->id() === $id) {
+                return $widget;
+            }
+        }
 
-        return static::$widgets[$id] ?? null;
+        return null;
     }
 
     public static function has(string $id): bool
     {
-        static::discover();
-
-        return isset(static::$widgets[$id]);
+        return static::get($id) !== null;
     }
 
     public static function grouped(): array
     {
         $groups = [];
 
-        foreach (static::all() as $widget) {
+        foreach (static::discover() as $widget) {
             $groups[$widget->category()][] = $widget;
         }
-
-        ksort($groups);
 
         return $groups;
     }
@@ -93,73 +84,13 @@ class WidgetRegistry
         ];
     }
 
+    public static function register(BaseWidget $widget): void
+    {
+        static::$cache = null;
+    }
+
     public static function reset(): void
     {
-        static::$widgets = [];
-        static::$discovered = false;
-    }
-
-    protected static function discoverBuiltin(): void
-    {
-        $path = app_path('Widgets/Builtin');
-
-        if (!is_dir($path)) {
-            return;
-        }
-
-        $files = File::files($path);
-
-        foreach ($files as $file) {
-            if ($file->getExtension() !== 'php') {
-                continue;
-            }
-
-            $className = 'App\\Widgets\\Builtin\\' . $file->getFilenameWithoutExtension();
-
-            static::register($className);
-        }
-    }
-
-    protected static function discoverUploaded(): void
-    {
-        $path = storage_path('app/widgets');
-
-        if (!is_dir($path)) {
-            return;
-        }
-
-        $directories = File::directories($path);
-
-        foreach ($directories as $dir) {
-            $manifest = $dir . '/widget.json';
-
-            if (!file_exists($manifest)) {
-                continue;
-            }
-
-            try {
-                $data = json_decode(file_get_contents($manifest), true);
-
-                if (empty($data['class']) || empty($data['entry'])) {
-                    continue;
-                }
-
-                $entryFile = $dir . '/' . $data['entry'];
-
-                if (!file_exists($entryFile)) {
-                    continue;
-                }
-
-                require_once $entryFile;
-
-                if (class_exists($data['class'])) {
-                    static::register($data['class']);
-                }
-            } catch (\Throwable $e) {
-                Log::error("Failed to load uploaded widget: {$dir}", [
-                    'error' => $e->getMessage(),
-                ]);
-            }
-        }
+        static::$cache = null;
     }
 }
