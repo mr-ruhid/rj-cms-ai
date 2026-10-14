@@ -15,6 +15,8 @@
 
     @include('rjbuilder.partials.styles')
 
+    <link rel="stylesheet" href="{{ route('frontend.fonts.css') }}">
+
     <style>
         body { margin: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif; background: #fff; color: #111827; }
         .rj-frontend { min-height: 100vh; display: flex; flex-direction: column; }
