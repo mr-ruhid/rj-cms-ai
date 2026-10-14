@@ -135,7 +135,14 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::post('/{template}/duplicate', [BuilderController::class, 'duplicate'])->name('duplicate');
         Route::post('/{template}/set-default', [BuilderController::class, 'setDefault'])->name('set-default');
         Route::post('/{template}/conditions', [BuilderController::class, 'updateConditions'])->name('conditions');
+        Route::post('/{template}/export', [\App\Http\Controllers\Admin\TemplateLibraryController::class, 'export'])->name('export');
         Route::post('/{template}/popup-settings', [BuilderController::class, 'updatePopupSettings'])->name('popup-settings');
+    });
+
+    Route::prefix('template-library')->name('template-library.')->group(function () {
+        Route::post('/export-multiple', [\App\Http\Controllers\Admin\TemplateLibraryController::class, 'exportMultiple'])->name('export-multiple');
+        Route::post('/import', [\App\Http\Controllers\Admin\TemplateLibraryController::class, 'import'])->name('import');
+        Route::post('/preview', [\App\Http\Controllers\Admin\TemplateLibraryController::class, 'preview'])->name('preview');
     });
 
     Route::prefix('forms')->name('forms.')->group(function () {
