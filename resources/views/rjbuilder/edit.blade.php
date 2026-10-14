@@ -45,6 +45,8 @@
         'Menu', '— Select menu —', 'No menus yet.', 'Create one →', 'Visible on',
         'Top', 'Right', 'Bottom', 'Left', 'Link values together',
         'Global Colors', 'Global Fonts', 'Responsive',
+        'Dynamic Tags', 'Insert Dynamic Tag', 'Choose a dynamic value to bind to this field.',
+        'No dynamic tags available.', 'Change tag', 'Remove tag',
     ])->unique()->mapWithKeys(fn ($s) => [$s => __($s)])->toArray();
 @endphp
 
@@ -363,9 +365,7 @@
 
                             @include('rjbuilder.partials.fields.label')
 
-                            <template x-if="field.type === 'text' || field.type === 'url' || field.type === 'email'">
-                                <input type="text" class="rj-in" :value="fieldValue(field)" :placeholder="field.placeholder || ''" @input="updateSetting(field.name, $event.target.value)">
-                            </template>
+                            @include('rjbuilder.partials.fields.text')
 
                             <template x-if="field.type === 'number'">
                                 <input type="number" class="rj-in" :value="fieldValue(field)" :min="field.min" :max="field.max" :step="field.step || 1" @input="updateSetting(field.name, $event.target.value)">
@@ -543,8 +543,9 @@
         </div>
     </div>
 
-    @include('admin.partials.media-picker')
     @include('rjbuilder.partials.tag-picker')
+
+    @include('admin.partials.media-picker')
 </div>
 
 @include('rjbuilder.partials.scripts.data')
