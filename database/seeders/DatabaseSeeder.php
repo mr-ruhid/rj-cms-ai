@@ -13,6 +13,9 @@ class DatabaseSeeder extends Seeder
             OptionSeeder::class,
             GlobalStylesSeeder::class,
             BreakpointSettingsSeeder::class,
+            PermissionSeeder::class,
+            PostTypeSeeder::class,
+            TaxonomySeeder::class,
         ]);
     }
 }
