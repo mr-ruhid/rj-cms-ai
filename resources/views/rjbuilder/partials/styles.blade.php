@@ -266,6 +266,119 @@
 .rj-bl .rj-mi { display: block; }
 .rj-bl .rj-ml { display: block; width: 100%; padding: 10px 12px; }
 .rj-bl .rj-dd { position: static; opacity: 1; visibility: visible; transform: none; box-shadow: none; background: transparent; margin: 2px 0 4px 16px; padding: 0 0 0 8px; border: 0; border-left: 2px solid color-mix(in srgb, var(--mh) 25%, transparent); }
+
+.rj-dim {
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    overflow: hidden;
+    background: #15161a;
+}
+
+.rj-dim-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1px;
+    background: var(--line);
+}
+
+.rj-dim-cell {
+    display: flex;
+    flex-direction: column;
+    background: #15161a;
+    padding: 6px 6px 4px;
+}
+
+.rj-dim-cell > span {
+    font-size: 9px;
+    font-weight: 600;
+    color: #777a88;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    text-align: center;
+    margin-bottom: 2px;
+}
+
+.rj-dim-cell > input {
+    width: 100%;
+    background: transparent;
+    border: 0;
+    outline: none;
+    color: var(--tx);
+    font-size: 13px;
+    font-family: inherit;
+    text-align: center;
+    padding: 2px 0;
+}
+
+.rj-dim-cell > input::-webkit-outer-spin-button,
+.rj-dim-cell > input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.rj-dim-cell > input[type=number] {
+    -moz-appearance: textfield;
+}
+
+.rj-dim-cell:focus-within {
+    background: #1f2025;
+    box-shadow: inset 0 0 0 1px var(--acc);
+}
+
+.rj-dim-foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 6px;
+    border-top: 1px solid var(--line);
+    background: #1a1b20;
+}
+
+.rj-dim-link {
+    width: 26px;
+    height: 26px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    background: transparent;
+    color: #777a88;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background .12s, color .12s;
+}
+
+.rj-dim-link:hover {
+    background: var(--bg2);
+    color: #fff;
+}
+
+.rj-dim-link[data-on="true"] {
+    background: var(--acc);
+    color: #fff;
+}
+
+.rj-dim-unit {
+    background: transparent;
+    border: 0;
+    color: #b9bcc8;
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    outline: none;
+    padding: 2px 4px;
+    border-radius: 4px;
+    font-family: inherit;
+}
+
+.rj-dim-unit:hover {
+    background: var(--bg2);
+}
+
+.rj-dim-unit option {
+    background: #1a1b20;
+    color: var(--tx);
+}
 </style>
 
 @endverbatim
