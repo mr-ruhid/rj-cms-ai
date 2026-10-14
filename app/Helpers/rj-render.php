@@ -172,3 +172,23 @@ if (!function_exists('rj_do_shortcode')) {
         return '';
     }
 }
+if (!function_exists('rj_global_widgets_list')) {
+    function rj_global_widgets_list(): array
+    {
+        try {
+            return \App\Models\GlobalWidget::active()
+                ->orderBy('name')
+                ->get(['id', 'name', 'slug', 'type', 'description'])
+                ->map(fn($w) => [
+                    'id' => $w->id,
+                    'name' => $w->name,
+                    'slug' => $w->slug,
+                    'type' => $w->type,
+                    'description' => $w->description ?? '',
+                ])
+                ->toArray();
+        } catch (\Throwable $e) {
+            return [];
+        }
+    }
+}
