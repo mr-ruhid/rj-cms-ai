@@ -1,4 +1,3 @@
-@verbatim
 <script>
 function builder() {
     return Object.assign(
@@ -6,7 +5,7 @@ function builder() {
         builderActions(),
         builderRender(),
         builderPanels(),
+        builderFields(),
     );
 }
 </script>
-@endverbatim
