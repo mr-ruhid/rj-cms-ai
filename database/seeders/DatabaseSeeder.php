@@ -8,9 +8,10 @@ class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-$this->call([
-    OptionSeeder::class,
-    AdminUserSeeder::class,
-]);
+        $this->call([
+            AdminUserSeeder::class,
+            OptionSeeder::class,
+            GlobalStylesSeeder::class,
+        ]);
     }
 }
