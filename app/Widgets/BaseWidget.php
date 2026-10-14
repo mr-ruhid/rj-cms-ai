@@ -39,106 +39,7 @@ abstract class BaseWidget implements WidgetContract
         return '';
     }
 
-    public function advancedSchema(): array
-    {
-        return [
-            [
-                'name' => '_animation',
-                'type' => 'select',
-                'label' => __('Entrance Animation'),
-                'default' => 'none',
-                'tab' => 'advanced',
-                'options' => [
-                    'none' => __('None'),
-                    'fadeIn' => __('Fade In'),
-                    'fadeInUp' => __('Fade In Up'),
-                    'fadeInDown' => __('Fade In Down'),
-                    'fadeInLeft' => __('Fade In Left'),
-                    'fadeInRight' => __('Fade In Right'),
-                    'zoomIn' => __('Zoom In'),
-                    'bounceIn' => __('Bounce In'),
-                    'flipInX' => __('Flip In X'),
-                    'rotateIn' => __('Rotate In'),
-                    'slideUp' => __('Slide Reveal'),
-                    'blurIn' => __('Blur In'),
-                    'pulse' => __('Pulse'),
-                ],
-            ],
-            [
-                'name' => '_animation_duration',
-                'type' => 'select',
-                'label' => __('Duration'),
-                'default' => 'md',
-                'tab' => 'advanced',
-                'options' => [
-                    'sm' => __('Fast') . ' (300ms)',
-                    'md' => __('Normal') . ' (600ms)',
-                    'lg' => __('Slow') . ' (1s)',
-                    'xl' => __('Very Slow') . ' (1.5s)',
-                ],
-            ],
-            [
-                'name' => '_animation_delay',
-                'type' => 'select',
-                'label' => __('Delay'),
-                'default' => '0',
-                'tab' => 'advanced',
-                'options' => [
-                    '0' => __('None'),
-                    '200ms' => '200ms',
-                    '400ms' => '400ms',
-                    '600ms' => '600ms',
-                    '1s' => '1s',
-                ],
-            ],
-            [
-                'name' => '_hover',
-                'type' => 'select',
-                'label' => __('Hover Effect'),
-                'default' => 'none',
-                'tab' => 'advanced',
-                'options' => [
-                    'none' => __('None'),
-                    'grow' => __('Grow'),
-                    'lift' => __('Lift + Shadow'),
-                    'glow' => __('Glow'),
-                    'tilt' => __('3D Tilt'),
-                    'float' => __('Float'),
-                ],
-            ],
-            [
-                'name' => '_hover_text_color',
-                'type' => 'color',
-                'label' => __('Hover Text Color'),
-                'default' => '',
-                'tab' => 'advanced',
-            ],
-            [
-                'name' => '_hover_bg_color',
-                'type' => 'color',
-                'label' => __('Hover Background'),
-                'default' => '',
-                'tab' => 'advanced',
-            ],
-            [
-                'name' => '_hover_border_color',
-                'type' => 'color',
-                'label' => __('Hover Border Color'),
-                'default' => '',
-                'tab' => 'advanced',
-            ],
-            [
-                'name' => '_css_class',
-                'type' => 'text',
-                'label' => __('Custom CSS Class'),
-                'default' => '',
-                'tab' => 'advanced',
-                'placeholder' => 'my-custom-class',
-            ],
-        ];
-    }
-
-        public function commonStyleSchema(): array
+    public function commonStyleSchema(): array
     {
         return [
             [
@@ -284,6 +185,105 @@ abstract class BaseWidget implements WidgetContract
         return $defaults;
     }
 
+    public function advancedSchema(): array
+    {
+        return [
+            [
+                'name' => '_animation',
+                'type' => 'select',
+                'label' => __('Entrance Animation'),
+                'default' => 'none',
+                'tab' => 'advanced',
+                'options' => [
+                    'none' => __('None'),
+                    'fadeIn' => __('Fade In'),
+                    'fadeInUp' => __('Fade In Up'),
+                    'fadeInDown' => __('Fade In Down'),
+                    'fadeInLeft' => __('Fade In Left'),
+                    'fadeInRight' => __('Fade In Right'),
+                    'zoomIn' => __('Zoom In'),
+                    'bounceIn' => __('Bounce In'),
+                    'flipInX' => __('Flip In X'),
+                    'rotateIn' => __('Rotate In'),
+                    'slideUp' => __('Slide Reveal'),
+                    'blurIn' => __('Blur In'),
+                    'pulse' => __('Pulse'),
+                ],
+            ],
+            [
+                'name' => '_animation_duration',
+                'type' => 'select',
+                'label' => __('Duration'),
+                'default' => 'md',
+                'tab' => 'advanced',
+                'options' => [
+                    'sm' => __('Fast') . ' (300ms)',
+                    'md' => __('Normal') . ' (600ms)',
+                    'lg' => __('Slow') . ' (1s)',
+                    'xl' => __('Very Slow') . ' (1.5s)',
+                ],
+            ],
+            [
+                'name' => '_animation_delay',
+                'type' => 'select',
+                'label' => __('Delay'),
+                'default' => '0',
+                'tab' => 'advanced',
+                'options' => [
+                    '0' => __('None'),
+                    '200ms' => '200ms',
+                    '400ms' => '400ms',
+                    '600ms' => '600ms',
+                    '1s' => '1s',
+                ],
+            ],
+            [
+                'name' => '_hover',
+                'type' => 'select',
+                'label' => __('Hover Effect'),
+                'default' => 'none',
+                'tab' => 'advanced',
+                'options' => [
+                    'none' => __('None'),
+                    'grow' => __('Grow'),
+                    'lift' => __('Lift + Shadow'),
+                    'glow' => __('Glow'),
+                    'tilt' => __('3D Tilt'),
+                    'float' => __('Float'),
+                ],
+            ],
+            [
+                'name' => '_hover_text_color',
+                'type' => 'color',
+                'label' => __('Hover Text Color'),
+                'default' => '',
+                'tab' => 'advanced',
+            ],
+            [
+                'name' => '_hover_bg_color',
+                'type' => 'color',
+                'label' => __('Hover Background'),
+                'default' => '',
+                'tab' => 'advanced',
+            ],
+            [
+                'name' => '_hover_border_color',
+                'type' => 'color',
+                'label' => __('Hover Border Color'),
+                'default' => '',
+                'tab' => 'advanced',
+            ],
+            [
+                'name' => '_css_class',
+                'type' => 'text',
+                'label' => __('Custom CSS Class'),
+                'default' => '',
+                'tab' => 'advanced',
+                'placeholder' => 'my-custom-class',
+            ],
+        ];
+    }
+
     public function advancedDefaults(): array
     {
         $defaults = [];
@@ -306,7 +306,7 @@ abstract class BaseWidget implements WidgetContract
     {
         return array_merge($this->defaults(), $this->commonStyleDefaults(), $this->advancedDefaults());
     }
-    
+
     public function applyAnimation(string $html, array $settings): string
     {
         $animation = $settings['_animation'] ?? 'none';
