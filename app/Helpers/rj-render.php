@@ -52,6 +52,13 @@ if (!function_exists('rj_render_block')) {
             return '';
         }
 
+        if (!empty($block['global_id'])) {
+            $resolved = rj_resolve_global_widget((int) $block['global_id'], $block);
+            if ($resolved !== '') {
+                return $resolved;
+            }
+        }
+
         $widget = WidgetRegistry::get($type);
 
         if (!$widget) {
@@ -68,6 +75,39 @@ if (!function_exists('rj_render_block')) {
         }
 
         return $widget->render($settings);
+    }
+}
+
+if (!function_exists('rj_resolve_global_widget')) {
+    function rj_resolve_global_widget(int $id, array $context = []): string
+    {
+        static $stack = [];
+
+        if (in_array($id, $stack, true)) {
+            return '';
+        }
+
+        $widget = \App\Models\GlobalWidget::active()->find($id);
+
+        if (!$widget) {
+            return '';
+        }
+
+        $stack[] = $id;
+
+        try {
+            $block = $widget->toBlock();
+
+            if (!empty($context['settings']) && is_array($context['settings'])) {
+                $block['settings'] = array_merge($block['settings'] ?? [], $context['settings']);
+            }
+
+            $html = rj_render_block($block);
+        } finally {
+            array_pop($stack);
+        }
+
+        return $html;
     }
 }
 
