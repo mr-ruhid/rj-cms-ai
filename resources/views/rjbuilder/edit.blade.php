@@ -48,6 +48,17 @@
         'Dynamic Tags', 'Insert Dynamic Tag', 'Choose a dynamic value to bind to this field.',
         'No dynamic tags available.', 'Change tag', 'Remove tag',
         'Global Widgets', 'Manage', 'No global widgets yet.', 'Insert', 'Unlinked global widget',
+        'AI Assistant', 'Assistant', 'Generate', 'Improve', 'Translate', 'Suggest Section', 'Close',
+        'Generating...', 'Translating...', 'Generate Text', 'Translate to', '— Select language —',
+        'What should AI write?', 'Extra context (optional)', 'Tone', 'Length', 'Result',
+        'Professional', 'Friendly', 'Casual', 'Formal', 'Playful', 'Luxury', 'Short', 'Medium', 'Long',
+        'Improve', 'Shorten', 'Expand', 'Fix Grammar', 'More Formal', 'More Casual',
+        'Select a heading or text block first, then choose an action.',
+        'Select a heading or text block, then choose the target language.',
+        'Describe the section you want', 'Suggested blocks', 'Insert into page',
+        'No text to improve.', 'No text to translate.', 'AI improved', 'AI translated', 'AI section inserted',
+        'Network error', 'AI request failed.',
+        'No forms yet.', '— Select form —',
     ])->unique()->mapWithKeys(fn ($s) => [$s => __($s)])->toArray();
 @endphp
 
@@ -85,6 +96,9 @@
             </button>
             <button type="button" class="rj-ib" :data-active="shownPanel === 'settings' && panelOpen" @click="openPanel('settings')" :title="t('Settings')">
                 <svg fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M4 6h9M17 6h3M4 12h3M11 12h9M4 18h11M19 18h1"/><circle cx="15" cy="6" r="2"/><circle cx="9" cy="12" r="2"/><circle cx="17" cy="18" r="2"/></svg>
+            </button>
+            <button type="button" class="rj-ib rj-ai-btn" @click="openAiPanel('generate')" :title="t('AI Assistant')" :disabled="!ai.enabled">
+                <svg fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 2l1.09 3.26L16 6.27l-2.91.97L12 10.5l-1.09-3.26L8 6.27l2.91-1.01L12 2z"/><path d="M19 15l.71 2.13L22 17.7l-2.29.71L19 20.5l-.71-2.09L16 17.7l2.29-.57L19 15z"/><path d="M5 14l.71 2.13L8 16.7l-2.29.71L5 19.5l-.71-2.09L2 16.7l2.29-.57L5 14z"/></svg>
             </button>
         </div>
 
@@ -599,6 +613,8 @@
     </div>
 
     @include('rjbuilder.partials.tag-picker')
+
+    @include('rjbuilder.partials.ai-panel')
 
     @include('admin.partials.media-picker')
 </div>
