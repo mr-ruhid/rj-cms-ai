@@ -1,4 +1,3 @@
-@verbatim
 <script>
 function builderState() {
     const L = window.RJ;
@@ -84,7 +83,6 @@ function builderState() {
             { name: '_css_class', label: 'Custom CSS class', type: 'text' },
         ],
 
-        /* ───────── getters ───────── */
         get canUndo() { return this.historyIndex > 0; },
         get canRedo() { return this.historyIndex < this.history.length - 1; },
 
@@ -194,7 +192,6 @@ function builderState() {
             return `max-width:${w}; padding:24px 12px;${zoom}`;
         },
 
-        /* ───────── lifecycle ───────── */
         init() {
             if (this._inited) return;
             this._inited = true;
@@ -247,7 +244,6 @@ function builderState() {
             this._toastTimer = setTimeout(() => { this.toast.show = false; }, 2200);
         },
 
-        /* ───────── panels / favourites / prefs ───────── */
         openPanel(name) {
             if (this.shownPanel === name && this.panelOpen) { this.panelOpen = false; return; }
             this.panel = name;
@@ -279,7 +275,6 @@ function builderState() {
             return Math.floor(s / 3600) + 'h';
         },
 
-        /* ───────── helpers ───────── */
         esc(s) {
             return String(s == null ? '' : s)
                 .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
@@ -333,7 +328,17 @@ function builderState() {
             const v = this.getBlockField(b, field.name);
             if (v === undefined || v === null) return true;
             const d = field.default !== undefined ? field.default : '';
-            return String(v) === String(d) || (field.type === 'toggle' && !v && !d);
+
+            if (field.type === 'dimensions') {
+                const empty = !v || typeof v !== 'object' ||
+                    ((v.top === '' || v.top == null) && (v.right === '' || v.right == null) &&
+                     (v.bottom === '' || v.bottom == null) && (v.left === '' || v.left == null));
+                return empty;
+            }
+
+            if (field.type === 'toggle') return !v && !d;
+
+            return String(v) === String(d);
         },
 
         resetField(field) {
@@ -343,7 +348,9 @@ function builderState() {
                 const tr = (b.settings.translations || {})[this.activeLocale];
                 if (tr) delete tr[field.name];
             } else {
-                this.setBlockField(b, field.name, field.default !== undefined ? field.default : '');
+                const def = field.default !== undefined ? field.default : '';
+                const copy = (def && typeof def === 'object') ? JSON.parse(JSON.stringify(def)) : def;
+                this.setBlockField(b, field.name, copy);
             }
             this.markDirty();
             this.commitSoon(this.t('Edited') + ' ' + this.blockLabel(b.type));
@@ -426,4 +433,3 @@ function builderState() {
     };
 }
 </script>
-@endverbatim
