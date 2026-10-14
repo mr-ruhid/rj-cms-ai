@@ -17,6 +17,8 @@ window.RJ = {
     globalFonts: @json(rj_global_fonts()),
     globalSpacing: @json(rj_global_spacing()),
     breakpoints: @json(rj_breakpoints()),
+    tags: @json(\App\DynamicTags\TagRegistry::toArray()),
+    tagCategories: @json(\App\DynamicTags\TagRegistry::categories()),
 };
 </script>
 
