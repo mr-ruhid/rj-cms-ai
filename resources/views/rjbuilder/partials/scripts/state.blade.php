@@ -47,7 +47,7 @@ function builderState() {
             const m = L.menus || {};
             return Object.keys(m).map(id => ({ id: id, label: m[id] }));
         })(),
-        
+
         menuTrees: L.menuItems || {},
 
         devices: [
@@ -178,12 +178,18 @@ function builderState() {
         get canvasStyle() {
             const z = this.prefs.zoom;
             const zoom = (!this.preview && z !== 100) ? ` zoom:${z / 100};` : '';
+
             if (this.preview) {
-                if (this.device === 'desktop') return 'max-width:100%;' + 'background:#fff; min-height:100%;';
+                if (this.device === 'desktop') {
+                    return 'max-width:100%; min-width:900px; background:#fff; min-height:100%;';
+                }
                 const w = this.device === 'tablet' ? '820px' : '420px';
-                return `max-width:${w}; background:#fff; box-shadow:0 0 0 1px #cfd3db, 0 20px 50px rgba(17,24,39,.18); margin-top:24px; margin-bottom:24px; border-radius:18px; overflow:hidden;`;
+                return `max-width:${w}; background:#fff; box-shadow:0 0 0 1px #cfd3db, 0 20px 50px rgba(17,24,39,.18); margin-top:24px; margin-bottom:24px; border-radius:18px; overflow:visible;`;
             }
-            if (this.device === 'desktop') return 'max-width:1152px;' + zoom;
+
+            if (this.device === 'desktop') {
+                return 'max-width:1152px; min-width:900px;' + zoom;
+            }
             const w = this.device === 'tablet' ? '820px' : '420px';
             return `max-width:${w}; padding:24px 12px;${zoom}`;
         },

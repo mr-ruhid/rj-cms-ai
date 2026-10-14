@@ -2,6 +2,12 @@
 <script>
 function builderRender() {
     return {
+        cssv(v) { return String(v == null ? '' : v).replace(/[^#\w(),.%\s-]/g, ''); },
+
+        hideClasses(s) {
+            return (s._hide_desktop ? ' rj-hide-d' : '') + (s._hide_tablet ? ' rj-hide-t' : '') + (s._hide_mobile ? ' rj-hide-m' : '');
+        },
+
         toolbarBtn(icon, title, action, danger) {
             const hover = danger ? 'rgba(239,68,68,0.5)' : 'rgba(255,255,255,0.15)';
             return `<button type="button" title="${title}" onclick="event.stopPropagation(); ${action}" style="width:22px;height:22px;border-radius:9999px;background:transparent;border:0;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;line-height:1;" onmouseover="this.style.background='${hover}'" onmouseout="this.style.background='transparent'">${icon}</button>`;
@@ -12,10 +18,8 @@ function builderRender() {
             if (!w) return `<div style="padding:12px; font-size:12px; color:#dc2626;">${this.esc(this.t('Unknown widget'))}</div>`;
 
             const s = block.settings || {};
-            const hiddenHere = !!s['_hide_' + this.device];
+            const hiddenHere = !!s['_hide_' + this.device];   // yalnız editorda solğunlaşdırmaq üçün
             const hasAnim = s._animation && s._animation !== 'none';
-
-            if (this.preview && hiddenHere) return '';
 
             let inner = block.type === 'container' ? this.renderContainer(block) : this.renderSimpleWidget(block);
 
@@ -32,7 +36,8 @@ function builderRender() {
 
             const customClass = s._css_class ? ' ' + this.esc(s._css_class) : '';
 
-            if (this.preview) return `<div class="${customClass.trim()}" data-run="${this.previewRun}">${inner}</div>`;
+            // Preview / public: gizlətmə CSS ilə (container query)
+            if (this.preview) return `<div class="${(customClass + this.hideClasses(s)).trim()}" data-run="${this.previewRun}">${inner}</div>`;
 
             const isSelected = this.selectedBlock === block.id;
             const bid = block.id;
@@ -60,6 +65,13 @@ function builderRender() {
         renderContainer(block) {
             const settings = block.settings || {};
             const cols = parseInt(settings.columns) || 1;
+
+            // Cihaza görə sütun sayı: "auto" = tablet üçün max 2, mobil üçün 1
+            const pick = (v, fallback) => (v && v !== 'auto') ? (parseInt(v) || fallback) : fallback;
+            const colsT = pick(settings.columns_tablet, Math.min(cols, 2));
+            const colsM = pick(settings.columns_mobile, 1);
+            const fit = settings.distribute === 'content';   // header üçün: logo | menu
+
             const gapMap = { none: '0', sm: '0.5rem', md: '1rem', lg: '1.5rem', xl: '2rem' };
             const paddingMap = { none: '0', sm: '0.5rem', md: '1rem', lg: '1.5rem', xl: '2.5rem' };
             const bg = settings.background || 'transparent';
@@ -78,10 +90,6 @@ function builderRender() {
                 return '';
             }
 
-            let effCols = cols;
-            if (this.device === 'tablet') effCols = Math.min(cols, 2);
-            if (this.device === 'mobile') effCols = 1;
-
             const slotCount = Math.max(cols, children.length);
             let slotsHtml = '';
 
@@ -89,7 +97,8 @@ function builderRender() {
                 const child = children[i];
 
                 if (this.preview) {
-                    slotsHtml += `<div style="min-width:0;">${child ? this.renderBlockHtml(child, bid, i) : ''}</div>`;
+                    // gizli uşaq slotu da yox olmalıdır ki, boş sütun qalmasın
+                    slotsHtml += `<div class="rj-slot${child ? this.hideClasses(child.settings || {}) : ''}" style="min-width:0;">${child ? this.renderBlockHtml(child, bid, i) : ''}</div>`;
                     continue;
                 }
 
@@ -101,7 +110,7 @@ function builderRender() {
                        </div>`;
 
                 slotsHtml += `
-                    <div style="position:relative; min-height:80px; min-width:0; border-radius:8px; transition:all .15s; border:2px ${child ? 'solid transparent' : 'dashed #e5e7eb'};"
+                    <div class="rj-slot" style="position:relative; min-height:80px; min-width:0; border-radius:8px; transition:all .15s; border:2px ${child ? 'solid transparent' : 'dashed #e5e7eb'};"
                          ondragover="event.preventDefault(); event.stopPropagation(); this.classList.add('rj-drop');"
                          ondragleave="this.classList.remove('rj-drop');"
                          ondrop="event.preventDefault(); event.stopPropagation(); window.__builder.dropInto('${bid}', ${i});">
@@ -110,8 +119,7 @@ function builderRender() {
                 `;
             }
 
-            const escBg = String(bg).replace(/[<>"']/g, '');
-            const chrome = `background:${escBg}; padding:${padding}; border:${border}; min-height:${minHeight};`;
+            const chrome = `background:${this.cssv(bg)}; padding:${padding}; border:${border}; min-height:${minHeight};`;
             const outerStyle = isFullWidth
                 ? `${chrome} width:100%; margin:0;`
                 : `${chrome} max-width:1100px; margin:0 auto; width:100%;`;
@@ -119,7 +127,7 @@ function builderRender() {
 
             return `
                 <div style="border-radius:${radius}; ${outerStyle}">
-                    <div style="display:grid; grid-template-columns: repeat(${effCols}, minmax(0, 1fr)); gap:${gap}; align-items:${align};">
+                    <div class="rj-cg${fit ? ' rj-fit' : ''}" style="--c:${cols}; --ct:${colsT}; --cm:${colsM}; --g:${gap}; --al:${align};">
                         ${slotsHtml}
                     </div>
                 </div>
@@ -130,22 +138,22 @@ function builderRender() {
             const settings = block.settings || {};
             const esc = (s) => this.esc(s);
             const bid = block.id;
-            const inline = this.preview ? '' : `class="rj-inline-edit" ondblclick="event.stopPropagation(); window.__builder.startInline(this, '${bid}')"`;
-            const mobile = this.device === 'mobile';
+            const inlineCls = this.preview ? '' : ' rj-inline-edit';
+            const inlineAttr = this.preview ? '' : `ondblclick="event.stopPropagation(); window.__builder.startInline(this, '${bid}')"`;
+            const noNav = `onclick="event.preventDefault()"`;   // builder daxilində linklər səhifəni tərk etməsin
 
             if (block.type === 'heading') {
                 const level = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(settings.level) ? settings.level : 'h2';
                 const sizes = { h1: '2rem', h2: '1.5rem', h3: '1.25rem', h4: '1.125rem', h5: '1rem', h6: '0.875rem' };
                 const mobileSizes = { h1: '1.6rem', h2: '1.3rem', h3: '1.15rem', h4: '1.05rem', h5: '1rem', h6: '0.875rem' };
                 const aligns = { left: 'left', center: 'center', right: 'right' };
-                const size = (mobile ? mobileSizes : sizes)[level];
-                return `<${level} ${inline} style="font-size:${size}; font-weight:700; text-align:${aligns[settings.align] || 'left'}; color:${esc(settings.color || '#111827')}; padding:0.75rem 1rem; margin:0;">${esc(this.getBlockField(block, 'text') || 'Heading')}</${level}>`;
+                return `<${level} class="rj-hd${inlineCls}" ${inlineAttr} style="--fs:${sizes[level]}; --fsm:${mobileSizes[level]}; text-align:${aligns[settings.align] || 'left'}; color:${this.cssv(settings.color || '#111827')}; padding:0.75rem 1rem;">${esc(this.getBlockField(block, 'text') || 'Heading')}</${level}>`;
             }
 
             if (block.type === 'text') {
                 const aligns = { left: 'left', center: 'center', right: 'right', justify: 'justify' };
                 const sizes = { sm: '0.875rem', base: '1rem', lg: '1.125rem', xl: '1.25rem' };
-                return `<p ${inline} style="font-size:${sizes[settings.size] || '1rem'}; text-align:${aligns[settings.align] || 'left'}; color:${esc(settings.color || '#374151')}; padding:0.75rem 1rem; line-height:1.6; white-space:pre-wrap; margin:0;">${esc(this.getBlockField(block, 'text') || 'Text')}</p>`;
+                return `<p class="${inlineCls.trim()}" ${inlineAttr} style="font-size:${sizes[settings.size] || '1rem'}; text-align:${aligns[settings.align] || 'left'}; color:${this.cssv(settings.color || '#374151')}; padding:0.75rem 1rem; line-height:1.6; white-space:pre-wrap; margin:0;">${esc(this.getBlockField(block, 'text') || 'Text')}</p>`;
             }
 
             if (block.type === 'image') {
@@ -159,8 +167,7 @@ function builderRender() {
                 const aligns = { left: '0 auto 0 0', center: '0 auto', right: '0 0 0 auto' };
                 const widths = { auto: 'auto', full: '100%', half: '50%', third: '33.333%' };
                 const rounded = { none: '0', sm: '4px', md: '8px', lg: '16px', full: '9999px' };
-                const width = mobile ? '100%' : (widths[settings.width] || '100%');
-                return `<figure style="padding:0.75rem 1rem; margin:0;"><img src="${esc(settings.url)}" alt="${esc(this.getBlockField(block, 'alt') || '')}" style="width:${width}; max-width:100%; border-radius:${rounded[settings.rounded] || '8px'}; margin:${aligns[settings.align] || '0 auto'}; display:block;"></figure>`;
+                return `<figure style="padding:0.75rem 1rem; margin:0;"><img class="rj-img" src="${esc(settings.url)}" alt="${esc(this.getBlockField(block, 'alt') || '')}" style="--w:${widths[settings.width] || '100%'}; border-radius:${rounded[settings.rounded] || '8px'}; margin:${aligns[settings.align] || '0 auto'}; display:block;"></figure>`;
             }
 
             if (block.type === 'logo') {
@@ -180,24 +187,22 @@ function builderRender() {
                             </div>`;
                 }
 
-                const alignMap = { left: '0 auto 0 0', center: '0 auto', right: '0 0 0 auto' };
+                const jcMap = { left: 'flex-start', center: 'center', right: 'flex-end' };
                 const widthMap = { auto: 'auto', xs: '80px', sm: '120px', md: '160px', lg: '200px', xl: '280px' };
                 const heightMap = { auto: 'auto', xs: '32px', sm: '48px', md: '64px', lg: '80px', xl: '120px' };
 
-                const widthValue = w === 'custom' && cw !== '' ? cw : (widthMap[w] || 'auto');
+                const widthValue = w === 'custom' && cw !== '' ? this.cssv(cw) : (widthMap[w] || 'auto');
                 const heightValue = heightMap[h] || 'auto';
 
-                let imgStyle = `display:block; max-width:100%; width:${widthValue};`;
-                imgStyle += ` height:${heightValue};`;
+                let imgStyle = `display:block; max-width:100%; width:${widthValue}; height:${heightValue};`;
                 if (h !== 'auto') imgStyle += ' object-fit:contain;';
 
                 let imgHtml = `<img src="${esc(url)}" alt="${esc(alt)}" style="${imgStyle}">`;
-
                 if (link) {
-                    imgHtml = `<a href="${esc(link)}" target="${esc(target)}" style="display:inline-block; text-decoration:none;">${imgHtml}</a>`;
+                    imgHtml = `<a href="${esc(link)}" target="${esc(target)}" ${noNav} style="display:inline-block; text-decoration:none;">${imgHtml}</a>`;
                 }
 
-                return `<div style="display:inline-block; margin:${alignMap[align] || '0 auto 0 0'}; padding:0.5rem 1rem;">${imgHtml}</div>`;
+                return `<div style="display:flex; justify-content:${jcMap[align] || 'flex-start'}; padding:0.5rem 1rem;">${imgHtml}</div>`;
             }
 
             if (block.type === 'menu') {
@@ -219,87 +224,60 @@ function builderRender() {
                 }
 
                 const layout = settings.layout || 'horizontal';
-                const align = settings.align || 'right';
+                const align = ['left', 'center', 'right'].includes(settings.align) ? settings.align : 'right';
                 const gap = { none: '0', sm: '12px', md: '24px', lg: '36px', xl: '48px' }[settings.gap || 'md'];
                 const fontSize = { sm: '13px', base: '15px', lg: '17px' }[settings.font_size || 'base'];
-                const fontWeight = settings.font_weight || '500';
-                const textColor = settings.text_color || '#111827';
-                const hoverColor = settings.hover_color || '#7c3aed';
-                const hoverStyle = settings.hover_style || 'underline';
-                const dropdownBg = settings.dropdown_bg || '#ffffff';
-                const dropdownBorder = settings.dropdown_border === 'yes';
+                const hoverStyle = ['underline', 'background', 'both'].includes(settings.hover_style) ? settings.hover_style : 'underline';
                 const mobileBehavior = settings.mobile_behavior || 'hamburger';
+                const jc = { left: 'flex-start', center: 'center', right: 'flex-end' }[align];
 
-                const isNarrow = this.device === 'mobile' || this.device === 'tablet';
-                const useHamburger = isNarrow && mobileBehavior === 'hamburger';
+                const vars = [
+                    `--mt:${this.cssv(settings.text_color || '#111827')}`,
+                    `--mh:${this.cssv(settings.hover_color || '#7c3aed')}`,
+                    `--mbg:${this.cssv(settings.dropdown_bg || '#ffffff')}`,
+                    `--mbd:${settings.dropdown_border === 'yes' ? '1px solid #e5e7eb' : '0'}`,
+                    `--fs:${fontSize}`,
+                    `--fw:${this.cssv(settings.font_weight || '500')}`,
+                    `--gap:${gap}`,
+                    `--dir:${layout === 'vertical' ? 'column' : 'row'}`,
+                    `--ai:${layout === 'vertical' ? jc : 'center'}`,
+                    `--jc:${layout === 'vertical' ? 'flex-start' : jc}`,
+                    `--mjc:${jc}`,
+                ].join(';');
 
-                const alignMap = { left: 'flex-start', center: 'center', right: 'flex-end' };
-                const justifyMap = { left: 'flex-start', center: 'center', right: 'flex-end' };
-                const flexDir = layout === 'vertical' ? 'column' : 'row';
-                const alignItems = layout === 'vertical' ? alignMap[align] : 'center';
-                const justifyContent = layout === 'vertical' ? 'flex-start' : justifyMap[align];
+                const renderItems = (list) => list.map(it => {
+                    const kids = it.children && it.children.length > 0;
+                    return `<li class="rj-mi">
+                        <a href="${esc(it.url || '#')}" target="${esc(it.target || '_self')}" class="rj-ml" ${noNav}>${esc(it.label)}${kids ? ' <span class="rj-car">▾</span>' : ''}</a>
+                        ${kids ? `<ul class="rj-dd">${renderItems(it.children)}</ul>` : ''}
+                    </li>`;
+                }).join('');
 
-                const uid = 'rj-menu-' + Math.random().toString(36).slice(2, 9);
-
-                const renderItems = (list, depth) => {
-                    return list.map(it => {
-                        const hasKids = it.children && it.children.length > 0;
-                        const itemStyle = `display:inline-block; color:${textColor}; font-size:${fontSize}; font-weight:${fontWeight}; text-decoration:none; padding:8px 12px; border-radius:6px; border-bottom:2px solid transparent; transition:all .15s; white-space:nowrap;`;
-
-                        return `<li class="rj-mi" style="position:relative; list-style:none;">
-                            <a href="${esc(it.url || '#')}" target="${esc(it.target || '_self')}" class="rj-hover-item" style="${itemStyle}">${esc(it.label)}${hasKids ? ' <span style="font-size:9px; opacity:.6;">▾</span>' : ''}</a>
-                            ${hasKids ? `<ul class="rj-dropdown" style="position:absolute; top:100%; left:0; min-width:180px; background:${dropdownBg}; ${dropdownBorder ? 'border:1px solid #e5e7eb;' : ''} border-radius:8px; box-shadow:0 12px 30px rgba(0,0,0,.12); padding:6px; margin:6px 0 0; opacity:0; visibility:hidden; transform:translateY(-4px); transition:all .15s; z-index:50; list-style:none;">${renderItems(it.children, depth + 1)}</ul>` : ''}
-                        </li>`;
-                    }).join('');
-                };
-
-                const desktopNav = `
-                    <nav class="${uid}-nav" style="width:100%;">
-                        <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:${flexDir}; gap:${gap}; align-items:${alignItems}; justify-content:${justifyContent}; flex-wrap:wrap;">
-                            ${renderItems(items, 0)}
-                        </ul>
-                    </nav>
-                `;
-
-                const hamburgerNav = `
-                    <nav class="${uid}-nav" style="width:100%;">
-                        <div style="position:relative; display:inline-block;">
-                            <input type="checkbox" id="${uid}-toggle" class="rj-burger-toggle" style="display:none;">
-                            <label for="${uid}-toggle" class="rj-burger-btn" style="display:inline-flex; align-items:center; justify-content:center; width:42px; height:42px; border-radius:10px; background:#f3f4f6; cursor:pointer; color:${textColor}; transition:all .15s;">
-                                <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
-                            </label>
-                            <ul class="rj-burger-list" style="list-style:none; margin:0; padding:8px; position:absolute; top:calc(100% + 8px); left:0; min-width:200px; max-width:280px; background:${dropdownBg}; ${dropdownBorder ? 'border:1px solid #e5e7eb;' : ''} border-radius:10px; box-shadow:0 12px 30px rgba(0,0,0,.15); opacity:0; visibility:hidden; transform:translateY(-4px); transition:all .15s; z-index:50;">
-                                ${renderItems(items, 0)}
-                            </ul>
-                        </div>
-                    </nav>
-                `;
-
-                const baseCss = `
-                    .${uid}-nav .rj-hover-item:hover { color:${hoverColor} !important; ${hoverStyle === 'underline' || hoverStyle === 'both' ? 'border-bottom-color:' + hoverColor + ' !important;' : ''} ${hoverStyle === 'background' || hoverStyle === 'both' ? 'background:' + hoverColor + '15 !important;' : ''} }
-                    .${uid}-nav li:hover > .rj-dropdown { opacity:1 !important; visibility:visible !important; transform:translateY(0) !important; }
-                    .${uid}-nav .rj-dropdown .rj-hover-item:hover { background:${hoverColor}10 !important; color:${hoverColor} !important; }
-                    .${uid}-nav .rj-dropdown .rj-hover-item { display:block; }
-                    .${uid}-nav .rj-burger-toggle:checked ~ .rj-burger-list { opacity:1 !important; visibility:visible !important; transform:translateY(0) !important; }
-                    .${uid}-nav .rj-burger-btn:hover { background:${hoverColor}15; color:${hoverColor}; }
-                    .${uid}-nav .rj-burger-list .rj-mi { display:block; width:100%; }
-                    .${uid}-nav .rj-burger-list .rj-hover-item { display:block !important; width:100%; text-align:left; padding:10px 12px !important; }
-                    .${uid}-nav .rj-burger-list .rj-dropdown { position:static !important; opacity:1 !important; visibility:visible !important; transform:none !important; box-shadow:none !important; margin:2px 0 4px 16px !important; padding-left:8px !important; border-left:2px solid ${hoverColor}40 !important; }
-                `;
+                const toggle = `event.stopPropagation(); const m = this.closest('.rj-menu'); const o = m.classList.toggle('rj-open'); this.setAttribute('aria-expanded', o);`;
 
                 const infoBar = !this.preview
                     ? `<div style="display:flex; align-items:center; gap:10px; color:#6b7280; font-size:11px; font-weight:600; margin-bottom:6px; text-transform:uppercase; letter-spacing:.05em;">
                            <span style="color:#8b5cf6;">${esc(menuName)}</span>
                            <span style="color:#c4c7d3;">·</span>
-                           <span>${useHamburger ? 'Hamburger' : (layout === 'horizontal' ? 'Horizontal' : 'Vertical')} · ${align}</span>
+                           <span>${layout === 'horizontal' ? 'Horizontal' : 'Vertical'} · ${align}${mobileBehavior === 'hamburger' ? ' · ☰' : ''}</span>
                        </div>`
                     : '';
 
-                return `<style>${baseCss}</style>
-                    <div style="padding:0.5rem 1rem;">
-                        ${infoBar}
-                        ${useHamburger ? hamburgerNav : desktopNav}
-                    </div>`;
+                // Hər iki versiya render olunur, hansının görünəcəyini CSS (container query) seçir
+                return `<div style="padding:0.5rem 1rem;">
+                    ${infoBar}
+                    <div class="rj-menu" data-hover="${hoverStyle}" data-mobile="${esc(mobileBehavior)}" data-align="${align}" style="${vars}">
+                        <nav class="rj-menu-d"><ul>${renderItems(items)}</ul></nav>
+                        <nav class="rj-menu-m">
+                            <div class="rj-bm">
+                                <button type="button" class="rj-bb" aria-label="Menu" aria-expanded="false" onclick="${toggle}">
+                                    <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+                                </button>
+                                <ul class="rj-bl">${renderItems(items)}</ul>
+                            </div>
+                        </nav>
+                    </div>
+                </div>`;
             }
 
             const w = this.widgets.find(x => x.id === block.type);
@@ -315,7 +293,7 @@ function builderRender() {
             const delay = settings._animation_delay || '0';
             const durations = { sm: '300ms', md: '600ms', lg: '1000ms', xl: '1500ms' };
             let style = `animation-duration:${durations[dur] || '600ms'};`;
-            if (delay !== '0') style += ` animation-delay:${delay};`;
+            if (delay !== '0') style += ` animation-delay:${this.cssv(delay)};`;
             return `<div class="rj-a rj-a-${this.esc(settings._animation)} ${stateClass}" style="${style}">${html}</div>`;
         },
     };

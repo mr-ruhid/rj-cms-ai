@@ -210,6 +210,62 @@
     .rj-vis-btn:hover { color: #d4d6df; }
     .rj-vis-btn[data-on="true"] { background: #8b5cf6; color: #fff; box-shadow: 0 1px 3px rgba(139,92,246,.4); }
     .rj-vis-btn[data-on="false"] { text-decoration: line-through; text-decoration-color: #dc2626; text-decoration-thickness: 2px; }
+
+    /* ───────── Responsive (canvas = container) ───────── */
+
+/* Breakpointlər: tablet ≤ 860px, mobil ≤ 560px (canvas eninə görə) */
+.rj-cg { display: grid; grid-template-columns: repeat(var(--c), minmax(0, 1fr)); gap: var(--g); align-items: var(--al); }
+.rj-cg.rj-fit { grid-template-columns: repeat(var(--c), auto); justify-content: space-between; }
+.rj-hd { font-size: var(--fs); font-weight: 700; margin: 0; }
+.rj-img { width: var(--w); max-width: 100%; }
+
+@container rj (max-width: 860px) {
+    .rj-cg { grid-template-columns: repeat(var(--ct), minmax(0, 1fr)); }
+    .rj-cg.rj-fit { grid-template-columns: repeat(var(--ct), auto); }
+    .rj-menu[data-mobile="hamburger"] .rj-menu-d { display: none; }
+    .rj-menu[data-mobile="hamburger"] .rj-menu-m { display: flex; justify-content: var(--mjc); }
+}
+@container rj (max-width: 560px) {
+    .rj-cg { grid-template-columns: repeat(var(--cm), minmax(0, 1fr)); }
+    .rj-cg.rj-fit { grid-template-columns: repeat(var(--cm), auto); }
+    .rj-hd { font-size: var(--fsm); }
+    .rj-img { width: 100% !important; }
+}
+
+/* Cihaza görə gizlətmə (preview + public) */
+@container rj (min-width: 861px) { .rj-hide-d { display: none !important; } }
+@container rj (min-width: 561px) and (max-width: 860px) { .rj-hide-t { display: none !important; } }
+@container rj (max-width: 560px) { .rj-hide-m { display: none !important; } }
+
+/* ───────── Menu widget ───────── */
+.rj-menu { width: 100%; }
+.rj-menu ul { list-style: none; margin: 0; padding: 0; }
+.rj-menu-m { display: none; }
+.rj-menu-d > ul { display: flex; flex-direction: var(--dir); gap: var(--gap); align-items: var(--ai); justify-content: var(--jc); flex-wrap: wrap; }
+.rj-mi { position: relative; }
+.rj-ml { display: inline-block; color: var(--mt); font-size: var(--fs); font-weight: var(--fw); text-decoration: none; padding: 8px 12px; border-radius: 6px; border-bottom: 2px solid transparent; transition: all .15s; white-space: nowrap; }
+.rj-ml:hover { color: var(--mh); }
+.rj-menu[data-hover="underline"] .rj-ml:hover, .rj-menu[data-hover="both"] .rj-ml:hover { border-bottom-color: var(--mh); }
+.rj-menu[data-hover="background"] .rj-ml:hover, .rj-menu[data-hover="both"] .rj-ml:hover { background: color-mix(in srgb, var(--mh) 10%, transparent); }
+.rj-car { font-size: 9px; opacity: .6; }
+
+.rj-dd { position: absolute; top: 100%; left: 0; min-width: 180px; background: var(--mbg); border: var(--mbd); border-radius: 8px; box-shadow: 0 12px 30px rgba(0,0,0,.12); padding: 6px; margin-top: 6px; opacity: 0; visibility: hidden; transform: translateY(-4px); transition: all .15s; z-index: 50; }
+.rj-dd .rj-dd { top: 0; left: 100%; margin: 0 0 0 6px; }
+.rj-mi:hover > .rj-dd, .rj-mi:focus-within > .rj-dd { opacity: 1; visibility: visible; transform: none; }
+.rj-dd .rj-ml { display: block; }
+
+/* Hamburger */
+.rj-bm { position: relative; display: inline-block; }
+.rj-bb { width: 42px; height: 42px; border: 0; border-radius: 10px; background: #f3f4f6; color: var(--mt); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+.rj-bb:hover { background: color-mix(in srgb, var(--mh) 12%, transparent); color: var(--mh); }
+.rj-bl { position: absolute; top: calc(100% + 8px); left: 0; min-width: 200px; max-width: 280px; background: var(--mbg); border: var(--mbd); border-radius: 10px; box-shadow: 0 12px 30px rgba(0,0,0,.15); padding: 8px; opacity: 0; visibility: hidden; transform: translateY(-4px); transition: all .15s; z-index: 50; }
+.rj-menu[data-align="right"] .rj-bl { left: auto; right: 0; }
+.rj-menu[data-align="center"] .rj-bl { left: 50%; transform: translate(-50%, -4px); }
+.rj-menu.rj-open .rj-bl { opacity: 1; visibility: visible; transform: none; }
+.rj-menu[data-align="center"].rj-open .rj-bl { transform: translate(-50%, 0); }
+.rj-bl .rj-mi { display: block; }
+.rj-bl .rj-ml { display: block; width: 100%; padding: 10px 12px; }
+.rj-bl .rj-dd { position: static; opacity: 1; visibility: visible; transform: none; box-shadow: none; background: transparent; margin: 2px 0 4px 16px; padding: 0 0 0 8px; border: 0; border-left: 2px solid color-mix(in srgb, var(--mh) 25%, transparent); }
 </style>
-</style>
+
 @endverbatim
