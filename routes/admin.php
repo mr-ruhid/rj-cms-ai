@@ -137,6 +137,16 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::post('/{template}/conditions', [BuilderController::class, 'updateConditions'])->name('conditions');
         Route::post('/{template}/popup-settings', [BuilderController::class, 'updatePopupSettings'])->name('popup-settings');
     });
+
+    Route::prefix('forms')->name('forms.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\FormController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\Admin\FormController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\Admin\FormController::class, 'store'])->name('store');
+        Route::get('/{form}/edit', [\App\Http\Controllers\Admin\FormController::class, 'edit'])->name('edit');
+        Route::put('/{form}', [\App\Http\Controllers\Admin\FormController::class, 'update'])->name('update');
+        Route::delete('/{form}', [\App\Http\Controllers\Admin\FormController::class, 'destroy'])->name('destroy');
+        Route::post('/{form}/duplicate', [\App\Http\Controllers\Admin\FormController::class, 'duplicate'])->name('duplicate');
+    });
     
     Route::get('/updates', [UpdatesController::class, 'index'])->name('updates.index');
     Route::post('/updates/check', [UpdatesController::class, 'check'])->name('updates.check');
