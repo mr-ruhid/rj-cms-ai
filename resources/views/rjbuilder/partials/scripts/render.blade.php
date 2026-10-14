@@ -1,4 +1,3 @@
-@verbatim
 <script>
 function builderRender() {
     return {
@@ -13,12 +12,33 @@ function builderRender() {
             return `<button type="button" title="${title}" onclick="event.stopPropagation(); ${action}" style="width:22px;height:22px;border-radius:9999px;background:transparent;border:0;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:12px;line-height:1;" onmouseover="this.style.background='${hover}'" onmouseout="this.style.background='transparent'">${icon}</button>`;
         },
 
+        dimCss(s, key) {
+            const v = s[key];
+            if (!v || typeof v !== 'object') return '';
+            const u = ['px','%','em','rem','vh','vw'].includes(v.unit) ? v.unit : 'px';
+            const t = (v.top !== '' && v.top != null) ? v.top + u : '0';
+            const r = (v.right !== '' && v.right != null) ? v.right + u : '0';
+            const b = (v.bottom !== '' && v.bottom != null) ? v.bottom + u : '0';
+            const l = (v.left !== '' && v.left != null) ? v.left + u : '0';
+            if (t === '0' && r === '0' && b === '0' && l === '0') return '';
+            return t + ' ' + r + ' ' + b + ' ' + l;
+        },
+
+        dimWidths(s) {
+            const raw = (s.column_widths || '').trim();
+            if (!raw) return null;
+            const parts = raw.split(',').map(x => x.trim()).filter(x => x !== '');
+            const nums = parts.map(x => parseFloat(x)).filter(x => !isNaN(x) && x > 0);
+            if (!nums.length) return null;
+            return nums;
+        },
+
         renderBlockHtml(block, parentKey, index) {
             const w = this.widgets.find(x => x.id === block.type);
             if (!w) return `<div style="padding:12px; font-size:12px; color:#dc2626;">${this.esc(this.t('Unknown widget'))}</div>`;
 
             const s = block.settings || {};
-            const hiddenHere = !!s['_hide_' + this.device];   // yalnız editorda solğunlaşdırmaq üçün
+            const hiddenHere = !!s['_hide_' + this.device];
             const hasAnim = s._animation && s._animation !== 'none';
 
             let inner = block.type === 'container' ? this.renderContainer(block) : this.renderSimpleWidget(block);
@@ -30,13 +50,12 @@ function builderRender() {
                 else if (this.animPlayId === block.id) inner = this.animationWrapper(inner, s, 'rj-play');
             }
 
-            if (this.preview && s._hover && s._hover !== 'none') {
+            if (s._hover && s._hover !== 'none') {
                 inner = `<div class="rj-h rj-h-${this.esc(s._hover)}">${inner}</div>`;
             }
 
             const customClass = s._css_class ? ' ' + this.esc(s._css_class) : '';
 
-            // Preview / public: gizlətmə CSS ilə (container query)
             if (this.preview) return `<div class="${(customClass + this.hideClasses(s)).trim()}" data-run="${this.previewRun}">${inner}</div>`;
 
             const isSelected = this.selectedBlock === block.id;
@@ -66,21 +85,40 @@ function builderRender() {
             const settings = block.settings || {};
             const cols = parseInt(settings.columns) || 1;
 
-            // Cihaza görə sütun sayı: "auto" = tablet üçün max 2, mobil üçün 1
             const pick = (v, fallback) => (v && v !== 'auto') ? (parseInt(v) || fallback) : fallback;
             const colsT = pick(settings.columns_tablet, Math.min(cols, 2));
             const colsM = pick(settings.columns_mobile, 1);
-            const fit = settings.distribute === 'content';   // header üçün: logo | menu
+            const fit = settings.distribute === 'content';
 
             const gapMap = { none: '0', sm: '0.5rem', md: '1rem', lg: '1.5rem', xl: '2rem' };
-            const paddingMap = { none: '0', sm: '0.5rem', md: '1rem', lg: '1.5rem', xl: '2.5rem' };
             const bg = settings.background || 'transparent';
             const gap = gapMap[settings.gap] || '1rem';
-            const padding = paddingMap[settings.padding] || '1rem';
-            const minHeight = settings.min_height && settings.min_height !== 'auto' ? ({ sm: '200px', md: '400px', lg: '600px' }[settings.min_height] || 'auto') : 'auto';
+
+            const padding = this.dimCss(settings, 'padding_dim') || gapMap[settings.padding] || '1rem';
+            const margin = this.dimCss(settings, 'margin_dim') || '';
+
+            let minHeight = 'auto';
+            if (settings.min_height === 'custom') {
+                minHeight = this.cssv(settings.min_height_custom || 'auto');
+            } else if (settings.min_height === 'screen') {
+                minHeight = '100vh';
+            } else if (settings.min_height && settings.min_height !== 'auto') {
+                minHeight = { sm: '200px', md: '400px', lg: '600px', xl: '800px' }[settings.min_height] || 'auto';
+            }
+
             const border = settings.border === 'solid' ? '2px solid #e5e7eb' : settings.border === 'dashed' ? '2px dashed #e5e7eb' : 'none';
-            const alignMap = { start: 'flex-start', center: 'center', end: 'flex-end', stretch: 'stretch' };
-            const align = alignMap[settings.align] || 'stretch';
+            const radiusMap = { none: '0', sm: '4px', md: '8px', lg: '16px', full: '9999px' };
+            const radius = radiusMap[settings.border_radius] || '12px';
+
+            const alignMap = { start: 'flex-start', center: 'center', end: 'flex-end', stretch: 'stretch', baseline: 'baseline' };
+            const ai = alignMap[settings.align_items || settings.align] || 'stretch';
+
+            const jcMap = { start: 'flex-start', center: 'center', end: 'flex-end', 'space-between': 'space-between', 'space-around': 'space-around', 'space-evenly': 'space-evenly' };
+            const jc = jcMap[settings.justify_content] || 'flex-start';
+
+            const dir = ['row', 'column', 'row-reverse', 'column-reverse'].includes(settings.flex_direction) ? settings.flex_direction : 'row';
+            const wrap = ['nowrap', 'wrap', 'wrap-reverse'].includes(settings.flex_wrap) ? settings.flex_wrap : 'wrap';
+
             const isFullWidth = settings.width === 'full';
 
             const children = block.children || [];
@@ -90,15 +128,17 @@ function builderRender() {
                 return '';
             }
 
+            const widths = this.dimWidths(settings);
             const slotCount = Math.max(cols, children.length);
             let slotsHtml = '';
 
             for (let i = 0; i < slotCount; i++) {
                 const child = children[i];
+                const flexBasis = (widths && widths[i]) ? `flex:0 0 ${widths[i]}%;` : '';
+                const slotStyle = `min-width:0;${flexBasis}`;
 
                 if (this.preview) {
-                    // gizli uşaq slotu da yox olmalıdır ki, boş sütun qalmasın
-                    slotsHtml += `<div class="rj-slot${child ? this.hideClasses(child.settings || {}) : ''}" style="min-width:0;">${child ? this.renderBlockHtml(child, bid, i) : ''}</div>`;
+                    slotsHtml += `<div class="rj-slot${child ? this.hideClasses(child.settings || {}) : ''}" style="${slotStyle}">${child ? this.renderBlockHtml(child, bid, i) : ''}</div>`;
                     continue;
                 }
 
@@ -110,7 +150,7 @@ function builderRender() {
                        </div>`;
 
                 slotsHtml += `
-                    <div class="rj-slot" style="position:relative; min-height:80px; min-width:0; border-radius:8px; transition:all .15s; border:2px ${child ? 'solid transparent' : 'dashed #e5e7eb'};"
+                    <div class="rj-slot" style="position:relative; min-height:80px; min-width:0; ${flexBasis} border-radius:8px; transition:all .15s; border:2px ${child ? 'solid transparent' : 'dashed #e5e7eb'};"
                          ondragover="event.preventDefault(); event.stopPropagation(); this.classList.add('rj-drop');"
                          ondragleave="this.classList.remove('rj-drop');"
                          ondrop="event.preventDefault(); event.stopPropagation(); window.__builder.dropInto('${bid}', ${i});">
@@ -119,15 +159,15 @@ function builderRender() {
                 `;
             }
 
-            const chrome = `background:${this.cssv(bg)}; padding:${padding}; border:${border}; min-height:${minHeight};`;
+            const chrome = `background:${this.cssv(bg)}; padding:${padding}; ${margin ? 'margin:' + margin + ';' : ''} border:${border}; min-height:${minHeight};`;
             const outerStyle = isFullWidth
                 ? `${chrome} width:100%; margin:0;`
                 : `${chrome} max-width:1100px; margin:0 auto; width:100%;`;
-            const radius = (this.preview && isFullWidth) ? '0' : '12px';
+            const useRadius = (this.preview && isFullWidth) ? '0' : radius;
 
             return `
-                <div style="border-radius:${radius}; ${outerStyle}">
-                    <div class="rj-cg${fit ? ' rj-fit' : ''}" style="--c:${cols}; --ct:${colsT}; --cm:${colsM}; --g:${gap}; --al:${align};">
+                <div style="border-radius:${useRadius}; ${outerStyle}">
+                    <div class="rj-cg${fit ? ' rj-fit' : ''}" style="--c:${cols}; --ct:${colsT}; --cm:${colsM}; --g:${gap}; --al:${ai}; --jc:${jc}; --dir:${dir}; --wrap:${wrap};">
                         ${slotsHtml}
                     </div>
                 </div>
@@ -140,20 +180,27 @@ function builderRender() {
             const bid = block.id;
             const inlineCls = this.preview ? '' : ' rj-inline-edit';
             const inlineAttr = this.preview ? '' : `ondblclick="event.stopPropagation(); window.__builder.startInline(this, '${bid}')"`;
-            const noNav = `onclick="event.preventDefault()"`;   // builder daxilində linklər səhifəni tərk etməsin
+            const noNav = `onclick="event.preventDefault()"`;
+
+            const padCss = this.dimCss(settings, 'padding_dim');
+            const marCss = this.dimCss(settings, 'margin_dim');
+            const padAttr = padCss ? `padding:${padCss};` : '';
+            const marAttr = marCss ? `margin:${marCss};` : '';
 
             if (block.type === 'heading') {
                 const level = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(settings.level) ? settings.level : 'h2';
                 const sizes = { h1: '2rem', h2: '1.5rem', h3: '1.25rem', h4: '1.125rem', h5: '1rem', h6: '0.875rem' };
                 const mobileSizes = { h1: '1.6rem', h2: '1.3rem', h3: '1.15rem', h4: '1.05rem', h5: '1rem', h6: '0.875rem' };
                 const aligns = { left: 'left', center: 'center', right: 'right' };
-                return `<${level} class="rj-hd${inlineCls}" ${inlineAttr} style="--fs:${sizes[level]}; --fsm:${mobileSizes[level]}; text-align:${aligns[settings.align] || 'left'}; color:${this.cssv(settings.color || '#111827')}; padding:0.75rem 1rem;">${esc(this.getBlockField(block, 'text') || 'Heading')}</${level}>`;
+                const pad = padAttr || 'padding:0.75rem 1rem;';
+                return `<${level} class="rj-hd${inlineCls}" ${inlineAttr} style="--fs:${sizes[level]}; --fsm:${mobileSizes[level]}; text-align:${aligns[settings.align] || 'left'}; color:${this.cssv(settings.color || '#111827')}; ${pad} ${marAttr}">${esc(this.getBlockField(block, 'text') || 'Heading')}</${level}>`;
             }
 
             if (block.type === 'text') {
                 const aligns = { left: 'left', center: 'center', right: 'right', justify: 'justify' };
                 const sizes = { sm: '0.875rem', base: '1rem', lg: '1.125rem', xl: '1.25rem' };
-                return `<p class="${inlineCls.trim()}" ${inlineAttr} style="font-size:${sizes[settings.size] || '1rem'}; text-align:${aligns[settings.align] || 'left'}; color:${this.cssv(settings.color || '#374151')}; padding:0.75rem 1rem; line-height:1.6; white-space:pre-wrap; margin:0;">${esc(this.getBlockField(block, 'text') || 'Text')}</p>`;
+                const pad = padAttr || 'padding:0.75rem 1rem;';
+                return `<p class="${inlineCls.trim()}" ${inlineAttr} style="font-size:${sizes[settings.size] || '1rem'}; text-align:${aligns[settings.align] || 'left'}; color:${this.cssv(settings.color || '#374151')}; ${pad} ${marAttr} line-height:1.6; white-space:pre-wrap; margin:0;">${esc(this.getBlockField(block, 'text') || 'Text')}</p>`;
             }
 
             if (block.type === 'image') {
@@ -167,7 +214,8 @@ function builderRender() {
                 const aligns = { left: '0 auto 0 0', center: '0 auto', right: '0 0 0 auto' };
                 const widths = { auto: 'auto', full: '100%', half: '50%', third: '33.333%' };
                 const rounded = { none: '0', sm: '4px', md: '8px', lg: '16px', full: '9999px' };
-                return `<figure style="padding:0.75rem 1rem; margin:0;"><img class="rj-img" src="${esc(settings.url)}" alt="${esc(this.getBlockField(block, 'alt') || '')}" style="--w:${widths[settings.width] || '100%'}; border-radius:${rounded[settings.rounded] || '8px'}; margin:${aligns[settings.align] || '0 auto'}; display:block;"></figure>`;
+                const pad = padAttr || 'padding:0.75rem 1rem;';
+                return `<figure style="${pad} ${marAttr} margin:0;"><img class="rj-img" src="${esc(settings.url)}" alt="${esc(this.getBlockField(block, 'alt') || '')}" style="--w:${widths[settings.width] || '100%'}; border-radius:${rounded[settings.rounded] || '8px'}; margin:${aligns[settings.align] || '0 auto'}; display:block;"></figure>`;
             }
 
             if (block.type === 'logo') {
@@ -202,7 +250,8 @@ function builderRender() {
                     imgHtml = `<a href="${esc(link)}" target="${esc(target)}" ${noNav} style="display:inline-block; text-decoration:none;">${imgHtml}</a>`;
                 }
 
-                return `<div style="display:flex; justify-content:${jcMap[align] || 'flex-start'}; padding:0.5rem 1rem;">${imgHtml}</div>`;
+                const pad = padAttr || 'padding:0.5rem 1rem;';
+                return `<div style="display:flex; justify-content:${jcMap[align] || 'flex-start'}; ${pad} ${marAttr}">${imgHtml}</div>`;
             }
 
             if (block.type === 'menu') {
@@ -263,8 +312,8 @@ function builderRender() {
                        </div>`
                     : '';
 
-                // Hər iki versiya render olunur, hansının görünəcəyini CSS (container query) seçir
-                return `<div style="padding:0.5rem 1rem;">
+                const pad = padAttr || 'padding:0.5rem 1rem;';
+                return `<div style="${pad} ${marAttr}">
                     ${infoBar}
                     <div class="rj-menu" data-hover="${hoverStyle}" data-mobile="${esc(mobileBehavior)}" data-align="${align}" style="${vars}">
                         <nav class="rj-menu-d"><ul>${renderItems(items)}</ul></nav>
@@ -299,4 +348,3 @@ function builderRender() {
     };
 }
 </script>
-@endverbatim
