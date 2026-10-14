@@ -597,4 +597,111 @@
     background: rgba(239,68,68,.25);
     color: #fca5a5;
 }
+
+/* ───────── AI Panel ───────── */
+.rj-ai-modal .rj-tabs {
+    padding: 0;
+    background: #f9fafb;
+}
+
+.rj-ai-modal .rj-tab {
+    color: #6b7280;
+    font-size: 13px;
+    padding: 12px 0;
+}
+
+.rj-ai-modal .rj-tab:hover {
+    color: #111827;
+}
+
+.rj-ai-modal .rj-tab[data-active="true"] {
+    color: #7c3aed;
+}
+
+.rj-ai-modal .rj-tab[data-active="true"]::after {
+    left: 20px;
+    right: 20px;
+    height: 2px;
+    background: linear-gradient(90deg, #7c3aed, #ec4899);
+}
+
+.rj-ai-modal .rj-lbl {
+    color: #374151;
+    font-weight: 600;
+}
+
+.rj-ai-modal .rj-in,
+.rj-ai-modal .rj-ta,
+.rj-ai-modal .rj-sel {
+    background: #ffffff;
+    color: #111827;
+    border: 1px solid #d1d5db;
+}
+
+.rj-ai-modal .rj-in:focus,
+.rj-ai-modal .rj-ta:focus,
+.rj-ai-modal .rj-sel:focus {
+    border-color: #7c3aed;
+    box-shadow: 0 0 0 3px rgba(124,58,237,.12);
+}
+
+.rj-ai-modal .rj-in::placeholder,
+.rj-ai-modal .rj-ta::placeholder {
+    color: #9ca3af;
+}
+
+.rj-ai-result {
+    padding: 14px 16px;
+    background: #faf5ff;
+    border: 1px solid #e9d5ff;
+    border-radius: 10px;
+}
+
+.rj-ai-result-text {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #1f2937;
+    white-space: pre-wrap;
+    word-break: break-word;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.rj-ai-action {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 16px 8px;
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #374151;
+    cursor: pointer;
+    transition: all .15s;
+    font-family: inherit;
+    text-align: center;
+}
+
+.rj-ai-action:hover:not(:disabled) {
+    border-color: #7c3aed;
+    background: #faf5ff;
+    color: #6d28d9;
+    transform: translateY(-1px);
+}
+
+.rj-ai-action:disabled {
+    opacity: .5;
+    cursor: default;
+}
+
+.rj-ai-action-icon {
+    font-size: 20px;
+    line-height: 1;
+}
+
 </style>
