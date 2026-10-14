@@ -135,6 +135,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::post('/{template}/duplicate', [BuilderController::class, 'duplicate'])->name('duplicate');
         Route::post('/{template}/set-default', [BuilderController::class, 'setDefault'])->name('set-default');
         Route::post('/{template}/conditions', [BuilderController::class, 'updateConditions'])->name('conditions');
+        Route::post('/{template}/popup-settings', [BuilderController::class, 'updatePopupSettings'])->name('popup-settings');
     });
     
     Route::get('/updates', [UpdatesController::class, 'index'])->name('updates.index');
