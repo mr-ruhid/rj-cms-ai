@@ -362,7 +362,8 @@ function builderActions() {
 
         updateSetting(name, value) {
             if (!this.currentBlock) return;
-            this.setBlockField(this.currentBlock, name, value);
+            const key = this.fieldKey(name);
+            this.setBlockField(this.currentBlock, key, value);
             this.markDirty();
             this.commitSoon(this.t('Edited') + ' ' + this.blockLabel(this.currentBlock.type));
 
