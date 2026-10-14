@@ -12,3 +12,6 @@ Route::get('/rj-preview/{template}', [FrontendController::class, 'preview'])
 
 Route::post('/rj-form/{slug}', [FormSubmitController::class, 'submit'])
     ->name('frontend.form.submit');
+
+Route::get('/rj-fonts.css', [\App\Http\Controllers\Admin\CustomFontController::class, 'css'])
+    ->name('frontend.fonts.css');
