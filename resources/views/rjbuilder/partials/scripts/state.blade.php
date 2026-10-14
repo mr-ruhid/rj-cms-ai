@@ -394,6 +394,16 @@ function builderState() {
             return this.getBlockField(block, 'text') || '';
         },
 
+                displayField(block, name) {
+            const value = this.getBlockField(block, name);
+
+            if (this.isDynamicValue(value)) {
+                return '⚡ ' + this.getDynamicTagLabel(value);
+            }
+
+            return value || '';
+        },
+
         setBlockField(block, name, value) {
             const s = block.settings = block.settings || {};
             if (!this.isTranslatableField(name) || this.activeLocale === this.baseLocale) {
