@@ -47,6 +47,7 @@
         'Global Colors', 'Global Fonts', 'Responsive',
         'Dynamic Tags', 'Insert Dynamic Tag', 'Choose a dynamic value to bind to this field.',
         'No dynamic tags available.', 'Change tag', 'Remove tag',
+        'Global Widgets', 'Manage', 'No global widgets yet.', 'Insert', 'Unlinked global widget',
     ])->unique()->mapWithKeys(fn ($s) => [$s => __($s)])->toArray();
 @endphp
 
@@ -72,6 +73,9 @@
             </button>
             <button type="button" class="rj-ib" :data-active="shownPanel === 'sections' && panelOpen" @click="openPanel('sections')" :title="t('Sections')">
                 <svg fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+            </button>
+            <button type="button" class="rj-ib" :data-active="shownPanel === 'globals' && panelOpen" @click="openPanel('globals')" :title="t('Global Widgets')">
+                <svg fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/><path d="M3 18l9 5 9-5"/></svg>
             </button>
             <button type="button" class="rj-ib" :data-active="shownPanel === 'navigator' && panelOpen" @click="openPanel('navigator')" :title="t('Navigator')">
                 <svg fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24"><path d="M12 3l9 5-9 5-9-5 9-5z"/><path d="M3 13l9 5 9-5"/></svg>
@@ -228,6 +232,38 @@
                                 </button>
                             </template>
                         </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- ── GLOBAL WIDGETS ── --}}
+            <div class="rj-pcol" x-show="shownPanel === 'globals'" x-cloak>
+                <div class="rj-ph">
+                    <span x-text="t('Global Widgets')"></span>
+                    <a href="{{ route('admin.global-widgets.index') }}" target="_blank" class="rj-ib" style="margin:0; width:28px; height:28px;" :title="t('Manage')">
+                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                    </a>
+                </div>
+                <div class="rj-pb" style="padding:12px;">
+                    <div x-show="globalWidgetList.length === 0" class="rj-hint">
+                        <span x-text="t('No global widgets yet.')"></span>
+                        <a href="{{ route('admin.global-widgets.index') }}" target="_blank" style="color:#a78bfa; text-decoration:underline; display:block; margin-top:6px;" x-text="t('Create one →')"></a>
+                    </div>
+
+                    <div style="display:flex; flex-direction:column; gap:8px;">
+                        <template x-for="gw in globalWidgetList" :key="gw.id">
+                            <div class="rj-global-tile">
+                                <div class="rj-global-tile-head">
+                                    <span class="rj-global-tile-name" x-text="gw.name"></span>
+                                    <span class="rj-global-tile-type" x-text="gw.type"></span>
+                                </div>
+                                <div class="rj-global-tile-desc" x-show="gw.description" x-text="gw.description"></div>
+                                <button type="button" class="rj-global-tile-btn" @click="insertGlobalWidget(gw.id)">
+                                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                                    <span x-text="t('Insert')"></span>
+                                </button>
+                            </div>
+                        </template>
                     </div>
                 </div>
             </div>
@@ -417,6 +453,25 @@
                                             <option value="" x-text="t('— Select menu —')"></option>
                                             <template x-for="m in menuOptions" :key="m.id">
                                                 <option :value="m.id" :selected="String(fieldValue(field)) === String(m.id)" x-text="m.label"></option>
+                                            </template>
+                                        </select>
+                                    </template>
+                                </div>
+                            </template>
+
+                            <template x-if="field.type === 'form'">
+                                <div>
+                                    <template x-if="formOptions.length === 0">
+                                        <p class="rj-help" style="text-align:center; padding:12px; background:rgba(245,158,11,.08); border:1px dashed rgba(245,158,11,.3); border-radius:6px; color:#fbbf24;">
+                                            <span x-text="t('No forms yet.')"></span> <a href="{{ route('admin.forms.index') }}" target="_blank" style="color:#a78bfa; text-decoration:underline;" x-text="t('Create one →')"></a>
+                                        </p>
+                                    </template>
+
+                                    <template x-if="formOptions.length > 0">
+                                        <select class="rj-in" @change="updateSetting(field.name, $event.target.value)">
+                                            <option value="" x-text="t('— Select form —')"></option>
+                                            <template x-for="f in formOptions" :key="f.id">
+                                                <option :value="f.id" :selected="String(fieldValue(field)) === String(f.id)" x-text="f.name"></option>
                                             </template>
                                         </select>
                                     </template>
