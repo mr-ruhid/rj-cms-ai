@@ -51,6 +51,10 @@ function builderState() {
 
         menuTrees: L.menuItems || {},
 
+        tags: L.tags || [],
+        tagCategories: L.tagCategories || {},
+        dynamicTagPicker: { open: false, targetField: null, options: {} },
+
         globalColors: L.globalColors || [],
         globalFonts: L.globalFonts || [],
         globalSpacing: L.globalSpacing || [],
@@ -204,6 +208,37 @@ function builderState() {
             }));
         },
 
+        get dynamicTagList() {
+            return (this.tags || []).map(t => ({
+                id: t.id,
+                name: t.name,
+                category: t.category,
+                icon: t.icon,
+                description: t.description || '',
+                options: t.options || [],
+            }));
+        },
+
+        get dynamicTagGrouped() {
+            const groups = {};
+            const cats = this.tagCategories || {};
+
+            this.dynamicTagList.forEach(tag => {
+                const key = tag.category || 'other';
+                if (!groups[key]) {
+                    groups[key] = {
+                        key,
+                        label: (cats[key] && cats[key].label) || key,
+                        icon: (cats[key] && cats[key].icon) || '•',
+                        items: [],
+                    };
+                }
+                groups[key].items.push(tag);
+            });
+
+            return Object.values(groups);
+        },
+
         get canvasStyle() {
             const z = this.prefs.zoom;
             const zoom = (!this.preview && z !== 100) ? ` zoom:${z / 100};` : '';
@@ -251,6 +286,7 @@ function builderState() {
 
             if (mod && key === 's') { e.preventDefault(); this.save(); return; }
             if (key === 'escape') {
+                if (this.dynamicTagPicker.open) { this.closeTagPicker(); return; }
                 if (this.preview) this.togglePreview();
                 else if (!typing) this.selectedBlock = null;
                 return;
@@ -420,6 +456,54 @@ function builderState() {
             }
             this.markDirty();
             this.commitSoon(this.t('Edited') + ' ' + this.blockLabel(b.type));
+        },
+
+        openTagPicker(field) {
+            this.dynamicTagPicker = {
+                open: true,
+                targetField: field.name,
+                options: {},
+            };
+        },
+
+        closeTagPicker() {
+            this.dynamicTagPicker = { open: false, targetField: null, options: {} };
+        },
+
+        applyTag(tag) {
+            if (!this.currentBlock || !this.dynamicTagPicker.targetField) return;
+
+            const field = this.dynamicTagPicker.targetField;
+            const key = this.fieldKey(field);
+
+            const payload = {
+                source: 'dynamic',
+                tag: tag.id,
+                options: Object.assign({}, this.dynamicTagPicker.options),
+            };
+
+            this.setBlockField(this.currentBlock, key, payload);
+            this.markDirty();
+            this.commitSoon(this.t('Edited') + ' ' + this.blockLabel(this.currentBlock.type));
+            this.closeTagPicker();
+        },
+
+        clearTag(field) {
+            if (!this.currentBlock) return;
+            const key = this.fieldKey(field);
+            this.setBlockField(this.currentBlock, key, '');
+            this.markDirty();
+            this.commitSoon(this.t('Edited') + ' ' + this.blockLabel(this.currentBlock.type));
+        },
+
+        isDynamicValue(value) {
+            return value && typeof value === 'object' && value.source === 'dynamic' && value.tag;
+        },
+
+        getDynamicTagLabel(value) {
+            if (!this.isDynamicValue(value)) return '';
+            const tag = this.dynamicTagList.find(t => t.id === value.tag);
+            return tag ? tag.name : value.tag;
         },
 
         colorHex(v) {
