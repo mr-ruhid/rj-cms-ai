@@ -44,6 +44,14 @@ function builderRender() {
             return map[v] ? `box-shadow:${map[v]};` : '';
         },
 
+        hoverVars(s) {
+            const vars = [];
+            if (s._hover_text_color) vars.push(`--h-tc:${this.cssv(s._hover_text_color)}`);
+            if (s._hover_bg_color) vars.push(`--h-bg:${this.cssv(s._hover_bg_color)}`);
+            if (s._hover_border_color) vars.push(`--h-bc:${this.cssv(s._hover_border_color)}`);
+            return vars.join(';');
+        },
+
         dimWidths(s) {
             const raw = (s.column_widths || '').trim();
             if (!raw) return null;
@@ -70,8 +78,12 @@ function builderRender() {
                 else if (this.animPlayId === block.id) inner = this.animationWrapper(inner, s, 'rj-play');
             }
 
-            if (s._hover && s._hover !== 'none') {
-                inner = `<div class="rj-h rj-h-${this.esc(s._hover)}">${inner}</div>`;
+            const hoverVars = this.hoverVars(s);
+            const hasHover = (s._hover && s._hover !== 'none') || hoverVars;
+            if (hasHover) {
+                const cls = (s._hover && s._hover !== 'none') ? ` rj-h rj-h-${this.esc(s._hover)}` : ' rj-h';
+                const styleAttr = hoverVars ? ` style="${hoverVars}"` : '';
+                inner = `<div class="${cls.trim()}"${styleAttr}>${inner}</div>`;
             }
 
             const customClass = s._css_class ? ' ' + this.esc(s._css_class) : '';
