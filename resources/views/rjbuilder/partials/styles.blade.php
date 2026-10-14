@@ -474,4 +474,43 @@
     color: #fff;
     font-weight: 600;
 }
+.rj-fdev {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 18px;
+    padding: 0 5px;
+    border: 1px solid var(--line);
+    border-radius: 4px;
+    background: #15161a;
+    color: #777a88;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .03em;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background .12s, color .12s, border-color .12s;
+}
+
+.rj-fdev:hover {
+    color: #fff;
+    border-color: var(--acc);
+}
+
+.rj-fdev[data-on="desktop"] {
+    color: #b9bcc8;
+}
+
+.rj-fdev[data-on="tablet"] {
+    background: rgba(139,92,246,.18);
+    color: #c4b5fd;
+    border-color: rgba(139,92,246,.5);
+}
+
+.rj-fdev[data-on="mobile"] {
+    background: rgba(236,72,153,.18);
+    color: #f9a8d4;
+    border-color: rgba(236,72,153,.5);
+}
 </style>
