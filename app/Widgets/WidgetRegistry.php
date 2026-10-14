@@ -3,6 +3,7 @@
 namespace App\Widgets;
 
 use App\Widgets\Builtin\ContainerWidget;
+use App\Widgets\Builtin\FormWidget;
 use App\Widgets\Builtin\HeadingWidget;
 use App\Widgets\Builtin\ImageWidget;
 use App\Widgets\Builtin\LogoWidget;
@@ -26,6 +27,7 @@ class WidgetRegistry
             new ContainerWidget(),
             new LogoWidget(),
             new MenuWidget(),
+            new FormWidget(),
         ];
 
         $uploaded = static::discoverUploaded();
