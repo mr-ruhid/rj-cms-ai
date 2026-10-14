@@ -138,6 +138,152 @@ abstract class BaseWidget implements WidgetContract
         ];
     }
 
+        public function commonStyleSchema(): array
+    {
+        return [
+            [
+                'name' => 'bg_type',
+                'type' => 'select',
+                'label' => __('Background Type'),
+                'default' => 'none',
+                'tab' => 'style',
+                'options' => [
+                    'none' => __('None'),
+                    'classic' => __('Classic'),
+                    'gradient' => __('Gradient'),
+                ],
+            ],
+            [
+                'name' => 'bg_color',
+                'type' => 'color',
+                'label' => __('Background Color'),
+                'default' => '',
+                'tab' => 'style',
+            ],
+            [
+                'name' => 'bg_image',
+                'type' => 'media',
+                'label' => __('Background Image'),
+                'default' => '',
+                'tab' => 'style',
+            ],
+            [
+                'name' => 'bg_position',
+                'type' => 'select',
+                'label' => __('Background Position'),
+                'default' => 'center',
+                'tab' => 'style',
+                'options' => [
+                    'center' => __('Center'),
+                    'top' => __('Top'),
+                    'bottom' => __('Bottom'),
+                    'left' => __('Left'),
+                    'right' => __('Right'),
+                ],
+            ],
+            [
+                'name' => 'bg_size',
+                'type' => 'select',
+                'label' => __('Background Size'),
+                'default' => 'cover',
+                'tab' => 'style',
+                'options' => [
+                    'cover' => __('Cover'),
+                    'contain' => __('Contain'),
+                    'auto' => __('Auto'),
+                ],
+            ],
+            [
+                'name' => 'bg_repeat',
+                'type' => 'select',
+                'label' => __('Background Repeat'),
+                'default' => 'no-repeat',
+                'tab' => 'style',
+                'options' => [
+                    'no-repeat' => __('No Repeat'),
+                    'repeat' => __('Repeat'),
+                    'repeat-x' => __('Repeat X'),
+                    'repeat-y' => __('Repeat Y'),
+                ],
+            ],
+            [
+                'name' => 'gradient_color_1',
+                'type' => 'color',
+                'label' => __('Gradient Color 1'),
+                'default' => '#7c3aed',
+                'tab' => 'style',
+            ],
+            [
+                'name' => 'gradient_color_2',
+                'type' => 'color',
+                'label' => __('Gradient Color 2'),
+                'default' => '#ec4899',
+                'tab' => 'style',
+            ],
+            [
+                'name' => 'gradient_angle',
+                'type' => 'number',
+                'label' => __('Gradient Angle'),
+                'default' => 135,
+                'min' => 0,
+                'max' => 360,
+                'step' => 1,
+                'tab' => 'style',
+            ],
+            [
+                'name' => 'box_shadow',
+                'type' => 'select',
+                'label' => __('Box Shadow'),
+                'default' => 'none',
+                'tab' => 'style',
+                'options' => [
+                    'none' => __('None'),
+                    'sm' => __('Small'),
+                    'md' => __('Medium'),
+                    'lg' => __('Large'),
+                    'xl' => __('Extra Large'),
+                ],
+            ],
+            [
+                'name' => 'align_self',
+                'type' => 'select',
+                'label' => __('Align Self'),
+                'default' => 'auto',
+                'tab' => 'style',
+                'options' => [
+                    'auto' => __('Auto'),
+                    'start' => __('Start'),
+                    'center' => __('Center'),
+                    'end' => __('End'),
+                    'stretch' => __('Stretch'),
+                ],
+            ],
+            [
+                'name' => 'order',
+                'type' => 'number',
+                'label' => __('Order'),
+                'default' => 0,
+                'min' => -10,
+                'max' => 10,
+                'step' => 1,
+                'tab' => 'style',
+            ],
+        ];
+    }
+
+    public function commonStyleDefaults(): array
+    {
+        $defaults = [];
+
+        foreach ($this->commonStyleSchema() as $field) {
+            if (array_key_exists('default', $field)) {
+                $defaults[$field['name']] = $field['default'];
+            }
+        }
+
+        return $defaults;
+    }
+
     public function advancedDefaults(): array
     {
         $defaults = [];
