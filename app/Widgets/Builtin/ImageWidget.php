@@ -179,6 +179,130 @@ class ImageWidget extends BaseWidget
 
     public function render(array $settings): string
     {
-        return '';
+        $url = $settings['url'] ?? '';
+
+        if ($url === '') {
+            return '';
+        }
+
+        $widthMap = [
+            'auto' => 'auto',
+            'full' => '100%',
+            'half' => '50%',
+            'third' => '33.333%',
+        ];
+
+        $roundedMap = [
+            'none' => '0',
+            'sm' => '4px',
+            'md' => '8px',
+            'lg' => '16px',
+            'full' => '9999px',
+        ];
+
+        $alignMap = [
+            'left' => '0 auto 0 0',
+            'center' => '0 auto',
+            'right' => '0 0 0 auto',
+        ];
+
+        $width = $widthMap[$settings['width'] ?? 'full'] ?? '100%';
+
+        if (($settings['width'] ?? '') === 'custom' && !empty($settings['custom_width'])) {
+            $width = $this->escape($settings['custom_width']);
+        }
+
+        $height = !empty($settings['height']) ? $this->escape($settings['height']) : 'auto';
+        $objectFit = in_array($settings['object_fit'] ?? 'cover', ['cover', 'contain', 'fill', 'none'], true)
+            ? $settings['object_fit']
+            : 'cover';
+
+        $radius = $roundedMap[$settings['rounded'] ?? 'md'] ?? '8px';
+        $align = $alignMap[$settings['align'] ?? 'center'] ?? '0 auto';
+
+        $opacity = isset($settings['opacity']) && $settings['opacity'] !== ''
+            ? (int) $settings['opacity'] / 100
+            : 1;
+
+        $imgStyles = [
+            'width:' . $width,
+            'height:' . $height,
+            'object-fit:' . ($height !== 'auto' ? $objectFit : 'fill'),
+            'border-radius:' . $radius,
+            'opacity:' . $opacity,
+            'margin:' . $align,
+            'display:block',
+            'max-width:100%',
+        ];
+
+        $shadow = $this->boxShadowCss($settings['box_shadow'] ?? null);
+        if ($shadow !== '') {
+            $imgStyles[] = rtrim($shadow, ';');
+        }
+
+        $imgAttrs = [
+            'src' => $url,
+            'alt' => $settings['alt'] ?? '',
+            'style' => implode(';', $imgStyles),
+            'loading' => 'lazy',
+        ];
+
+        $imgHtml = '<img' . $this->attr($imgAttrs) . '>';
+
+        $link = $settings['link'] ?? '';
+
+        if ($link !== '') {
+            $target = $settings['target'] ?? '_self';
+            $linkAttrs = [
+                'href' => $link,
+                'style' => 'display:inline-block;text-decoration:none;',
+            ];
+
+            if ($target === '_blank') {
+                $linkAttrs['target'] = '_blank';
+                $linkAttrs['rel'] = 'noopener';
+            }
+
+            $imgHtml = '<a' . $this->attr($linkAttrs) . '>' . $imgHtml . '</a>';
+        }
+
+        $figureStyles = [];
+
+        $padding = $this->dimensionCss($settings, 'padding_dim');
+        if ($padding !== '') {
+            $figureStyles[] = 'padding:' . $padding;
+        }
+
+        $margin = $this->dimensionCss($settings, 'margin_dim');
+        if ($margin !== '') {
+            $figureStyles[] = 'margin:' . $margin;
+        } else {
+            $figureStyles[] = 'margin:0';
+        }
+
+        $bg = $this->backgroundCss($settings);
+        if ($bg !== '') {
+            $figureStyles[] = rtrim($bg, ';');
+        }
+
+        $figureAttrs = [];
+
+        if (!empty($figureStyles)) {
+            $figureAttrs['style'] = implode(';', $figureStyles);
+        }
+
+        $id = $this->cssId($settings);
+        if ($id !== '') {
+            $figureAttrs['id'] = $id;
+        }
+
+        $class = $this->cssClass($settings);
+        if ($class !== '') {
+            $figureAttrs['class'] = $class;
+        }
+
+        $html = '<figure' . $this->attr($figureAttrs) . '>' . $imgHtml . '</figure>';
+
+        return $this->applyAnimation($html, $settings);
     }
 }
