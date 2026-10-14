@@ -151,13 +151,6 @@ class ContainerWidget extends BaseWidget
                 'tab' => 'style',
             ],
             [
-                'name' => 'background',
-                'type' => 'color',
-                'label' => __('Background'),
-                'default' => '',
-                'tab' => 'style',
-            ],
-            [
                 'name' => 'min_height',
                 'type' => 'select',
                 'label' => __('Min Height'),
