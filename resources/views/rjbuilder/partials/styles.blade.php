@@ -219,7 +219,7 @@
 
     /* ───────── Responsive (canvas = container) ───────── */
 
-/* Breakpointlər: tablet ≤ 860px, mobil ≤ 560px (canvas eninə görə) */
+/* Breakpointlər: tablet ≤ {{ $bpTablet ?? 860 }}px, mobil ≤ {{ $bpMobile ?? 560 }}px (canvas eninə görə) */
 .rj-cg {
     display: flex;
     flex-direction: var(--dir, row);
@@ -241,7 +241,7 @@
 .rj-hd { font-size: var(--fs); font-weight: 700; margin: 0; }
 .rj-img { width: var(--w); max-width: 100%; }
 
-@container rj (max-width: 860px) {
+@container rj (max-width: {{ $bpTablet ?? 860 }}px) {
     .rj-cg:not(.rj-keep-tablet) {
         flex-wrap: wrap;
     }
@@ -252,7 +252,7 @@
     .rj-menu[data-mobile="hamburger"] .rj-menu-d { display: none; }
     .rj-menu[data-mobile="hamburger"] .rj-menu-m { display: flex; justify-content: var(--mjc); }
 }
-@container rj (max-width: 560px) {
+@container rj (max-width: {{ $bpMobile ?? 560 }}px) {
     .rj-cg:not(.rj-keep-mobile) {
         flex-direction: column;
         flex-wrap: nowrap;
@@ -267,9 +267,9 @@
 }
 
 /* Cihaza görə gizlətmə (preview + public) */
-@container rj (min-width: 861px) { .rj-hide-d { display: none !important; } }
-@container rj (min-width: 561px) and (max-width: 860px) { .rj-hide-t { display: none !important; } }
-@container rj (max-width: 560px) { .rj-hide-m { display: none !important; } }
+@container rj (min-width: {{ ($bpTablet ?? 860) + 1 }}px) { .rj-hide-d { display: none !important; } }
+@container rj (min-width: {{ ($bpMobile ?? 560) + 1 }}px) and (max-width: {{ $bpTablet ?? 860 }}px) { .rj-hide-t { display: none !important; } }
+@container rj (max-width: {{ $bpMobile ?? 560 }}px) { .rj-hide-m { display: none !important; } }
 
 /* ───────── Menu widget ───────── */
 .rj-menu { width: 100%; }
