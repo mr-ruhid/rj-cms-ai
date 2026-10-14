@@ -19,6 +19,7 @@ window.RJ = {
     breakpoints: @json(rj_breakpoints()),
     tags: @json(\App\DynamicTags\TagRegistry::toArray()),
     tagCategories: @json(\App\DynamicTags\TagRegistry::categories()),
+    globalWidgets: @json(rj_global_widgets_list()),
 };
 </script>
 
