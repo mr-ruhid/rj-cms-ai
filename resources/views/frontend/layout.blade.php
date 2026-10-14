@@ -138,6 +138,99 @@
 
     @include('frontend.partials.popup')
 
+        <script>
+    (function () {
+        const ready = (fn) => {
+            if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', fn);
+            else fn();
+        };
+
+        ready(() => {
+            const forms = document.querySelectorAll('.rj-form');
+
+            forms.forEach(form => {
+                form.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+
+                    const submitBtn = form.querySelector('.rj-form-submit');
+                    const messageEl = form.querySelector('.rj-form-message');
+
+                    form.querySelectorAll('.rj-invalid').forEach(el => el.classList.remove('rj-invalid'));
+
+                    const originalLabel = submitBtn ? submitBtn.textContent : '';
+                    if (submitBtn) {
+                        submitBtn.disabled = true;
+                        submitBtn.textContent = '...';
+                    }
+
+                    if (messageEl) {
+                        messageEl.style.display = 'none';
+                        messageEl.className = 'rj-form-message';
+                    }
+
+                    try {
+                        const fd = new FormData(form);
+                        const res = await fetch(form.action, {
+                            method: 'POST',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Accept': 'application/json',
+                            },
+                            body: fd,
+                        });
+
+                        const data = await res.json().catch(() => ({}));
+
+                        if (res.ok && data.success) {
+                            form.reset();
+                            if (messageEl) {
+                                messageEl.className = 'rj-form-message rj-ok';
+                                messageEl.textContent = data.message || 'OK';
+                                messageEl.style.display = 'block';
+                            }
+                            if (data.redirect) {
+                                setTimeout(() => { window.location.href = data.redirect; }, 800);
+                            }
+                            form.dispatchEvent(new CustomEvent('rj-form-success', { detail: data }));
+                        } else {
+                            const errors = data.errors || {};
+                            let firstInvalid = null;
+
+                            Object.keys(errors).forEach(name => {
+                                const input = form.querySelector('[name="' + name + '"], [name="' + name + '[]"]');
+                                if (input) {
+                                    input.classList.add('rj-invalid');
+                                    if (!firstInvalid) firstInvalid = input;
+                                }
+                            });
+
+                            if (messageEl) {
+                                messageEl.className = 'rj-form-message rj-err';
+                                messageEl.textContent = data.message || 'Please check the form.';
+                                messageEl.style.display = 'block';
+                            }
+
+                            if (firstInvalid) firstInvalid.focus();
+                            form.dispatchEvent(new CustomEvent('rj-form-error', { detail: data }));
+                        }
+                    } catch (err) {
+                        if (messageEl) {
+                            messageEl.className = 'rj-form-message rj-err';
+                            messageEl.textContent = 'Network error. Please try again.';
+                            messageEl.style.display = 'block';
+                        }
+                    } finally {
+                        if (submitBtn) {
+                            submitBtn.disabled = false;
+                            submitBtn.textContent = originalLabel;
+                        }
+                    }
+                });
+            });
+        });
+    })();
+    </script>
+
     @stack('scripts')
 </body>
 </html>
