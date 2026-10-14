@@ -413,4 +413,29 @@
     background: #1a1b20;
     color: var(--tx);
 }
+
+.rj-gcp {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    padding: 6px;
+    background: #15161a;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+}
+
+.rj-gcp-sw {
+    width: 24px;
+    height: 24px;
+    border-radius: 5px;
+    border: 1px solid rgba(255,255,255,.12);
+    cursor: pointer;
+    padding: 0;
+    transition: transform .12s, border-color .12s;
+}
+
+.rj-gcp-sw:hover {
+    transform: scale(1.1);
+    border-color: var(--acc);
+}
 </style>
