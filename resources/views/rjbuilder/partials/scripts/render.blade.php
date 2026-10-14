@@ -107,6 +107,12 @@ function builderRender() {
             return css;
         },
 
+        cssIdAttr(s) {
+            if (!s._css_id) return '';
+            const id = String(s._css_id).replace(/[^a-zA-Z0-9_-]/g, '');
+            return id ? ` id="${this.esc(id)}"` : '';
+        },
+
         dimWidths(s) {
             const raw = (s.column_widths || '').trim();
             if (!raw) return null;
@@ -145,8 +151,9 @@ function builderRender() {
             if (self) inner = `<div style="${self}">${inner}</div>`;
 
             const customClass = s._css_class ? ' ' + this.esc(s._css_class) : '';
+            const cssId = this.cssIdAttr(s);
 
-            if (this.preview) return `<div class="${(customClass + this.hideClasses(s)).trim()}" data-run="${this.previewRun}">${inner}</div>`;
+            if (this.preview) return `<div${cssId} class="${(customClass + this.hideClasses(s)).trim()}" data-run="${this.previewRun}">${inner}</div>`;
 
             const isSelected = this.selectedBlock === block.id;
             const bid = block.id;
@@ -155,7 +162,7 @@ function builderRender() {
                 : '';
 
             return `
-                <div class="rj-block${customClass}" data-block-id="${bid}" style="position:relative; ${hiddenHere ? 'opacity:.35;' : ''}" onclick="event.stopPropagation(); window.__builder.selectBlock('${bid}')">
+                <div class="rj-block${customClass}"${cssId ? cssId.replace(' id=', ' data-css-id=') : ''} data-block-id="${bid}" style="position:relative; ${hiddenHere ? 'opacity:.35;' : ''}" onclick="event.stopPropagation(); window.__builder.selectBlock('${bid}')">
                     ${hiddenNote}
                     <div style="position:absolute;top:-14px;left:50%;transform:translateX(-50%);z-index:30;display:flex;align-items:center;gap:2px;background:#1a1030;color:#fff;border-radius:9999px;padding:2px 6px;box-shadow:0 4px 12px rgba(0,0,0,0.2);opacity:${isSelected ? 1 : 0};pointer-events:${isSelected ? 'auto' : 'none'};transition:opacity 0.15s;white-space:nowrap;">
                         <span style="font-size:9px;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;padding:0 4px;color:#a855f7;">${this.esc(this.blockLabel(block.type))}${hasAnim ? ' ✦' : ''}</span>
