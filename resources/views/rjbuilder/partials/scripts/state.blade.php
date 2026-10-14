@@ -58,6 +58,7 @@ function builderState() {
         globalColors: L.globalColors || [],
         globalFonts: L.globalFonts || [],
         globalSpacing: L.globalSpacing || [],
+        globalWidgets: L.globalWidgets || [],
 
         devices: [
             { id: 'desktop', label: 'Desktop', svg: rjSVG('<path d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>') },
@@ -237,6 +238,55 @@ function builderState() {
             });
 
             return Object.values(groups);
+        },
+
+                get globalWidgetList() {
+            return (this.globalWidgets || []).map(g => ({
+                id: g.id,
+                name: g.name,
+                slug: g.slug,
+                type: g.type,
+                description: g.description || '',
+            }));
+        },
+
+        insertGlobalWidget(id) {
+            const gw = this.globalWidgetList.find(w => w.id === id);
+            if (!gw) return;
+
+            const block = {
+                id: this.generateId(),
+                type: gw.type,
+                settings: {},
+                children: [],
+                global_id: gw.id,
+                global_name: gw.name,
+            };
+
+            if (this.selectedBlock) {
+                const found = this.findBlockAndParent(this.selectedBlock);
+                if (found && found.parent && found.parent.type === 'container') {
+                    found.list.splice(found.index + 1, 0, block);
+                } else {
+                    this.blocks.push(block);
+                }
+            } else {
+                this.blocks.push(block);
+            }
+
+            this.selectedBlock = block.id;
+            this.markDirty();
+            this.pushHistory(this.t('Added') + ' ' + gw.name);
+            this.scrollToBlock(block.id);
+        },
+
+        unlinkGlobalWidget(id) {
+            const found = this.findBlockAndParent(id);
+            if (!found) return;
+            delete found.block.global_id;
+            delete found.block.global_name;
+            this.markDirty();
+            this.pushHistory(this.t('Unlinked global widget'));
         },
 
         get canvasStyle() {
