@@ -24,6 +24,26 @@ function builderRender() {
             return t + ' ' + r + ' ' + b + ' ' + l;
         },
 
+        typoCss(s) {
+            let css = '';
+            if (s.font_size) css += `font-size:${this.cssv(s.font_size)};`;
+            if (s.font_weight) css += `font-weight:${this.cssv(s.font_weight)};`;
+            if (s.line_height) css += `line-height:${this.cssv(s.line_height)};`;
+            if (s.letter_spacing) css += `letter-spacing:${this.cssv(s.letter_spacing)};`;
+            if (s.text_transform && s.text_transform !== 'none') css += `text-transform:${this.cssv(s.text_transform)};`;
+            return css;
+        },
+
+        boxShadowCss(v) {
+            if (!v || v === 'none') return '';
+            const map = {
+                sm: '0 1px 2px rgba(0,0,0,0.06)',
+                md: '0 4px 12px rgba(0,0,0,0.1)',
+                lg: '0 12px 32px rgba(0,0,0,0.16)',
+            };
+            return map[v] ? `box-shadow:${map[v]};` : '';
+        },
+
         dimWidths(s) {
             const raw = (s.column_widths || '').trim();
             if (!raw) return null;
@@ -186,6 +206,7 @@ function builderRender() {
             const marCss = this.dimCss(settings, 'margin_dim');
             const padAttr = padCss ? `padding:${padCss};` : '';
             const marAttr = marCss ? `margin:${marCss};` : '';
+            const typo = this.typoCss(settings);
 
             if (block.type === 'heading') {
                 const level = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(settings.level) ? settings.level : 'h2';
@@ -193,14 +214,16 @@ function builderRender() {
                 const mobileSizes = { h1: '1.6rem', h2: '1.3rem', h3: '1.15rem', h4: '1.05rem', h5: '1rem', h6: '0.875rem' };
                 const aligns = { left: 'left', center: 'center', right: 'right' };
                 const pad = padAttr || 'padding:0.75rem 1rem;';
-                return `<${level} class="rj-hd${inlineCls}" ${inlineAttr} style="--fs:${sizes[level]}; --fsm:${mobileSizes[level]}; text-align:${aligns[settings.align] || 'left'}; color:${this.cssv(settings.color || '#111827')}; ${pad} ${marAttr}">${esc(this.getBlockField(block, 'text') || 'Heading')}</${level}>`;
+                const sizeOverride = settings.font_size ? '' : `--fs:${sizes[level]}; --fsm:${mobileSizes[level]};`;
+                return `<${level} class="rj-hd${inlineCls}" ${inlineAttr} style="${sizeOverride} text-align:${aligns[settings.align] || 'left'}; color:${this.cssv(settings.color || '#111827')}; ${pad} ${marAttr} ${typo}">${esc(this.getBlockField(block, 'text') || 'Heading')}</${level}>`;
             }
 
             if (block.type === 'text') {
                 const aligns = { left: 'left', center: 'center', right: 'right', justify: 'justify' };
                 const sizes = { sm: '0.875rem', base: '1rem', lg: '1.125rem', xl: '1.25rem' };
                 const pad = padAttr || 'padding:0.75rem 1rem;';
-                return `<p class="${inlineCls.trim()}" ${inlineAttr} style="font-size:${sizes[settings.size] || '1rem'}; text-align:${aligns[settings.align] || 'left'}; color:${this.cssv(settings.color || '#374151')}; ${pad} ${marAttr} line-height:1.6; white-space:pre-wrap; margin:0;">${esc(this.getBlockField(block, 'text') || 'Text')}</p>`;
+                const sizeOverride = settings.font_size ? '' : `font-size:${sizes[settings.size] || '1rem'};`;
+                return `<p class="${inlineCls.trim()}" ${inlineAttr} style="${sizeOverride} text-align:${aligns[settings.align] || 'left'}; color:${this.cssv(settings.color || '#374151')}; ${pad} ${marAttr} line-height:1.6; white-space:pre-wrap; margin:0; ${typo}">${esc(this.getBlockField(block, 'text') || 'Text')}</p>`;
             }
 
             if (block.type === 'image') {
@@ -211,11 +234,37 @@ function builderRender() {
                                 ${esc(this.t('Image'))}
                             </div>`;
                 }
+
                 const aligns = { left: '0 auto 0 0', center: '0 auto', right: '0 0 0 auto' };
-                const widths = { auto: 'auto', full: '100%', half: '50%', third: '33.333%' };
-                const rounded = { none: '0', sm: '4px', md: '8px', lg: '16px', full: '9999px' };
+                const widthMap = { auto: 'auto', full: '100%', half: '50%', third: '33.333%' };
+                const roundedMap = { none: '0', sm: '4px', md: '8px', lg: '16px', full: '9999px' };
+
+                let w = widthMap[settings.width] || '100%';
+                if (settings.width === 'custom' && settings.custom_width) w = this.cssv(settings.custom_width);
+
+                const h = settings.height ? this.cssv(settings.height) : 'auto';
+                const fit = ['cover', 'contain', 'fill', 'none'].includes(settings.object_fit) ? settings.object_fit : 'cover';
+                const radius = roundedMap[settings.rounded] || '8px';
+                const opacity = (settings.opacity != null && settings.opacity !== '') ? parseInt(settings.opacity) / 100 : 1;
+                const shadow = this.boxShadowCss(settings.box_shadow);
+
+                let imgStyle = `width:${w}; height:${h}; object-fit:${h !== 'auto' ? fit : 'fill'};`;
+                imgStyle += `border-radius:${radius};`;
+                imgStyle += `opacity:${opacity};`;
+                if (shadow) imgStyle += shadow;
+                imgStyle += `margin:${aligns[settings.align] || '0 auto'}; display:block;`;
+
+                let imgHtml = `<img src="${esc(settings.url)}" alt="${esc(this.getBlockField(block, 'alt') || '')}" style="${imgStyle}">`;
+
+                const link = settings.link || '';
+                if (link && !this.preview) {
+                    imgHtml = `<a href="${esc(link)}" target="${esc(settings.target || '_self')}" ${noNav} style="display:inline-block; text-decoration:none;">${imgHtml}</a>`;
+                } else if (link) {
+                    imgHtml = `<a href="${esc(link)}" target="${esc(settings.target || '_self')}" style="display:inline-block; text-decoration:none;">${imgHtml}</a>`;
+                }
+
                 const pad = padAttr || 'padding:0.75rem 1rem;';
-                return `<figure style="${pad} ${marAttr} margin:0;"><img class="rj-img" src="${esc(settings.url)}" alt="${esc(this.getBlockField(block, 'alt') || '')}" style="--w:${widths[settings.width] || '100%'}; border-radius:${rounded[settings.rounded] || '8px'}; margin:${aligns[settings.align] || '0 auto'}; display:block;"></figure>`;
+                return `<figure style="${pad} ${marAttr} margin:0;">${imgHtml}</figure>`;
             }
 
             if (block.type === 'logo') {
@@ -283,6 +332,7 @@ function builderRender() {
                 const vars = [
                     `--mt:${this.cssv(settings.text_color || '#111827')}`,
                     `--mh:${this.cssv(settings.hover_color || '#7c3aed')}`,
+                    `--ma:${this.cssv(settings.active_color || '#7c3aed')}`,
                     `--mbg:${this.cssv(settings.dropdown_bg || '#ffffff')}`,
                     `--mbd:${settings.dropdown_border === 'yes' ? '1px solid #e5e7eb' : '0'}`,
                     `--fs:${fontSize}`,
