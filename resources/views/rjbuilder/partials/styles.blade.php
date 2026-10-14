@@ -438,4 +438,40 @@
     transform: scale(1.1);
     border-color: var(--acc);
 }
+.rj-gfp {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 6px;
+    background: #15161a;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+}
+
+.rj-gfp-btn {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 6px 10px;
+    background: transparent;
+    border: 0;
+    border-radius: 5px;
+    color: #c4c7d3;
+    font-size: 13px;
+    cursor: pointer;
+    text-align: left;
+    transition: background .12s, color .12s;
+    font-family: inherit;
+}
+
+.rj-gfp-btn:hover {
+    background: var(--bg2);
+    color: #fff;
+}
+
+.rj-gfp-btn[data-on="true"] {
+    background: rgba(139,92,246,.22);
+    color: #fff;
+    font-weight: 600;
+}
 </style>
