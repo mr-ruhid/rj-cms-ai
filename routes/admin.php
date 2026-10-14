@@ -293,3 +293,140 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::post('/{comment}/trash', [\App\Http\Controllers\Admin\CommentController::class, 'trash'])->name('trash');
         Route::post('/{comment}/restore', [\App\Http\Controllers\Admin\CommentController::class, 'restore'])->name('restore');
     });
+
+        Route::prefix('post-types')->name('post-types.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\PostTypeController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\Admin\PostTypeController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\Admin\PostTypeController::class, 'store'])->name('store');
+        Route::get('/{postType}/edit', [\App\Http\Controllers\Admin\PostTypeController::class, 'edit'])->name('edit');
+        Route::put('/{postType}', [\App\Http\Controllers\Admin\PostTypeController::class, 'update'])->name('update');
+        Route::delete('/{postType}', [\App\Http\Controllers\Admin\PostTypeController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::prefix('taxonomies')->name('taxonomies.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\TaxonomyController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\Admin\TaxonomyController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\Admin\TaxonomyController::class, 'store'])->name('store');
+        Route::get('/options', [\App\Http\Controllers\Admin\TaxonomyController::class, 'options'])->name('options');
+        Route::get('/{taxonomy}/edit', [\App\Http\Controllers\Admin\TaxonomyController::class, 'edit'])->name('edit');
+        Route::put('/{taxonomy}', [\App\Http\Controllers\Admin\TaxonomyController::class, 'update'])->name('update');
+        Route::delete('/{taxonomy}', [\App\Http\Controllers\Admin\TaxonomyController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::prefix('terms')->name('terms.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\TermController::class, 'index'])->name('index');
+        Route::post('/', [\App\Http\Controllers\Admin\TermController::class, 'store'])->name('store');
+        Route::post('/bulk', [\App\Http\Controllers\Admin\TermController::class, 'bulk'])->name('bulk');
+        Route::post('/reorder', [\App\Http\Controllers\Admin\TermController::class, 'reorder'])->name('reorder');
+        Route::get('/options', [\App\Http\Controllers\Admin\TermController::class, 'options'])->name('options');
+        Route::get('/{term}', [\App\Http\Controllers\Admin\TermController::class, 'show'])->name('show');
+        Route::get('/{term}/edit', [\App\Http\Controllers\Admin\TermController::class, 'edit'])->name('edit');
+        Route::put('/{term}', [\App\Http\Controllers\Admin\TermController::class, 'update'])->name('update');
+        Route::delete('/{term}', [\App\Http\Controllers\Admin\TermController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::prefix('custom-fields')->name('custom-fields.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\CustomFieldController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\Admin\CustomFieldController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\Admin\CustomFieldController::class, 'store'])->name('store');
+        Route::post('/reorder', [\App\Http\Controllers\Admin\CustomFieldController::class, 'reorder'])->name('reorder');
+        Route::get('/options', [\App\Http\Controllers\Admin\CustomFieldController::class, 'options'])->name('options');
+        Route::get('/{customField}/edit', [\App\Http\Controllers\Admin\CustomFieldController::class, 'edit'])->name('edit');
+        Route::put('/{customField}', [\App\Http\Controllers\Admin\CustomFieldController::class, 'update'])->name('update');
+        Route::delete('/{customField}', [\App\Http\Controllers\Admin\CustomFieldController::class, 'destroy'])->name('destroy');
+        Route::post('/{customField}/duplicate', [\App\Http\Controllers\Admin\CustomFieldController::class, 'duplicate'])->name('duplicate');
+    });
+
+    Route::prefix('roles')->name('roles.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\RoleController::class, 'index'])->name('index');
+        Route::get('/create', [\App\Http\Controllers\Admin\RoleController::class, 'create'])->name('create');
+        Route::post('/', [\App\Http\Controllers\Admin\RoleController::class, 'store'])->name('store');
+        Route::get('/{role}', [\App\Http\Controllers\Admin\RoleController::class, 'show'])->name('show');
+        Route::get('/{role}/edit', [\App\Http\Controllers\Admin\RoleController::class, 'edit'])->name('edit');
+        Route::put('/{role}', [\App\Http\Controllers\Admin\RoleController::class, 'update'])->name('update');
+        Route::delete('/{role}', [\App\Http\Controllers\Admin\RoleController::class, 'destroy'])->name('destroy');
+        Route::post('/{role}/duplicate', [\App\Http\Controllers\Admin\RoleController::class, 'duplicate'])->name('duplicate');
+        Route::post('/{role}/assign-users', [\App\Http\Controllers\Admin\RoleController::class, 'assignUsers'])->name('assign-users');
+        Route::get('/{role}/users', [\App\Http\Controllers\Admin\RoleController::class, 'users'])->name('users');
+    });
+
+    Route::prefix('permissions')->name('permissions.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\PermissionController::class, 'index'])->name('index');
+        Route::post('/', [\App\Http\Controllers\Admin\PermissionController::class, 'store'])->name('store');
+        Route::post('/sync', [\App\Http\Controllers\Admin\PermissionController::class, 'sync'])->name('sync');
+        Route::post('/group', [\App\Http\Controllers\Admin\PermissionController::class, 'groupStore'])->name('group-store');
+        Route::get('/{permission}/roles', [\App\Http\Controllers\Admin\PermissionController::class, 'roles'])->name('roles');
+        Route::post('/{permission}/sync-roles', [\App\Http\Controllers\Admin\PermissionController::class, 'syncRoles'])->name('sync-roles');
+        Route::put('/{permission}', [\App\Http\Controllers\Admin\PermissionController::class, 'update'])->name('update');
+        Route::delete('/{permission}', [\App\Http\Controllers\Admin\PermissionController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::prefix('revisions')->name('revisions.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\RevisionController::class, 'index'])->name('index');
+        Route::post('/prune', [\App\Http\Controllers\Admin\RevisionController::class, 'prune'])->name('prune');
+        Route::get('/{revision}', [\App\Http\Controllers\Admin\RevisionController::class, 'show'])->name('show');
+        Route::post('/{revision}/restore', [\App\Http\Controllers\Admin\RevisionController::class, 'restore'])->name('restore');
+        Route::delete('/{revision}', [\App\Http\Controllers\Admin\RevisionController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::prefix('notifications')->name('notifications.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\NotificationController::class, 'index'])->name('index');
+        Route::get('/recent', [\App\Http\Controllers\Admin\NotificationController::class, 'recent'])->name('recent');
+        Route::get('/unread-count', [\App\Http\Controllers\Admin\NotificationController::class, 'unreadCount'])->name('unread-count');
+        Route::post('/mark-all-read', [\App\Http\Controllers\Admin\NotificationController::class, 'markAllRead'])->name('mark-all-read');
+        Route::post('/bulk', [\App\Http\Controllers\Admin\NotificationController::class, 'bulk'])->name('bulk');
+        Route::get('/settings', [\App\Http\Controllers\Admin\NotificationController::class, 'settings'])->name('settings');
+        Route::put('/settings', [\App\Http\Controllers\Admin\NotificationController::class, 'updateSettings'])->name('settings.update');
+        Route::get('/{notification}', [\App\Http\Controllers\Admin\NotificationController::class, 'show'])->name('show');
+        Route::post('/{notification}/read', [\App\Http\Controllers\Admin\NotificationController::class, 'markAsRead'])->name('read');
+        Route::post('/{notification}/unread', [\App\Http\Controllers\Admin\NotificationController::class, 'markAsUnread'])->name('unread');
+        Route::delete('/{notification}', [\App\Http\Controllers\Admin\NotificationController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::prefix('activity-log')->name('activity-log.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\ActivityLogController::class, 'index'])->name('index');
+        Route::post('/clear', [\App\Http\Controllers\Admin\ActivityLogController::class, 'clear'])->name('clear');
+        Route::post('/bulk', [\App\Http\Controllers\Admin\ActivityLogController::class, 'bulk'])->name('bulk');
+        Route::get('/{activityLog}', [\App\Http\Controllers\Admin\ActivityLogController::class, 'show'])->name('show');
+        Route::delete('/{activityLog}', [\App\Http\Controllers\Admin\ActivityLogController::class, 'destroy'])->name('destroy');
+    });
+
+    Route::prefix('plugins')->name('plugins.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\PluginController::class, 'index'])->name('index');
+        Route::post('/upload', [\App\Http\Controllers\Admin\PluginController::class, 'upload'])->name('upload');
+        Route::post('/bulk', [\App\Http\Controllers\Admin\PluginController::class, 'bulk'])->name('bulk');
+        Route::post('/check-updates', [\App\Http\Controllers\Admin\PluginController::class, 'checkUpdates'])->name('check-updates');
+        Route::get('/{plugin}', [\App\Http\Controllers\Admin\PluginController::class, 'show'])->name('show');
+        Route::post('/{plugin}/activate', [\App\Http\Controllers\Admin\PluginController::class, 'activate'])->name('activate');
+        Route::post('/{plugin}/deactivate', [\App\Http\Controllers\Admin\PluginController::class, 'deactivate'])->name('deactivate');
+        Route::post('/{plugin}/update', [\App\Http\Controllers\Admin\PluginController::class, 'update'])->name('update');
+        Route::delete('/{plugin}', [\App\Http\Controllers\Admin\PluginController::class, 'destroy'])->name('destroy');
+        Route::get('/{plugin}/settings', [\App\Http\Controllers\Admin\PluginController::class, 'settings'])->name('settings');
+        Route::put('/{plugin}/settings', [\App\Http\Controllers\Admin\PluginController::class, 'updateSettings'])->name('settings.update');
+    });
+
+    Route::prefix('themes')->name('themes.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\ThemeController::class, 'index'])->name('index');
+        Route::post('/upload', [\App\Http\Controllers\Admin\ThemeController::class, 'upload'])->name('upload');
+        Route::post('/check-updates', [\App\Http\Controllers\Admin\ThemeController::class, 'checkUpdates'])->name('check-updates');
+        Route::get('/{theme}', [\App\Http\Controllers\Admin\ThemeController::class, 'show'])->name('show');
+        Route::post('/{theme}/activate', [\App\Http\Controllers\Admin\ThemeController::class, 'activate'])->name('activate');
+        Route::post('/{theme}/update', [\App\Http\Controllers\Admin\ThemeController::class, 'update'])->name('update');
+        Route::post('/{theme}/preview', [\App\Http\Controllers\Admin\ThemeController::class, 'preview'])->name('preview');
+        Route::get('/{theme}/export', [\App\Http\Controllers\Admin\ThemeController::class, 'export'])->name('export');
+        Route::delete('/{theme}', [\App\Http\Controllers\Admin\ThemeController::class, 'destroy'])->name('destroy');
+        Route::get('/{theme}/customizer', [\App\Http\Controllers\Admin\ThemeController::class, 'customizer'])->name('customizer');
+        Route::put('/{theme}/customizer', [\App\Http\Controllers\Admin\ThemeController::class, 'updateCustomizer'])->name('customizer.update');
+        Route::delete('/{theme}/customizer', [\App\Http\Controllers\Admin\ThemeController::class, 'resetCustomizer'])->name('customizer.reset');
+    });
+
+    Route::prefix('widgets')->name('widgets.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\UploadedWidgetController::class, 'index'])->name('index');
+        Route::post('/upload', [\App\Http\Controllers\Admin\UploadedWidgetController::class, 'upload'])->name('upload');
+        Route::post('/bulk', [\App\Http\Controllers\Admin\UploadedWidgetController::class, 'bulk'])->name('bulk');
+        Route::get('/{widget}', [\App\Http\Controllers\Admin\UploadedWidgetController::class, 'show'])->name('show');
+        Route::post('/{widget}/activate', [\App\Http\Controllers\Admin\UploadedWidgetController::class, 'activate'])->name('activate');
+        Route::post('/{widget}/deactivate', [\App\Http\Controllers\Admin\UploadedWidgetController::class, 'deactivate'])->name('deactivate');
+        Route::get('/{widget}/preview', [\App\Http\Controllers\Admin\UploadedWidgetController::class, 'preview'])->name('preview');
+        Route::delete('/{widget}', [\App\Http\Controllers\Admin\UploadedWidgetController::class, 'destroy'])->name('destroy');
+    });
