@@ -138,6 +138,81 @@ abstract class BaseWidget implements WidgetContract
         return '<div class="rj-animate rj-animate-' . $this->escape($animation) . '" style="' . $style . '">' . $html . '</div>';
     }
 
+    protected function dimension(array $settings, string $key): ?array
+    {
+        $value = $settings[$key] ?? null;
+
+        if (!is_array($value)) {
+            return null;
+        }
+
+        $unit = $value['unit'] ?? 'px';
+
+        $allowed = ['px', '%', 'em', 'rem', 'vh', 'vw'];
+        if (!in_array($unit, $allowed, true)) {
+            $unit = 'px';
+        }
+
+        $norm = [
+            'top' => $this->dimValue($value['top'] ?? ''),
+            'right' => $this->dimValue($value['right'] ?? ''),
+            'bottom' => $this->dimValue($value['bottom'] ?? ''),
+            'left' => $this->dimValue($value['left'] ?? ''),
+            'unit' => $unit,
+        ];
+
+        if ($norm['top'] === '' && $norm['right'] === '' && $norm['bottom'] === '' && $norm['left'] === '') {
+            return null;
+        }
+
+        return $norm;
+    }
+
+    protected function dimensionCss(array $settings, string $key): string
+    {
+        $d = $this->dimension($settings, $key);
+
+        if ($d === null) {
+            return '';
+        }
+
+        $u = $d['unit'];
+
+        $t = $d['top'] !== '' ? $d['top'] . $u : '0';
+        $r = $d['right'] !== '' ? $d['right'] . $u : '0';
+        $b = $d['bottom'] !== '' ? $d['bottom'] . $u : '0';
+        $l = $d['left'] !== '' ? $d['left'] . $u : '0';
+
+        return $t . ' ' . $r . ' ' . $b . ' ' . $l;
+    }
+
+    protected function spacingStyle(array $settings, array $map): string
+    {
+        $parts = [];
+
+        foreach ($map as $cssProp => $key) {
+            $css = $this->dimensionCss($settings, $key);
+            if ($css !== '') {
+                $parts[] = $cssProp . ':' . $css . ';';
+            }
+        }
+
+        return implode('', $parts);
+    }
+
+    private function dimValue($raw): string
+    {
+        if ($raw === null || $raw === '') {
+            return '';
+        }
+
+        if (!is_numeric($raw)) {
+            return '';
+        }
+
+        return (string) $raw;
+    }
+
     protected function setting(array $settings, string $key, $default = null)
     {
         return $settings[$key] ?? $default;
