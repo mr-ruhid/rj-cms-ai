@@ -28,7 +28,7 @@ class MenuWidget extends BaseWidget
 
     public function description(): string
     {
-        return __('Navigation menu with hover effects and dropdown support.');
+        return __('Display a navigation menu.');
     }
 
     public function schema(): array
@@ -39,12 +39,14 @@ class MenuWidget extends BaseWidget
                 'type' => 'menu',
                 'label' => __('Menu'),
                 'default' => '',
+                'tab' => 'content',
             ],
             [
                 'name' => 'layout',
                 'type' => 'select',
                 'label' => __('Layout'),
                 'default' => 'horizontal',
+                'tab' => 'content',
                 'options' => [
                     'horizontal' => __('Horizontal'),
                     'vertical' => __('Vertical'),
@@ -55,6 +57,7 @@ class MenuWidget extends BaseWidget
                 'type' => 'select',
                 'label' => __('Alignment'),
                 'default' => 'right',
+                'tab' => 'content',
                 'options' => [
                     'left' => __('Left'),
                     'center' => __('Center'),
@@ -62,16 +65,29 @@ class MenuWidget extends BaseWidget
                 ],
             ],
             [
+                'name' => 'mobile_behavior',
+                'type' => 'select',
+                'label' => __('Mobile Behavior'),
+                'default' => 'hamburger',
+                'tab' => 'content',
+                'options' => [
+                    'hamburger' => __('Hamburger'),
+                    'stack' => __('Stack'),
+                    'scroll' => __('Scroll'),
+                ],
+            ],
+            [
                 'name' => 'gap',
                 'type' => 'select',
-                'label' => __('Gap between items'),
+                'label' => __('Gap'),
                 'default' => 'md',
+                'tab' => 'style',
                 'options' => [
                     'none' => __('None'),
-                    'sm' => __('Small — 12px'),
-                    'md' => __('Medium — 24px'),
-                    'lg' => __('Large — 36px'),
-                    'xl' => __('Extra Large — 48px'),
+                    'sm' => __('Small'),
+                    'md' => __('Medium'),
+                    'lg' => __('Large'),
+                    'xl' => __('Extra Large'),
                 ],
             ],
             [
@@ -79,10 +95,11 @@ class MenuWidget extends BaseWidget
                 'type' => 'select',
                 'label' => __('Font Size'),
                 'default' => 'base',
+                'tab' => 'style',
                 'options' => [
-                    'sm' => __('Small — 13px'),
-                    'base' => __('Normal — 15px'),
-                    'lg' => __('Large — 17px'),
+                    'sm' => __('Small'),
+                    'base' => __('Normal'),
+                    'lg' => __('Large'),
                 ],
             ],
             [
@@ -90,11 +107,12 @@ class MenuWidget extends BaseWidget
                 'type' => 'select',
                 'label' => __('Font Weight'),
                 'default' => '500',
+                'tab' => 'style',
                 'options' => [
-                    '400' => __('Normal'),
-                    '500' => __('Medium'),
-                    '600' => __('Semibold'),
-                    '700' => __('Bold'),
+                    '400' => '400',
+                    '500' => '500',
+                    '600' => '600',
+                    '700' => '700',
                 ],
             ],
             [
@@ -102,57 +120,66 @@ class MenuWidget extends BaseWidget
                 'type' => 'color',
                 'label' => __('Text Color'),
                 'default' => '#111827',
+                'tab' => 'style',
             ],
             [
                 'name' => 'hover_color',
                 'type' => 'color',
                 'label' => __('Hover Color'),
                 'default' => '#7c3aed',
+                'tab' => 'style',
             ],
             [
                 'name' => 'hover_style',
                 'type' => 'select',
                 'label' => __('Hover Style'),
                 'default' => 'underline',
+                'tab' => 'style',
                 'options' => [
                     'none' => __('None'),
                     'underline' => __('Underline'),
                     'background' => __('Background'),
-                    'both' => __('Underline + Background'),
+                    'both' => __('Both'),
                 ],
             ],
             [
                 'name' => 'active_color',
                 'type' => 'color',
-                'label' => __('Active Link Color'),
+                'label' => __('Active Color'),
                 'default' => '#7c3aed',
+                'tab' => 'style',
             ],
             [
                 'name' => 'dropdown_bg',
                 'type' => 'color',
                 'label' => __('Dropdown Background'),
                 'default' => '#ffffff',
+                'tab' => 'style',
             ],
             [
                 'name' => 'dropdown_border',
                 'type' => 'select',
                 'label' => __('Dropdown Border'),
                 'default' => 'yes',
+                'tab' => 'style',
                 'options' => [
                     'yes' => __('Yes'),
                     'no' => __('No'),
                 ],
             ],
             [
-                'name' => 'mobile_behavior',
-                'type' => 'select',
-                'label' => __('Mobile Behavior'),
-                'default' => 'hamburger',
-                'options' => [
-                    'hamburger' => __('Hamburger menu'),
-                    'stack' => __('Stack vertically'),
-                    'scroll' => __('Horizontal scroll'),
-                ],
+                'name' => 'padding_dim',
+                'type' => 'dimensions',
+                'label' => __('Padding'),
+                'default' => ['top' => '', 'right' => '', 'bottom' => '', 'left' => '', 'unit' => 'px', 'linked' => false],
+                'tab' => 'style',
+            ],
+            [
+                'name' => 'margin_dim',
+                'type' => 'dimensions',
+                'label' => __('Margin'),
+                'default' => ['top' => '', 'right' => '', 'bottom' => '', 'left' => '', 'unit' => 'px', 'linked' => false],
+                'tab' => 'style',
             ],
         ];
     }
