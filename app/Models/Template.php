@@ -70,4 +70,8 @@ class Template extends Model
     {
         return static::types()[$this->type]['label'] ?? $this->type;
     }
+        public function scopeDefault($query)
+    {
+        return $query->where('is_default', true);
+    }
 }
