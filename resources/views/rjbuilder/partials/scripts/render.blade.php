@@ -298,7 +298,7 @@ function builderRender() {
                 const align = this.resp(settings, 'align', 'left');
                 const pad = padAttr || 'padding:0.75rem 1rem;';
                 const sizeOverride = settings.font_size ? '' : `--fs:${sizes[level]}; --fsm:${mobileSizes[level]};`;
-                return `<${level} class="rj-hd${inlineCls}" ${inlineAttr} style="${sizeOverride} text-align:${aligns[align] || 'left'}; color:${this.cssv(settings.color || '#111827')}; ${pad} ${marAttr} ${bgCss} ${shadow} ${typo}">${esc(this.getBlockField(block, 'text') || 'Heading')}</${level}>`;
+                return `<${level} class="rj-hd${inlineCls}" ${inlineAttr} style="${sizeOverride} text-align:${aligns[align] || 'left'}; color:${this.cssv(settings.color || '#111827')}; ${pad} ${marAttr} ${bgCss} ${shadow} ${typo}">${esc(this.displayField(block, 'text') || 'Heading')}</${level}>`;
             }
 
             if (block.type === 'text') {
@@ -307,15 +307,21 @@ function builderRender() {
                 const align = this.resp(settings, 'align', 'left');
                 const pad = padAttr || 'padding:0.75rem 1rem;';
                 const sizeOverride = settings.font_size ? '' : `font-size:${sizes[settings.size] || '1rem'};`;
-                return `<p class="${inlineCls.trim()}" ${inlineAttr} style="${sizeOverride} text-align:${aligns[align] || 'left'}; color:${this.cssv(settings.color || '#374151')}; ${pad} ${marAttr} ${bgCss} ${shadow} line-height:1.6; white-space:pre-wrap; margin:0; ${typo}">${esc(this.getBlockField(block, 'text') || 'Text')}</p>`;
+                return `<p class="${inlineCls.trim()}" ${inlineAttr} style="${sizeOverride} text-align:${aligns[align] || 'left'}; color:${this.cssv(settings.color || '#374151')}; ${pad} ${marAttr} ${bgCss} ${shadow} line-height:1.6; white-space:pre-wrap; margin:0; ${typo}">${esc(this.displayField(block, 'text') || 'Text')}</p>`;
             }
 
             if (block.type === 'image') {
-                if (!settings.url) {
+                const urlRaw = settings.url || '';
+                const url = this.isDynamicValue(urlRaw) ? '' : urlRaw;
+
+                if (!url) {
                     if (this.preview) return '';
+                    const hint = this.isDynamicValue(urlRaw)
+                        ? '⚡ ' + this.getDynamicTagLabel(urlRaw)
+                        : esc(this.t('Image'));
                     return `<div style="padding:2rem 1rem; text-align:center; color:#9ca3af; font-size:0.75rem; background:#f3f4f6; border-radius:8px; margin:0.75rem 1rem;">
                                 <svg width="28" height="28" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="display:block; margin:0 auto 4px;"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg>
-                                ${esc(this.t('Image'))}
+                                ${hint}
                             </div>`;
                 }
 
@@ -338,7 +344,7 @@ function builderRender() {
                 if (shadow) imgStyle += shadow;
                 imgStyle += `margin:${aligns[align] || '0 auto'}; display:block;`;
 
-                let imgHtml = `<img src="${esc(settings.url)}" alt="${esc(this.getBlockField(block, 'alt') || '')}" style="${imgStyle}">`;
+                let imgHtml = `<img src="${esc(url)}" alt="${esc(this.getBlockField(block, 'alt') || '')}" style="${imgStyle}">`;
 
                 const link = settings.link || '';
                 if (link && !this.preview) {
@@ -352,7 +358,8 @@ function builderRender() {
             }
 
             if (block.type === 'logo') {
-                const url = settings.url || '';
+                const urlRaw = settings.url || '';
+                const url = this.isDynamicValue(urlRaw) ? '' : urlRaw;
                 const alt = this.getBlockField(block, 'alt') || '';
                 const link = settings.link || '/';
                 const target = settings.target || '_self';
@@ -363,8 +370,11 @@ function builderRender() {
 
                 if (!url) {
                     if (this.preview) return '';
+                    const hint = this.isDynamicValue(urlRaw)
+                        ? '⚡ ' + this.getDynamicTagLabel(urlRaw)
+                        : esc(this.t('Logo')) + ' — ' + esc(this.t('Select Image'));
                     return `<div style="padding:1.5rem 1rem; text-align:center; color:#9ca3af; font-size:0.75rem; background:#f3f4f6; border-radius:8px; margin:0.5rem 1rem;">
-                                ${esc(this.t('Logo'))} — ${esc(this.t('Select Image'))}
+                                ${hint}
                             </div>`;
                 }
 
