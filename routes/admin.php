@@ -125,19 +125,18 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::view('/tools/diagnostics', 'admin.coming-soon')->name('tools.diagnostics');
 
     Route::prefix('rjbuilder')->name('rjbuilder.')->group(function () {
-        Route::post('rjbuilder/{template}/conditions', [BuilderController::class, 'updateConditions'])
-        ->name('rjbuilder.conditions');
-        Route::get('/{template}/build', [BuilderController::class, 'build'])->name('build');
         Route::get('/', [BuilderController::class, 'index'])->name('index');
         Route::get('/create', [BuilderController::class, 'create'])->name('create');
         Route::post('/', [BuilderController::class, 'store'])->name('store');
         Route::get('/{template}/edit', [BuilderController::class, 'edit'])->name('edit');
+        Route::get('/{template}/build', [BuilderController::class, 'build'])->name('build');
         Route::put('/{template}', [BuilderController::class, 'update'])->name('update');
         Route::delete('/{template}', [BuilderController::class, 'destroy'])->name('destroy');
         Route::post('/{template}/duplicate', [BuilderController::class, 'duplicate'])->name('duplicate');
         Route::post('/{template}/set-default', [BuilderController::class, 'setDefault'])->name('set-default');
+        Route::post('/{template}/conditions', [BuilderController::class, 'updateConditions'])->name('conditions');
     });
-
+    
     Route::get('/updates', [UpdatesController::class, 'index'])->name('updates.index');
     Route::post('/updates/check', [UpdatesController::class, 'check'])->name('updates.check');
     Route::put('/updates', [UpdatesController::class, 'update'])->name('updates.update');
