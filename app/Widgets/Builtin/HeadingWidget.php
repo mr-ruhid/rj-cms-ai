@@ -148,6 +148,84 @@ class HeadingWidget extends BaseWidget
 
     public function render(array $settings): string
     {
-        return '';
+        $level = in_array($settings['level'] ?? 'h2', ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'], true)
+            ? $settings['level']
+            : 'h2';
+
+        $text = $settings['text'] ?? '';
+
+        if ($text === '') {
+            return '';
+        }
+
+        $styles = [];
+
+        if (!empty($settings['color'])) {
+            $styles[] = 'color:' . $this->escape($settings['color']);
+        }
+
+        if (!empty($settings['font_size'])) {
+            $styles[] = 'font-size:' . $this->escape($settings['font_size']);
+        }
+
+        if (!empty($settings['font_weight'])) {
+            $styles[] = 'font-weight:' . $this->escape($settings['font_weight']);
+        }
+
+        if (!empty($settings['line_height'])) {
+            $styles[] = 'line-height:' . $this->escape($settings['line_height']);
+        }
+
+        if (!empty($settings['letter_spacing'])) {
+            $styles[] = 'letter-spacing:' . $this->escape($settings['letter_spacing']);
+        }
+
+        if (!empty($settings['text_transform']) && $settings['text_transform'] !== 'none') {
+            $styles[] = 'text-transform:' . $this->escape($settings['text_transform']);
+        }
+
+        if (!empty($settings['align'])) {
+            $styles[] = 'text-align:' . $this->escape($settings['align']);
+        }
+
+        $padding = $this->dimensionCss($settings, 'padding_dim');
+        if ($padding !== '') {
+            $styles[] = 'padding:' . $padding;
+        }
+
+        $margin = $this->dimensionCss($settings, 'margin_dim');
+        if ($margin !== '') {
+            $styles[] = 'margin:' . $margin;
+        }
+
+        $bg = $this->backgroundCss($settings);
+        if ($bg !== '') {
+            $styles[] = rtrim($bg, ';');
+        }
+
+        $shadow = $this->boxShadowCss($settings['box_shadow'] ?? null);
+        if ($shadow !== '') {
+            $styles[] = rtrim($shadow, ';');
+        }
+
+        $attrs = [];
+
+        if (!empty($styles)) {
+            $attrs['style'] = implode(';', $styles);
+        }
+
+        $id = $this->cssId($settings);
+        if ($id !== '') {
+            $attrs['id'] = $id;
+        }
+
+        $class = $this->cssClass($settings);
+        if ($class !== '') {
+            $attrs['class'] = $class;
+        }
+
+        $html = '<' . $level . $this->attr($attrs) . '>' . $this->escape($text) . '</' . $level . '>';
+
+        return $this->applyAnimation($html, $settings);
     }
 }
