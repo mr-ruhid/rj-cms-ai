@@ -135,6 +135,15 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::post('/{template}/duplicate', [BuilderController::class, 'duplicate'])->name('duplicate');
         Route::post('/{template}/set-default', [BuilderController::class, 'setDefault'])->name('set-default');
         Route::post('/{template}/conditions', [BuilderController::class, 'updateConditions'])->name('conditions');
+
+        Route::prefix('ai')->name('ai.')->group(function () {
+            Route::get('/status', [\App\Http\Controllers\Admin\AiBuilderController::class, 'status'])->name('status');
+            Route::post('/generate-text', [\App\Http\Controllers\Admin\AiBuilderController::class, 'generateText'])->name('generate-text');
+            Route::post('/improve-text', [\App\Http\Controllers\Admin\AiBuilderController::class, 'improveText'])->name('improve-text');
+            Route::post('/translate-text', [\App\Http\Controllers\Admin\AiBuilderController::class, 'translateText'])->name('translate-text');
+            Route::post('/suggest-section', [\App\Http\Controllers\Admin\AiBuilderController::class, 'suggestSection'])->name('suggest-section');
+        });
+        
         Route::post('/{template}/export', [\App\Http\Controllers\Admin\TemplateLibraryController::class, 'export'])->name('export');
         Route::post('/{template}/popup-settings', [BuilderController::class, 'updatePopupSettings'])->name('popup-settings');
     });
