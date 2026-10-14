@@ -39,7 +39,8 @@
         'Select Image', 'Change Image', 'Copied', 'Pasted', 'Nothing to paste', 'Auto-saved', 'Save failed', 'Network error — not saved',
         'Session expired — reload the page and try again', 'Added', 'Moved', 'Deleted', 'Duplicated', 'Edited', 'Initial state',
         'Hidden on', 'Image', 'Unknown widget', 'Drop here', 'Save (Ctrl+S)', 'Close panel', 'Open panel', 'Logo',
-        'Menu', '— Select menu —', 'No menus yet.', 'Create one →',
+        'Menu', '— Select menu —', 'No menus yet.', 'Create one →', 'Visible on',
+        'Top', 'Right', 'Bottom', 'Left', 'Link values together',
     ])->unique()->mapWithKeys(fn ($s) => [$s => __($s)])->toArray();
 @endphp
 
@@ -324,22 +325,22 @@
                     </div>
 
                     <div x-show="editTab === 'content'" style="margin-bottom:18px;">
-                        <div style="font-size:11px; font-weight:600; color:#8e919d; text-transform:uppercase; letter-spacing:.05em; margin-bottom:8px;">{{ __('Visible on') }}</div>
+                        <div style="font-size:11px; font-weight:600; color:#8e919d; text-transform:uppercase; letter-spacing:.05em; margin-bottom:8px;" x-text="t('Visible on')"></div>
                         <div style="display:flex; gap:4px; padding:3px; background:#15161a; border:1px solid #383a43; border-radius:8px;">
                             <button type="button" @click="updateSetting('_hide_desktop', currentSettings._hide_desktop ? false : true)"
                                     :data-on="!currentSettings._hide_desktop"
                                     class="rj-vis-btn">
-                                {{ __('Desktop') }}
+                                <span x-text="t('Desktop')"></span>
                             </button>
                             <button type="button" @click="updateSetting('_hide_tablet', currentSettings._hide_tablet ? false : true)"
                                     :data-on="!currentSettings._hide_tablet"
                                     class="rj-vis-btn">
-                                {{ __('Tablet') }}
+                                <span x-text="t('Tablet')"></span>
                             </button>
                             <button type="button" @click="updateSetting('_hide_mobile', currentSettings._hide_mobile ? false : true)"
                                     :data-on="!currentSettings._hide_mobile"
                                     class="rj-vis-btn">
-                                {{ __('Mobile') }}
+                                <span x-text="t('Mobile')"></span>
                             </button>
                         </div>
                     </div>
@@ -348,6 +349,7 @@
 
                     <template x-for="field in activeFields" :key="editTab + field.name">
                         <div class="rj-field">
+
                             <template x-if="field.type === 'toggle'">
                                 <label class="rj-row" style="padding:2px 0;">
                                     <span x-text="field.label"></span>
@@ -355,7 +357,7 @@
                                 </label>
                             </template>
 
-                            <template x-if="field.type !== 'toggle'">
+                            <template x-if="field.type !== 'toggle' && field.type !== 'dimensions'">
                                 <div class="rj-lbl">
                                     <span x-text="field.label + (templateType === 'page' && locales.length > 1 && isTranslatableField(field.name) ? ' 🌐' : '')"></span>
                                     <button type="button" class="rj-reset" x-show="!isDefault(field)" @click="resetField(field)" :title="t('Reset to default')">↺</button>
@@ -378,7 +380,7 @@
                             </template>
 
                             <template x-if="field.type === 'textarea'">
-                                <textarea class="rj-ta" rows="4" :value="fieldValue(field)" @input="updateSetting(field.name, $event.target.value)"></textarea>
+                                <textarea class="rj-ta" rows="4" :value="fieldValue(field)" :placeholder="field.placeholder || ''" @input="updateSetting(field.name, $event.target.value)"></textarea>
                             </template>
 
                             <template x-if="field.type === 'select'">
@@ -410,13 +412,13 @@
                                 <div>
                                     <template x-if="menuOptions.length === 0">
                                         <p class="rj-help" style="text-align:center; padding:12px; background:rgba(245,158,11,.08); border:1px dashed rgba(245,158,11,.3); border-radius:6px; color:#fbbf24;">
-                                            {{ __('No menus yet.') }} <a href="{{ route('admin.menus.index') }}" target="_blank" style="color:#a78bfa; text-decoration:underline;">{{ __('Create one →') }}</a>
+                                            <span x-text="t('No menus yet.')"></span> <a href="{{ route('admin.menus.index') }}" target="_blank" style="color:#a78bfa; text-decoration:underline;" x-text="t('Create one →')"></a>
                                         </p>
                                     </template>
 
                                     <template x-if="menuOptions.length > 0">
                                         <select class="rj-in" @change="updateSetting(field.name, $event.target.value)">
-                                            <option value="">{{ __('— Select menu —') }}</option>
+                                            <option value="" x-text="t('— Select menu —')"></option>
                                             <template x-for="m in menuOptions" :key="m.id">
                                                 <option :value="m.id" :selected="String(fieldValue(field)) === String(m.id)" x-text="m.label"></option>
                                             </template>
@@ -424,6 +426,8 @@
                                     </template>
                                 </div>
                             </template>
+
+                            @include('rjbuilder.partials.fields.dimensions')
 
                             <p class="rj-help" x-show="field.help" x-text="field.help"></p>
                         </div>
@@ -551,6 +555,7 @@
 @include('rjbuilder.partials.scripts.actions')
 @include('rjbuilder.partials.scripts.render')
 @include('rjbuilder.partials.scripts.panels')
+@include('rjbuilder.partials.scripts.fields')
 @include('rjbuilder.partials.scripts.index')
 
 @endsection
