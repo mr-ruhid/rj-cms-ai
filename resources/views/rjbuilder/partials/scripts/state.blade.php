@@ -36,6 +36,8 @@ function builderState() {
         animPlayId: null,
         toast: { show: false, message: '', type: 'success' },
 
+        fieldDevices: {},
+
         templateType: L.templateType,
         baseLocale: L.baseLocale,
         locales: (function (l) { return Array.isArray(l) ? l : Object.keys(l || {}); })(L.locales),
@@ -320,6 +322,31 @@ function builderState() {
             return this.translatableFields.includes(name);
         },
 
+        isResponsiveField(field) {
+            const types = ['text', 'number', 'range', 'dimensions'];
+            if (types.includes(field.type)) return true;
+            return /font_size|line_height|letter_spacing|align|padding|margin|gap|column_widths|min_height/i.test(field.name);
+        },
+
+        getFieldDevice(name) {
+            return this.fieldDevices[name] || 'desktop';
+        },
+
+        setFieldDevice(name, device) {
+            this.fieldDevices = Object.assign({}, this.fieldDevices, { [name]: device });
+        },
+
+        cycleFieldDevice(name) {
+            const cur = this.getFieldDevice(name);
+            const next = { desktop: 'tablet', tablet: 'mobile', mobile: 'desktop' }[cur] || 'desktop';
+            this.setFieldDevice(name, next);
+        },
+
+        fieldKey(name) {
+            const dev = this.getFieldDevice(name);
+            return dev === 'desktop' ? name : name + '_' + dev;
+        },
+
         getBlockField(block, name) {
             const s = block.settings || {};
             if (!this.isTranslatableField(name) || this.activeLocale === this.baseLocale) return s[name];
@@ -344,9 +371,16 @@ function builderState() {
 
         fieldValue(field) {
             const b = this.currentBlock;
+            const key = this.fieldKey(field.name);
+
             if (b) {
-                const v = this.getBlockField(b, field.name);
-                if (v !== undefined && v !== null) return v;
+                let v = this.getBlockField(b, key);
+                if (v !== undefined && v !== null && v !== '') return v;
+
+                if (key !== field.name) {
+                    v = this.getBlockField(b, field.name);
+                    if (v !== undefined && v !== null) return v;
+                }
             }
             return field.default !== undefined ? field.default : '';
         },
@@ -354,8 +388,9 @@ function builderState() {
         isDefault(field) {
             const b = this.currentBlock;
             if (!b) return true;
-            const v = this.getBlockField(b, field.name);
-            if (v === undefined || v === null) return true;
+            const key = this.fieldKey(field.name);
+            const v = this.getBlockField(b, key);
+            if (v === undefined || v === null || v === '') return key === field.name;
             const d = field.default !== undefined ? field.default : '';
 
             if (field.type === 'dimensions') {
@@ -373,13 +408,15 @@ function builderState() {
         resetField(field) {
             const b = this.currentBlock;
             if (!b) return;
-            if (this.isTranslatableField(field.name) && this.activeLocale !== this.baseLocale) {
+            const key = this.fieldKey(field.name);
+
+            if (this.isTranslatableField(key) && this.activeLocale !== this.baseLocale) {
                 const tr = (b.settings.translations || {})[this.activeLocale];
-                if (tr) delete tr[field.name];
+                if (tr) delete tr[key];
             } else {
                 const def = field.default !== undefined ? field.default : '';
                 const copy = (def && typeof def === 'object') ? JSON.parse(JSON.stringify(def)) : def;
-                this.setBlockField(b, field.name, copy);
+                this.setBlockField(b, key, copy);
             }
             this.markDirty();
             this.commitSoon(this.t('Edited') + ' ' + this.blockLabel(b.type));
