@@ -16,6 +16,7 @@ window.RJ = {
     globalColors: @json(rj_global_colors()),
     globalFonts: @json(rj_global_fonts()),
     globalSpacing: @json(rj_global_spacing()),
+    breakpoints: @json(rj_breakpoints()),
 };
 </script>
 
