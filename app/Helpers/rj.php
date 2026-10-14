@@ -523,3 +523,28 @@ if (!function_exists('rj_global_color_css')) {
         return $vars ? ':root{' . implode('', $vars) . '}' : '';
     }
 }
+if (!function_exists('rj_breakpoints')) {
+    function rj_breakpoints(): array
+    {
+        $raw = rj_get_option('rj_breakpoints', '[]');
+
+        if (is_string($raw)) {
+            $decoded = json_decode($raw, true);
+            return is_array($decoded) ? $decoded : [];
+        }
+
+        return is_array($raw) ? $raw : [];
+    }
+}
+
+if (!function_exists('rj_breakpoint_css')) {
+    function rj_breakpoint_css(): string
+    {
+        $bp = rj_breakpoints();
+
+        $mobile = (int) ($bp['mobile']['max'] ?? 560);
+        $tablet = (int) ($bp['tablet']['max'] ?? 860);
+
+        return ":root{--rj-bp-mobile:{$mobile};--rj-bp-tablet:{$tablet};}";
+    }
+}
