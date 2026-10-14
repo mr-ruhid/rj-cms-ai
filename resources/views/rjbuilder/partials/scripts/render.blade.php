@@ -3,6 +3,18 @@ function builderRender() {
     return {
         cssv(v) { return String(v == null ? '' : v).replace(/[^#\w(),.%\s-]/g, ''); },
 
+        resp(s, name, fallback) {
+            const dev = this.device;
+            if (dev === 'desktop') {
+                const v = s[name];
+                return (v !== undefined && v !== null && v !== '') ? v : fallback;
+            }
+            const key = name + '_' + dev;
+            let v = s[key];
+            if (v === undefined || v === null || v === '') v = s[name];
+            return (v !== undefined && v !== null && v !== '') ? v : fallback;
+        },
+
         hideClasses(s) {
             return (s._hide_desktop ? ' rj-hide-d' : '') + (s._hide_tablet ? ' rj-hide-t' : '') + (s._hide_mobile ? ' rj-hide-m' : '');
         },
@@ -24,13 +36,26 @@ function builderRender() {
             return t + ' ' + r + ' ' + b + ' ' + l;
         },
 
+        dimResp(s, name) {
+            if (this.device === 'desktop') return this.dimCss(s, name);
+            const key = name + '_' + this.device;
+            const css = this.dimCss(s, key);
+            if (css) return css;
+            return this.dimCss(s, name);
+        },
+
         typoCss(s) {
             let css = '';
-            if (s.font_size) css += `font-size:${this.cssv(s.font_size)};`;
-            if (s.font_weight) css += `font-weight:${this.cssv(s.font_weight)};`;
-            if (s.line_height) css += `line-height:${this.cssv(s.line_height)};`;
-            if (s.letter_spacing) css += `letter-spacing:${this.cssv(s.letter_spacing)};`;
-            if (s.text_transform && s.text_transform !== 'none') css += `text-transform:${this.cssv(s.text_transform)};`;
+            const fs = this.resp(s, 'font_size', '');
+            const fw = this.resp(s, 'font_weight', '');
+            const lh = this.resp(s, 'line_height', '');
+            const ls = this.resp(s, 'letter_spacing', '');
+            const tt = this.resp(s, 'text_transform', '');
+            if (fs) css += `font-size:${this.cssv(fs)};`;
+            if (fw) css += `font-weight:${this.cssv(fw)};`;
+            if (lh) css += `line-height:${this.cssv(lh)};`;
+            if (ls) css += `letter-spacing:${this.cssv(ls)};`;
+            if (tt && tt !== 'none') css += `text-transform:${this.cssv(tt)};`;
             return css;
         },
 
@@ -40,8 +65,31 @@ function builderRender() {
                 sm: '0 1px 2px rgba(0,0,0,0.06)',
                 md: '0 4px 12px rgba(0,0,0,0.1)',
                 lg: '0 12px 32px rgba(0,0,0,0.16)',
+                xl: '0 24px 60px rgba(0,0,0,0.22)',
             };
             return map[v] ? `box-shadow:${map[v]};` : '';
+        },
+
+        bgCss(s) {
+            const type = s.bg_type || 'none';
+            if (type === 'none') return '';
+
+            if (type === 'gradient') {
+                const c1 = this.cssv(s.gradient_color_1 || '#7c3aed');
+                const c2 = this.cssv(s.gradient_color_2 || '#ec4899');
+                const angle = parseInt(s.gradient_angle) || 135;
+                return `background:linear-gradient(${angle}deg, ${c1}, ${c2});`;
+            }
+
+            let css = '';
+            if (s.bg_color) css += `background-color:${this.cssv(s.bg_color)};`;
+            if (s.bg_image) {
+                css += `background-image:url('${this.esc(s.bg_image)}');`;
+                css += `background-position:${this.cssv(s.bg_position || 'center')};`;
+                css += `background-size:${this.cssv(s.bg_size || 'cover')};`;
+                css += `background-repeat:${this.cssv(s.bg_repeat || 'no-repeat')};`;
+            }
+            return css;
         },
 
         hoverVars(s) {
@@ -50,6 +98,13 @@ function builderRender() {
             if (s._hover_bg_color) vars.push(`--h-bg:${this.cssv(s._hover_bg_color)}`);
             if (s._hover_border_color) vars.push(`--h-bc:${this.cssv(s._hover_border_color)}`);
             return vars.join(';');
+        },
+
+        selfCss(s) {
+            let css = '';
+            if (s.align_self && s.align_self !== 'auto') css += `align-self:${this.cssv(s.align_self)};`;
+            if (s.order != null && s.order !== '' && String(s.order) !== '0') css += `order:${parseInt(s.order) || 0};`;
+            return css;
         },
 
         dimWidths(s) {
@@ -85,6 +140,9 @@ function builderRender() {
                 const styleAttr = hoverVars ? ` style="${hoverVars}"` : '';
                 inner = `<div class="${cls.trim()}"${styleAttr}>${inner}</div>`;
             }
+
+            const self = this.selfCss(s);
+            if (self) inner = `<div style="${self}">${inner}</div>`;
 
             const customClass = s._css_class ? ' ' + this.esc(s._css_class) : '';
 
@@ -126,8 +184,8 @@ function builderRender() {
             const bg = settings.background || 'transparent';
             const gap = gapMap[settings.gap] || '1rem';
 
-            const padding = this.dimCss(settings, 'padding_dim') || gapMap[settings.padding] || '1rem';
-            const margin = this.dimCss(settings, 'margin_dim') || '';
+            const padding = this.dimResp(settings, 'padding_dim') || gapMap[settings.padding] || '1rem';
+            const margin = this.dimResp(settings, 'margin_dim') || '';
 
             let minHeight = 'auto';
             if (settings.min_height === 'custom') {
@@ -156,7 +214,10 @@ function builderRender() {
             const children = block.children || [];
             const bid = block.id;
 
-            if (this.preview && children.every(c => !c || (c.type === 'container' && (!c.children || !c.children.length) && (!c.settings || !c.settings.background || c.settings.background === 'transparent'))) && bg === 'transparent' && minHeight === 'auto' && border === 'none') {
+            const bgCss = this.bgCss(settings);
+            const shadow = this.boxShadowCss(settings.box_shadow);
+
+            if (this.preview && children.every(c => !c || (c.type === 'container' && (!c.children || !c.children.length) && (!c.settings || !c.settings.background || c.settings.background === 'transparent'))) && !bgCss && minHeight === 'auto' && border === 'none') {
                 return '';
             }
 
@@ -166,7 +227,7 @@ function builderRender() {
 
             for (let i = 0; i < slotCount; i++) {
                 const child = children[i];
-                const flexBasis = (widths && widths[i]) ? `flex:0 0 ${widths[i]}%;` : '';
+                const flexBasis = (widths && widths[i]) ? `--sw:${widths[i]}%;` : '';
                 const slotStyle = `min-width:0;${flexBasis}`;
 
                 if (this.preview) {
@@ -191,7 +252,7 @@ function builderRender() {
                 `;
             }
 
-            const chrome = `background:${this.cssv(bg)}; padding:${padding}; ${margin ? 'margin:' + margin + ';' : ''} border:${border}; min-height:${minHeight};`;
+            const chrome = `${bgCss} padding:${padding}; ${margin ? 'margin:' + margin + ';' : ''} border:${border}; min-height:${minHeight}; ${shadow}`;
             const outerStyle = isFullWidth
                 ? `${chrome} width:100%; margin:0;`
                 : `${chrome} max-width:1100px; margin:0 auto; width:100%;`;
@@ -214,28 +275,32 @@ function builderRender() {
             const inlineAttr = this.preview ? '' : `ondblclick="event.stopPropagation(); window.__builder.startInline(this, '${bid}')"`;
             const noNav = `onclick="event.preventDefault()"`;
 
-            const padCss = this.dimCss(settings, 'padding_dim');
-            const marCss = this.dimCss(settings, 'margin_dim');
+            const padCss = this.dimResp(settings, 'padding_dim');
+            const marCss = this.dimResp(settings, 'margin_dim');
             const padAttr = padCss ? `padding:${padCss};` : '';
             const marAttr = marCss ? `margin:${marCss};` : '';
             const typo = this.typoCss(settings);
+            const bgCss = this.bgCss(settings);
+            const shadow = this.boxShadowCss(settings.box_shadow);
 
             if (block.type === 'heading') {
                 const level = ['h1', 'h2', 'h3', 'h4', 'h5', 'h6'].includes(settings.level) ? settings.level : 'h2';
                 const sizes = { h1: '2rem', h2: '1.5rem', h3: '1.25rem', h4: '1.125rem', h5: '1rem', h6: '0.875rem' };
                 const mobileSizes = { h1: '1.6rem', h2: '1.3rem', h3: '1.15rem', h4: '1.05rem', h5: '1rem', h6: '0.875rem' };
                 const aligns = { left: 'left', center: 'center', right: 'right' };
+                const align = this.resp(settings, 'align', 'left');
                 const pad = padAttr || 'padding:0.75rem 1rem;';
                 const sizeOverride = settings.font_size ? '' : `--fs:${sizes[level]}; --fsm:${mobileSizes[level]};`;
-                return `<${level} class="rj-hd${inlineCls}" ${inlineAttr} style="${sizeOverride} text-align:${aligns[settings.align] || 'left'}; color:${this.cssv(settings.color || '#111827')}; ${pad} ${marAttr} ${typo}">${esc(this.getBlockField(block, 'text') || 'Heading')}</${level}>`;
+                return `<${level} class="rj-hd${inlineCls}" ${inlineAttr} style="${sizeOverride} text-align:${aligns[align] || 'left'}; color:${this.cssv(settings.color || '#111827')}; ${pad} ${marAttr} ${bgCss} ${shadow} ${typo}">${esc(this.getBlockField(block, 'text') || 'Heading')}</${level}>`;
             }
 
             if (block.type === 'text') {
                 const aligns = { left: 'left', center: 'center', right: 'right', justify: 'justify' };
                 const sizes = { sm: '0.875rem', base: '1rem', lg: '1.125rem', xl: '1.25rem' };
+                const align = this.resp(settings, 'align', 'left');
                 const pad = padAttr || 'padding:0.75rem 1rem;';
                 const sizeOverride = settings.font_size ? '' : `font-size:${sizes[settings.size] || '1rem'};`;
-                return `<p class="${inlineCls.trim()}" ${inlineAttr} style="${sizeOverride} text-align:${aligns[settings.align] || 'left'}; color:${this.cssv(settings.color || '#374151')}; ${pad} ${marAttr} line-height:1.6; white-space:pre-wrap; margin:0; ${typo}">${esc(this.getBlockField(block, 'text') || 'Text')}</p>`;
+                return `<p class="${inlineCls.trim()}" ${inlineAttr} style="${sizeOverride} text-align:${aligns[align] || 'left'}; color:${this.cssv(settings.color || '#374151')}; ${pad} ${marAttr} ${bgCss} ${shadow} line-height:1.6; white-space:pre-wrap; margin:0; ${typo}">${esc(this.getBlockField(block, 'text') || 'Text')}</p>`;
             }
 
             if (block.type === 'image') {
@@ -258,13 +323,13 @@ function builderRender() {
                 const fit = ['cover', 'contain', 'fill', 'none'].includes(settings.object_fit) ? settings.object_fit : 'cover';
                 const radius = roundedMap[settings.rounded] || '8px';
                 const opacity = (settings.opacity != null && settings.opacity !== '') ? parseInt(settings.opacity) / 100 : 1;
-                const shadow = this.boxShadowCss(settings.box_shadow);
+                const align = this.resp(settings, 'align', 'center');
 
                 let imgStyle = `width:${w}; height:${h}; object-fit:${h !== 'auto' ? fit : 'fill'};`;
                 imgStyle += `border-radius:${radius};`;
                 imgStyle += `opacity:${opacity};`;
                 if (shadow) imgStyle += shadow;
-                imgStyle += `margin:${aligns[settings.align] || '0 auto'}; display:block;`;
+                imgStyle += `margin:${aligns[align] || '0 auto'}; display:block;`;
 
                 let imgHtml = `<img src="${esc(settings.url)}" alt="${esc(this.getBlockField(block, 'alt') || '')}" style="${imgStyle}">`;
 
@@ -276,7 +341,7 @@ function builderRender() {
                 }
 
                 const pad = padAttr || 'padding:0.75rem 1rem;';
-                return `<figure style="${pad} ${marAttr} margin:0;">${imgHtml}</figure>`;
+                return `<figure style="${pad} ${marAttr} ${bgCss} margin:0;">${imgHtml}</figure>`;
             }
 
             if (block.type === 'logo') {
@@ -312,7 +377,7 @@ function builderRender() {
                 }
 
                 const pad = padAttr || 'padding:0.5rem 1rem;';
-                return `<div style="display:flex; justify-content:${jcMap[align] || 'flex-start'}; ${pad} ${marAttr}">${imgHtml}</div>`;
+                return `<div style="display:flex; justify-content:${jcMap[align] || 'flex-start'}; ${pad} ${marAttr} ${bgCss}">${imgHtml}</div>`;
             }
 
             if (block.type === 'menu') {
@@ -375,7 +440,7 @@ function builderRender() {
                     : '';
 
                 const pad = padAttr || 'padding:0.5rem 1rem;';
-                return `<div style="${pad} ${marAttr}">
+                return `<div style="${pad} ${marAttr} ${bgCss}">
                     ${infoBar}
                     <div class="rj-menu" data-hover="${hoverStyle}" data-mobile="${esc(mobileBehavior)}" data-align="${align}" style="${vars}">
                         <nav class="rj-menu-d"><ul>${renderItems(items)}</ul></nav>
