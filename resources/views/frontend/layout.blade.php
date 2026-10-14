@@ -27,6 +27,8 @@
         @yield('content')
     </div>
 
+    @include('frontend.partials.popup')
+
     @stack('scripts')
 </body>
 </html>
