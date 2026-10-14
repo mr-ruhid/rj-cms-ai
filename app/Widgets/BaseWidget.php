@@ -274,6 +274,14 @@ abstract class BaseWidget implements WidgetContract
                 'tab' => 'advanced',
             ],
             [
+                'name' => '_css_id',
+                'type' => 'text',
+                'label' => __('CSS ID'),
+                'default' => '',
+                'tab' => 'advanced',
+                'placeholder' => 'my-element-id',
+            ],
+            [
                 'name' => '_css_class',
                 'type' => 'text',
                 'label' => __('Custom CSS Class'),
