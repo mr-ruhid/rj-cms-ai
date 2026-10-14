@@ -170,6 +170,49 @@ class BuilderController extends Controller
         return back()->with('success', __('Conditions saved.'));
     }
 
+        public function updatePopupSettings(Request $request, Template $template)
+    {
+        if ($template->type !== 'popup') {
+            if ($request->expectsJson()) {
+                return response()->json(['error' => 'Not a popup template.'], 422);
+            }
+            return back();
+        }
+
+        $validated = $request->validate([
+            'settings' => 'nullable|array',
+            'settings.trigger' => 'nullable|in:page_load,scroll_percent,after_inactivity,click_element,exit_intent',
+            'settings.trigger_value' => 'nullable|string',
+            'settings.delay' => 'nullable|integer|min:0|max:60',
+            'settings.frequency' => 'nullable|in:always,once_per_session,once_per_day,once_per_week,once',
+            'settings.position' => 'nullable|in:center,top,bottom,top-left,top-right,bottom-left,bottom-right',
+            'settings.width' => 'nullable|in:sm,md,lg,xl,full',
+            'settings.overlay' => 'nullable|boolean',
+            'settings.overlay_color' => 'nullable|string',
+            'settings.overlay_opacity' => 'nullable|integer|min:0|max:100',
+            'settings.close_on_overlay' => 'nullable|boolean',
+            'settings.close_button' => 'nullable|boolean',
+            'settings.animation' => 'nullable|in:none,fadeIn,fadeInUp,fadeInDown,zoomIn,slideInLeft,slideInRight',
+            'settings.animation_duration' => 'nullable|in:sm,md,lg,xl',
+            'settings.auto_close' => 'nullable|integer|min:0|max:120',
+        ]);
+
+        $settings = $validated['settings'] ?? [];
+
+        $template->update([
+            'settings' => $settings,
+        ]);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'settings' => $template->popupSettings(),
+            ]);
+        }
+
+        return back()->with('success', __('Popup settings saved.'));
+    }
+
     protected function uniqueSlug(string $slug): string
     {
         $base = $slug ?: 'template';
