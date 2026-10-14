@@ -464,3 +464,62 @@ if (!function_exists('rj_menu_tree')) {
         return $result;
     }
 }
+if (!function_exists('rj_global_colors')) {
+    function rj_global_colors(): array
+    {
+        $raw = rj_get_option('global_colors', '[]');
+
+        if (is_string($raw)) {
+            $decoded = json_decode($raw, true);
+            return is_array($decoded) ? $decoded : [];
+        }
+
+        return is_array($raw) ? $raw : [];
+    }
+}
+
+if (!function_exists('rj_global_fonts')) {
+    function rj_global_fonts(): array
+    {
+        $raw = rj_get_option('global_fonts', '[]');
+
+        if (is_string($raw)) {
+            $decoded = json_decode($raw, true);
+            return is_array($decoded) ? $decoded : [];
+        }
+
+        return is_array($raw) ? $raw : [];
+    }
+}
+
+if (!function_exists('rj_global_spacing')) {
+    function rj_global_spacing(): array
+    {
+        $raw = rj_get_option('global_spacing', '[]');
+
+        if (is_string($raw)) {
+            $decoded = json_decode($raw, true);
+            return is_array($decoded) ? $decoded : [];
+        }
+
+        return is_array($raw) ? $raw : [];
+    }
+}
+
+if (!function_exists('rj_global_color_css')) {
+    function rj_global_color_css(): string
+    {
+        $vars = [];
+
+        foreach (rj_global_colors() as $c) {
+            if (empty($c['id']) || empty($c['color'])) {
+                continue;
+            }
+            $id = preg_replace('/[^a-z0-9_-]/i', '', $c['id']);
+            $color = preg_replace('/[^#\w(),.%\s-]/', '', $c['color']);
+            $vars[] = '--rj-gc-' . $id . ':' . $color . ';';
+        }
+
+        return $vars ? ':root{' . implode('', $vars) . '}' : '';
+    }
+}
