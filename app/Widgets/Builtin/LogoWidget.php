@@ -138,6 +138,118 @@ class LogoWidget extends BaseWidget
 
     public function render(array $settings): string
     {
-        return '';
+        $url = $settings['url'] ?? '';
+
+        if ($url === '') {
+            return '';
+        }
+
+        $widthMap = [
+            'auto' => 'auto',
+            'xs' => '80px',
+            'sm' => '120px',
+            'md' => '160px',
+            'lg' => '200px',
+            'xl' => '280px',
+        ];
+
+        $heightMap = [
+            'auto' => 'auto',
+            'xs' => '32px',
+            'sm' => '48px',
+            'md' => '64px',
+            'lg' => '80px',
+            'xl' => '120px',
+        ];
+
+        $jcMap = [
+            'left' => 'flex-start',
+            'center' => 'center',
+            'right' => 'flex-end',
+        ];
+
+        $widthKey = $settings['width'] ?? 'auto';
+        $width = $widthMap[$widthKey] ?? 'auto';
+
+        if ($widthKey === 'custom' && !empty($settings['custom_width'])) {
+            $width = $this->escape($settings['custom_width']);
+        }
+
+        $height = $heightMap[$settings['height'] ?? 'auto'] ?? 'auto';
+        $align = $jcMap[$settings['align'] ?? 'left'] ?? 'flex-start';
+
+        $imgStyles = [
+            'display:block',
+            'max-width:100%',
+            'width:' . $width,
+            'height:' . $height,
+        ];
+
+        if ($height !== 'auto') {
+            $imgStyles[] = 'object-fit:contain';
+        }
+
+        $imgAttrs = [
+            'src' => $url,
+            'alt' => $settings['alt'] ?? '',
+            'style' => implode(';', $imgStyles),
+        ];
+
+        $imgHtml = '<img' . $this->attr($imgAttrs) . '>';
+
+        $link = $settings['link'] ?? '';
+
+        if ($link !== '') {
+            $linkAttrs = [
+                'href' => $link,
+                'style' => 'display:inline-block;text-decoration:none;',
+            ];
+
+            $target = $settings['target'] ?? '_self';
+            if ($target === '_blank') {
+                $linkAttrs['target'] = '_blank';
+                $linkAttrs['rel'] = 'noopener';
+            }
+
+            $imgHtml = '<a' . $this->attr($linkAttrs) . '>' . $imgHtml . '</a>';
+        }
+
+        $wrapperStyles = [
+            'display:flex',
+            'justify-content:' . $align,
+        ];
+
+        $padding = $this->dimensionCss($settings, 'padding_dim');
+        if ($padding !== '') {
+            $wrapperStyles[] = 'padding:' . $padding;
+        }
+
+        $margin = $this->dimensionCss($settings, 'margin_dim');
+        if ($margin !== '') {
+            $wrapperStyles[] = 'margin:' . $margin;
+        }
+
+        $bg = $this->backgroundCss($settings);
+        if ($bg !== '') {
+            $wrapperStyles[] = rtrim($bg, ';');
+        }
+
+        $wrapperAttrs = [
+            'style' => implode(';', $wrapperStyles),
+        ];
+
+        $id = $this->cssId($settings);
+        if ($id !== '') {
+            $wrapperAttrs['id'] = $id;
+        }
+
+        $class = $this->cssClass($settings);
+        if ($class !== '') {
+            $wrapperAttrs['class'] = $class;
+        }
+
+        $html = '<div' . $this->attr($wrapperAttrs) . '>' . $imgHtml . '</div>';
+
+        return $this->applyAnimation($html, $settings);
     }
 }
