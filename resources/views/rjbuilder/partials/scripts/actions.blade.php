@@ -217,13 +217,18 @@ function builderActions() {
             if (!container) return;
 
             let block;
+
             if (d.type === 'new') {
                 this.touchRecent(d.widgetId);
                 block = this.createBlock(d.widgetId);
             } else {
                 const found = this.findBlockAndParent(d.id);
                 if (!found) return;
-                if (d.id === containerId || this.findBlock(containerId, found.block.children || [])) return;
+
+                const source = found.block;
+                if (d.id === containerId) return;
+                if (source.children && this.findBlock(containerId, source.children)) return;
+
                 block = this.detach(found);
             }
 
@@ -231,9 +236,22 @@ function builderActions() {
             while (container.children.length <= slotIndex) container.children.push(this.emptySlot());
 
             const slot = container.children[slotIndex];
-            if (slot.type === 'container') {
+
+            const isEmptyContainer = slot && slot.type === 'container' &&
+                (!slot.children || slot.children.length === 0) &&
+                (!slot.settings || (!slot.settings.background && !slot.settings.bg_type && (!slot.settings.padding_dim || slot.settings.padding_dim.top === '')));
+
+            if (isEmptyContainer) {
                 if (!slot.children) slot.children = [];
                 slot.children.push(block);
+            } else if (slot && slot.type === 'container') {
+                const cols = parseInt(slot.settings?.columns) || 1;
+                if (cols > 1 && slot.children && slot.children.length < cols) {
+                    slot.children.push(block);
+                } else {
+                    if (!slot.children) slot.children = [];
+                    slot.children.push(block);
+                }
             } else {
                 const wrap = this.emptySlot();
                 wrap.children = [slot, block];
@@ -244,6 +262,7 @@ function builderActions() {
             this.markDirty();
             this.pushHistory((d.type === 'new' ? this.t('Added') : this.t('Moved')) + ' ' + this.blockLabel(block.type));
             if (d.type === 'new') this.playAnimation(block.id);
+            this.scrollToBlock(block.id);
         },
 
         endDrag() {
