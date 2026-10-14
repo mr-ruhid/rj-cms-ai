@@ -125,6 +125,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::view('/tools/diagnostics', 'admin.coming-soon')->name('tools.diagnostics');
 
     Route::prefix('rjbuilder')->name('rjbuilder.')->group(function () {
+        Route::post('rjbuilder/{template}/conditions', [BuilderController::class, 'updateConditions'])
+        ->name('rjbuilder.conditions');
         Route::get('/{template}/build', [BuilderController::class, 'build'])->name('build');
         Route::get('/', [BuilderController::class, 'index'])->name('index');
         Route::get('/create', [BuilderController::class, 'create'])->name('create');
