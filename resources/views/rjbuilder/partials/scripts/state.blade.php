@@ -60,6 +60,19 @@ function builderState() {
         globalSpacing: L.globalSpacing || [],
         globalWidgets: L.globalWidgets || [],
 
+        ai: {
+            enabled: (L.ai && L.ai.enabled) || false,
+            model: (L.ai && L.ai.model) || '',
+            urls: (L.ai && L.ai.urls) || {},
+            busy: false,
+            panelOpen: false,
+            tab: 'generate',
+            generate: { prompt: '', context: '', tone: 'professional', length: 'medium', result: '' },
+            improve: { mode: 'improve', result: '' },
+            translate: { targetLocale: '', result: '' },
+            suggest: { description: '', result: [] },
+        },
+
         devices: [
             { id: 'desktop', label: 'Desktop', svg: rjSVG('<path d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>') },
             { id: 'tablet',  label: 'Tablet',  svg: rjSVG('<rect x="5" y="2" width="14" height="20" rx="2"/><path d="M11 18h2"/>') },
@@ -238,6 +251,194 @@ function builderState() {
             });
 
             return Object.values(groups);
+        },
+
+                openAiPanel(tab) {
+            this.ai.panelOpen = true;
+            if (tab) this.ai.tab = tab;
+        },
+
+        closeAiPanel() {
+            this.ai.panelOpen = false;
+        },
+
+        async aiGenerateText() {
+            if (!this.ai.enabled || this.ai.busy) return;
+            if (!this.ai.generate.prompt.trim()) return;
+
+            this.ai.busy = true;
+            this.ai.generate.result = '';
+
+            try {
+                const res = await fetch(this.ai.urls.generateText, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': L.csrf,
+                    },
+                    body: JSON.stringify({
+                        prompt: this.ai.generate.prompt,
+                        context: this.ai.generate.context,
+                        tone: this.ai.generate.tone,
+                        length: this.ai.generate.length,
+                        language: this.activeLocale || this.baseLocale,
+                    }),
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    this.ai.generate.result = data.text || '';
+                } else {
+                    this.showToast(data.error || this.t('AI request failed.'), 'error');
+                }
+            } catch (e) {
+                this.showToast(this.t('Network error'), 'error');
+            } finally {
+                this.ai.busy = false;
+            }
+        },
+
+        async aiImproveText(mode) {
+            if (!this.ai.enabled || this.ai.busy) return;
+            if (!this.currentBlock) return;
+
+            const field = this.currentBlock.type === 'heading' || this.currentBlock.type === 'text' ? 'text' : null;
+            if (!field) return;
+
+            const current = String(this.getBlockField(this.currentBlock, field) || '').trim();
+            if (!current || this.isDynamicValue(current)) {
+                this.showToast(this.t('No text to improve.'), 'error');
+                return;
+            }
+
+            this.ai.busy = true;
+
+            try {
+                const res = await fetch(this.ai.urls.improveText, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': L.csrf,
+                    },
+                    body: JSON.stringify({
+                        text: current,
+                        mode,
+                        language: this.activeLocale || this.baseLocale,
+                    }),
+                });
+
+                const data = await res.json();
+
+                if (data.success && data.text) {
+                    this.setBlockField(this.currentBlock, field, data.text);
+                    this.markDirty();
+                    this.commitSoon(this.t('AI improved'));
+                    this.showToast(this.t('AI improved'));
+                } else {
+                    this.showToast(data.error || this.t('AI request failed.'), 'error');
+                }
+            } catch (e) {
+                this.showToast(this.t('Network error'), 'error');
+            } finally {
+                this.ai.busy = false;
+            }
+        },
+
+        async aiTranslateText() {
+            if (!this.ai.enabled || this.ai.busy) return;
+            if (!this.currentBlock || !this.ai.translate.targetLocale) return;
+
+            const field = this.currentBlock.type === 'heading' || this.currentBlock.type === 'text' ? 'text' : null;
+            if (!field) return;
+
+            const current = String(this.getBlockField(this.currentBlock, field) || '').trim();
+            if (!current || this.isDynamicValue(current)) {
+                this.showToast(this.t('No text to translate.'), 'error');
+                return;
+            }
+
+            this.ai.busy = true;
+
+            try {
+                const res = await fetch(this.ai.urls.translateText, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': L.csrf,
+                    },
+                    body: JSON.stringify({
+                        text: current,
+                        target_locale: this.ai.translate.targetLocale,
+                    }),
+                });
+
+                const data = await res.json();
+
+                if (data.success && data.text) {
+                    this.setBlockField(this.currentBlock, field, data.text);
+                    this.markDirty();
+                    this.commitSoon(this.t('AI translated'));
+                    this.showToast(this.t('AI translated'));
+                } else {
+                    this.showToast(data.error || this.t('AI request failed.'), 'error');
+                }
+            } catch (e) {
+                this.showToast(this.t('Network error'), 'error');
+            } finally {
+                this.ai.busy = false;
+            }
+        },
+
+        async aiSuggestSection() {
+            if (!this.ai.enabled || this.ai.busy) return;
+            if (!this.ai.suggest.description.trim()) return;
+
+            this.ai.busy = true;
+            this.ai.suggest.result = [];
+
+            try {
+                const res = await fetch(this.ai.urls.suggestSection, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': L.csrf,
+                    },
+                    body: JSON.stringify({
+                        description: this.ai.suggest.description,
+                        language: this.activeLocale || this.baseLocale,
+                    }),
+                });
+
+                const data = await res.json();
+
+                if (data.success && Array.isArray(data.blocks)) {
+                    this.ai.suggest.result = data.blocks;
+                } else {
+                    this.showToast(data.error || this.t('AI request failed.'), 'error');
+                }
+            } catch (e) {
+                this.showToast(this.t('Network error'), 'error');
+            } finally {
+                this.ai.busy = false;
+            }
+        },
+
+        aiInsertSection(blocks) {
+            if (!Array.isArray(blocks) || !blocks.length) return;
+
+            blocks.forEach(b => this.blocks.push(b));
+
+            this.selectedBlock = blocks[0].id || null;
+            this.markDirty();
+            this.pushHistory(this.t('AI section inserted'));
+            this.showToast(this.t('AI section inserted'));
+            this.closeAiPanel();
+            this.scrollToBlock(this.selectedBlock);
         },
 
                 get globalWidgetList() {
