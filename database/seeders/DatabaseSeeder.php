@@ -12,6 +12,7 @@ class DatabaseSeeder extends Seeder
             AdminUserSeeder::class,
             OptionSeeder::class,
             GlobalStylesSeeder::class,
+            BreakpointSettingsSeeder::class,
         ]);
     }
 }
