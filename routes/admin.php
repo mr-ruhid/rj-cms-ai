@@ -66,12 +66,6 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/media-cleanup/delete', [MediaCleanupController::class, 'delete'])->name('media.cleanup.delete');
     Route::post('/media-cleanup/prune-db', [MediaCleanupController::class, 'pruneDatabase'])->name('media.cleanup.prune-db');
 
-    Route::view('/comments', 'admin.coming-soon')->name('comments.index');
-    Route::view('/comments/pending', 'admin.coming-soon')->name('comments.pending');
-    Route::view('/comments/approved', 'admin.coming-soon')->name('comments.approved');
-    Route::view('/comments/spam', 'admin.coming-soon')->name('comments.spam');
-    Route::view('/comments/trash', 'admin.coming-soon')->name('comments.trash');
-
     Route::redirect('/appearance/menus', '/admin/menus')->name('appearance.menus');
 
     Route::prefix('menus')->name('menus.')->group(function () {
@@ -89,7 +83,6 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::get('/items/options', [MenuItemController::class, 'options'])->name('items.options');
     });
 
-
     Route::view('/appearance', 'admin.coming-soon')->name('appearance.index');
     Route::view('/appearance/themes', 'admin.coming-soon')->name('appearance.themes');
     Route::view('/appearance/customize', 'admin.coming-soon')->name('appearance.customize');
@@ -97,10 +90,6 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::view('/appearance/editor', 'admin.coming-soon')->name('appearance.editor');
     Route::view('/appearance/colors', 'admin.coming-soon')->name('appearance.colors');
     Route::view('/appearance/options', 'admin.coming-soon')->name('appearance.options');
-
-    Route::view('/plugins', 'admin.coming-soon')->name('plugins.index');
-    Route::view('/plugins/create', 'admin.coming-soon')->name('plugins.create');
-    Route::view('/plugins/editor', 'admin.coming-soon')->name('plugins.editor');
 
     Route::view('/ai', 'admin.coming-soon')->name('ai.index');
     Route::view('/ai/models', 'admin.coming-soon')->name('ai.models');
@@ -143,7 +132,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
             Route::post('/translate-text', [\App\Http\Controllers\Admin\AiBuilderController::class, 'translateText'])->name('translate-text');
             Route::post('/suggest-section', [\App\Http\Controllers\Admin\AiBuilderController::class, 'suggestSection'])->name('suggest-section');
         });
-        
+
         Route::post('/{template}/export', [\App\Http\Controllers\Admin\TemplateLibraryController::class, 'export'])->name('export');
         Route::post('/{template}/popup-settings', [BuilderController::class, 'updatePopupSettings'])->name('popup-settings');
     });
@@ -182,7 +171,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::post('/{globalWidget}/duplicate', [\App\Http\Controllers\Admin\GlobalWidgetController::class, 'duplicate'])->name('duplicate');
     });
 
-        Route::prefix('custom-fonts')->name('custom-fonts.')->group(function () {
+    Route::prefix('custom-fonts')->name('custom-fonts.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\CustomFontController::class, 'index'])->name('index');
         Route::post('/', [\App\Http\Controllers\Admin\CustomFontController::class, 'store'])->name('store');
         Route::put('/{customFont}', [\App\Http\Controllers\Admin\CustomFontController::class, 'update'])->name('update');
@@ -197,88 +186,6 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::put('/{customIcon}', [\App\Http\Controllers\Admin\CustomIconController::class, 'update'])->name('update');
         Route::delete('/{customIcon}', [\App\Http\Controllers\Admin\CustomIconController::class, 'destroy'])->name('destroy');
     });
-    
-    Route::get('/updates', [UpdatesController::class, 'index'])->name('updates.index');
-    Route::post('/updates/check', [UpdatesController::class, 'check'])->name('updates.check');
-    Route::put('/updates', [UpdatesController::class, 'update'])->name('updates.update');
-    Route::post('/updates/run', [UpdatesController::class, 'run'])->name('updates.run');
-
-    Route::prefix('settings')->name('settings.')->group(function () {
-        Route::get('/', [SettingsController::class, 'index'])->name('index');
-        Route::get('/general', [SettingsController::class, 'general'])->name('general');
-        Route::put('/general', [SettingsController::class, 'updateGeneral'])->name('general.update');
-
-        Route::get('/writing', [SettingsController::class, 'writing'])->name('writing');
-        Route::put('/writing', [SettingsController::class, 'updateWriting'])->name('writing.update');
-
-        Route::get('/reading', [ReadingSettingsController::class, 'index'])->name('reading');
-        Route::put('/reading', [ReadingSettingsController::class, 'update'])->name('reading.update');
-
-        Route::get('/discussion', [DiscussionSettingsController::class, 'index'])->name('discussion');
-        Route::put('/discussion', [DiscussionSettingsController::class, 'update'])->name('discussion.update');
-
-        Route::get('/media', [MediaSettingsController::class, 'index'])->name('media');
-        Route::put('/media', [MediaSettingsController::class, 'update'])->name('media.update');
-
-        Route::get('/permalinks', [PermalinksSettingsController::class, 'index'])->name('permalinks');
-        Route::put('/permalinks', [PermalinksSettingsController::class, 'update'])->name('permalinks.update');
-
-        Route::get('/language', [SettingsController::class, 'language'])->name('language');
-        Route::put('/language', [SettingsController::class, 'updateLanguage'])->name('language.update');
-        Route::post('/language/{locale}/meta', [SettingsController::class, 'updateLanguageMeta'])->name('language.meta');
-        Route::post('/language/add', [SettingsController::class, 'addLanguage'])->name('language.add');
-        Route::delete('/language/{locale}', [SettingsController::class, 'removeLanguage'])->name('language.remove');
-        Route::get('/language/{locale}/translations', [SettingsController::class, 'translations'])->name('language.translations');
-        Route::put('/language/{locale}/translations', [SettingsController::class, 'updateTranslations'])->name('language.translations.update');
-        Route::post('/language/{locale}/ai-translate', [SettingsController::class, 'aiTranslate'])->name('language.ai-translate');
-
-        Route::get('/colors', [ColorsSettingsController::class, 'index'])->name('colors');
-        Route::put('/colors', [ColorsSettingsController::class, 'update'])->name('colors.update');
-
-        Route::get('/seo', [SeoSettingsController::class, 'index'])->name('seo');
-        Route::put('/seo', [SeoSettingsController::class, 'update'])->name('seo.update');
-        Route::get('/email', [SettingsController::class, 'email'])->name('email');
-        Route::put('/email', [SettingsController::class, 'updateEmail'])->name('email.update');
-        Route::post('/email/test', [SettingsController::class, 'testEmail'])->name('email.test');
-        Route::view('/payments', 'admin.coming-soon')->name('payments');
-        Route::get('/security', [SettingsController::class, 'security'])->name('security');
-        Route::put('/security', [SettingsController::class, 'updateSecurity'])->name('security.update');
-        Route::get('/backup', [BackupSettingsController::class, 'index'])->name('backup');
-        Route::put('/backup', [BackupSettingsController::class, 'update'])->name('backup.update');
-        Route::post('/backup/create', [BackupSettingsController::class, 'create'])->name('backup.create');
-        Route::get('/backup/download/{file}', [BackupSettingsController::class, 'download'])->name('backup.download');
-        Route::delete('/backup/{file}', [BackupSettingsController::class, 'delete'])->name('backup.delete');
-        Route::get('/cache', [CacheSettingsController::class, 'index'])->name('cache');
-        Route::put('/cache', [CacheSettingsController::class, 'update'])->name('cache.update');
-        Route::get('/social', [SocialSettingsController::class, 'index'])->name('social');
-        Route::put('/social', [SocialSettingsController::class, 'update'])->name('social.update');
-        Route::view('/notifications', 'admin.coming-soon')->name('notifications');
-        Route::view('/api', 'admin.coming-soon')->name('api');
-
-        Route::get('/ai', [SettingsController::class, 'ai'])->name('ai');
-        Route::put('/ai', [SettingsController::class, 'updateAi'])->name('ai.update');
-        Route::post('/ai/test', [SettingsController::class, 'testAi'])->name('ai.test');
-        Route::get('/ai/models', [SettingsController::class, 'fetchAiModels'])->name('ai.models');
-
-        Route::get('/advanced', [AdvancedSettingsController::class, 'index'])->name('advanced');
-        Route::put('/advanced', [AdvancedSettingsController::class, 'update'])->name('advanced.update');
-        Route::post('/advanced/clear-logs', [AdvancedSettingsController::class, 'clearLogs'])->name('advanced.clear-logs');
-        Route::view('/roles', 'admin.coming-soon')->name('roles');
-    });
-
-    Route::prefix('about')->name('about.')->group(function () {
-        Route::view('/', 'admin.coming-soon')->name('index');
-        Route::view('/api', 'admin.coming-soon')->name('api');
-        Route::view('/theme', 'admin.coming-soon')->name('theme');
-        Route::view('/admin', 'admin.coming-soon')->name('admin');
-        Route::view('/plugin', 'admin.coming-soon')->name('plugin');
-        Route::view('/developer', 'admin.coming-soon')->name('developer');
-        Route::view('/hooks', 'admin.coming-soon')->name('hooks');
-        Route::view('/other', 'admin.coming-soon')->name('other');
-        Route::view('/credits', 'admin.coming-soon')->name('credits');
-        Route::view('/license', 'admin.coming-soon')->name('license');
-    });
-});
 
     Route::prefix('comments')->name('comments.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\CommentController::class, 'index'])->name('index');
@@ -294,7 +201,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::post('/{comment}/restore', [\App\Http\Controllers\Admin\CommentController::class, 'restore'])->name('restore');
     });
 
-        Route::prefix('post-types')->name('post-types.')->group(function () {
+    Route::prefix('post-types')->name('post-types.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\PostTypeController::class, 'index'])->name('index');
         Route::get('/create', [\App\Http\Controllers\Admin\PostTypeController::class, 'create'])->name('create');
         Route::post('/', [\App\Http\Controllers\Admin\PostTypeController::class, 'store'])->name('store');
@@ -430,3 +337,85 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::get('/{widget}/preview', [\App\Http\Controllers\Admin\UploadedWidgetController::class, 'preview'])->name('preview');
         Route::delete('/{widget}', [\App\Http\Controllers\Admin\UploadedWidgetController::class, 'destroy'])->name('destroy');
     });
+
+    Route::get('/updates', [UpdatesController::class, 'index'])->name('updates.index');
+    Route::post('/updates/check', [UpdatesController::class, 'check'])->name('updates.check');
+    Route::put('/updates', [UpdatesController::class, 'update'])->name('updates.update');
+    Route::post('/updates/run', [UpdatesController::class, 'run'])->name('updates.run');
+
+    Route::prefix('settings')->name('settings.')->group(function () {
+        Route::get('/', [SettingsController::class, 'index'])->name('index');
+        Route::get('/general', [SettingsController::class, 'general'])->name('general');
+        Route::put('/general', [SettingsController::class, 'updateGeneral'])->name('general.update');
+
+        Route::get('/writing', [SettingsController::class, 'writing'])->name('writing');
+        Route::put('/writing', [SettingsController::class, 'updateWriting'])->name('writing.update');
+
+        Route::get('/reading', [ReadingSettingsController::class, 'index'])->name('reading');
+        Route::put('/reading', [ReadingSettingsController::class, 'update'])->name('reading.update');
+
+        Route::get('/discussion', [DiscussionSettingsController::class, 'index'])->name('discussion');
+        Route::put('/discussion', [DiscussionSettingsController::class, 'update'])->name('discussion.update');
+
+        Route::get('/media', [MediaSettingsController::class, 'index'])->name('media');
+        Route::put('/media', [MediaSettingsController::class, 'update'])->name('media.update');
+
+        Route::get('/permalinks', [PermalinksSettingsController::class, 'index'])->name('permalinks');
+        Route::put('/permalinks', [PermalinksSettingsController::class, 'update'])->name('permalinks.update');
+
+        Route::get('/language', [SettingsController::class, 'language'])->name('language');
+        Route::put('/language', [SettingsController::class, 'updateLanguage'])->name('language.update');
+        Route::post('/language/{locale}/meta', [SettingsController::class, 'updateLanguageMeta'])->name('language.meta');
+        Route::post('/language/add', [SettingsController::class, 'addLanguage'])->name('language.add');
+        Route::delete('/language/{locale}', [SettingsController::class, 'removeLanguage'])->name('language.remove');
+        Route::get('/language/{locale}/translations', [SettingsController::class, 'translations'])->name('language.translations');
+        Route::put('/language/{locale}/translations', [SettingsController::class, 'updateTranslations'])->name('language.translations.update');
+        Route::post('/language/{locale}/ai-translate', [SettingsController::class, 'aiTranslate'])->name('language.ai-translate');
+
+        Route::get('/colors', [ColorsSettingsController::class, 'index'])->name('colors');
+        Route::put('/colors', [ColorsSettingsController::class, 'update'])->name('colors.update');
+
+        Route::get('/seo', [SeoSettingsController::class, 'index'])->name('seo');
+        Route::put('/seo', [SeoSettingsController::class, 'update'])->name('seo.update');
+        Route::get('/email', [SettingsController::class, 'email'])->name('email');
+        Route::put('/email', [SettingsController::class, 'updateEmail'])->name('email.update');
+        Route::post('/email/test', [SettingsController::class, 'testEmail'])->name('email.test');
+        Route::view('/payments', 'admin.coming-soon')->name('payments');
+        Route::get('/security', [SettingsController::class, 'security'])->name('security');
+        Route::put('/security', [SettingsController::class, 'updateSecurity'])->name('security.update');
+        Route::get('/backup', [BackupSettingsController::class, 'index'])->name('backup');
+        Route::put('/backup', [BackupSettingsController::class, 'update'])->name('backup.update');
+        Route::post('/backup/create', [BackupSettingsController::class, 'create'])->name('backup.create');
+        Route::get('/backup/download/{file}', [BackupSettingsController::class, 'download'])->name('backup.download');
+        Route::delete('/backup/{file}', [BackupSettingsController::class, 'delete'])->name('backup.delete');
+        Route::get('/cache', [CacheSettingsController::class, 'index'])->name('cache');
+        Route::put('/cache', [CacheSettingsController::class, 'update'])->name('cache.update');
+        Route::get('/social', [SocialSettingsController::class, 'index'])->name('social');
+        Route::put('/social', [SocialSettingsController::class, 'update'])->name('social.update');
+        Route::view('/notifications', 'admin.coming-soon')->name('notifications');
+        Route::view('/api', 'admin.coming-soon')->name('api');
+
+        Route::get('/ai', [SettingsController::class, 'ai'])->name('ai');
+        Route::put('/ai', [SettingsController::class, 'updateAi'])->name('ai.update');
+        Route::post('/ai/test', [SettingsController::class, 'testAi'])->name('ai.test');
+        Route::get('/ai/models', [SettingsController::class, 'fetchAiModels'])->name('ai.models');
+
+        Route::get('/advanced', [AdvancedSettingsController::class, 'index'])->name('advanced');
+        Route::put('/advanced', [AdvancedSettingsController::class, 'update'])->name('advanced.update');
+        Route::post('/advanced/clear-logs', [AdvancedSettingsController::class, 'clearLogs'])->name('advanced.clear-logs');
+        Route::view('/roles', 'admin.coming-soon')->name('roles');
+    });
+
+    Route::prefix('about')->name('about.')->group(function () {
+        Route::view('/', 'admin.coming-soon')->name('index');
+        Route::view('/api', 'admin.coming-soon')->name('api');
+        Route::view('/theme', 'admin.coming-soon')->name('theme');
+        Route::view('/admin', 'admin.coming-soon')->name('admin');
+        Route::view('/plugin', 'admin.coming-soon')->name('plugin');
+        Route::view('/developer', 'admin.coming-soon')->name('developer');
+        Route::view('/hooks', 'admin.coming-soon')->name('hooks');
+        Route::view('/other', 'admin.coming-soon')->name('other');
+        Route::view('/credits', 'admin.coming-soon')->name('credits');
+        Route::view('/license', 'admin.coming-soon')->name('license');
+    });
+});
