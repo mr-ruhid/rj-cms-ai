@@ -544,6 +544,7 @@
     </div>
 
     @include('admin.partials.media-picker')
+    @include('rjbuilder.partials.tag-picker')
 </div>
 
 @include('rjbuilder.partials.scripts.data')
