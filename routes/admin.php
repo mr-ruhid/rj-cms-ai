@@ -279,3 +279,17 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::view('/license', 'admin.coming-soon')->name('license');
     });
 });
+
+    Route::prefix('comments')->name('comments.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\CommentController::class, 'index'])->name('index');
+        Route::post('/', [\App\Http\Controllers\Admin\CommentController::class, 'store'])->name('store');
+        Route::post('/bulk', [\App\Http\Controllers\Admin\CommentController::class, 'bulk'])->name('bulk');
+        Route::get('/{comment}', [\App\Http\Controllers\Admin\CommentController::class, 'show'])->name('show');
+        Route::put('/{comment}', [\App\Http\Controllers\Admin\CommentController::class, 'update'])->name('update');
+        Route::delete('/{comment}', [\App\Http\Controllers\Admin\CommentController::class, 'destroy'])->name('destroy');
+        Route::post('/{comment}/approve', [\App\Http\Controllers\Admin\CommentController::class, 'approve'])->name('approve');
+        Route::post('/{comment}/unapprove', [\App\Http\Controllers\Admin\CommentController::class, 'unapprove'])->name('unapprove');
+        Route::post('/{comment}/spam', [\App\Http\Controllers\Admin\CommentController::class, 'spam'])->name('spam');
+        Route::post('/{comment}/trash', [\App\Http\Controllers\Admin\CommentController::class, 'trash'])->name('trash');
+        Route::post('/{comment}/restore', [\App\Http\Controllers\Admin\CommentController::class, 'restore'])->name('restore');
+    });
