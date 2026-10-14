@@ -13,6 +13,9 @@ window.RJ = {
     i18n: @json($i18n),
     menus: @json($menusData ?? []),
     menuItems: @json($menuItemsData ?: []),
+    globalColors: @json(rj_global_colors()),
+    globalFonts: @json(rj_global_fonts()),
+    globalSpacing: @json(rj_global_spacing()),
 };
 </script>
 
