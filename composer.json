@@ -29,6 +29,9 @@
     },
     "files": [
         "app/Helpers/rj.php"
+        "app/Helpers/rj-render.php"
+
+
     ]
 },
     "autoload-dev": {
