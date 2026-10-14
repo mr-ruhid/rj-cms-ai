@@ -55,6 +55,11 @@ class Template extends Model
         return $query->where('status', 'draft');
     }
 
+    public function scopeDefault($query)
+    {
+        return $query->where('is_default', true);
+    }
+
     public static function types(): array
     {
         return [
@@ -69,9 +74,5 @@ class Template extends Model
     public function typeLabel(): string
     {
         return static::types()[$this->type]['label'] ?? $this->type;
-    }
-        public function scopeDefault($query)
-    {
-        return $query->where('is_default', true);
     }
 }
