@@ -146,6 +146,14 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::put('/{form}', [\App\Http\Controllers\Admin\FormController::class, 'update'])->name('update');
         Route::delete('/{form}', [\App\Http\Controllers\Admin\FormController::class, 'destroy'])->name('destroy');
         Route::post('/{form}/duplicate', [\App\Http\Controllers\Admin\FormController::class, 'duplicate'])->name('duplicate');
+        Route::prefix('{form}/submissions')->name('submissions.')->group(function () {
+            Route::get('/', [\App\Http\Controllers\Admin\FormSubmissionController::class, 'index'])->name('index');
+            Route::get('/export', [\App\Http\Controllers\Admin\FormSubmissionController::class, 'export'])->name('export');
+            Route::post('/bulk', [\App\Http\Controllers\Admin\FormSubmissionController::class, 'bulk'])->name('bulk');
+            Route::get('/{submission}', [\App\Http\Controllers\Admin\FormSubmissionController::class, 'show'])->name('show');
+            Route::put('/{submission}', [\App\Http\Controllers\Admin\FormSubmissionController::class, 'update'])->name('update');
+            Route::delete('/{submission}', [\App\Http\Controllers\Admin\FormSubmissionController::class, 'destroy'])->name('destroy');
+        });
     });
     
     Route::get('/updates', [UpdatesController::class, 'index'])->name('updates.index');
