@@ -140,6 +140,36 @@ class BuilderController extends Controller
         return back()->with('success', __('Default :type set.', ['type' => strtolower($template->typeLabel())]));
     }
 
+        public function updateConditions(Request $request, Template $template)
+    {
+        $validated = $request->validate([
+            'conditions' => 'nullable|array',
+            'conditions.match' => 'nullable|in:all,any',
+            'conditions.rules' => 'nullable|array',
+            'conditions.rules.*.type' => 'required|string',
+            'conditions.rules.*.value' => 'nullable|string',
+        ]);
+
+        $conditions = $validated['conditions'] ?? [];
+
+        if (empty($conditions['rules'])) {
+            $conditions = null;
+        }
+
+        $template->update([
+            'conditions' => $conditions,
+        ]);
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'conditions' => $template->conditions,
+            ]);
+        }
+
+        return back()->with('success', __('Conditions saved.'));
+    }
+
     protected function uniqueSlug(string $slug): string
     {
         $base = $slug ?: 'template';
