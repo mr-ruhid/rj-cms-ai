@@ -521,4 +521,80 @@
     color: #f9a8d4;
     border-color: rgba(236,72,153,.5);
 }
+.rj-dyn-btn {
+    flex-shrink: 0;
+    width: 34px;
+    height: 34px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--line);
+    border-radius: 6px;
+    background: #15161a;
+    color: #8e919d;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background .12s, color .12s, border-color .12s;
+    font-family: inherit;
+    padding: 0;
+}
+
+.rj-dyn-btn:hover {
+    background: rgba(139,92,246,.15);
+    color: #c4b5fd;
+    border-color: rgba(139,92,246,.5);
+}
+
+.rj-dyn-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 8px 7px 10px;
+    background: rgba(139,92,246,.12);
+    border: 1px solid rgba(139,92,246,.4);
+    border-radius: 6px;
+    color: #c4b5fd;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+.rj-dyn-chip-icon {
+    font-size: 13px;
+    line-height: 1;
+}
+
+.rj-dyn-chip-label {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.rj-dyn-chip-btn {
+    width: 22px;
+    height: 22px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 4px;
+    background: transparent;
+    color: #c4b5fd;
+    cursor: pointer;
+    font-size: 11px;
+    padding: 0;
+    transition: background .12s, color .12s;
+    font-family: inherit;
+}
+
+.rj-dyn-chip-btn:hover {
+    background: rgba(255,255,255,.12);
+    color: #fff;
+}
+
+.rj-dyn-chip-x:hover {
+    background: rgba(239,68,68,.25);
+    color: #fca5a5;
+}
 </style>
