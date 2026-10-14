@@ -27,9 +27,11 @@
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
         },
-        "files": [
+    "files": [
             "app/Helpers/rj.php",
-            "app/Helpers/rj-render.php"
+            "app/Helpers/rj-render.php",
+            "app/Helpers/hooks.php",
+            "app/Helpers/shortcodes.php"
         ]
     },
     "autoload-dev": {
