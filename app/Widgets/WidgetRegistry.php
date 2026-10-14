@@ -9,6 +9,7 @@ use App\Widgets\Builtin\HeadingWidget;
 use App\Widgets\Builtin\ImageWidget;
 use App\Widgets\Builtin\LogoWidget;
 use App\Widgets\Builtin\MenuWidget;
+use App\Widgets\Builtin\PostsWidget;
 use App\Widgets\Builtin\TextWidget;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\File;
@@ -38,6 +39,7 @@ class WidgetRegistry
             new LogoWidget(),
             new MenuWidget(),
             new FormWidget(),
+            new PostsWidget(),
         ];
 
         $uploaded = static::discoverUploaded();
@@ -201,6 +203,7 @@ class WidgetRegistry
             LogoWidget::class,
             MenuWidget::class,
             FormWidget::class,
+            PostsWidget::class,
         ];
     }
 }
