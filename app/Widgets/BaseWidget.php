@@ -299,14 +299,14 @@ abstract class BaseWidget implements WidgetContract
 
     public function fullSchema(): array
     {
-        return array_merge($this->schema(), $this->advancedSchema());
+        return array_merge($this->schema(), $this->commonStyleSchema(), $this->advancedSchema());
     }
 
     public function fullDefaults(): array
     {
-        return array_merge($this->defaults(), $this->advancedDefaults());
+        return array_merge($this->defaults(), $this->commonStyleDefaults(), $this->advancedDefaults());
     }
-
+    
     public function applyAnimation(string $html, array $settings): string
     {
         $animation = $settings['_animation'] ?? 'none';
