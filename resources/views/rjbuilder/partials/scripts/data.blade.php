@@ -20,6 +20,7 @@ window.RJ = {
     tags: @json(\App\DynamicTags\TagRegistry::toArray()),
     tagCategories: @json(\App\DynamicTags\TagRegistry::categories()),
     globalWidgets: @json(rj_global_widgets_list()),
+    previewPosts: @json(rj_preview_posts()),
     ai: {
         enabled: @json((new \App\Services\AiBuilderService(app(\App\Services\OpenRouterService::class)))->enabled()),
         model: @json(rj_get_option('ai_default_model', 'openai/gpt-4o-mini')),
