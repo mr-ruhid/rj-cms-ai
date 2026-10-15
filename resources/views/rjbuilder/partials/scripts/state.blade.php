@@ -53,6 +53,8 @@ function builderState() {
 
         formOptions: (window.RJ_FORMS || []).map(f => ({ id: f.id, name: f.name })),
 
+        previewPosts: L.previewPosts || [],
+
         termsByTaxonomy: window.RJ_TERMS || {},
         termSearch: {},
         termsTaxonomy: {},
