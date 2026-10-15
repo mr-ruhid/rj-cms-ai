@@ -519,4 +519,62 @@ function builderRender() {
         },
     };
 }
+
+if (!function_exists('rj_preview_posts')) {
+    function rj_preview_posts(): array
+    {
+        try {
+            if (!class_exists(\App\Models\Post::class)) {
+                return [];
+            }
+
+            $posts = \App\Models\Post::query()
+                ->with(['author', 'categories', 'tags'])
+                ->where('type', 'post')
+                ->published()
+                ->orderByDesc('published_at')
+                ->limit(30)
+                ->get();
+
+            return $posts->map(function ($post) {
+                $categories = [];
+
+                foreach ($post->categories->take(3) as $cat) {
+                    $categories[] = [
+                        'id' => $cat->id,
+                        'name' => $cat->name,
+                    ];
+                }
+
+                $tags = [];
+
+                foreach ($post->tags->take(5) as $tag) {
+                    $tags[] = [
+                        'id' => $tag->id,
+                        'name' => $tag->name,
+                    ];
+                }
+
+                return [
+                    'id' => $post->id,
+                    'title' => (string) $post->title,
+                    'slug' => (string) $post->slug,
+                    'url' => url('/blog/' . $post->slug),
+                    'excerpt' => \Illuminate\Support\Str::limit(strip_tags((string) $post->excerpt), 200),
+                    'image' => $post->featured_image ?? '',
+                    'published_at' => $post->published_at ? $post->published_at->format('M j, Y') : '',
+                    'published_at_ts' => $post->published_at ? $post->published_at->timestamp : 0,
+                    'author' => $post->author ? $post->author->name : '',
+                    'categories' => $categories,
+                    'tags' => $tags,
+                    'view_count' => (int) ($post->view_count ?? 0),
+                    'type' => (string) $post->type,
+                    'is_sticky' => (bool) $post->is_sticky,
+                ];
+            })->toArray();
+        } catch (\Throwable $e) {
+            return [];
+        }
+    }
+}
 </script>
