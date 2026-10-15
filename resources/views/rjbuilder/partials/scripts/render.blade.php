@@ -237,11 +237,12 @@ function builderRender() {
 
             for (let i = 0; i < slotCount; i++) {
                 const child = children[i];
-                const flexGrow = (widths && widths[i]) ? `--sw:${widths[i]};` : '';
-                const slotStyle = `min-width:0;${flexGrow}`;
+                const hasWidth = !!(widths && widths[i] > 0);
+                const growValue = hasWidth ? widths[i] : 1;
+                const flexInline = `flex:${growValue} 1 0;`;
 
                 if (this.preview) {
-                    slotsHtml += `<div class="rj-slot${child ? this.hideClasses(child.settings || {}) : ''}" style="${slotStyle}">${child ? this.renderBlockHtml(child, bid, i) : ''}</div>`;
+                    slotsHtml += `<div class="rj-slot${child ? this.hideClasses(child.settings || {}) : ''}" style="min-width:0;${flexInline}">${child ? this.renderBlockHtml(child, bid, i) : ''}</div>`;
                     continue;
                 }
 
@@ -253,7 +254,7 @@ function builderRender() {
                        </div>`;
 
                 slotsHtml += `
-                    <div class="rj-slot" style="position:relative; min-height:80px; min-width:0; ${flexGrow} border-radius:8px; transition:all .15s; border:2px ${child ? 'solid transparent' : 'dashed #e5e7eb'};"
+                    <div class="rj-slot" style="position:relative; min-height:80px; min-width:0; ${flexInline} border-radius:8px; transition:all .15s; border:2px ${child ? 'solid transparent' : 'dashed #e5e7eb'};"
                          ondragover="event.preventDefault(); event.stopPropagation(); this.classList.add('rj-drop');"
                          ondragleave="this.classList.remove('rj-drop');"
                          ondrop="event.preventDefault(); event.stopPropagation(); window.__builder.dropInto('${bid}', ${i});">
