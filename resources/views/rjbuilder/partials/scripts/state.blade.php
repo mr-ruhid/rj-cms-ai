@@ -53,11 +53,11 @@ function builderState() {
 
         formOptions: (window.RJ_FORMS || []).map(f => ({ id: f.id, name: f.name })),
 
-        previewPosts: L.previewPosts || [],
-
         termsByTaxonomy: window.RJ_TERMS || {},
         termSearch: {},
         termsTaxonomy: {},
+
+        previewPosts: L.previewPosts || [],
 
         tags: L.tags || [],
         tagCategories: L.tagCategories || {},
@@ -287,62 +287,6 @@ function builderState() {
                 label: pt.name || pt.slug,
                 singular: pt.singular_name || pt.slug,
             }));
-        },
-
-                filteredPreviewPosts(settings) {
-            const postType = settings.post_type || 'post';
-            const limit = parseInt(settings.limit) || 6;
-            const orderBy = settings.order_by || 'published_at';
-            const order = settings.order || 'desc';
-
-            let list = (this.previewPosts || []).filter(p => (p.type || 'post') === postType);
-
-            const parseIds = (val) => {
-                if (!val) return [];
-                if (Array.isArray(val)) return val.map(Number).filter(x => !isNaN(x) && x > 0);
-                return String(val).split(',').map(x => x.trim()).filter(x => x !== '').map(Number).filter(x => !isNaN(x) && x > 0);
-            };
-
-            const catIds = parseIds(settings.categories);
-            const tagIds = parseIds(settings.tags);
-            const excludeIds = parseIds(settings.exclude_ids);
-
-            if (catIds.length > 0) {
-                list = list.filter(p => (p.categories || []).some(c => catIds.includes(Number(c.id))));
-            }
-
-            if (tagIds.length > 0) {
-                list = list.filter(p => (p.tags || []).some(t => tagIds.includes(Number(t.id))));
-            }
-
-            if (excludeIds.length > 0) {
-                list = list.filter(p => !excludeIds.includes(Number(p.id)));
-            }
-
-            list.sort((a, b) => {
-                let av, bv;
-
-                if (orderBy === 'title') {
-                    av = String(a.title || '').toLowerCase();
-                    bv = String(b.title || '').toLowerCase();
-                } else if (orderBy === 'view_count') {
-                    av = Number(a.view_count || 0);
-                    bv = Number(b.view_count || 0);
-                } else {
-                    av = Number(a.published_at_ts || 0);
-                    bv = Number(b.published_at_ts || 0);
-                }
-
-                if (av < bv) return order === 'asc' ? -1 : 1;
-                if (av > bv) return order === 'asc' ? 1 : -1;
-                return 0;
-            });
-
-            if (orderBy === 'random') {
-                list = list.slice().sort(() => Math.random() - 0.5);
-            }
-
-            return list.slice(0, limit);
         },
 
         get canvasStyle() {
@@ -684,6 +628,62 @@ function builderState() {
             return terms.filter(t => String(t.name || '').toLowerCase().includes(q));
         },
 
+        filteredPreviewPosts(settings) {
+            const postType = settings.post_type || 'post';
+            const limit = parseInt(settings.limit) || 6;
+            const orderBy = settings.order_by || 'published_at';
+            const order = settings.order || 'desc';
+
+            let list = (this.previewPosts || []).filter(p => (p.type || 'post') === postType);
+
+            const parseIds = (val) => {
+                if (!val) return [];
+                if (Array.isArray(val)) return val.map(Number).filter(x => !isNaN(x) && x > 0);
+                return String(val).split(',').map(x => x.trim()).filter(x => x !== '').map(Number).filter(x => !isNaN(x) && x > 0);
+            };
+
+            const catIds = parseIds(settings.categories);
+            const tagIds = parseIds(settings.tags);
+            const excludeIds = parseIds(settings.exclude_ids);
+
+            if (catIds.length > 0) {
+                list = list.filter(p => (p.categories || []).some(c => catIds.includes(Number(c.id))));
+            }
+
+            if (tagIds.length > 0) {
+                list = list.filter(p => (p.tags || []).some(t => tagIds.includes(Number(t.id))));
+            }
+
+            if (excludeIds.length > 0) {
+                list = list.filter(p => !excludeIds.includes(Number(p.id)));
+            }
+
+            list.sort((a, b) => {
+                let av, bv;
+
+                if (orderBy === 'title') {
+                    av = String(a.title || '').toLowerCase();
+                    bv = String(b.title || '').toLowerCase();
+                } else if (orderBy === 'view_count') {
+                    av = Number(a.view_count || 0);
+                    bv = Number(b.view_count || 0);
+                } else {
+                    av = Number(a.published_at_ts || 0);
+                    bv = Number(b.published_at_ts || 0);
+                }
+
+                if (av < bv) return order === 'asc' ? -1 : 1;
+                if (av > bv) return order === 'asc' ? 1 : -1;
+                return 0;
+            });
+
+            if (orderBy === 'random') {
+                list = list.slice().sort(() => Math.random() - 0.5);
+            }
+
+            return list.slice(0, limit);
+        },
+
         insertGlobalWidget(id) {
             const gw = this.globalWidgetList.find(w => w.id === id);
             if (!gw) return;
@@ -935,6 +935,7 @@ function builderState() {
         findBlock(id, list) {
             list = list || this.blocks;
             for (const b of list) {
+                if (!b) continue;
                 if (b.id === id) return b;
                 if (b.children && b.children.length) {
                     const found = this.findBlock(id, b.children);
@@ -948,6 +949,7 @@ function builderState() {
             list = list || this.blocks;
             parent = parent || null;
             for (let i = 0; i < list.length; i++) {
+                if (!list[i]) continue;
                 if (list[i].id === id) return { block: list[i], parent: parent, index: i, list: list };
                 if (list[i].children && list[i].children.length) {
                     const found = this.findBlockAndParent(id, list[i].children, list[i]);
@@ -961,6 +963,7 @@ function builderState() {
             list = list || this.blocks;
             trail = trail || [];
             for (const b of list) {
+                if (!b) continue;
                 const next = trail.concat([b]);
                 if (b.id === id) return next;
                 if (b.children && b.children.length) {
@@ -972,7 +975,7 @@ function builderState() {
         },
 
         emptySlot() {
-            return this.createBlock('container', { columns: '1' });
+            return null;
         },
 
         createBlock(widgetId, settingsOverride) {
