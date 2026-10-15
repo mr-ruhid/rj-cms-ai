@@ -21,4 +21,6 @@ Route::get('/rj-fonts.css', [\App\Http\Controllers\Admin\CustomFontController::c
 Route::get('/blog', [PostController::class, 'archive'])->name('frontend.posts.index');
 Route::get('/blog/{slug}', [PostController::class, 'show'])->name('frontend.posts.show');
 
-Route::get('/{slug}', [PageController::class, 'show'])->name('frontend.page');
+Route::get('/{slug}', [PageController::class, 'show'])
+    ->where('slug', '^(?!admin|login|register|logout|password|email|verification|api|rj-preview|rj-form|rj-fonts|blog|storage|up|sanctum|livewire).*$')
+    ->name('frontend.page');
