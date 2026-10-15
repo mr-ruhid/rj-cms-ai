@@ -114,11 +114,23 @@ function builderRender() {
         },
 
         dimWidths(s) {
-            const raw = (s.column_widths || '').trim();
+            const raw = String(s.column_widths || '').trim();
             if (!raw) return null;
-            const parts = raw.split(',').map(x => x.trim()).filter(x => x !== '');
-            const nums = parts.map(x => parseFloat(x)).filter(x => !isNaN(x) && x > 0);
+
+            let nums = raw.split(',')
+                .map(x => parseFloat(x.trim()))
+                .filter(x => !isNaN(x) && x > 0);
             if (!nums.length) return null;
+
+            const cols = parseInt(s.columns) || 1;
+
+            // "30" yazılıbsa, qalan sütunlar 100-30 üzərindən bölünür: [30, 70]
+            if (nums.length < cols) {
+                const used = nums.reduce((a, b) => a + b, 0);
+                const missing = cols - nums.length;
+                const rest = Math.max(100 - used, 1) / missing;
+                nums = nums.concat(Array(missing).fill(rest));
+            }
             return nums;
         },
 
@@ -182,9 +194,6 @@ function builderRender() {
             const settings = block.settings || {};
             const cols = parseInt(settings.columns) || 1;
 
-            const pick = (v, fallback) => (v && v !== 'auto') ? (parseInt(v) || fallback) : fallback;
-            const colsT = pick(settings.columns_tablet, Math.min(cols, 2));
-            const colsM = pick(settings.columns_mobile, 1);
             const fit = settings.distribute === 'content';
 
             const gapMap = { none: '0', sm: '0.5rem', md: '1rem', lg: '1.5rem', xl: '2rem' };
@@ -271,12 +280,13 @@ function builderRender() {
 
             const gridClass = 'rj-cg'
                 + (fit ? ' rj-fit' : '')
+                + (widths ? ' rj-cw' : '')
                 + (keepTablet ? ' rj-keep-tablet' : '')
                 + (keepMobile ? ' rj-keep-mobile' : '');
 
             return `
                 <div style="border-radius:${useRadius}; ${outerStyle}">
-                    <div class="${gridClass}" style="--c:${cols}; --ct:${colsT}; --cm:${colsM}; --g:${gap}; --al:${ai}; --jc:${jc}; --dir:${dir}; --wrap:${wrap};">
+                    <div class="${gridClass}" style="--c:${cols}; --g:${gap}; --al:${ai}; --jc:${jc}; --dir:${dir}; --wrap:${wrap};">
                         ${slotsHtml}
                     </div>
                 </div>

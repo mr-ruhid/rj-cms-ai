@@ -240,10 +240,10 @@
     .rj-img { width: var(--w); max-width: 100%; }
 
     @container rj (max-width: {{ $bpTablet ?? 860 }}px) {
-        .rj-cg:not(.rj-keep-tablet) {
+        .rj-cg:not(.rj-keep-tablet):not(.rj-cw) {
             flex-wrap: wrap;
         }
-        .rj-cg:not(.rj-keep-tablet) > .rj-slot {
+        .rj-cg:not(.rj-keep-tablet):not(.rj-cw) > .rj-slot {
             flex: 1 1 calc(50% - var(--g, 1rem) / 2) !important;
             max-width: calc(50% - var(--g, 1rem) / 2) !important;
         }

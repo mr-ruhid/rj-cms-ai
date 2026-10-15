@@ -49,7 +49,7 @@ function builderFields() {
             }
         },
 
-        dimCss(field) {
+        dimFieldCss(field) {
             const v = this.dimGet(field);
             const u = v.unit || 'px';
             const t = v.top !== '' ? v.top + u : '0';
