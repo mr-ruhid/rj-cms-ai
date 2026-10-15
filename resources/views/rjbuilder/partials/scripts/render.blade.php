@@ -124,7 +124,6 @@ function builderRender() {
 
             const cols = parseInt(s.columns) || 1;
 
-            // "30" yazılıbsa, qalan sütunlar 100-30 üzərindən bölünür: [30, 70]
             if (nums.length < cols) {
                 const used = nums.reduce((a, b) => a + b, 0);
                 const missing = cols - nums.length;
@@ -135,6 +134,8 @@ function builderRender() {
         },
 
         renderBlockHtml(block, parentKey, index) {
+            if (!block) return '';
+
             const w = this.widgets.find(x => x.id === block.type);
             if (!w) return `<div style="padding:12px; font-size:12px; color:#dc2626;">${this.esc(this.t('Unknown widget'))}</div>`;
 
@@ -191,6 +192,8 @@ function builderRender() {
         },
 
         renderContainer(block) {
+            if (!block) return '';
+
             const settings = block.settings || {};
             const cols = parseInt(settings.columns) || 1;
 
@@ -236,7 +239,9 @@ function builderRender() {
             const bgCss = this.bgCss(settings);
             const shadow = this.boxShadowCss(settings.box_shadow);
 
-            if (this.preview && children.every(c => !c || (c.type === 'container' && (!c.children || !c.children.length) && (!c.settings || !c.settings.background || c.settings.background === 'transparent'))) && !bgCss && minHeight === 'auto' && border === 'none') {
+            const allEmpty = children.every(c => !c);
+
+            if (this.preview && allEmpty && !bgCss && minHeight === 'auto' && border === 'none') {
                 return '';
             }
 
@@ -245,13 +250,14 @@ function builderRender() {
             let slotsHtml = '';
 
             for (let i = 0; i < slotCount; i++) {
-                const child = children[i];
+                const child = children[i] || null;
                 const hasWidth = !!(widths && widths[i] > 0);
                 const growValue = hasWidth ? widths[i] : 1;
                 const flexInline = `flex:${growValue} 1 0;`;
 
                 if (this.preview) {
-                    slotsHtml += `<div class="rj-slot${child ? this.hideClasses(child.settings || {}) : ''}" style="min-width:0;${flexInline}">${child ? this.renderBlockHtml(child, bid, i) : ''}</div>`;
+                    if (!child) continue;
+                    slotsHtml += `<div class="rj-slot${this.hideClasses(child.settings || {})}" style="min-width:0;${flexInline}">${this.renderBlockHtml(child, bid, i)}</div>`;
                     continue;
                 }
 
@@ -355,6 +361,8 @@ function builderRender() {
         },
 
         renderSimpleWidget(block) {
+            if (!block) return '';
+
             const settings = block.settings || {};
             const esc = (s) => this.esc(s);
             const bid = block.id;
