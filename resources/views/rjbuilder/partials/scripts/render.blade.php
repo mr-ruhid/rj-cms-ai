@@ -481,26 +481,69 @@ function builderRender() {
                 const orderBy = settings.order_by || 'published_at';
                 const order = settings.order || 'desc';
 
-                if (this.preview) {
-                    return `<div class="rj-posts-placeholder" style="padding:24px; border:1px dashed #d1d5db; border-radius:10px; background:#fafafa; text-align:center; color:#6b7280; font-size:12px;">
-                        <div style="font-weight:600; color:#7c3aed; font-size:13px; margin-bottom:4px;">Posts — ${esc(postType)}</div>
-                        <div>${layout} · ${columns} cols · ${limit} items · ${orderBy} ${order}</div>
-                    </div>`;
-                }
+                const posts = this.filteredPreviewPosts(settings);
 
                 const pad = padAttr || 'padding:0.5rem 1rem;';
 
-                return `<div style="${pad} ${marAttr} ${bgCss}">
-                    <div class="rj-posts-info">
-                        <span class="rj-posts-info-icon">
-                            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-                        </span>
-                        <span class="rj-posts-info-title">Posts — ${esc(postType)}</span>
-                        <span class="rj-posts-info-meta">${layout} · ${columns} cols · ${limit} items</span>
-                    </div>
+                if (!this.preview) {
+                    return `<div style="${pad} ${marAttr} ${bgCss}">
+                        <div class="rj-posts-info">
+                            <span class="rj-posts-info-icon">
+                                <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                            </span>
+                            <span class="rj-posts-info-title">Posts — ${esc(postType)}</span>
+                            <span class="rj-posts-info-meta">${layout} · ${columns} cols · ${limit} items · ${posts.length} available</span>
+                        </div>
+                    </div>`;
+                }
+
+                if (posts.length === 0) {
+                    return `<div style="${pad} ${marAttr} ${bgCss}">
+                        <div class="rj-posts-empty-preview">
+                            <svg width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24" style="display:block; margin:0 auto 8px;"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12h6M9 16h4"/></svg>
+                            ${esc(this.t('No posts found.'))}
+                        </div>
+                    </div>`;
+                }
+
+                const gapMap = { none: '0', sm: '12px', md: '20px', lg: '32px', xl: '48px' };
+                const gap = gapMap[settings.gap] || '20px';
+
+                const radiusMap = { none: '0', sm: '4px', md: '8px', lg: '16px' };
+                const radius = radiusMap[settings.card_radius] || '8px';
+
+                const titleSizes = { sm: '14px', base: '16px', lg: '18px', xl: '22px' };
+                const titleSize = titleSizes[settings.title_size] || '18px';
+
+                const wrapperStyles = [
+                    `--rj-posts-gap:${gap}`,
+                    `--rj-posts-radius:${radius}`,
+                    `--rj-posts-bg:${this.cssv(settings.card_bg || '#ffffff')}`,
+                    `--rj-posts-title-color:${this.cssv(settings.title_color || '#111827')}`,
+                    `--rj-posts-title-size:${titleSize}`,
+                    `--rj-posts-text-color:${this.cssv(settings.text_color || '#6b7280')}`,
+                    `--rj-posts-meta-color:${this.cssv(settings.meta_color || '#9ca3af')}`,
+                ];
+
+                if (padAttr) wrapperStyles.push(padAttr.replace(/;$/, ''));
+                if (marAttr) wrapperStyles.push(marAttr.replace(/;$/, ''));
+                if (bgCss) wrapperStyles.push(bgCss.replace(/;$/, ''));
+
+                const wrapperClass = `rj-posts rj-posts-${layout} rj-posts-cols-${columns} rj-posts-card-${settings.card_style || 'default'}${settings.hover_lift ? ' rj-posts-hover-lift' : ''}`;
+
+                const itemsHtml = posts.map(p => this.renderPreviewPostCard(p, settings)).join('');
+
+                let paginationHtml = '';
+                if ((settings.pagination || 'none') === 'load_more') {
+                    paginationHtml = `<div class="rj-posts-loadmore"><button type="button" class="rj-posts-btn-load">${esc(this.t('Load More'))}</button></div>`;
+                }
+
+                return `<div class="${wrapperClass}" style="${wrapperStyles.join(';')}">
+                    <div class="rj-posts-grid">${itemsHtml}</div>
+                    ${paginationHtml}
                 </div>`;
             }
-
+            
             const w = this.widgets.find(x => x.id === block.type);
             if (this.preview) return '';
             return `<div style="padding:14px 16px; margin:0.5rem 1rem; display:flex; align-items:center; gap:12px; border:1px dashed #d1d5db; border-radius:10px; background:#fafafa; color:#6b7280; font-size:12px;">
