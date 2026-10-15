@@ -223,7 +223,7 @@ function builderRender() {
             const alignMap = { start: 'flex-start', center: 'center', end: 'flex-end', stretch: 'stretch', baseline: 'baseline' };
             const defaultAlign = isFixedLayout ? 'center' : 'stretch';
             const ai = alignMap[settings.align_items || settings.align] || defaultAlign;
-            
+
             const jcMap = { start: 'flex-start', center: 'center', end: 'flex-end', 'space-between': 'space-between', 'space-around': 'space-around', 'space-evenly': 'space-evenly' };
             const jc = jcMap[settings.justify_content] || 'flex-start';
 
