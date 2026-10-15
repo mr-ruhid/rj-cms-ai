@@ -26,6 +26,8 @@
     $bpTablet = (int) ($breakpoints['tablet']['max'] ?? 860);
 
     $formsData = \App\Models\Form::active()->orderBy('name')->get(['id', 'name'])->toArray();
+    $postTypesData = \App\Models\PostType::active()->ordered()->get(['id', 'slug', 'name', 'singular_name'])->toArray();
+
     $termsByTaxonomy = [];
     foreach (\App\Models\Taxonomy::active()->orderBy('name')->get() as $tax) {
         $termsByTaxonomy[$tax->slug] = \App\Models\Term::where('taxonomy', $tax->slug)
@@ -70,6 +72,7 @@
         'Network error', 'AI request failed.',
         'No forms yet.', '— Select form —', 'Form',
         'Select Terms', 'Search terms...', 'No terms found.', 'Selected', 'Clear selection', 'Selected: :n',
+        'No taxonomies yet.', 'No post types found.',
     ])->unique()->mapWithKeys(fn ($s) => [$s => __($s)])->toArray();
 @endphp
 
@@ -503,6 +506,8 @@
                                 </div>
                             </template>
 
+                            @include('rjbuilder.partials.fields.post-type')
+
                             @include('rjbuilder.partials.fields.terms')
 
                             @include('rjbuilder.partials.fields.dimensions')
@@ -635,6 +640,7 @@
 <script>
 window.RJ_TERMS = @json($termsByTaxonomy);
 window.RJ_FORMS = @json($formsData);
+window.RJ_POST_TYPES = @json($postTypesData);
 </script>
 
 @include('rjbuilder.partials.scripts.data')
