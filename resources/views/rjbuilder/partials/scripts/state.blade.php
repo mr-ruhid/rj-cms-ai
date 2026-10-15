@@ -51,6 +51,12 @@ function builderState() {
 
         menuTrees: L.menuItems || {},
 
+        formOptions: (window.RJ_FORMS || []).map(f => ({ id: f.id, name: f.name })),
+
+        termsByTaxonomy: window.RJ_TERMS || {},
+        termSearch: {},
+        termsTaxonomy: {},
+
         tags: L.tags || [],
         tagCategories: L.tagCategories || {},
         dynamicTagPicker: { open: false, targetField: null, options: {} },
@@ -104,6 +110,7 @@ function builderState() {
             { name: '_animation_duration', label: 'Duration', type: 'select', default: 'md', options: { sm: 'Fast (300ms)', md: 'Normal (600ms)', lg: 'Slow (1s)', xl: 'Very slow (1.5s)' } },
             { name: '_animation_delay', label: 'Delay', type: 'select', default: '0', options: { '0': 'None', '200ms': '200ms', '400ms': '400ms', '600ms': '600ms', '1s': '1s' } },
             { name: '_hover', label: 'Hover effect', type: 'select', default: 'none', options: { none: 'None', grow: 'Grow', lift: 'Lift + shadow', glow: 'Glow', tilt: '3D tilt', float: 'Float' } },
+            { name: '_css_id', label: 'CSS ID', type: 'text' },
             { name: '_css_class', label: 'Custom CSS class', type: 'text' },
         ],
 
@@ -222,6 +229,16 @@ function builderState() {
             }));
         },
 
+        get globalWidgetList() {
+            return (this.globalWidgets || []).map(g => ({
+                id: g.id,
+                name: g.name,
+                slug: g.slug,
+                type: g.type,
+                description: g.description || '',
+            }));
+        },
+
         get dynamicTagList() {
             return (this.tags || []).map(t => ({
                 id: t.id,
@@ -253,241 +270,12 @@ function builderState() {
             return Object.values(groups);
         },
 
-                openAiPanel(tab) {
-            this.ai.panelOpen = true;
-            if (tab) this.ai.tab = tab;
-        },
-
-        closeAiPanel() {
-            this.ai.panelOpen = false;
-        },
-
-        async aiGenerateText() {
-            if (!this.ai.enabled || this.ai.busy) return;
-            if (!this.ai.generate.prompt.trim()) return;
-
-            this.ai.busy = true;
-            this.ai.generate.result = '';
-
-            try {
-                const res = await fetch(this.ai.urls.generateText, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': L.csrf,
-                    },
-                    body: JSON.stringify({
-                        prompt: this.ai.generate.prompt,
-                        context: this.ai.generate.context,
-                        tone: this.ai.generate.tone,
-                        length: this.ai.generate.length,
-                        language: this.activeLocale || this.baseLocale,
-                    }),
-                });
-
-                const data = await res.json();
-
-                if (data.success) {
-                    this.ai.generate.result = data.text || '';
-                } else {
-                    this.showToast(data.error || this.t('AI request failed.'), 'error');
-                }
-            } catch (e) {
-                this.showToast(this.t('Network error'), 'error');
-            } finally {
-                this.ai.busy = false;
-            }
-        },
-
-        async aiImproveText(mode) {
-            if (!this.ai.enabled || this.ai.busy) return;
-            if (!this.currentBlock) return;
-
-            const field = this.currentBlock.type === 'heading' || this.currentBlock.type === 'text' ? 'text' : null;
-            if (!field) return;
-
-            const current = String(this.getBlockField(this.currentBlock, field) || '').trim();
-            if (!current || this.isDynamicValue(current)) {
-                this.showToast(this.t('No text to improve.'), 'error');
-                return;
-            }
-
-            this.ai.busy = true;
-
-            try {
-                const res = await fetch(this.ai.urls.improveText, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': L.csrf,
-                    },
-                    body: JSON.stringify({
-                        text: current,
-                        mode,
-                        language: this.activeLocale || this.baseLocale,
-                    }),
-                });
-
-                const data = await res.json();
-
-                if (data.success && data.text) {
-                    this.setBlockField(this.currentBlock, field, data.text);
-                    this.markDirty();
-                    this.commitSoon(this.t('AI improved'));
-                    this.showToast(this.t('AI improved'));
-                } else {
-                    this.showToast(data.error || this.t('AI request failed.'), 'error');
-                }
-            } catch (e) {
-                this.showToast(this.t('Network error'), 'error');
-            } finally {
-                this.ai.busy = false;
-            }
-        },
-
-        async aiTranslateText() {
-            if (!this.ai.enabled || this.ai.busy) return;
-            if (!this.currentBlock || !this.ai.translate.targetLocale) return;
-
-            const field = this.currentBlock.type === 'heading' || this.currentBlock.type === 'text' ? 'text' : null;
-            if (!field) return;
-
-            const current = String(this.getBlockField(this.currentBlock, field) || '').trim();
-            if (!current || this.isDynamicValue(current)) {
-                this.showToast(this.t('No text to translate.'), 'error');
-                return;
-            }
-
-            this.ai.busy = true;
-
-            try {
-                const res = await fetch(this.ai.urls.translateText, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': L.csrf,
-                    },
-                    body: JSON.stringify({
-                        text: current,
-                        target_locale: this.ai.translate.targetLocale,
-                    }),
-                });
-
-                const data = await res.json();
-
-                if (data.success && data.text) {
-                    this.setBlockField(this.currentBlock, field, data.text);
-                    this.markDirty();
-                    this.commitSoon(this.t('AI translated'));
-                    this.showToast(this.t('AI translated'));
-                } else {
-                    this.showToast(data.error || this.t('AI request failed.'), 'error');
-                }
-            } catch (e) {
-                this.showToast(this.t('Network error'), 'error');
-            } finally {
-                this.ai.busy = false;
-            }
-        },
-
-        async aiSuggestSection() {
-            if (!this.ai.enabled || this.ai.busy) return;
-            if (!this.ai.suggest.description.trim()) return;
-
-            this.ai.busy = true;
-            this.ai.suggest.result = [];
-
-            try {
-                const res = await fetch(this.ai.urls.suggestSection, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': L.csrf,
-                    },
-                    body: JSON.stringify({
-                        description: this.ai.suggest.description,
-                        language: this.activeLocale || this.baseLocale,
-                    }),
-                });
-
-                const data = await res.json();
-
-                if (data.success && Array.isArray(data.blocks)) {
-                    this.ai.suggest.result = data.blocks;
-                } else {
-                    this.showToast(data.error || this.t('AI request failed.'), 'error');
-                }
-            } catch (e) {
-                this.showToast(this.t('Network error'), 'error');
-            } finally {
-                this.ai.busy = false;
-            }
-        },
-
-        aiInsertSection(blocks) {
-            if (!Array.isArray(blocks) || !blocks.length) return;
-
-            blocks.forEach(b => this.blocks.push(b));
-
-            this.selectedBlock = blocks[0].id || null;
-            this.markDirty();
-            this.pushHistory(this.t('AI section inserted'));
-            this.showToast(this.t('AI section inserted'));
-            this.closeAiPanel();
-            this.scrollToBlock(this.selectedBlock);
-        },
-
-                get globalWidgetList() {
-            return (this.globalWidgets || []).map(g => ({
-                id: g.id,
-                name: g.name,
-                slug: g.slug,
-                type: g.type,
-                description: g.description || '',
+        get taxonomyList() {
+            const map = this.termsByTaxonomy || {};
+            return Object.keys(map).map(slug => ({
+                slug,
+                label: slug.charAt(0).toUpperCase() + slug.slice(1).replace(/[-_]/g, ' '),
             }));
-        },
-
-        insertGlobalWidget(id) {
-            const gw = this.globalWidgetList.find(w => w.id === id);
-            if (!gw) return;
-
-            const block = {
-                id: this.generateId(),
-                type: gw.type,
-                settings: {},
-                children: [],
-                global_id: gw.id,
-                global_name: gw.name,
-            };
-
-            if (this.selectedBlock) {
-                const found = this.findBlockAndParent(this.selectedBlock);
-                if (found && found.parent && found.parent.type === 'container') {
-                    found.list.splice(found.index + 1, 0, block);
-                } else {
-                    this.blocks.push(block);
-                }
-            } else {
-                this.blocks.push(block);
-            }
-
-            this.selectedBlock = block.id;
-            this.markDirty();
-            this.pushHistory(this.t('Added') + ' ' + gw.name);
-            this.scrollToBlock(block.id);
-        },
-
-        unlinkGlobalWidget(id) {
-            const found = this.findBlockAndParent(id);
-            if (!found) return;
-            delete found.block.global_id;
-            delete found.block.global_name;
-            this.markDirty();
-            this.pushHistory(this.t('Unlinked global widget'));
         },
 
         get canvasStyle() {
@@ -538,6 +326,7 @@ function builderState() {
             if (mod && key === 's') { e.preventDefault(); this.save(); return; }
             if (key === 'escape') {
                 if (this.dynamicTagPicker.open) { this.closeTagPicker(); return; }
+                if (this.ai.panelOpen) { this.closeAiPanel(); return; }
                 if (this.preview) this.togglePreview();
                 else if (!typing) this.selectedBlock = null;
                 return;
@@ -645,16 +434,6 @@ function builderState() {
             return this.getBlockField(block, 'text') || '';
         },
 
-                displayField(block, name) {
-            const value = this.getBlockField(block, name);
-
-            if (this.isDynamicValue(value)) {
-                return '⚡ ' + this.getDynamicTagLabel(value);
-            }
-
-            return value || '';
-        },
-
         setBlockField(block, name, value) {
             const s = block.settings = block.settings || {};
             if (!this.isTranslatableField(name) || this.activeLocale === this.baseLocale) {
@@ -719,6 +498,16 @@ function builderState() {
             this.commitSoon(this.t('Edited') + ' ' + this.blockLabel(b.type));
         },
 
+        displayField(block, name) {
+            const value = this.getBlockField(block, name);
+
+            if (this.isDynamicValue(value)) {
+                return '⚡ ' + this.getDynamicTagLabel(value);
+            }
+
+            return value || '';
+        },
+
         openTagPicker(field) {
             this.dynamicTagPicker = {
                 open: true,
@@ -765,6 +554,296 @@ function builderState() {
             if (!this.isDynamicValue(value)) return '';
             const tag = this.dynamicTagList.find(t => t.id === value.tag);
             return tag ? tag.name : value.tag;
+        },
+
+        getTermsTaxonomy(fieldName) {
+            if (this.termsTaxonomy[fieldName]) return this.termsTaxonomy[fieldName];
+
+            const field = this.currentSchema.find(f => f.name === fieldName);
+            if (field && field.taxonomy) return field.taxonomy;
+
+            return this.taxonomyList[0]?.slug || 'category';
+        },
+
+        setTermsTaxonomy(fieldName, slug) {
+            this.termsTaxonomy = Object.assign({}, this.termsTaxonomy, { [fieldName]: slug });
+        },
+
+        getTermIds(fieldName) {
+            const value = this.currentSettings[fieldName] || '';
+
+            if (Array.isArray(value)) {
+                return value.map(Number).filter(x => !isNaN(x) && x > 0);
+            }
+
+            return String(value)
+                .split(',')
+                .map(x => x.trim())
+                .filter(x => x !== '')
+                .map(Number)
+                .filter(x => !isNaN(x) && x > 0);
+        },
+
+        isTermSelected(fieldName, termId) {
+            return this.getTermIds(fieldName).includes(Number(termId));
+        },
+
+        toggleTerm(fieldName, termId) {
+            const ids = this.getTermIds(fieldName);
+            const nid = Number(termId);
+            const idx = ids.indexOf(nid);
+
+            if (idx === -1) ids.push(nid);
+            else ids.splice(idx, 1);
+
+            this.updateSetting(fieldName, ids.join(','));
+        },
+
+        clearTerms(fieldName) {
+            this.updateSetting(fieldName, '');
+        },
+
+        selectedTermCount(fieldName) {
+            return this.getTermIds(fieldName).length;
+        },
+
+        filteredTermsFor(fieldName) {
+            const slug = this.getTermsTaxonomy(fieldName);
+            const terms = (this.termsByTaxonomy || {})[slug] || [];
+            const q = (this.termSearch[fieldName] || '').trim().toLowerCase();
+
+            if (!q) return terms;
+
+            return terms.filter(t => String(t.name || '').toLowerCase().includes(q));
+        },
+
+        insertGlobalWidget(id) {
+            const gw = this.globalWidgetList.find(w => w.id === id);
+            if (!gw) return;
+
+            const block = {
+                id: this.generateId(),
+                type: gw.type,
+                settings: {},
+                children: [],
+                global_id: gw.id,
+                global_name: gw.name,
+            };
+
+            if (this.selectedBlock) {
+                const found = this.findBlockAndParent(this.selectedBlock);
+                if (found && found.parent && found.parent.type === 'container') {
+                    found.list.splice(found.index + 1, 0, block);
+                } else {
+                    this.blocks.push(block);
+                }
+            } else {
+                this.blocks.push(block);
+            }
+
+            this.selectedBlock = block.id;
+            this.markDirty();
+            this.pushHistory(this.t('Added') + ' ' + gw.name);
+            this.scrollToBlock(block.id);
+        },
+
+        unlinkGlobalWidget(id) {
+            const found = this.findBlockAndParent(id);
+            if (!found) return;
+            delete found.block.global_id;
+            delete found.block.global_name;
+            this.markDirty();
+            this.pushHistory(this.t('Unlinked global widget'));
+        },
+
+        openAiPanel(tab) {
+            this.ai.panelOpen = true;
+            if (tab) this.ai.tab = tab;
+        },
+
+        closeAiPanel() {
+            this.ai.panelOpen = false;
+        },
+
+        async aiGenerateText() {
+            if (!this.ai.enabled || this.ai.busy) return;
+            if (!this.ai.generate.prompt.trim()) return;
+
+            this.ai.busy = true;
+            this.ai.generate.result = '';
+
+            try {
+                const res = await fetch(this.ai.urls.generateText, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': L.csrf,
+                    },
+                    body: JSON.stringify({
+                        prompt: this.ai.generate.prompt,
+                        context: this.ai.generate.context,
+                        tone: this.ai.generate.tone,
+                        length: this.ai.generate.length,
+                        language: this.activeLocale || this.baseLocale,
+                    }),
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    this.ai.generate.result = data.text || '';
+                } else {
+                    this.showToast(data.error || this.t('AI request failed.'), 'error');
+                }
+            } catch (e) {
+                this.showToast(this.t('Network error'), 'error');
+            } finally {
+                this.ai.busy = false;
+            }
+        },
+
+        async aiImproveText(mode) {
+            if (!this.ai.enabled || this.ai.busy) return;
+            if (!this.currentBlock) return;
+
+            const field = (this.currentBlock.type === 'heading' || this.currentBlock.type === 'text') ? 'text' : null;
+            if (!field) return;
+
+            const current = String(this.getBlockField(this.currentBlock, field) || '').trim();
+
+            if (!current || this.isDynamicValue(current)) {
+                this.showToast(this.t('No text to improve.'), 'error');
+                return;
+            }
+
+            this.ai.busy = true;
+
+            try {
+                const res = await fetch(this.ai.urls.improveText, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': L.csrf,
+                    },
+                    body: JSON.stringify({
+                        text: current,
+                        mode,
+                        language: this.activeLocale || this.baseLocale,
+                    }),
+                });
+
+                const data = await res.json();
+
+                if (data.success && data.text) {
+                    this.setBlockField(this.currentBlock, field, data.text);
+                    this.markDirty();
+                    this.commitSoon(this.t('AI improved'));
+                    this.showToast(this.t('AI improved'));
+                } else {
+                    this.showToast(data.error || this.t('AI request failed.'), 'error');
+                }
+            } catch (e) {
+                this.showToast(this.t('Network error'), 'error');
+            } finally {
+                this.ai.busy = false;
+            }
+        },
+
+        async aiTranslateText() {
+            if (!this.ai.enabled || this.ai.busy) return;
+            if (!this.currentBlock || !this.ai.translate.targetLocale) return;
+
+            const field = (this.currentBlock.type === 'heading' || this.currentBlock.type === 'text') ? 'text' : null;
+            if (!field) return;
+
+            const current = String(this.getBlockField(this.currentBlock, field) || '').trim();
+
+            if (!current || this.isDynamicValue(current)) {
+                this.showToast(this.t('No text to translate.'), 'error');
+                return;
+            }
+
+            this.ai.busy = true;
+
+            try {
+                const res = await fetch(this.ai.urls.translateText, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': L.csrf,
+                    },
+                    body: JSON.stringify({
+                        text: current,
+                        target_locale: this.ai.translate.targetLocale,
+                    }),
+                });
+
+                const data = await res.json();
+
+                if (data.success && data.text) {
+                    this.setBlockField(this.currentBlock, field, data.text);
+                    this.markDirty();
+                    this.commitSoon(this.t('AI translated'));
+                    this.showToast(this.t('AI translated'));
+                } else {
+                    this.showToast(data.error || this.t('AI request failed.'), 'error');
+                }
+            } catch (e) {
+                this.showToast(this.t('Network error'), 'error');
+            } finally {
+                this.ai.busy = false;
+            }
+        },
+
+        async aiSuggestSection() {
+            if (!this.ai.enabled || this.ai.busy) return;
+            if (!this.ai.suggest.description.trim()) return;
+
+            this.ai.busy = true;
+            this.ai.suggest.result = [];
+
+            try {
+                const res = await fetch(this.ai.urls.suggestSection, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-CSRF-TOKEN': L.csrf,
+                    },
+                    body: JSON.stringify({
+                        description: this.ai.suggest.description,
+                        language: this.activeLocale || this.baseLocale,
+                    }),
+                });
+
+                const data = await res.json();
+
+                if (data.success && Array.isArray(data.blocks)) {
+                    this.ai.suggest.result = data.blocks;
+                } else {
+                    this.showToast(data.error || this.t('AI request failed.'), 'error');
+                }
+            } catch (e) {
+                this.showToast(this.t('Network error'), 'error');
+            } finally {
+                this.ai.busy = false;
+            }
+        },
+
+        aiInsertSection(blocks) {
+            if (!Array.isArray(blocks) || !blocks.length) return;
+
+            blocks.forEach(b => this.blocks.push(b));
+
+            this.selectedBlock = blocks[0].id || null;
+            this.markDirty();
+            this.pushHistory(this.t('AI section inserted'));
+            this.showToast(this.t('AI section inserted'));
+            this.closeAiPanel();
+            this.scrollToBlock(this.selectedBlock);
         },
 
         colorHex(v) {
