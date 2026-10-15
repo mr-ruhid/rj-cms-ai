@@ -25,6 +25,16 @@
     $bpMobile = (int) ($breakpoints['mobile']['max'] ?? 560);
     $bpTablet = (int) ($breakpoints['tablet']['max'] ?? 860);
 
+    $formsData = \App\Models\Form::active()->orderBy('name')->get(['id', 'name'])->toArray();
+    $termsByTaxonomy = [];
+    foreach (\App\Models\Taxonomy::active()->orderBy('name')->get() as $tax) {
+        $termsByTaxonomy[$tax->slug] = \App\Models\Term::where('taxonomy', $tax->slug)
+            ->active()
+            ->orderBy('name')
+            ->get(['id', 'name', 'parent_id'])
+            ->toArray();
+    }
+
     $i18n = collect([
         'Add element', 'Sections', 'Navigator', 'History', 'Settings', 'Edit element', 'Back', 'Undo', 'Redo',
         'Preview', 'Edit', 'Save', 'Saving...', 'Saved', 'Unsaved', 'Desktop', 'Tablet', 'Mobile',
@@ -58,7 +68,8 @@
         'Describe the section you want', 'Suggested blocks', 'Insert into page',
         'No text to improve.', 'No text to translate.', 'AI improved', 'AI translated', 'AI section inserted',
         'Network error', 'AI request failed.',
-        'No forms yet.', '— Select form —',
+        'No forms yet.', '— Select form —', 'Form',
+        'Select Terms', 'Search terms...', 'No terms found.', 'Selected', 'Clear selection', 'Selected: :n',
     ])->unique()->mapWithKeys(fn ($s) => [$s => __($s)])->toArray();
 @endphp
 
@@ -492,6 +503,8 @@
                                 </div>
                             </template>
 
+                            @include('rjbuilder.partials.fields.terms')
+
                             @include('rjbuilder.partials.fields.dimensions')
 
                             <p class="rj-help" x-show="field.help" x-text="field.help"></p>
@@ -618,6 +631,11 @@
 
     @include('admin.partials.media-picker')
 </div>
+
+<script>
+window.RJ_TERMS = @json($termsByTaxonomy);
+window.RJ_FORMS = @json($formsData);
+</script>
 
 @include('rjbuilder.partials.scripts.data')
 @include('rjbuilder.partials.scripts.state')
