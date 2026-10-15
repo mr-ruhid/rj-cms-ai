@@ -1,8 +1,6 @@
-@verbatim
 <script>
 function builderActions() {
     return {
-        /* ───────── layouts & ready-made sections ───────── */
         addLayout(preset) {
             const presets = {
                 '1col': { cols: 1 },
@@ -30,25 +28,25 @@ function builderActions() {
             if (p.special) {
                 container.settings.columns = '1';
                 const topRow = this.createBlock('container', { columns: '1' });
-                topRow.children = [this.emptySlot()];
+                topRow.children = [null];
                 container.children.push(topRow);
 
                 const bottomRow = this.createBlock('container', { columns: '2' });
-                bottomRow.children = [this.emptySlot(), this.emptySlot()];
+                bottomRow.children = [null, null];
                 container.children.push(bottomRow);
             } else if (p.rowCols) {
                 container.settings.columns = '1';
                 for (let r = 0; r < p.rows; r++) {
                     const row = this.createBlock('container', { columns: String(p.rowCols) });
                     row.children = [];
-                    for (let c = 0; c < p.rowCols; c++) row.children.push(this.emptySlot());
+                    for (let c = 0; c < p.rowCols; c++) row.children.push(null);
                     container.children.push(row);
                 }
             } else if (p.rows && p.rows > 1) {
                 container.settings.columns = '1';
-                for (let r = 0; r < p.rows; r++) container.children.push(this.emptySlot());
+                for (let r = 0; r < p.rows; r++) container.children.push(null);
             } else {
-                for (let i = 0; i < p.cols; i++) container.children.push(this.emptySlot());
+                for (let i = 0; i < p.cols; i++) container.children.push(null);
             }
 
             this.blocks.push(container);
@@ -65,7 +63,7 @@ function builderActions() {
                 padding: 'md',
                 width: 'boxed',
             });
-            container.children = [this.emptySlot()];
+            container.children = [null];
             this.blocks.push(container);
             this.selectedBlock = container.id;
             this.markDirty();
@@ -74,7 +72,7 @@ function builderActions() {
 
         addSection(key) {
             const mk = (type, s, kids) => { const b = this.createBlock(type, s); b.children = kids || []; return b; };
-            const slot = (...kids) => mk('container', { columns: '1' }, kids);
+            const slot = (...kids) => kids.length ? mk('container', { columns: '1' }, kids) : null;
             const wrap = (cols, extra, slots) => mk('container', Object.assign({ columns: String(cols), gap: 'lg', padding: 'xl', align: 'center', width: 'boxed' }, extra), slots);
             let section;
 
@@ -114,6 +112,7 @@ function builderActions() {
 
         quickAdd(widgetId) {
             this.touchRecent(widgetId);
+
             if (this.selectedBlock) {
                 const found = this.findBlockAndParent(this.selectedBlock);
                 const block = found ? found.block : null;
@@ -121,9 +120,11 @@ function builderActions() {
                 if (block && block.type === 'container') {
                     if (!block.children) block.children = [];
                     const newBlock = this.createBlock(widgetId);
-                    const emptyIndex = block.children.findIndex(c => c.type === 'container' && (!c.children || c.children.length === 0));
+
+                    const emptyIndex = block.children.findIndex(c => !c);
                     if (emptyIndex === -1) block.children.push(newBlock);
                     else block.children[emptyIndex] = newBlock;
+
                     this.afterInsert(newBlock);
                     return;
                 }
@@ -153,7 +154,6 @@ function builderActions() {
             this.afterInsert(block);
         },
 
-        /* ───────── drag & drop (new + move) ───────── */
         startDragNew(widgetId, event) {
             this.dragging = { type: 'new', widgetId };
             event.dataTransfer.effectAllowed = 'copy';
@@ -175,8 +175,7 @@ function builderActions() {
 
         detach(found) {
             const { parent, index, list, block } = found;
-            const cols = parent ? (parseInt((parent.settings || {}).columns) || 1) : 1;
-            if (parent && parent.type === 'container' && cols > 1) list.splice(index, 1, this.emptySlot());
+            if (parent && parent.type === 'container') list.splice(index, 1, null);
             else list.splice(index, 1);
             return block;
         },
@@ -225,35 +224,22 @@ function builderActions() {
                 const found = this.findBlockAndParent(d.id);
                 if (!found) return;
 
-                const source = found.block;
                 if (d.id === containerId) return;
-                if (source.children && this.findBlock(containerId, source.children)) return;
+                if (found.block.children && this.findBlock(containerId, found.block.children)) return;
 
                 block = this.detach(found);
             }
 
             if (!container.children) container.children = [];
-            while (container.children.length <= slotIndex) container.children.push(this.emptySlot());
+
+            while (container.children.length <= slotIndex) container.children.push(null);
 
             const slot = container.children[slotIndex];
 
-            const isEmptyContainer = slot && slot.type === 'container' &&
-                (!slot.children || slot.children.length === 0) &&
-                (!slot.settings || (!slot.settings.background && !slot.settings.bg_type && (!slot.settings.padding_dim || slot.settings.padding_dim.top === '')));
-
-            if (isEmptyContainer) {
-                if (!slot.children) slot.children = [];
-                slot.children.push(block);
-            } else if (slot && slot.type === 'container') {
-                const cols = parseInt(slot.settings?.columns) || 1;
-                if (cols > 1 && slot.children && slot.children.length < cols) {
-                    slot.children.push(block);
-                } else {
-                    if (!slot.children) slot.children = [];
-                    slot.children.push(block);
-                }
+            if (slot === null || slot === undefined) {
+                container.children[slotIndex] = block;
             } else {
-                const wrap = this.emptySlot();
+                const wrap = this.createBlock('container', { columns: '1' });
                 wrap.children = [slot, block];
                 container.children[slotIndex] = wrap;
             }
@@ -271,7 +257,6 @@ function builderActions() {
             document.querySelectorAll('.rj-drop').forEach(el => el.classList.remove('rj-drop'));
         },
 
-        /* ───────── block actions ───────── */
         selectBlock(id) {
             if (this.preview) return;
             const m = document.getElementById('rj-main');
@@ -320,7 +305,13 @@ function builderActions() {
             const found = this.findBlockAndParent(id);
             if (!found) return;
             const label = this.blockLabel(found.block.type);
-            found.list.splice(found.index, 1);
+
+            if (found.parent && found.parent.type === 'container') {
+                found.list.splice(found.index, 1, null);
+            } else {
+                found.list.splice(found.index, 1);
+            }
+
             if (this.selectedBlock === id) this.selectedBlock = null;
             this.markDirty();
             this.pushHistory(this.t('Deleted') + ' ' + label);
@@ -338,9 +329,12 @@ function builderActions() {
         },
 
         reassignIds(block) {
+            if (!block) return;
             block.id = this.generateId();
             if (block.children && block.children.length) {
-                for (const child of block.children) this.reassignIds(child);
+                for (const child of block.children) {
+                    if (child) this.reassignIds(child);
+                }
             }
         },
 
@@ -396,7 +390,6 @@ function builderActions() {
         duplicateSelected() { if (this.selectedBlock) this.duplicateBlock(this.selectedBlock); },
         removeSelected() { if (this.selectedBlock) this.removeBlock(this.selectedBlock); },
 
-        /* ───────── history & saving ───────── */
         markDirty() { this.saved = false; },
 
         commitSoon(label) {
@@ -480,4 +473,3 @@ function builderActions() {
     };
 }
 </script>
-@endverbatim
