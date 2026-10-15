@@ -278,6 +278,15 @@ function builderState() {
             }));
         },
 
+        get postTypeList() {
+            return (window.RJ_POST_TYPES || []).map(pt => ({
+                id: pt.id,
+                slug: pt.slug,
+                label: pt.name || pt.slug,
+                singular: pt.singular_name || pt.slug,
+            }));
+        },
+
         get canvasStyle() {
             const z = this.prefs.zoom;
             const zoom = (!this.preview && z !== 100) ? ` zoom:${z / 100};` : '';
