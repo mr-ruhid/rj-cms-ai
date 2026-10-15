@@ -220,6 +220,7 @@ function builderRender() {
             const radius = radiusMap[settings.border_radius] || '12px';
 
             const isFixedLayout = ['header', 'footer', 'popup'].includes(this.templateType);
+
             const alignMap = { start: 'flex-start', center: 'center', end: 'flex-end', stretch: 'stretch', baseline: 'baseline' };
             const defaultAlign = isFixedLayout ? 'center' : 'stretch';
             const ai = alignMap[settings.align_items || settings.align] || defaultAlign;
@@ -230,7 +231,6 @@ function builderRender() {
             const dir = ['row', 'column', 'row-reverse', 'column-reverse'].includes(settings.flex_direction) ? settings.flex_direction : 'row';
             const wrap = ['nowrap', 'wrap', 'wrap-reverse'].includes(settings.flex_wrap) ? settings.flex_wrap : 'wrap';
 
-            const isFixedLayout = ['header', 'footer', 'popup'].includes(this.templateType);
             const keepTablet = isFixedLayout || !!settings.keep_tablet;
             const keepMobile = isFixedLayout || !!settings.keep_mobile;
 
@@ -482,11 +482,11 @@ function builderRender() {
 
                 let imgStyle = `display:block; max-width:100%; width:${widthValue}; height:${heightValue};`;
                 if (h !== 'auto') imgStyle += ' object-fit:contain;';
-                else if (w === 'full') imgStyle += ' object-fit:contain; object-position:' + (align === 'right' ? 'right' : align === 'center' ? 'center' : 'left') + ';';
+                else if (w === 'full') imgStyle += ' object-fit:contain;';
 
                 let imgHtml = `<img src="${esc(url)}" alt="${esc(alt)}" style="${imgStyle}">`;
                 if (link) {
-                    imgHtml = `<a href="${esc(link)}" target="${esc(target)}" ${noNav} style="display:inline-block; text-decoration:none;">${imgHtml}</a>`;
+                    imgHtml = `<a href="${esc(link)}" target="${esc(target)}" ${noNav} style="display:inline-block; text-decoration:none; max-width:100%;">${imgHtml}</a>`;
                 }
 
                 const pad = padAttr || 'padding:0.5rem 1rem;';
