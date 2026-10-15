@@ -473,6 +473,34 @@ function builderRender() {
                 </div>`;
             }
 
+            if (block.type === 'posts') {
+                const postType = settings.post_type || 'post';
+                const layout = settings.layout || 'grid';
+                const columns = parseInt(settings.columns) || 3;
+                const limit = parseInt(settings.limit) || 6;
+                const orderBy = settings.order_by || 'published_at';
+                const order = settings.order || 'desc';
+
+                if (this.preview) {
+                    return `<div class="rj-posts-placeholder" style="padding:24px; border:1px dashed #d1d5db; border-radius:10px; background:#fafafa; text-align:center; color:#6b7280; font-size:12px;">
+                        <div style="font-weight:600; color:#7c3aed; font-size:13px; margin-bottom:4px;">Posts — ${esc(postType)}</div>
+                        <div>${layout} · ${columns} cols · ${limit} items · ${orderBy} ${order}</div>
+                    </div>`;
+                }
+
+                const pad = padAttr || 'padding:0.5rem 1rem;';
+
+                return `<div style="${pad} ${marAttr} ${bgCss}">
+                    <div class="rj-posts-info">
+                        <span class="rj-posts-info-icon">
+                            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+                        </span>
+                        <span class="rj-posts-info-title">Posts — ${esc(postType)}</span>
+                        <span class="rj-posts-info-meta">${layout} · ${columns} cols · ${limit} items</span>
+                    </div>
+                </div>`;
+            }
+
             const w = this.widgets.find(x => x.id === block.type);
             if (this.preview) return '';
             return `<div style="padding:14px 16px; margin:0.5rem 1rem; display:flex; align-items:center; gap:12px; border:1px dashed #d1d5db; border-radius:10px; background:#fafafa; color:#6b7280; font-size:12px;">
