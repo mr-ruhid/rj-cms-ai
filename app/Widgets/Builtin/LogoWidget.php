@@ -72,10 +72,11 @@ class LogoWidget extends BaseWidget
                 'name' => 'width',
                 'type' => 'select',
                 'label' => __('Width'),
-                'default' => 'auto',
+                'default' => 'full',
                 'tab' => 'style',
                 'options' => [
-                    'auto' => __('Auto'),
+                    'auto' => __('Auto (natural size)'),
+                    'full' => __('Fill column') . ' (100%)',
                     'xs' => '80px',
                     'sm' => '120px',
                     'md' => '160px',
