@@ -216,6 +216,9 @@ function builderRender() {
             const dir = ['row', 'column', 'row-reverse', 'column-reverse'].includes(settings.flex_direction) ? settings.flex_direction : 'row';
             const wrap = ['nowrap', 'wrap', 'wrap-reverse'].includes(settings.flex_wrap) ? settings.flex_wrap : 'wrap';
 
+            const keepTablet = !!settings.keep_tablet;
+            const keepMobile = !!settings.keep_mobile;
+
             const isFullWidth = settings.width === 'full';
 
             const children = block.children || [];
@@ -234,8 +237,8 @@ function builderRender() {
 
             for (let i = 0; i < slotCount; i++) {
                 const child = children[i];
-                const flexBasis = (widths && widths[i]) ? `--sw:${widths[i]}%;` : '';
-                const slotStyle = `min-width:0;${flexBasis}`;
+                const flexGrow = (widths && widths[i]) ? `--sw:${widths[i]};` : '';
+                const slotStyle = `min-width:0;${flexGrow}`;
 
                 if (this.preview) {
                     slotsHtml += `<div class="rj-slot${child ? this.hideClasses(child.settings || {}) : ''}" style="${slotStyle}">${child ? this.renderBlockHtml(child, bid, i) : ''}</div>`;
@@ -250,7 +253,7 @@ function builderRender() {
                        </div>`;
 
                 slotsHtml += `
-                    <div class="rj-slot" style="position:relative; min-height:80px; min-width:0; ${flexBasis} border-radius:8px; transition:all .15s; border:2px ${child ? 'solid transparent' : 'dashed #e5e7eb'};"
+                    <div class="rj-slot" style="position:relative; min-height:80px; min-width:0; ${flexGrow} border-radius:8px; transition:all .15s; border:2px ${child ? 'solid transparent' : 'dashed #e5e7eb'};"
                          ondragover="event.preventDefault(); event.stopPropagation(); this.classList.add('rj-drop');"
                          ondragleave="this.classList.remove('rj-drop');"
                          ondrop="event.preventDefault(); event.stopPropagation(); window.__builder.dropInto('${bid}', ${i});">
@@ -265,9 +268,14 @@ function builderRender() {
                 : `${chrome} max-width:1100px; margin:0 auto; width:100%;`;
             const useRadius = (this.preview && isFullWidth) ? '0' : radius;
 
+            const gridClass = 'rj-cg'
+                + (fit ? ' rj-fit' : '')
+                + (keepTablet ? ' rj-keep-tablet' : '')
+                + (keepMobile ? ' rj-keep-mobile' : '');
+
             return `
                 <div style="border-radius:${useRadius}; ${outerStyle}">
-                    <div class="rj-cg${fit ? ' rj-fit' : ''}" style="--c:${cols}; --ct:${colsT}; --cm:${colsM}; --g:${gap}; --al:${ai}; --jc:${jc}; --dir:${dir}; --wrap:${wrap};">
+                    <div class="${gridClass}" style="--c:${cols}; --ct:${colsT}; --cm:${colsM}; --g:${gap}; --al:${ai}; --jc:${jc}; --dir:${dir}; --wrap:${wrap};">
                         ${slotsHtml}
                     </div>
                 </div>
