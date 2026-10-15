@@ -304,6 +304,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     Route::prefix('plugins')->name('plugins.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\PluginController::class, 'index'])->name('index');
+        Route::view('/create', 'admin.coming-soon')->name('create');
+        Route::view('/editor', 'admin.coming-soon')->name('editor');
         Route::post('/upload', [\App\Http\Controllers\Admin\PluginController::class, 'upload'])->name('upload');
         Route::post('/bulk', [\App\Http\Controllers\Admin\PluginController::class, 'bulk'])->name('bulk');
         Route::post('/check-updates', [\App\Http\Controllers\Admin\PluginController::class, 'checkUpdates'])->name('check-updates');
