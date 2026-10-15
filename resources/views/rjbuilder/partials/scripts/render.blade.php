@@ -228,8 +228,9 @@ function builderRender() {
             const dir = ['row', 'column', 'row-reverse', 'column-reverse'].includes(settings.flex_direction) ? settings.flex_direction : 'row';
             const wrap = ['nowrap', 'wrap', 'wrap-reverse'].includes(settings.flex_wrap) ? settings.flex_wrap : 'wrap';
 
-            const keepTablet = !!settings.keep_tablet;
-            const keepMobile = !!settings.keep_mobile;
+            const isFixedLayout = ['header', 'footer', 'popup'].includes(this.templateType);
+            const keepTablet = isFixedLayout || !!settings.keep_tablet;
+            const keepMobile = isFixedLayout || !!settings.keep_mobile;
 
             const isFullWidth = settings.width === 'full';
 
