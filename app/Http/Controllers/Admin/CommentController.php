@@ -19,12 +19,16 @@ class CommentController extends Controller
 
     public function index(Request $request)
     {
+        $defaultStatus = $request->route() ? ($request->route()->defaults['status_filter'] ?? null) : null;
+
         $query = Comment::with(['post', 'user'])->orderByDesc('created_at');
 
         if ($status = $request->input('status')) {
             if ($status !== 'all') {
                 $query->where('status', $status);
             }
+        } elseif ($defaultStatus) {
+            $query->where('status', $defaultStatus);
         } else {
             $query->where('status', '!=', 'trash');
         }
