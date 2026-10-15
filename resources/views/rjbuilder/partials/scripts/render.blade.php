@@ -219,9 +219,11 @@ function builderRender() {
             const radiusMap = { none: '0', sm: '4px', md: '8px', lg: '16px', full: '9999px' };
             const radius = radiusMap[settings.border_radius] || '12px';
 
+            const isFixedLayout = ['header', 'footer', 'popup'].includes(this.templateType);
             const alignMap = { start: 'flex-start', center: 'center', end: 'flex-end', stretch: 'stretch', baseline: 'baseline' };
-            const ai = alignMap[settings.align_items || settings.align] || 'stretch';
-
+            const defaultAlign = isFixedLayout ? 'center' : 'stretch';
+            const ai = alignMap[settings.align_items || settings.align] || defaultAlign;
+            
             const jcMap = { start: 'flex-start', center: 'center', end: 'flex-end', 'space-between': 'space-between', 'space-around': 'space-around', 'space-evenly': 'space-evenly' };
             const jc = jcMap[settings.justify_content] || 'flex-start';
 
