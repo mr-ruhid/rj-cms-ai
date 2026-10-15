@@ -896,4 +896,47 @@
     color: #fff;
 }
 
+/* Posts widget info bar in builder */
+.rj-posts-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px;
+    background: #fafafa;
+    border: 1px dashed #d1d5db;
+    border-radius: 10px;
+    color: #6b7280;
+    font-size: 12px;
+}
+
+.rj-posts-info-icon {
+    color: #8b5cf6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.rj-posts-info-title {
+    font-weight: 600;
+    color: #374151;
+}
+
+.rj-posts-info-meta {
+    margin-left: auto;
+    font-size: 11px;
+    color: #9ca3af;
+    white-space: nowrap;
+}
+
+.rj-posts-placeholder {
+    padding: 24px;
+    border: 1px dashed #d1d5db;
+    border-radius: 10px;
+    background: #fafafa;
+    text-align: center;
+    color: #6b7280;
+    font-size: 12px;
+}
+
 </style>
