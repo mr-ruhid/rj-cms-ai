@@ -67,7 +67,23 @@ class ContainerWidget extends BaseWidget
                 'default' => '',
                 'tab' => 'content',
                 'placeholder' => '70,30',
-                'help' => __('Comma-separated percentages, e.g. 70,30. Leave empty for equal columns.'),
+                'help' => __('Comma-separated ratios, e.g. 70,30. Leave empty for equal columns.'),
+            ],
+            [
+                'name' => 'keep_tablet',
+                'type' => 'toggle',
+                'label' => __('Keep Layout on Tablet'),
+                'default' => false,
+                'tab' => 'content',
+                'help' => __('Prevent columns from stacking on tablet.'),
+            ],
+            [
+                'name' => 'keep_mobile',
+                'type' => 'toggle',
+                'label' => __('Keep Layout on Mobile'),
+                'default' => false,
+                'tab' => 'content',
+                'help' => __('Prevent columns from stacking on mobile. Useful for headers.'),
             ],
             [
                 'name' => 'flex_direction',
@@ -290,6 +306,11 @@ class ContainerWidget extends BaseWidget
         $widths = $this->parseWidths($settings['column_widths'] ?? '');
         $slotCount = max($cols, count($children));
 
+        $gridClass = 'rj-cg';
+        $gridClass .= ($settings['distribute'] ?? '') === 'content' ? ' rj-fit' : '';
+        $gridClass .= !empty($settings['keep_tablet']) ? ' rj-keep-tablet' : '';
+        $gridClass .= !empty($settings['keep_mobile']) ? ' rj-keep-mobile' : '';
+
         $gridVars = [
             '--c:' . $cols,
             '--g:' . $gap,
@@ -306,17 +327,13 @@ class ContainerWidget extends BaseWidget
             $slotStyles = ['min-width:0'];
 
             if (!empty($widths[$i])) {
-                $slotStyles[] = '--sw:' . $widths[$i] . '%';
+                $slotStyles[] = '--sw:' . $widths[$i];
             }
 
             $slotAttrs = [
                 'class' => 'rj-slot',
                 'style' => implode(';', $slotStyles),
             ];
-
-            if ($child && !empty($child['settings']['_hide_' . 'desktop'])) {
-                // handled by widget render
-            }
 
             $inner = '';
 
@@ -328,7 +345,7 @@ class ContainerWidget extends BaseWidget
         }
 
         $gridAttrs = [
-            'class' => 'rj-cg',
+            'class' => $gridClass,
             'style' => implode(';', $gridVars),
         ];
 
