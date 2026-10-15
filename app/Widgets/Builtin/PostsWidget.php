@@ -39,11 +39,10 @@ class PostsWidget extends BaseWidget
         return [
             [
                 'name' => 'post_type',
-                'type' => 'text',
+                'type' => 'post_type',
                 'label' => __('Post Type'),
                 'default' => 'post',
                 'tab' => 'content',
-                'placeholder' => 'post',
             ],
             [
                 'name' => 'layout',
@@ -107,21 +106,19 @@ class PostsWidget extends BaseWidget
             ],
             [
                 'name' => 'categories',
-                'type' => 'text',
-                'label' => __('Categories (IDs)'),
+                'type' => 'terms',
+                'label' => __('Categories'),
                 'default' => '',
                 'tab' => 'content',
-                'placeholder' => '1,2,3',
-                'help' => __('Comma-separated category IDs. Leave empty for all.'),
+                'taxonomy' => 'category',
             ],
             [
                 'name' => 'tags',
-                'type' => 'text',
-                'label' => __('Tags (IDs)'),
+                'type' => 'terms',
+                'label' => __('Tags'),
                 'default' => '',
                 'tab' => 'content',
-                'placeholder' => '1,2,3',
-                'help' => __('Comma-separated tag IDs. Leave empty for all.'),
+                'taxonomy' => 'tag',
             ],
             [
                 'name' => 'exclude_ids',
