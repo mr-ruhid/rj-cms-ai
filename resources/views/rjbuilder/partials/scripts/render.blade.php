@@ -467,15 +467,20 @@ function builderRender() {
                             </div>`;
                 }
 
-                const jcMap = { left: 'flex-start', center: 'center', right: 'flex-end' };
+                const jcMap = { left: 'flex-start', center: 'center', right: 'flex-end', stretch: 'stretch' };
                 const widthMap = { auto: 'auto', xs: '80px', sm: '120px', md: '160px', lg: '200px', xl: '280px' };
                 const heightMap = { auto: 'auto', xs: '32px', sm: '48px', md: '64px', lg: '80px', xl: '120px' };
 
-                const widthValue = w === 'custom' && cw !== '' ? this.cssv(cw) : (widthMap[w] || 'auto');
+                let widthValue;
+                if (w === 'full') widthValue = '100%';
+                else if (w === 'custom' && cw !== '') widthValue = this.cssv(cw);
+                else widthValue = widthMap[w] || 'auto';
+
                 const heightValue = heightMap[h] || 'auto';
 
                 let imgStyle = `display:block; max-width:100%; width:${widthValue}; height:${heightValue};`;
                 if (h !== 'auto') imgStyle += ' object-fit:contain;';
+                else if (w === 'full') imgStyle += ' object-fit:contain; object-position:' + (align === 'right' ? 'right' : align === 'center' ? 'center' : 'left') + ';';
 
                 let imgHtml = `<img src="${esc(url)}" alt="${esc(alt)}" style="${imgStyle}">`;
                 if (link) {
