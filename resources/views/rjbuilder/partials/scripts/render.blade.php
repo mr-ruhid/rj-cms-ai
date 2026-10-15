@@ -274,6 +274,68 @@ function builderRender() {
             `;
         },
 
+                renderPreviewPostCard(post, settings) {
+            const url = post.url || '#';
+            const title = this.esc(post.title || '');
+            const showImage = settings.show_image !== false && settings.show_image !== 'false' && settings.show_image !== 0;
+            const image = post.image || '';
+            const ratio = settings.image_ratio || '16/9';
+
+            const cardStyle = ratio !== 'auto' ? `--rj-post-ratio:${ratio};` : '';
+
+            let html = `<article class="rj-post-card" style="${cardStyle}">`;
+
+            if (showImage && image) {
+                html += `<a href="${this.esc(url)}" class="rj-post-image">`;
+                html += `<img src="${this.esc(image)}" alt="${title}" loading="lazy">`;
+                html += `</a>`;
+            }
+
+            html += `<div class="rj-post-body">`;
+
+            if (settings.show_categories && Array.isArray(post.categories) && post.categories.length > 0) {
+                const cats = post.categories.slice(0, 2);
+                html += `<div class="rj-post-cats">`;
+                cats.forEach(c => {
+                    html += `<span class="rj-post-cat">${this.esc(c.name || '')}</span>`;
+                });
+                html += `</div>`;
+            }
+
+            html += `<h3 class="rj-post-title"><a href="${this.esc(url)}">${title}</a></h3>`;
+
+            if (settings.show_excerpt) {
+                const length = Math.max(5, parseInt(settings.excerpt_length) || 20);
+                const excerpt = this.esc((post.excerpt || '').trim());
+                if (excerpt) {
+                    html += `<p class="rj-post-excerpt">${excerpt}</p>`;
+                }
+            }
+
+            const meta = [];
+
+            if (settings.show_date && post.published_at) {
+                meta.push(`<span class="rj-post-meta-item">${this.esc(post.published_at)}</span>`);
+            }
+
+            if (settings.show_author && post.author) {
+                meta.push(`<span class="rj-post-meta-item">${this.esc(post.author)}</span>`);
+            }
+
+            if (meta.length > 0) {
+                html += `<div class="rj-post-meta">${meta.join('<span class="rj-post-meta-sep">·</span>')}</div>`;
+            }
+
+            if (settings.show_read_more) {
+                const label = this.esc(settings.read_more_text || this.t('Read more'));
+                html += `<a href="${this.esc(url)}" class="rj-post-read-more">${label} →</a>`;
+            }
+
+            html += `</div></article>`;
+
+            return html;
+        },
+
         renderSimpleWidget(block) {
             const settings = block.settings || {};
             const esc = (s) => this.esc(s);
