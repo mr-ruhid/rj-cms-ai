@@ -60,8 +60,8 @@ class PostController extends Controller
             'trash' => Post::where('type', $type)->where('status', 'trash')->count(),
         ];
 
-        $categories = Category::orderBy('name')->get();
-        $tags = Tag::orderBy('name')->get();
+        $categories = Category::with('translations')->ordered()->get()->sortBy('name')->values();
+        $tags = Tag::with('translations')->ordered()->get()->sortBy('name')->values();
         $postTypes = PostType::active()->ordered()->get();
 
         return view('admin.posts.index', compact('posts', 'counts', 'categories', 'tags', 'type', 'status', 'postTypes'));
@@ -77,8 +77,8 @@ class PostController extends Controller
             'allow_comments' => true,
         ]);
 
-        $categories = Category::orderBy('name')->get();
-        $tags = Tag::orderBy('name')->get();
+        $categories = Category::with('translations')->ordered()->get()->sortBy('name')->values();
+        $tags = Tag::with('translations')->ordered()->get()->sortBy('name')->values();
         $templates = Template::where('type', 'page')->published()->orderBy('name')->get();
         $locales = rj_available_locales();
         $baseLocale = config('app.locale');
@@ -118,7 +118,7 @@ class PostController extends Controller
 
     public function show(Post $post)
     {
-        $post->load(['author', 'categories', 'tags', 'translations']);
+        $post->load(['author', 'categories', 'tags', 'translations', 'template']);
 
         return view('admin.posts.show', compact('post'));
     }
@@ -127,8 +127,8 @@ class PostController extends Controller
     {
         $post->load(['categories', 'tags', 'translations']);
 
-        $categories = Category::orderBy('name')->get();
-        $tags = Tag::orderBy('name')->get();
+        $categories = Category::with('translations')->ordered()->get()->sortBy('name')->values();
+        $tags = Tag::with('translations')->ordered()->get()->sortBy('name')->values();
         $templates = Template::where('type', 'page')->published()->orderBy('name')->get();
         $locales = rj_available_locales();
         $baseLocale = config('app.locale');
