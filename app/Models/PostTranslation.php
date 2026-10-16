@@ -14,6 +14,20 @@ class PostTranslation extends Model
         'title',
         'content',
         'excerpt',
+        'seo_title',
+        'seo_description',
+        'seo_image',
+        'focus_keyword',
+        'canonical_url',
+        'og_title',
+        'og_description',
+        'og_image',
+        'twitter_card',
+        'twitter_title',
+        'twitter_description',
+        'twitter_image',
+        'robots',
+        'schema_type',
     ];
 
     public function post()
