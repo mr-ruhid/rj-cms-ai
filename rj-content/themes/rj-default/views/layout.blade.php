@@ -11,7 +11,7 @@
         <link rel="icon" href="{{ rj_get_option('site_favicon') }}">
     @endif
 
-    {!! rj_global_color_css() !!}
+    <style>{!! rj_global_color_css() !!}</style>
 
     @include('rjbuilder.partials.styles')
 
