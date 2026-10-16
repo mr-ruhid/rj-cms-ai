@@ -70,6 +70,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::post('/{post}/restore', [PostController::class, 'restore'])->name('restore');
         Route::get('/{post}', [PostController::class, 'show'])->name('show');
         Route::post('/{post}/ai/seo-analyze', [PostController::class, 'analyzeSeo'])->name('ai.seo-analyze');
+        Route::post('/{post}/ai/generate-meta', [PostController::class, 'aiGenerateMeta'])->name('ai.generate-meta');
+        Route::post('/{post}/ai/generate-title', [PostController::class, 'aiGenerateTitle'])->name('ai.generate-title');
+        Route::post('/{post}/ai/generate-description', [PostController::class, 'aiGenerateDescription'])->name('ai.generate-description');
+        Route::post('/{post}/ai/suggest-keyword', [PostController::class, 'aiSuggestKeyword'])->name('ai.suggest-keyword');
     });
 
     Route::view('/pages', 'admin.coming-soon')->name('pages.index');
