@@ -249,4 +249,25 @@ class PostController extends Controller
 
         return back()->with('success', __(':n item(s) updated.', ['n' => $count]));
     }
+
+    public function build(Post $post)
+    {
+        return view('rjbuilder.post-edit', compact('post'));
+    }
+
+    public function updateBlocks(Request $request, Post $post)
+    {
+        $validated = $request->validate([
+            'blocks' => 'required|array',
+            'blocks.blocks' => 'present|array',
+        ]);
+
+        $post->update(['blocks' => $validated['blocks']]);
+
+        if ($request->expectsJson()) {
+            return response()->json(['success' => true]);
+        }
+
+        return back()->with('success', __('Post blocks saved.'));
+    }
 }
