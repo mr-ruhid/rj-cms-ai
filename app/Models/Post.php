@@ -13,6 +13,7 @@ class Post extends Model
         'title',
         'slug',
         'content',
+        'blocks',
         'excerpt',
         'featured_image',
         'type',
@@ -30,6 +31,7 @@ class Post extends Model
     protected $casts = [
         'is_sticky' => 'boolean',
         'allow_comments' => 'boolean',
+        'blocks' => 'array',
         'settings' => 'array',
         'meta' => 'array',
         'published_at' => 'datetime',
@@ -155,6 +157,11 @@ class Post extends Model
         }
 
         return null;
+    }
+
+    public function hasBlocks(): bool
+    {
+        return !empty($this->blocks) && !empty($this->blocks['blocks'] ?? []);
     }
 
     public function getTranslation(string $locale): ?PostTranslation
