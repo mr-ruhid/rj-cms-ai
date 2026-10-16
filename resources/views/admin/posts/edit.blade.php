@@ -61,6 +61,26 @@
 
             <div class="lg:col-span-2 space-y-6">
 
+                <a href="{{ route('admin.posts.build', $post) }}"
+                   class="block bg-gradient-to-r from-rj-purple/10 to-rj-pink/10 rounded-lg border border-rj-purple/30 p-6 hover:border-rj-purple transition group">
+                    <div class="flex items-center gap-4">
+                        <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-rj-purple to-rj-pink flex items-center justify-center text-white flex-shrink-0">
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zM14 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/></svg>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h3 class="text-base font-semibold text-gray-900">{{ __('Open in RJBuilder') }}</h3>
+                            <p class="text-sm text-gray-600 mt-0.5">
+                                @if ($post->hasBlocks())
+                                    {{ __(':n block(s) in this post. Click to continue editing.', ['n' => count($post->blocks['blocks'] ?? [])]) }}
+                                @else
+                                    {{ __('Start building your post with drag-and-drop blocks.') }}
+                                @endif
+                            </p>
+                        </div>
+                        <svg class="w-5 h-5 text-rj-purple group-hover:translate-x-1 transition-transform flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                    </div>
+                </a>
+
                 <div class="bg-white rounded-lg shadow-sm border border-gray-100">
                     <div class="border-b border-gray-100 px-6">
                         <nav class="flex gap-1 -mb-px overflow-x-auto rj-scrollbar">
@@ -94,7 +114,6 @@
                                 $t = $post->translations->firstWhere('locale', $locale);
                                 $isBase = $locale === $baseLocale;
                                 $titleValue = $isBase ? $post->getRawOriginal('title') : ($t?->title);
-                                $contentValue = $isBase ? $post->getRawOriginal('content') : ($t?->content);
                                 $excerptValue = $isBase ? $post->getRawOriginal('excerpt') : ($t?->excerpt);
                             @endphp
 
@@ -116,14 +135,6 @@
                                     @error($isBase ? 'title' : "translations.{$locale}.title")
                                         <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
                                     @enderror
-                                </div>
-
-                                <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Content') }}</label>
-                                    <textarea name="{{ $isBase ? 'content' : "translations[{$locale}][content]" }}"
-                                              rows="14"
-                                              class="w-full rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm font-mono">{{ old($isBase ? 'content' : "translations.{$locale}.content", $contentValue) }}</textarea>
-                                    <p class="text-xs text-gray-500 mt-1">{{ __('Supports HTML and RJ shortcodes.') }}</p>
                                 </div>
 
                                 <div>
