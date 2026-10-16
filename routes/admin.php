@@ -340,6 +340,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     Route::prefix('themes')->name('themes.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\ThemeController::class, 'index'])->name('index');
+        Route::get('/browse', [\App\Http\Controllers\Admin\ThemeController::class, 'browse'])->name('browse');
+        Route::post('/install-github', [\App\Http\Controllers\Admin\ThemeController::class, 'installFromGitHub'])->name('install-github');
         Route::post('/upload', [\App\Http\Controllers\Admin\ThemeController::class, 'upload'])->name('upload');
         Route::post('/check-updates', [\App\Http\Controllers\Admin\ThemeController::class, 'checkUpdates'])->name('check-updates');
         Route::get('/{theme}', [\App\Http\Controllers\Admin\ThemeController::class, 'show'])->name('show');
