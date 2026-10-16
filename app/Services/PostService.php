@@ -11,6 +11,23 @@ use Illuminate\Support\Arr;
 
 class PostService
 {
+    protected array $seoFields = [
+        'seo_title',
+        'seo_description',
+        'seo_image',
+        'focus_keyword',
+        'canonical_url',
+        'og_title',
+        'og_description',
+        'og_image',
+        'twitter_card',
+        'twitter_title',
+        'twitter_description',
+        'twitter_image',
+        'robots',
+        'schema_type',
+    ];
+
     public function create(array $data, Request $request): Post
     {
         $type = $data['type'] ?? 'post';
@@ -37,7 +54,7 @@ class PostService
 
         $this->syncCategories($post, $data['categories'] ?? []);
         $this->syncTags($post, $data['tags'] ?? []);
-        $this->syncTranslations($post, $data['translations'] ?? []);
+        $this->syncTranslations($post, $this->collectTranslations($data));
 
         return $post->fresh();
     }
@@ -79,9 +96,7 @@ class PostService
             $this->syncTags($post, $data['tags']);
         }
 
-        if (array_key_exists('translations', $data)) {
-            $this->syncTranslations($post, $data['translations']);
-        }
+        $this->syncTranslations($post, $this->collectTranslations($data));
 
         return $post->fresh();
     }
@@ -109,12 +124,26 @@ class PostService
         $copy->tags()->sync($post->tags()->pluck('id')->toArray());
 
         foreach ($post->translations as $t) {
-            $copy->translations()->create([
-                'locale' => $t->locale,
-                'title' => $t->title,
-                'content' => $t->content,
-                'excerpt' => $t->excerpt,
-            ]);
+            $copy->translations()->create($t->only([
+                'locale',
+                'title',
+                'content',
+                'excerpt',
+                'seo_title',
+                'seo_description',
+                'seo_image',
+                'focus_keyword',
+                'canonical_url',
+                'og_title',
+                'og_description',
+                'og_image',
+                'twitter_card',
+                'twitter_title',
+                'twitter_description',
+                'twitter_image',
+                'robots',
+                'schema_type',
+            ]));
         }
 
         return $copy;
@@ -245,25 +274,98 @@ class PostService
         return array_values(array_unique($ids));
     }
 
+    protected function collectTranslations(array $data): array
+    {
+        $base = config('app.locale');
+        $locales = rj_available_locales();
+
+        $translations = $data['translations'] ?? [];
+
+        if (!is_array($translations)) {
+            $translations = [];
+        }
+
+        $out = [];
+
+        foreach ($locales as $locale) {
+            $entry = $translations[$locale] ?? [];
+
+            if (!is_array($entry)) {
+                $entry = [];
+            }
+
+            if ($locale === $base) {
+                $entry['title'] = $data['title'] ?? null;
+                $entry['content'] = $data['content'] ?? null;
+                $entry['excerpt'] = $data['excerpt'] ?? null;
+            }
+
+            $hasAny = false;
+
+            foreach (array_merge(['title', 'content', 'excerpt'], $this->seoFields) as $field) {
+                if (!empty($entry[$field])) {
+                    $hasAny = true;
+                    break;
+                }
+            }
+
+            if (!$hasAny && $locale !== $base) {
+                continue;
+            }
+
+            $out[$locale] = $entry;
+        }
+
+        return $out;
+    }
+
     protected function syncTranslations(Post $post, array $translations): void
     {
+        $base = config('app.locale');
+
         foreach ($translations as $locale => $data) {
             if (!is_string($locale) || !is_array($data)) {
                 continue;
             }
 
-            if ($locale === config('app.locale')) {
+            $payload = [];
+
+            foreach (array_merge(['title', 'content', 'excerpt'], $this->seoFields) as $field) {
+                if (array_key_exists($field, $data)) {
+                    $value = $data[$field];
+
+                    if (is_string($value)) {
+                        $value = trim($value);
+                    }
+
+                    $payload[$field] = $value === '' ? null : $value;
+                }
+            }
+
+            if ($locale === $base) {
+                if (array_key_exists('title', $data) && empty($data['title'])) {
+                    $payload['title'] = $post->getRawOriginal('title');
+                }
+
+                if (array_key_exists('content', $data) && empty($data['content'])) {
+                    $payload['content'] = $post->getRawOriginal('content');
+                }
+            }
+
+            if (empty($payload)) {
                 continue;
             }
 
-            $payload = array_filter([
-                'title' => $data['title'] ?? null,
-                'content' => $data['content'] ?? null,
-                'excerpt' => $data['excerpt'] ?? null,
-            ], fn($v) => $v !== null);
+            $hasContent = false;
 
-            if (empty($payload)) {
-                $post->translations()->where('locale', $locale)->delete();
+            foreach (['title', 'content', 'excerpt'] as $field) {
+                if (!empty($payload[$field])) {
+                    $hasContent = true;
+                    break;
+                }
+            }
+
+            if (!$hasContent && $locale !== $base) {
                 continue;
             }
 
