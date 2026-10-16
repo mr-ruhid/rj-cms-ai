@@ -69,6 +69,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::post('/{post}/trash-action', [PostController::class, 'trash'])->name('trash-action');
         Route::post('/{post}/restore', [PostController::class, 'restore'])->name('restore');
         Route::get('/{post}', [PostController::class, 'show'])->name('show');
+        Route::post('/{post}/ai/seo-analyze', [PostController::class, 'analyzeSeo'])->name('ai.seo-analyze');
     });
 
     Route::view('/pages', 'admin.coming-soon')->name('pages.index');
