@@ -131,7 +131,7 @@ class Theme extends Model
 
     public function viewPath(string $view = ''): string
     {
-        $path = $this->path() . '/resources/views';
+        $path = $this->path() . '/views';
 
         if ($view !== '') {
             $path .= '/' . ltrim($view, '/');
