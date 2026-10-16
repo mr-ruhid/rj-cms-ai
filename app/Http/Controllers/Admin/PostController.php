@@ -90,24 +90,7 @@ class PostController extends Controller
 
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'slug' => 'nullable|string|max:255',
-            'content' => 'nullable|string',
-            'excerpt' => 'nullable|string',
-            'featured_image' => 'nullable|string',
-            'type' => 'nullable|string|max:50',
-            'status' => 'nullable|in:draft,published,scheduled,trash',
-            'is_sticky' => 'nullable|boolean',
-            'allow_comments' => 'nullable|boolean',
-            'template_id' => 'nullable|integer|exists:rj_templates,id',
-            'categories' => 'nullable|array',
-            'tags' => 'nullable|array',
-            'translations' => 'nullable|array',
-            'published_at' => 'nullable|date',
-            'edit_mode' => 'nullable|in:builder,classic,theme',
-            'theme_template' => 'nullable|string|max:100',
-        ]);
+        $validated = $request->validate($this->rules());
 
         $post = $this->service->create($validated, $request);
 
@@ -149,23 +132,7 @@ class PostController extends Controller
 
     public function update(Request $request, Post $post)
     {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'slug' => 'nullable|string|max:255',
-            'content' => 'nullable|string',
-            'excerpt' => 'nullable|string',
-            'featured_image' => 'nullable|string',
-            'status' => 'nullable|in:draft,published,scheduled,trash',
-            'is_sticky' => 'nullable|boolean',
-            'allow_comments' => 'nullable|boolean',
-            'template_id' => 'nullable|integer|exists:rj_templates,id',
-            'categories' => 'nullable|array',
-            'tags' => 'nullable|array',
-            'translations' => 'nullable|array',
-            'published_at' => 'nullable|date',
-            'edit_mode' => 'nullable|in:builder,classic,theme',
-            'theme_template' => 'nullable|string|max:100',
-        ]);
+        $validated = $request->validate($this->rules($post));
 
         $post = $this->service->update($post, $validated, $request);
 
@@ -312,6 +279,52 @@ class PostController extends Controller
         }
 
         return back()->with('success', __('Post blocks saved.'));
+    }
+
+    protected function rules(?Post $post = null): array
+    {
+        $rules = [
+            'title' => 'required|string|max:255',
+            'slug' => 'nullable|string|max:255',
+            'content' => 'nullable|string',
+            'excerpt' => 'nullable|string',
+            'featured_image' => 'nullable|string|max:500',
+            'type' => 'nullable|string|max:50',
+            'status' => 'nullable|in:draft,published,scheduled,trash',
+            'is_sticky' => 'nullable|boolean',
+            'allow_comments' => 'nullable|boolean',
+            'template_id' => 'nullable|integer|exists:rj_templates,id',
+            'categories' => 'nullable|array',
+            'tags' => 'nullable|array',
+            'translations' => 'nullable|array',
+            'published_at' => 'nullable|date',
+            'edit_mode' => 'nullable|in:builder,classic,theme',
+            'theme_template' => 'nullable|string|max:100',
+        ];
+
+        $locales = rj_available_locales();
+        $baseLocale = config('app.locale');
+
+        foreach ($locales as $locale) {
+            $prefix = $locale === $baseLocale ? '' : "translations.{$locale}.";
+
+            $rules["{$prefix}seo_title"] = 'nullable|string|max:255';
+            $rules["{$prefix}seo_description"] = 'nullable|string|max:500';
+            $rules["{$prefix}seo_image"] = 'nullable|string|max:500';
+            $rules["{$prefix}focus_keyword"] = 'nullable|string|max:100';
+            $rules["{$prefix}canonical_url"] = 'nullable|url|max:500';
+            $rules["{$prefix}og_title"] = 'nullable|string|max:255';
+            $rules["{$prefix}og_description"] = 'nullable|string|max:500';
+            $rules["{$prefix}og_image"] = 'nullable|string|max:500';
+            $rules["{$prefix}twitter_card"] = 'nullable|in:summary,summary_large_image,app,player';
+            $rules["{$prefix}twitter_title"] = 'nullable|string|max:255';
+            $rules["{$prefix}twitter_description"] = 'nullable|string|max:500';
+            $rules["{$prefix}twitter_image"] = 'nullable|string|max:500';
+            $rules["{$prefix}robots"] = 'nullable|string|max:50';
+            $rules["{$prefix}schema_type"] = 'nullable|string|max:50';
+        }
+
+        return $rules;
     }
 
     protected function resolveThemeTemplates(): array
