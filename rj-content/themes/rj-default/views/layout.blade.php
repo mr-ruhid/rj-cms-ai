@@ -26,10 +26,34 @@
     @endif
 
     <style>
-        body { margin: 0; font-family: 'Inter', system-ui, -apple-system, sans-serif; background: #fff; color: #111827; }
-        .rj-frontend { min-height: 100vh; display: flex; flex-direction: column; }
-        .rj-frontend > main { flex: 1; }
-        .rj-frontend-wrapper { container-type: inline-size; container-name: rj; }
+        *, *::before, *::after { box-sizing: border-box; }
+        html, body { overflow-x: hidden; max-width: 100%; margin: 0; padding: 0; }
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: #fff; color: #111827; }
+
+        .rj-frontend { min-height: 100vh; display: flex; flex-direction: column; overflow-x: hidden; width: 100%; max-width: 100%; }
+        .rj-frontend > main { flex: 1; width: 100%; max-width: 100%; overflow-x: hidden; }
+        .rj-frontend-wrapper { container-type: inline-size; container-name: rj; width: 100%; }
+
+        .rj-frontend-header,
+        .rj-frontend-footer {
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+        .rj-frontend-header > *,
+        .rj-frontend-footer > *,
+        .rj-frontend-main > * {
+            max-width: 100%;
+            box-sizing: border-box;
+        }
+
+        .rj-frontend img,
+        .rj-frontend video,
+        .rj-frontend iframe {
+            max-width: 100%;
+            height: auto;
+        }
 
         .rj-form-wrap { width: 100%; }
         .rj-form { display: flex; flex-direction: column; gap: 16px; margin: 0; }
