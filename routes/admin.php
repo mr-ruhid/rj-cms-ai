@@ -87,6 +87,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/media-cleanup/prune-db', [MediaCleanupController::class, 'pruneDatabase'])->name('media.cleanup.prune-db');
 
     Route::redirect('/appearance/menus', '/admin/menus')->name('appearance.menus');
+    Route::redirect('/appearance/themes', '/admin/themes')->name('appearance.themes');
 
     Route::prefix('menus')->name('menus.')->group(function () {
         Route::get('/', [MenuController::class, 'index'])->name('index');
@@ -104,7 +105,6 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     });
 
     Route::view('/appearance', 'admin.coming-soon')->name('appearance.index');
-    Route::redirect('/appearance/themes', '/admin/themes')->name('appearance.themes');
     Route::view('/appearance/customize', 'admin.coming-soon')->name('appearance.customize');
     Route::view('/appearance/widgets', 'admin.coming-soon')->name('appearance.widgets');
     Route::view('/appearance/editor', 'admin.coming-soon')->name('appearance.editor');
@@ -143,6 +143,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::delete('/{template}', [BuilderController::class, 'destroy'])->name('destroy');
         Route::post('/{template}/duplicate', [BuilderController::class, 'duplicate'])->name('duplicate');
         Route::post('/{template}/set-default', [BuilderController::class, 'setDefault'])->name('set-default');
+        Route::post('/{template}/publish', [BuilderController::class, 'publish'])->name('publish');
+        Route::post('/{template}/unpublish', [BuilderController::class, 'unpublish'])->name('unpublish');
         Route::post('/{template}/conditions', [BuilderController::class, 'updateConditions'])->name('conditions');
 
         Route::prefix('ai')->name('ai.')->group(function () {
