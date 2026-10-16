@@ -14,6 +14,8 @@ class Post extends Model
         'slug',
         'content',
         'blocks',
+        'edit_mode',
+        'theme_template',
         'excerpt',
         'featured_image',
         'type',
@@ -164,6 +166,21 @@ class Post extends Model
         return !empty($this->blocks) && !empty($this->blocks['blocks'] ?? []);
     }
 
+    public function isBuilderMode(): bool
+    {
+        return $this->edit_mode === 'builder';
+    }
+
+    public function isClassicMode(): bool
+    {
+        return $this->edit_mode === 'classic' || empty($this->edit_mode);
+    }
+
+    public function isThemeMode(): bool
+    {
+        return $this->edit_mode === 'theme';
+    }
+
     public function getTranslation(string $locale): ?PostTranslation
     {
         return $this->translations->firstWhere('locale', $locale);
@@ -194,6 +211,15 @@ class Post extends Model
             'post' => __('Post'),
             'page' => __('Page'),
             default => ucfirst((string) $this->type),
+        };
+    }
+
+    public function editModeLabel(): string
+    {
+        return match ($this->edit_mode) {
+            'builder' => __('RJBuilder'),
+            'theme' => __('Theme Template'),
+            default => __('Classic Editor'),
         };
     }
 
