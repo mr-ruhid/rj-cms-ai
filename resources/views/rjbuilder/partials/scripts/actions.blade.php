@@ -440,18 +440,22 @@ function builderActions() {
             this.saving = true;
             const snap = JSON.stringify(this.blocks);
             try {
-                const payload = window.RJ.saveMode === 'post'
+                const isPost = window.RJ.saveMode === 'post';
+                const headers = {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': window.RJ.csrf,
+                };
+
+                if (!isPost) headers['X-HTTP-Method-Override'] = 'PUT';
+
+                const payload = isPost
                     ? { content: { blocks: this.blocks } }
                     : { name: window.RJ.name, content: { blocks: this.blocks }, status: window.RJ.status };
 
                 const res = await fetch(window.RJ.updateUrl, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': window.RJ.csrf,
-                        'X-HTTP-Method-Override': 'PUT',
-                    },
+                    headers,
                     body: JSON.stringify(payload),
                 });
                 if (res.ok || res.redirected) {
