@@ -104,7 +104,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     });
 
     Route::view('/appearance', 'admin.coming-soon')->name('appearance.index');
-    Route::view('/appearance/themes', 'admin.coming-soon')->name('appearance.themes');
+    Route::redirect('/appearance/themes', '/admin/themes')->name('appearance.themes');
     Route::view('/appearance/customize', 'admin.coming-soon')->name('appearance.customize');
     Route::view('/appearance/widgets', 'admin.coming-soon')->name('appearance.widgets');
     Route::view('/appearance/editor', 'admin.coming-soon')->name('appearance.editor');
