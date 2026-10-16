@@ -161,6 +161,148 @@ class Post extends Model
         return null;
     }
 
+    protected function translationValue(string $field, ?string $locale = null)
+    {
+        $locale = $locale ?: app()->getLocale();
+        $base = config('app.locale');
+
+        if ($locale !== $base) {
+            $translation = $this->translations->firstWhere('locale', $locale);
+
+            if ($translation && !empty($translation->{$field})) {
+                return $translation->{$field};
+            }
+        }
+
+        $baseTranslation = $this->translations->firstWhere('locale', $base);
+
+        if ($baseTranslation && !empty($baseTranslation->{$field})) {
+            return $baseTranslation->{$field};
+        }
+
+        return null;
+    }
+
+    public function getSeoTitleAttribute(): ?string
+    {
+        return $this->translationValue('seo_title') ?: $this->title;
+    }
+
+    public function getSeoDescriptionAttribute(): ?string
+    {
+        return $this->translationValue('seo_description') ?: $this->excerpt;
+    }
+
+    public function getSeoImageAttribute(): ?string
+    {
+        return $this->translationValue('seo_image') ?: $this->featured_image;
+    }
+
+    public function getSeoImageUrlAttribute(): ?string
+    {
+        $image = $this->seo_image;
+
+        if (!$image) {
+            return null;
+        }
+
+        return Str::startsWith($image, 'http') ? $image : asset($image);
+    }
+
+    public function getFocusKeywordAttribute(): ?string
+    {
+        return $this->translationValue('focus_keyword');
+    }
+
+    public function getCanonicalUrlAttribute(): ?string
+    {
+        return $this->translationValue('canonical_url');
+    }
+
+    public function getOgTitleAttribute(): ?string
+    {
+        return $this->translationValue('og_title') ?: $this->seo_title;
+    }
+
+    public function getOgDescriptionAttribute(): ?string
+    {
+        return $this->translationValue('og_description') ?: $this->seo_description;
+    }
+
+    public function getOgImageAttribute(): ?string
+    {
+        return $this->translationValue('og_image') ?: $this->seo_image;
+    }
+
+    public function getOgImageUrlAttribute(): ?string
+    {
+        $image = $this->og_image;
+
+        if (!$image) {
+            return null;
+        }
+
+        return Str::startsWith($image, 'http') ? $image : asset($image);
+    }
+
+    public function getTwitterCardAttribute(): ?string
+    {
+        return $this->translationValue('twitter_card') ?: 'summary_large_image';
+    }
+
+    public function getTwitterTitleAttribute(): ?string
+    {
+        return $this->translationValue('twitter_title') ?: $this->og_title;
+    }
+
+    public function getTwitterDescriptionAttribute(): ?string
+    {
+        return $this->translationValue('twitter_description') ?: $this->og_description;
+    }
+
+    public function getTwitterImageAttribute(): ?string
+    {
+        return $this->translationValue('twitter_image') ?: $this->og_image;
+    }
+
+    public function getTwitterImageUrlAttribute(): ?string
+    {
+        $image = $this->twitter_image;
+
+        if (!$image) {
+            return null;
+        }
+
+        return Str::startsWith($image, 'http') ? $image : asset($image);
+    }
+
+    public function getRobotsAttribute(): ?string
+    {
+        return $this->translationValue('robots') ?: 'index,follow';
+    }
+
+    public function getSchemaTypeAttribute(): ?string
+    {
+        return $this->translationValue('schema_type') ?: 'Article';
+    }
+
+    public function getCanonicalUrlFullAttribute(): ?string
+    {
+        $canonical = $this->canonical_url;
+
+        if ($canonical) {
+            return $canonical;
+        }
+
+        if ($this->status !== 'published' || !$this->slug) {
+            return null;
+        }
+
+        return $this->type === 'page'
+            ? url('/' . $this->slug)
+            : url('/blog/' . $this->slug);
+    }
+
     public function hasBlocks(): bool
     {
         return !empty($this->blocks) && !empty($this->blocks['blocks'] ?? []);
