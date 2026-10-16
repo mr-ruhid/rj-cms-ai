@@ -4,26 +4,114 @@
 
 @push('styles')
     <style>
-        .rj-page-hero { padding: 72px 24px 40px; background: linear-gradient(180deg, #faf5ff 0%, #ffffff 100%); border-bottom: 1px solid #f3f4f6; }
-        .rj-page-hero-inner { max-width: 900px; margin: 0 auto; text-align: center; }
-        .rj-page-hero h1 { font-size: 42px; line-height: 1.15; font-weight: 800; letter-spacing: -.02em; color: #111827; margin: 0; }
+        .rj-page-hero {
+            position: relative;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #4c1d95 100%);
+            color: #fff;
+            padding: 64px 24px 56px;
+            overflow: hidden;
+            text-align: center;
+        }
+        .rj-page-hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-image:
+                radial-gradient(circle at 20% 30%, rgba(139,92,246,.35), transparent 45%),
+                radial-gradient(circle at 80% 70%, rgba(236,72,153,.25), transparent 45%);
+            pointer-events: none;
+        }
+        .rj-page-hero-inner {
+            max-width: 760px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+        .rj-page-hero h1 {
+            font-size: 42px;
+            line-height: 1.15;
+            font-weight: 800;
+            margin: 0;
+            letter-spacing: -.025em;
+            background: linear-gradient(135deg, #ffffff 0%, #e9d5ff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .rj-page-hero p {
+            font-size: 17px;
+            color: rgba(255,255,255,.7);
+            line-height: 1.6;
+            margin: 16px 0 0;
+        }
 
-        .rj-page-body { max-width: 760px; margin: 0 auto; padding: 56px 24px 72px; font-size: 17px; line-height: 1.75; color: #1f2937; }
+        .rj-page-body {
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 64px 24px 80px;
+            font-size: 17px;
+            line-height: 1.8;
+            color: #1f2937;
+        }
         .rj-page-body > *:first-child { margin-top: 0; }
-        .rj-page-body h2 { font-size: 28px; font-weight: 700; margin: 40px 0 16px; letter-spacing: -.01em; }
-        .rj-page-body h3 { font-size: 22px; font-weight: 700; margin: 32px 0 14px; }
-        .rj-page-body p { margin: 0 0 20px; }
-        .rj-page-body a { color: #7c3aed; text-decoration: underline; text-underline-offset: 3px; }
+        .rj-page-body h2 {
+            font-size: 30px;
+            font-weight: 700;
+            margin: 48px 0 20px;
+            letter-spacing: -.015em;
+            color: #0f172a;
+        }
+        .rj-page-body h3 {
+            font-size: 23px;
+            font-weight: 700;
+            margin: 36px 0 16px;
+            color: #0f172a;
+        }
+        .rj-page-body p { margin: 0 0 24px; }
+        .rj-page-body a {
+            color: #7c3aed;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
         .rj-page-body a:hover { color: #6d28d9; }
-        .rj-page-body img { max-width: 100%; height: auto; border-radius: 12px; margin: 24px 0; }
-        .rj-page-body blockquote { margin: 28px 0; padding: 4px 0 4px 24px; border-left: 4px solid #8b5cf6; font-size: 19px; font-style: italic; color: #4b5563; }
-        .rj-page-body ul, .rj-page-body ol { margin: 0 0 20px; padding-left: 26px; }
-        .rj-page-body li { margin-bottom: 8px; }
+        .rj-page-body img { max-width: 100%; height: auto; border-radius: 14px; margin: 28px 0; }
+        .rj-page-body blockquote {
+            margin: 32px 0;
+            padding: 8px 0 8px 28px;
+            border-left: 4px solid #8b5cf6;
+            font-size: 20px;
+            font-style: italic;
+            color: #4b5563;
+            line-height: 1.6;
+        }
+        .rj-page-body code {
+            background: #f3f4f6;
+            padding: 2px 8px;
+            border-radius: 5px;
+            font-size: .9em;
+            font-family: ui-monospace, Menlo, monospace;
+            color: #6d28d9;
+        }
+        .rj-page-body pre {
+            background: #0f172a;
+            color: #e5e7eb;
+            padding: 24px;
+            border-radius: 14px;
+            overflow-x: auto;
+            margin: 28px 0;
+            font-size: 14px;
+            line-height: 1.7;
+        }
+        .rj-page-body pre code { background: none; padding: 0; color: inherit; }
+        .rj-page-body ul, .rj-page-body ol { margin: 0 0 24px; padding-left: 28px; }
+        .rj-page-body li { margin-bottom: 10px; }
 
-        @media (max-width: 640px) {
-            .rj-page-hero { padding: 56px 20px 32px; }
+        @media (max-width: 768px) {
+            .rj-page-hero { padding: 48px 20px 40px; }
             .rj-page-hero h1 { font-size: 30px; }
-            .rj-page-body { font-size: 16px; padding: 40px 20px 56px; }
+            .rj-page-hero p { font-size: 15px; }
+            .rj-page-body { padding: 48px 20px 64px; font-size: 16px; }
+            .rj-page-body h2 { font-size: 24px; margin: 36px 0 16px; }
         }
     </style>
 @endpush
@@ -38,33 +126,29 @@
 
 <main class="rj-frontend-main">
 
-    @if($page)
-        @if($page->hasBlocks())
+    @if($page->isBuilderMode() && $page->hasBlocks())
+        <div class="rj-page-builder-content">
             {!! rj_render_blocks($page->blocks['blocks'] ?? []) !!}
-        @else
-            <section class="rj-page-hero">
-                <div class="rj-page-hero-inner">
-                    <h1>{{ $page->title }}</h1>
-                </div>
-            </section>
-
-            <article class="rj-page-body">
-                @if($page->content)
-                    {!! $page->content !!}
-                @elseif($page->excerpt)
+        </div>
+    @else
+        <section class="rj-page-hero">
+            <div class="rj-page-hero-inner">
+                <h1>{{ $page->title }}</h1>
+                @if($page->excerpt)
                     <p>{{ $page->excerpt }}</p>
                 @endif
-            </article>
-        @endif
-    @else
-        <div style="max-width:720px; margin:80px auto; padding:0 24px; text-align:center;">
-            <h1 style="font-size:36px; font-weight:700; margin:0 0 12px; color:#111827;">
-                {{ rj_get_option('site_name', config('app.name')) }}
-            </h1>
-            <p style="font-size:16px; color:#6b7280; line-height:1.6;">
-                {{ __('Welcome to your new site.') }}
-            </p>
-        </div>
+            </div>
+        </section>
+
+        <article class="rj-page-body">
+            @if($page->content)
+                {!! $page->content !!}
+            @elseif($page->excerpt)
+                <p>{{ $page->excerpt }}</p>
+            @else
+                <p style="color:#9ca3af; font-style:italic;">{{ __('No content yet.') }}</p>
+            @endif
+        </article>
     @endif
 
 </main>
