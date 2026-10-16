@@ -154,6 +154,28 @@ class BuilderController extends Controller
         return back()->with('success', __('Default :type set.', ['type' => strtolower($template->typeLabel())]));
     }
 
+    public function publish(Template $template)
+    {
+        $template->update(['status' => 'published']);
+
+        if (request()->expectsJson()) {
+            return response()->json(['success' => true, 'status' => 'published']);
+        }
+
+        return back()->with('success', __('Template published.'));
+    }
+
+    public function unpublish(Template $template)
+    {
+        $template->update(['status' => 'draft']);
+
+        if (request()->expectsJson()) {
+            return response()->json(['success' => true, 'status' => 'draft']);
+        }
+
+        return back()->with('success', __('Template unpublished.'));
+    }
+
     public function updateConditions(Request $request, Template $template)
     {
         $validated = $request->validate([
