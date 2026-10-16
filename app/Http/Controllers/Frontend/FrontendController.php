@@ -4,15 +4,18 @@ namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
 use App\Models\Template;
+use App\Services\ThemeManager;
 use App\Services\ThemeResolver;
 
 class FrontendController extends Controller
 {
     protected ThemeResolver $resolver;
+    protected ThemeManager $themes;
 
-    public function __construct(ThemeResolver $resolver)
+    public function __construct(ThemeResolver $resolver, ThemeManager $themes)
     {
         $this->resolver = $resolver;
+        $this->themes = $themes;
     }
 
     public function home()
@@ -21,7 +24,7 @@ class FrontendController extends Controller
         $footer = $this->resolver->footer();
         $page = $this->resolver->page();
 
-        return view('frontend.page', [
+        return $this->themes->renderView('home', [
             'header' => $header,
             'footer' => $footer,
             'page' => $page,
