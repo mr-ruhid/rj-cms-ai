@@ -1,6 +1,6 @@
 @extends('rjbuilder.layout')
 
-@section('title', $template->name)
+@section('title', $builder['name'])
 
 @php
     $widgetsData = collect(\App\Widgets\WidgetRegistry::all())->map(function ($w) {
@@ -15,10 +15,10 @@
     })->values()->toArray();
 
     $categoriesData = \App\Widgets\WidgetRegistry::categories();
-    $blocksData = $template->content['blocks'] ?? [];
-    $templateType = $template->type;
-    $locales = rj_available_locales();
-    $baseLocale = config('app.locale');
+    $blocksData = $builder['blocks'];
+    $templateType = $builder['templateType'];
+    $locales = $builder['locales'];
+    $baseLocale = $builder['baseLocale'];
     $menusData = rj_menu_options();
     $menuItemsData = rj_menu_tree();
     $breakpoints = rj_breakpoints();
@@ -85,10 +85,9 @@
      @keydown.window="onKey($event)"
      @beforeunload.window="if (!saved) { $event.preventDefault(); $event.returnValue = ''; }">
 
-    {{-- ═════════════ TOP BAR (editor) ═════════════ --}}
     <header class="rj-top" x-show="!preview">
         <div class="rj-grp" style="flex:1;">
-            <a href="{{ route('admin.rjbuilder.edit', $template) }}" class="rj-ib" :title="t('Back')">
+            <a href="{{ $builder['backUrl'] }}" class="rj-ib" :title="t('Back')">
                 <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
             </a>
             <div class="rj-sep"></div>
@@ -118,8 +117,8 @@
 
         <div class="rj-grp" style="justify-content:center; gap:14px;">
             <div class="rj-title">
-                <b>{{ $template->name }}</b>
-                <small>{{ $template->typeLabel() }}</small>
+                <b>{{ $builder['name'] }}</b>
+                <small>{{ $builder['subtitle'] }}</small>
             </div>
             <div class="rj-seg">
                 <template x-for="d in devices" :key="d.id">
@@ -153,7 +152,6 @@
         </div>
     </header>
 
-    {{-- ═════════════ TOP BAR (preview) ═════════════ --}}
     <header class="rj-prevbar" x-show="preview" x-cloak>
         <div class="rj-grp" style="flex:1;">
             <button type="button" class="rj-btn" @click="togglePreview()">
@@ -185,10 +183,8 @@
 
     <div class="rj-body">
 
-        {{-- ═════════════ LEFT PANEL ═════════════ --}}
         <aside class="rj-panel" x-show="!preview && panelOpen">
 
-            {{-- ── ADD ELEMENT ── --}}
             <div class="rj-pcol" x-show="shownPanel === 'add'">
                 <div class="rj-ph">
                     <span x-text="t('Add element')"></span>
@@ -232,7 +228,6 @@
                 </div>
             </div>
 
-            {{-- ── SECTIONS ── --}}
             <div class="rj-pcol" x-show="shownPanel === 'sections'" x-cloak>
                 <div class="rj-ph"><span x-text="t('Sections')"></span></div>
                 <div class="rj-pb">
@@ -264,7 +259,6 @@
                 </div>
             </div>
 
-            {{-- ── GLOBAL WIDGETS ── --}}
             <div class="rj-pcol" x-show="shownPanel === 'globals'" x-cloak>
                 <div class="rj-ph">
                     <span x-text="t('Global Widgets')"></span>
@@ -296,7 +290,6 @@
                 </div>
             </div>
 
-            {{-- ── NAVIGATOR ── --}}
             <div class="rj-pcol" x-show="shownPanel === 'navigator'" x-cloak>
                 <div class="rj-ph"><span x-text="t('Navigator')"></span></div>
                 <div class="rj-pb" style="padding:10px;">
@@ -305,7 +298,6 @@
                 </div>
             </div>
 
-            {{-- ── HISTORY ── --}}
             <div class="rj-pcol" x-show="shownPanel === 'history'" x-cloak>
                 <div class="rj-ph">
                     <span x-text="t('History')"></span>
@@ -328,7 +320,6 @@
                 </div>
             </div>
 
-            {{-- ── SETTINGS ── --}}
             <div class="rj-pcol" x-show="shownPanel === 'settings'" x-cloak>
                 <div class="rj-ph"><span x-text="t('Settings')"></span></div>
                 <div class="rj-pb">
@@ -355,11 +346,10 @@
                     </template>
 
                     <p class="rj-h3" style="margin-top:22px;" x-text="t('Template')"></p>
-                    <div class="rj-row"><span>{{ $template->name }}</span><span style="color:var(--mut); font-size:12px;">{{ $template->typeLabel() }}</span></div>
+                    <div class="rj-row"><span>{{ $builder['name'] }}</span><span style="color:var(--mut); font-size:12px;">{{ $builder['subtitle'] }}</span></div>
                 </div>
             </div>
 
-            {{-- ── EDIT ELEMENT ── --}}
             <div class="rj-pcol" x-show="shownPanel === 'edit'" x-cloak>
                 <div class="rj-ph">
                     <span style="display:flex; align-items:center; gap:6px; min-width:0;">
@@ -530,14 +520,11 @@
             </div>
         </aside>
 
-        {{-- panel open / close handle --}}
         <button type="button" class="rj-handle" x-show="!preview" :style="'left:' + (panelOpen ? '340px' : '0px')" @click="panelOpen = !panelOpen" :title="panelOpen ? t('Close panel') : t('Open panel')" x-text="panelOpen ? '‹' : '›'"></button>
 
-        {{-- ═════════════ CANVAS ═════════════ --}}
         <main id="rj-main" class="rj-main" :data-preview="preview" @click="selectedBlock = null" @dragover="autoScroll($event)">
             <div :style="preview ? '' : 'padding:32px 28px 180px;'">
 
-                {{-- empty state --}}
                 <div x-show="blocks.length === 0 && !preview" class="rj-empty">
                     <h2 style="font-size:20px; font-weight:600; margin:0 0 6px;" x-text="t('Select a layout')"></h2>
                     <p style="font-size:14px; color:#6b7280; margin:0 0 28px;" x-text="t('Choose a structure to start building.')"></p>
@@ -559,7 +546,6 @@
                     </button>
                 </div>
 
-                {{-- device label --}}
                 <div class="rj-devlabel" x-show="device !== 'desktop' && blocks.length > 0" x-text="t(deviceLabel) + ' · ' + deviceWidthLabel"></div>
 
                 <div x-show="blocks.length > 0" id="rj-canvas" class="rj-canvas" :class="(prefs.outlines ? 'rj-outlines ' : '') + (preview && device === 'desktop' ? '' : 'rj-page')" :style="canvasStyle">
@@ -601,13 +587,11 @@
         </main>
     </div>
 
-    {{-- Toast --}}
     <div x-show="toast.show" x-cloak
          x-transition:enter="transition ease-out duration-200" x-transition:enter-start="opacity-0 translate-y-2" x-transition:enter-end="opacity-100 translate-y-0"
          x-transition:leave="transition ease-in duration-150" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0"
          class="rj-toast" :style="'background:' + (toast.type === 'error' ? '#dc2626' : '#059669')" x-text="toast.message"></div>
 
-    {{-- Layout picker --}}
     <div x-show="showLayoutPicker" x-cloak class="rj-modal" @keydown.escape.window="showLayoutPicker = false">
         <div class="bg" @click="showLayoutPicker = false"></div>
         <div class="box">
