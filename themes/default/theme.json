@@ -1,0 +1,35 @@
+{
+    "name": "Default",
+    "slug": "default",
+    "version": "1.0.0",
+    "author": "RJ CMS",
+    "author_url": "https://rjcms.com",
+    "description": "The default RJ CMS theme. Clean, minimal, and builder-first.",
+    "screenshot": "screenshot.png",
+    "requires": {
+        "rj_cms": ">=1.0.0",
+        "php": ">=8.2"
+    },
+    "supports": {
+        "builder_header": true,
+        "builder_footer": true,
+        "builder_page": true,
+        "builder_popup": true,
+        "custom_logo": true,
+        "custom_colors": true,
+        "custom_fonts": true,
+        "post_thumbnail": true,
+        "post_excerpt": true,
+        "menus": ["header", "footer", "mobile"]
+    },
+    "views": {
+        "single_post": "views/single-post.blade.php",
+        "single_page": "views/single-page.blade.php",
+        "archive": "views/archive.blade.php",
+        "layout": "views/layout.blade.php"
+    },
+    "assets": {
+        "css": ["assets/css/style.css"],
+        "js": ["assets/js/script.js"]
+    }
+}
