@@ -5,6 +5,7 @@ window.RJ = {
     name: @json($builder['name']),
     status: @json($builder['status']),
     saveMode: @json($builder['entityType']),
+    viewUrl: @json($builder['viewUrl'] ?? null),
     templateType: @json($builder['templateType']),
     baseLocale: @json($builder['baseLocale']),
     locales: @json($builder['locales']),
