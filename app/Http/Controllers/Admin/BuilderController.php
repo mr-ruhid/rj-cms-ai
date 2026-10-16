@@ -78,7 +78,21 @@ class BuilderController extends Controller
 
     public function build(Template $template)
     {
-        return view('rjbuilder.edit', compact('template'));
+        $builder = [
+            'entityType' => 'template',
+            'entityId' => $template->id,
+            'name' => $template->name,
+            'subtitle' => $template->typeLabel(),
+            'templateType' => $template->type,
+            'blocks' => $template->content['blocks'] ?? [],
+            'updateUrl' => route('admin.rjbuilder.update', $template),
+            'backUrl' => route('admin.rjbuilder.edit', $template),
+            'status' => $template->status,
+            'locales' => $template->type === 'page' ? rj_available_locales() : [],
+            'baseLocale' => config('app.locale'),
+        ];
+
+        return view('rjbuilder.edit', compact('builder'));
     }
 
     public function update(Request $request, Template $template)
@@ -140,7 +154,7 @@ class BuilderController extends Controller
         return back()->with('success', __('Default :type set.', ['type' => strtolower($template->typeLabel())]));
     }
 
-        public function updateConditions(Request $request, Template $template)
+    public function updateConditions(Request $request, Template $template)
     {
         $validated = $request->validate([
             'conditions' => 'nullable|array',
@@ -170,7 +184,7 @@ class BuilderController extends Controller
         return back()->with('success', __('Conditions saved.'));
     }
 
-        public function updatePopupSettings(Request $request, Template $template)
+    public function updatePopupSettings(Request $request, Template $template)
     {
         if ($template->type !== 'popup') {
             if ($request->expectsJson()) {
