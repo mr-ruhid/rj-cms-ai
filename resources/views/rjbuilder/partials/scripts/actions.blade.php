@@ -440,6 +440,10 @@ function builderActions() {
             this.saving = true;
             const snap = JSON.stringify(this.blocks);
             try {
+                const payload = window.RJ.saveMode === 'post'
+                    ? { content: { blocks: this.blocks } }
+                    : { name: window.RJ.name, content: { blocks: this.blocks }, status: window.RJ.status };
+
                 const res = await fetch(window.RJ.updateUrl, {
                     method: 'POST',
                     headers: {
@@ -448,11 +452,7 @@ function builderActions() {
                         'X-CSRF-TOKEN': window.RJ.csrf,
                         'X-HTTP-Method-Override': 'PUT',
                     },
-                    body: JSON.stringify({
-                        name: window.RJ.name,
-                        content: { blocks: this.blocks },
-                        status: window.RJ.status,
-                    }),
+                    body: JSON.stringify(payload),
                 });
                 if (res.ok || res.redirected) {
                     this.savedSnap = snap;
