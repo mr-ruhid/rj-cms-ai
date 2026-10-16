@@ -1,0 +1,10 @@
+/* RJ Default Theme — Custom Styles */
+
+.rj-frontend-header,
+.rj-frontend-footer {
+    width: 100%;
+}
+
+.rj-frontend-main {
+    width: 100%;
+}
