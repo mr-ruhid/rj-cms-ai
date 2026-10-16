@@ -1,0 +1,37 @@
+# Dependencies
+/node_modules
+/vendor
+
+# Build artifacts
+/dist
+/build
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE
+.idea/
+.vscode/
+*.sublime-*
+*.swp
+*.swo
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Cache
+.cache/
+*.cache
+
+# ZIP exports
+*.zip
+
+# Temp files
+*.tmp
+*.bak
+*~
