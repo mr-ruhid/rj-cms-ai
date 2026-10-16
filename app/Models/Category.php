@@ -36,6 +36,11 @@ class Category extends Model
             ->where('locale', $locale);
     }
 
+    public function posts()
+    {
+        return $this->belongsToMany(Post::class, 'rj_post_category', 'category_id', 'post_id');
+    }
+
     public function parent()
     {
         return $this->belongsTo(Category::class, 'parent_id');
