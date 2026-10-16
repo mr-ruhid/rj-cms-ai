@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
+use App\Models\Post;
 use App\Models\Template;
 use App\Services\ThemeManager;
 use App\Services\ThemeResolver;
@@ -24,10 +25,22 @@ class FrontendController extends Controller
         $footer = $this->resolver->footer();
         $page = $this->resolver->page();
 
+        $latestPosts = collect();
+
+        if (!$page) {
+            $latestPosts = Post::with(['author', 'categories', 'tags'])
+                ->where('type', 'post')
+                ->published()
+                ->orderByDesc('published_at')
+                ->limit(6)
+                ->get();
+        }
+
         return $this->themes->renderView('home', [
             'header' => $header,
             'footer' => $footer,
             'page' => $page,
+            'latestPosts' => $latestPosts,
             'title' => rj_get_option('site_name', config('app.name')),
         ]);
     }
