@@ -75,6 +75,7 @@ class PostController extends Controller
             'type' => $type,
             'status' => 'draft',
             'allow_comments' => true,
+            'edit_mode' => 'classic',
         ]);
 
         $categories = Category::with('translations')->ordered()->get()->sortBy('name')->values();
@@ -82,8 +83,9 @@ class PostController extends Controller
         $templates = Template::where('type', 'page')->published()->orderBy('name')->get();
         $locales = rj_available_locales();
         $baseLocale = config('app.locale');
+        $themeTemplates = $this->resolveThemeTemplates();
 
-        return view('admin.posts.create', compact('post', 'type', 'categories', 'tags', 'templates', 'locales', 'baseLocale'));
+        return view('admin.posts.create', compact('post', 'type', 'categories', 'tags', 'templates', 'locales', 'baseLocale', 'themeTemplates'));
     }
 
     public function store(Request $request)
@@ -103,12 +105,20 @@ class PostController extends Controller
             'tags' => 'nullable|array',
             'translations' => 'nullable|array',
             'published_at' => 'nullable|date',
+            'edit_mode' => 'nullable|in:builder,classic,theme',
+            'theme_template' => 'nullable|string|max:100',
         ]);
 
         $post = $this->service->create($validated, $request);
 
         if ($request->expectsJson()) {
             return response()->json(['success' => true, 'post' => $post]);
+        }
+
+        if ($request->input('open_builder') === '1') {
+            return redirect()
+                ->route('admin.posts.build', $post)
+                ->with('success', __('Post created. Start building!'));
         }
 
         return redirect()
@@ -132,8 +142,9 @@ class PostController extends Controller
         $templates = Template::where('type', 'page')->published()->orderBy('name')->get();
         $locales = rj_available_locales();
         $baseLocale = config('app.locale');
+        $themeTemplates = $this->resolveThemeTemplates();
 
-        return view('admin.posts.edit', compact('post', 'categories', 'tags', 'templates', 'locales', 'baseLocale'));
+        return view('admin.posts.edit', compact('post', 'categories', 'tags', 'templates', 'locales', 'baseLocale', 'themeTemplates'));
     }
 
     public function update(Request $request, Post $post)
@@ -152,6 +163,8 @@ class PostController extends Controller
             'tags' => 'nullable|array',
             'translations' => 'nullable|array',
             'published_at' => 'nullable|date',
+            'edit_mode' => 'nullable|in:builder,classic,theme',
+            'theme_template' => 'nullable|string|max:100',
         ]);
 
         $post = $this->service->update($post, $validated, $request);
@@ -285,7 +298,10 @@ class PostController extends Controller
             'content.blocks' => 'present|array',
         ]);
 
-        $post->update(['blocks' => $validated['content']]);
+        $post->update([
+            'blocks' => $validated['content'],
+            'edit_mode' => 'builder',
+        ]);
 
         if ($request->wantsJson() || $request->ajax()) {
             return response()->json([
@@ -296,5 +312,18 @@ class PostController extends Controller
         }
 
         return back()->with('success', __('Post blocks saved.'));
+    }
+
+    protected function resolveThemeTemplates(): array
+    {
+        $theme = \App\Models\Theme::active();
+
+        if (!$theme) {
+            return [];
+        }
+
+        $metadata = $theme->metadata();
+
+        return $metadata['custom_templates'] ?? [];
     }
 }
