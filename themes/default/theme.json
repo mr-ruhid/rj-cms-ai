@@ -1,10 +1,11 @@
 {
-    "name": "Default",
-    "slug": "default",
+    "name": "RJ Default",
+    "slug": "rj-default",
     "version": "1.0.0",
     "author": "RJ CMS",
-    "author_url": "https://rjcms.com",
-    "description": "The default RJ CMS theme. Clean, minimal, and builder-first.",
+    "author_url": "https://github.com/mr-ruhid",
+    "description": "The official default theme for RJ CMS. Clean, minimal, builder-first.",
+    "license": "MIT",
     "screenshot": "screenshot.png",
     "requires": {
         "rj_cms": ">=1.0.0",
@@ -23,13 +24,13 @@
         "menus": ["header", "footer", "mobile"]
     },
     "views": {
+        "layout": "views/layout.blade.php",
         "single_post": "views/single-post.blade.php",
         "single_page": "views/single-page.blade.php",
-        "archive": "views/archive.blade.php",
-        "layout": "views/layout.blade.php"
+        "archive": "views/archive.blade.php"
     },
     "assets": {
-        "css": ["assets/css/style.css"],
-        "js": ["assets/js/script.js"]
+        "css": [],
+        "js": []
     }
 }
