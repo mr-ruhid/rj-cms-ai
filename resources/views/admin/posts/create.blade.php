@@ -8,6 +8,7 @@
     <form method="POST" action="{{ route('admin.posts.store') }}" class="space-y-6" x-data="{ publishing: false }" @submit="publishing = true">
         @csrf
         <input type="hidden" name="type" value="{{ $type }}">
+        <input type="hidden" name="open_builder" x-ref="openBuilder" value="0">
 
         <div class="flex items-center justify-between gap-4 flex-wrap">
             <div class="flex items-center gap-3">
@@ -16,7 +17,7 @@
                 </a>
                 <div>
                     <h2 class="text-base font-semibold text-gray-900">{{ __('Create Post') }}</h2>
-                    <p class="text-sm text-gray-500 mt-0.5">{{ __('Write content, set a featured image, and organize.') }}</p>
+                    <p class="text-sm text-gray-500 mt-0.5">{{ __('Fill the basics, then design with RJBuilder.') }}</p>
                 </div>
             </div>
 
@@ -24,15 +25,16 @@
                 <a href="{{ route('admin.posts.index', ['type' => $type]) }}" class="text-sm text-gray-600 hover:text-gray-900">
                     {{ __('Cancel') }}
                 </a>
-                <button type="submit" name="status" value="draft"
+
+                <button type="submit" name="status" value="draft" @click="$refs.openBuilder.value = '0'"
                         class="inline-flex items-center px-4 py-2 rounded-lg bg-white border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-50 transition">
                     {{ __('Save Draft') }}
                 </button>
-                <button type="submit" name="status" value="published"
-                        :disabled="publishing"
-                        class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-rj-purple to-rj-pink text-white text-sm font-medium hover:opacity-90 transition disabled:opacity-60">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                    <span x-text="publishing ? '{{ __('Saving...') }}' : '{{ __('Publish') }}'"></span>
+
+                <button type="submit" name="status" value="draft" @click="$refs.openBuilder.value = '1'"
+                        class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-rj-purple to-rj-pink text-white text-sm font-medium hover:opacity-90 transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zM14 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/></svg>
+                    {{ __('Save & Open Builder') }}
                 </button>
             </div>
         </div>
@@ -50,6 +52,18 @@
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
             <div class="lg:col-span-2 space-y-6">
+
+                <div class="bg-gradient-to-r from-rj-purple/10 to-rj-pink/10 rounded-lg border border-rj-purple/30 p-6">
+                    <div class="flex items-center gap-4">
+                        <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-rj-purple to-rj-pink flex items-center justify-center text-white flex-shrink-0">
+                            <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM14 5a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1V5zM4 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1H5a1 1 0 01-1-1v-4zM14 15a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/></svg>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <h3 class="text-base font-semibold text-gray-900">{{ __('Design with RJBuilder') }}</h3>
+                            <p class="text-sm text-gray-600 mt-0.5">{{ __('Fill the title, then click "Save & Open Builder" to start designing with drag-and-drop blocks.') }}</p>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="bg-white rounded-lg shadow-sm border border-gray-100">
                     <div class="border-b border-gray-100 px-6">
@@ -95,14 +109,6 @@
                                 </div>
 
                                 <div>
-                                    <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Content') }}</label>
-                                    <textarea name="{{ $locale === $baseLocale ? 'content' : "translations[{$locale}][content]" }}"
-                                              rows="14"
-                                              class="w-full rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm font-mono">{{ old($locale === $baseLocale ? 'content' : "translations.{$locale}.content") }}</textarea>
-                                    <p class="text-xs text-gray-500 mt-1">{{ __('Supports HTML and RJ shortcodes.') }}</p>
-                                </div>
-
-                                <div>
                                     <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Excerpt') }}</label>
                                     <textarea name="{{ $locale === $baseLocale ? 'excerpt' : "translations[{$locale}][excerpt]" }}"
                                               rows="3"
@@ -128,11 +134,10 @@
 
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Status') }}</label>
-                            <select name="status" class="w-full rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm">
-                                <option value="draft" {{ old('status', 'draft') === 'draft' ? 'selected' : '' }}>{{ __('Draft') }}</option>
-                                <option value="published" {{ old('status') === 'published' ? 'selected' : '' }}>{{ __('Published') }}</option>
-                                <option value="scheduled" {{ old('status') === 'scheduled' ? 'selected' : '' }}>{{ __('Scheduled') }}</option>
+                            <select name="status_final" class="w-full rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm" disabled>
+                                <option>{{ __('Draft') }}</option>
                             </select>
+                            <p class="text-xs text-gray-500 mt-1">{{ __('Saved as draft initially. Publish from the editor.') }}</p>
                         </div>
 
                         <div>
