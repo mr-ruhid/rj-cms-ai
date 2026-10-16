@@ -24,6 +24,7 @@ use App\Http\Controllers\Admin\BuilderController;
 use App\Http\Controllers\Admin\TagController;
 use App\Http\Controllers\Admin\MenuController;
 use App\Http\Controllers\Admin\MenuItemController;
+use App\Http\Controllers\Admin\PostController;
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', fn() => redirect()->route('admin.dashboard'))->name('home');
@@ -39,18 +40,35 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     Route::resource('users', UserController::class)->except(['show']);
 
-    Route::view('/posts', 'admin.coming-soon')->name('posts.index');
-    Route::view('/posts/create', 'admin.coming-soon')->name('posts.create');
-    Route::get('/posts/categories', [CategoryController::class, 'index'])->name('posts.categories');
-    Route::get('/posts/categories/create', [CategoryController::class, 'create'])->name('posts.categories.create');
-    Route::post('/posts/categories', [CategoryController::class, 'store'])->name('posts.categories.store');
-    Route::get('/posts/categories/{category}/edit', [CategoryController::class, 'edit'])->name('posts.categories.edit');
-    Route::put('/posts/categories/{category}', [CategoryController::class, 'update'])->name('posts.categories.update');
-    Route::delete('/posts/categories/{category}', [CategoryController::class, 'destroy'])->name('posts.categories.destroy');
-    Route::get('/posts/tags', [TagController::class, 'index'])->name('posts.tags');
-    Route::post('/posts/tags', [TagController::class, 'store'])->name('posts.tags.store');
-    Route::put('/posts/tags/{tag}', [TagController::class, 'update'])->name('posts.tags.update');
-    Route::delete('/posts/tags/{tag}', [TagController::class, 'destroy'])->name('posts.tags.destroy');
+    Route::prefix('posts')->name('posts.')->group(function () {
+        Route::get('/', [PostController::class, 'index'])->name('index');
+        Route::get('/create', [PostController::class, 'create'])->name('create');
+        Route::post('/', [PostController::class, 'store'])->name('store');
+        Route::post('/bulk', [PostController::class, 'bulk'])->name('bulk');
+
+        Route::get('/categories', [CategoryController::class, 'index'])->name('categories');
+        Route::get('/categories/create', [CategoryController::class, 'create'])->name('categories.create');
+        Route::post('/categories', [CategoryController::class, 'store'])->name('categories.store');
+        Route::get('/categories/{category}/edit', [CategoryController::class, 'edit'])->name('categories.edit');
+        Route::put('/categories/{category}', [CategoryController::class, 'update'])->name('categories.update');
+        Route::delete('/categories/{category}', [CategoryController::class, 'destroy'])->name('categories.destroy');
+
+        Route::get('/tags', [TagController::class, 'index'])->name('tags');
+        Route::post('/tags', [TagController::class, 'store'])->name('tags.store');
+        Route::put('/tags/{tag}', [TagController::class, 'update'])->name('tags.update');
+        Route::delete('/tags/{tag}', [TagController::class, 'destroy'])->name('tags.destroy');
+
+        Route::get('/{post}/edit', [PostController::class, 'edit'])->name('edit');
+        Route::put('/{post}', [PostController::class, 'update'])->name('update');
+        Route::delete('/{post}', [PostController::class, 'destroy'])->name('destroy');
+        Route::post('/{post}/duplicate', [PostController::class, 'duplicate'])->name('duplicate');
+        Route::post('/{post}/publish', [PostController::class, 'publish'])->name('publish');
+        Route::post('/{post}/unpublish', [PostController::class, 'unpublish'])->name('unpublish');
+        Route::post('/{post}/trash-action', [PostController::class, 'trash'])->name('trash-action');
+        Route::post('/{post}/restore', [PostController::class, 'restore'])->name('restore');
+        Route::get('/{post}', [PostController::class, 'show'])->name('show');
+    });
+
     Route::view('/pages', 'admin.coming-soon')->name('pages.index');
     Route::view('/pages/create', 'admin.coming-soon')->name('pages.create');
 
