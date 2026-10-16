@@ -20,6 +20,8 @@ class PostService
             'title' => $title,
             'slug' => $this->uniqueSlug($data['slug'] ?? $title, null, $type),
             'content' => $data['content'] ?? '',
+            'edit_mode' => $data['edit_mode'] ?? 'classic',
+            'theme_template' => $data['theme_template'] ?? null,
             'excerpt' => $data['excerpt'] ?? null,
             'featured_image' => $data['featured_image'] ?? null,
             'type' => $type,
@@ -44,7 +46,7 @@ class PostService
     {
         $title = $data['title'] ?? $post->title;
 
-        $post->update([
+        $payload = [
             'title' => $title,
             'slug' => $this->uniqueSlug($data['slug'] ?? $title, $post->id, $post->type),
             'content' => $data['content'] ?? $post->content,
@@ -57,7 +59,17 @@ class PostService
             'settings' => $data['settings'] ?? $post->settings,
             'meta' => $data['meta'] ?? $post->meta,
             'published_at' => $this->resolvePublishedAt($data, $post),
-        ]);
+        ];
+
+        if (array_key_exists('edit_mode', $data)) {
+            $payload['edit_mode'] = $data['edit_mode'] ?: 'classic';
+        }
+
+        if (array_key_exists('theme_template', $data)) {
+            $payload['theme_template'] = $data['theme_template'] ?: null;
+        }
+
+        $post->update($payload);
 
         if (array_key_exists('categories', $data)) {
             $this->syncCategories($post, $data['categories']);
