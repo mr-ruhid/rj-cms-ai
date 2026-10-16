@@ -252,6 +252,14 @@ class PostController extends Controller
 
     public function build(Post $post)
     {
+        $viewUrl = null;
+
+        if ($post->status === 'published' && $post->slug) {
+            $viewUrl = $post->type === 'page'
+                ? url('/' . $post->slug)
+                : url('/blog/' . $post->slug);
+        }
+
         $builder = [
             'entityType' => 'post',
             'entityId' => $post->id,
@@ -261,6 +269,7 @@ class PostController extends Controller
             'blocks' => $post->blocks['blocks'] ?? [],
             'updateUrl' => route('admin.posts.blocks', $post),
             'backUrl' => route('admin.posts.edit', $post),
+            'viewUrl' => $viewUrl,
             'status' => $post->status,
             'locales' => rj_available_locales(),
             'baseLocale' => config('app.locale'),
