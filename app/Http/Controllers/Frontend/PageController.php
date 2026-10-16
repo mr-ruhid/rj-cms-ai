@@ -33,6 +33,22 @@ class PageController extends Controller
 
         view()->share('post', $page);
 
+        if ($page->isThemeMode() && $page->theme_template) {
+            $themeView = 'theme::templates.' . $page->theme_template;
+
+            try {
+                if (view()->exists($themeView)) {
+                    return view($themeView, [
+                        'page' => $page,
+                        'header' => $header,
+                        'footer' => $footer,
+                        'title' => $page->title,
+                    ]);
+                }
+            } catch (\Throwable $e) {
+            }
+        }
+
         return $this->themes->renderView('single-page', [
             'page' => $page,
             'header' => $header,
