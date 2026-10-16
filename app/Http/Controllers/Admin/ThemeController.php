@@ -4,8 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Theme;
+use App\Services\GitHubRegistry;
 use App\Services\ThemeManager;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 class ThemeController extends Controller
 {
@@ -43,6 +45,138 @@ class ThemeController extends Controller
         ];
 
         return view('admin.themes.index', compact('themes', 'counts', 'activeSlug'));
+    }
+
+    public function browse(Request $request)
+    {
+        $registry = app(GitHubRegistry::class);
+
+        $themes = $registry->enrichThemes();
+
+        $search = strtolower(trim((string) $request->input('q', '')));
+        $category = $request->input('category', '');
+
+        if ($search !== '') {
+            $themes = array_values(array_filter($themes, function ($t) use ($search) {
+                return str_contains(strtolower($t['name'] ?? ''), $search)
+                    || str_contains(strtolower($t['description'] ?? ''), $search)
+                    || str_contains(strtolower($t['author'] ?? ''), $search)
+                    || str_contains(strtolower($t['repo'] ?? ''), $search);
+            }));
+        }
+
+        if ($category !== '') {
+            $themes = array_values(array_filter($themes, fn($t) => ($t['category'] ?? '') === $category));
+        }
+
+        usort($themes, function ($a, $b) {
+            if (($a['featured'] ?? false) !== ($b['featured'] ?? false)) {
+                return ($b['featured'] ?? false) <=> ($a['featured'] ?? false);
+            }
+            if (($a['verified'] ?? false) !== ($b['verified'] ?? false)) {
+                return ($b['verified'] ?? false) <=> ($a['verified'] ?? false);
+            }
+            return strcasecmp($a['name'] ?? '', $b['name'] ?? '');
+        });
+
+        $installedSlugs = Theme::pluck('slug')->toArray();
+
+        $categories = [
+            'general' => __('General'),
+            'blog' => __('Blog'),
+            'magazine' => __('Magazine'),
+            'portfolio' => __('Portfolio'),
+            'shop' => __('Shop'),
+            'business' => __('Business'),
+            'landing' => __('Landing Page'),
+            'photography' => __('Photography'),
+        ];
+
+        $registryError = $registry->fetch()['error'] ?? null;
+
+        return view('admin.themes.browse', compact(
+            'themes',
+            'installedSlugs',
+            'categories',
+            'category',
+            'search',
+            'registryError'
+        ));
+    }
+
+    public function installFromGitHub(Request $request)
+    {
+        $validated = $request->validate([
+            'repo' => 'required|string|regex:#^[^/]+/[^/]+$#',
+            'zip_url' => 'required|url',
+            'slug' => 'required|string|max:100',
+        ]);
+
+        if (Theme::where('slug', $validated['slug'])->exists()) {
+            $message = __('Theme already installed.');
+
+            if ($request->expectsJson()) {
+                return response()->json(['success' => false, 'message' => $message], 422);
+            }
+
+            return back()->with('error', $message);
+        }
+
+        try {
+            $tmp = tempnam(sys_get_temp_dir(), 'rj_theme_');
+
+            $response = Http::timeout(120)
+                ->withOptions(['sink' => $tmp])
+                ->get($validated['zip_url']);
+
+            if (!$response->successful()) {
+                @unlink($tmp);
+                $message = __('Could not download theme package.');
+
+                if ($request->expectsJson()) {
+                    return response()->json(['success' => false, 'message' => $message], 422);
+                }
+
+                return back()->with('error', $message);
+            }
+
+            if (filesize($tmp) > 50 * 1024 * 1024) {
+                @unlink($tmp);
+                $message = __('Theme package exceeds 50 MB limit.');
+
+                if ($request->expectsJson()) {
+                    return response()->json(['success' => false, 'message' => $message], 422);
+                }
+
+                return back()->with('error', $message);
+            }
+
+            $file = new \Illuminate\Http\UploadedFile($tmp, 'theme.zip', 'application/zip', null, true);
+
+            $result = $this->manager->installFromZip($file);
+
+            @unlink($tmp);
+
+            $result['slug'] = $validated['slug'];
+
+            if ($request->expectsJson()) {
+                return response()->json($result, $result['success'] ? 200 : 422);
+            }
+
+            if ($result['success']) {
+                return redirect()->route('admin.themes.index')->with('success', $result['message']);
+            }
+
+            return back()->with('error', $result['message']);
+        } catch (\Throwable $e) {
+            $message = __('Installation failed: :msg', ['msg' => $e->getMessage()]);
+
+            if ($request->expectsJson()) {
+                return response()->json(['success' => false, 'message' => $message], 422);
+            }
+
+            return back()->with('error', $message);
+        }
     }
 
     public function show(Theme $theme)
