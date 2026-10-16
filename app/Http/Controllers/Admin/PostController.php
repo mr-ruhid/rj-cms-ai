@@ -252,20 +252,38 @@ class PostController extends Controller
 
     public function build(Post $post)
     {
-        return view('rjbuilder.post-edit', compact('post'));
+        $builder = [
+            'entityType' => 'post',
+            'entityId' => $post->id,
+            'name' => $post->title ?: __('Untitled'),
+            'subtitle' => $post->typeLabel(),
+            'templateType' => 'page',
+            'blocks' => $post->blocks['blocks'] ?? [],
+            'updateUrl' => route('admin.posts.blocks', $post),
+            'backUrl' => route('admin.posts.edit', $post),
+            'status' => $post->status,
+            'locales' => rj_available_locales(),
+            'baseLocale' => config('app.locale'),
+        ];
+
+        return view('rjbuilder.edit', compact('builder'));
     }
 
     public function updateBlocks(Request $request, Post $post)
     {
         $validated = $request->validate([
-            'blocks' => 'required|array',
-            'blocks.blocks' => 'present|array',
+            'content' => 'required|array',
+            'content.blocks' => 'present|array',
         ]);
 
-        $post->update(['blocks' => $validated['blocks']]);
+        $post->update(['blocks' => $validated['content']]);
 
-        if ($request->expectsJson()) {
-            return response()->json(['success' => true]);
+        if ($request->wantsJson() || $request->ajax()) {
+            return response()->json([
+                'success' => true,
+                'message' => __('Post blocks saved.'),
+                'blocks_count' => count($validated['content']['blocks'] ?? []),
+            ]);
         }
 
         return back()->with('success', __('Post blocks saved.'));
