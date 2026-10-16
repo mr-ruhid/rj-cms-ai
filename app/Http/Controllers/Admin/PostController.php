@@ -281,6 +281,118 @@ class PostController extends Controller
         return back()->with('success', __('Post blocks saved.'));
     }
 
+    public function analyzeSeo(Request $request, Post $post)
+    {
+        $locale = $request->input('locale', app()->getLocale());
+
+        $translation = $post->translations->firstWhere('locale', $locale);
+
+        $title = $locale === config('app.locale')
+            ? $post->getRawOriginal('title')
+            : ($translation?->title ?? '');
+
+        $content = $locale === config('app.locale')
+            ? $post->getRawOriginal('content')
+            : ($translation?->content ?? '');
+
+        $seoTitle = $translation?->seo_title ?? ($locale === config('app.locale') ? $post->getRawOriginal('title') : '');
+        $seoDescription = $translation?->seo_description ?? ($locale === config('app.locale') ? $post->getRawOriginal('excerpt') : '');
+        $focusKeyword = $translation?->focus_keyword;
+
+        $score = 0;
+        $issues = [];
+
+        if (empty($seoTitle)) {
+            $issues[] = __('SEO title is missing.');
+        } else {
+            $len = mb_strlen($seoTitle);
+            if ($len >= 40 && $len <= 65) {
+                $score += 20;
+            } elseif ($len < 40) {
+                $score += 10;
+                $issues[] = __('SEO title is too short (:n chars, aim for 50-60).', ['n' => $len]);
+            } else {
+                $score += 10;
+                $issues[] = __('SEO title is too long (:n chars, aim for 50-60).', ['n' => $len]);
+            }
+        }
+
+        if (empty($seoDescription)) {
+            $issues[] = __('SEO description is missing.');
+        } else {
+            $len = mb_strlen($seoDescription);
+            if ($len >= 140 && $len <= 165) {
+                $score += 20;
+            } elseif ($len < 140) {
+                $score += 10;
+                $issues[] = __('SEO description is too short (:n chars, aim for 150-160).', ['n' => $len]);
+            } else {
+                $score += 10;
+                $issues[] = __('SEO description is too long (:n chars, aim for 150-160).', ['n' => $len]);
+            }
+        }
+
+        if (empty($focusKeyword)) {
+            $issues[] = __('Focus keyword is not set.');
+        } else {
+            $score += 15;
+
+            $inTitle = !empty($seoTitle) && stripos($seoTitle, $focusKeyword) !== false;
+            $inContent = !empty($content) && stripos($content, $focusKeyword) !== false;
+
+            if ($inTitle) {
+                $score += 10;
+            } else {
+                $issues[] = __('Focus keyword is not in the SEO title.');
+            }
+
+            if ($inContent) {
+                $score += 15;
+            } else {
+                $issues[] = __('Focus keyword is not in the content.');
+            }
+        }
+
+        if (!empty($content)) {
+            $wordCount = str_word_count(strip_tags($content));
+
+            if ($wordCount >= 300) {
+                $score += 10;
+            } elseif ($wordCount >= 150) {
+                $score += 5;
+                $issues[] = __('Content is short (:n words, aim for 300+).', ['n' => $wordCount]);
+            } else {
+                $issues[] = __('Content is very short (:n words, aim for 300+).', ['n' => $wordCount]);
+            }
+
+            if (preg_match('/<h[1-3]/i', $content)) {
+                $score += 10;
+            } else {
+                $issues[] = __('No subheadings (H2/H3) found in content.');
+            }
+        }
+
+        $score = min(100, $score);
+
+        $level = 'bad';
+        if ($score >= 80) {
+            $level = 'good';
+        } elseif ($score >= 50) {
+            $level = 'warn';
+        }
+
+        if (empty($issues)) {
+            $issues[] = __('Great job! No issues found.');
+        }
+
+        return response()->json([
+            'success' => true,
+            'score' => $score,
+            'level' => $level,
+            'issues' => $issues,
+        ]);
+    }
+
     protected function rules(?Post $post = null): array
     {
         $rules = [
@@ -300,6 +412,7 @@ class PostController extends Controller
             'published_at' => 'nullable|date',
             'edit_mode' => 'nullable|in:builder,classic,theme',
             'theme_template' => 'nullable|string|max:100',
+            'settings' => 'nullable|array',
         ];
 
         $locales = rj_available_locales();
