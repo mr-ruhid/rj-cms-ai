@@ -5,16 +5,19 @@ namespace App\Http\Controllers\Frontend;
 use App\Http\Controllers\Controller;
 use App\Models\Post;
 use App\Models\Term;
+use App\Services\ThemeManager;
 use App\Services\ThemeResolver;
 use Illuminate\Http\Request;
 
 class PostController extends Controller
 {
     protected ThemeResolver $resolver;
+    protected ThemeManager $themes;
 
-    public function __construct(ThemeResolver $resolver)
+    public function __construct(ThemeResolver $resolver, ThemeManager $themes)
     {
         $this->resolver = $resolver;
+        $this->themes = $themes;
     }
 
     public function show(string $slug)
@@ -45,7 +48,7 @@ class PostController extends Controller
 
         view()->share('post', $post);
 
-        return view('frontend.single-post', [
+        return $this->themes->renderView('single-post', [
             'post' => $post,
             'related' => $related,
             'header' => $header,
@@ -102,7 +105,7 @@ class PostController extends Controller
         view()->share('archive_title', $archiveTitle);
         view()->share('archive_description', $archiveDescription);
 
-        return view('frontend.archive', [
+        return $this->themes->renderView('archive', [
             'posts' => $posts,
             'header' => $header,
             'footer' => $footer,
