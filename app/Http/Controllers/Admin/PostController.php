@@ -8,6 +8,7 @@ use App\Models\Post;
 use App\Models\PostType;
 use App\Models\Tag;
 use App\Models\Template;
+use App\Services\AiSeoService;
 use App\Services\PostService;
 use Illuminate\Http\Request;
 
@@ -284,20 +285,12 @@ class PostController extends Controller
     public function analyzeSeo(Request $request, Post $post)
     {
         $locale = $request->input('locale', app()->getLocale());
-
         $translation = $post->translations->firstWhere('locale', $locale);
-
-        $title = $locale === config('app.locale')
-            ? $post->getRawOriginal('title')
-            : ($translation?->title ?? '');
-
-        $content = $locale === config('app.locale')
-            ? $post->getRawOriginal('content')
-            : ($translation?->content ?? '');
 
         $seoTitle = $translation?->seo_title ?? ($locale === config('app.locale') ? $post->getRawOriginal('title') : '');
         $seoDescription = $translation?->seo_description ?? ($locale === config('app.locale') ? $post->getRawOriginal('excerpt') : '');
         $focusKeyword = $translation?->focus_keyword;
+        $content = $this->resolvePostContent($post, $locale);
 
         $score = 0;
         $issues = [];
@@ -391,6 +384,109 @@ class PostController extends Controller
             'level' => $level,
             'issues' => $issues,
         ]);
+    }
+
+    public function aiGenerateMeta(Request $request, Post $post)
+    {
+        $locale = $request->input('locale', app()->getLocale());
+        $translation = $post->translations->firstWhere('locale', $locale);
+
+        $title = $locale === config('app.locale')
+            ? $post->getRawOriginal('title')
+            : ($translation?->title ?? '');
+
+        $content = $this->resolvePostContent($post, $locale);
+
+        $service = app(AiSeoService::class);
+
+        $result = $service->generateMeta($title ?: '', $content, $locale, [
+            'tone' => $request->input('tone', 'professional'),
+        ]);
+
+        return response()->json($result);
+    }
+
+    public function aiGenerateTitle(Request $request, Post $post)
+    {
+        $locale = $request->input('locale', app()->getLocale());
+        $content = $this->resolvePostContent($post, $locale);
+
+        $service = app(AiSeoService::class);
+
+        return response()->json($service->generateTitle($content, $locale));
+    }
+
+    public function aiGenerateDescription(Request $request, Post $post)
+    {
+        $locale = $request->input('locale', app()->getLocale());
+        $content = $this->resolvePostContent($post, $locale);
+
+        $translation = $post->translations->firstWhere('locale', $locale);
+        $title = $locale === config('app.locale')
+            ? $post->getRawOriginal('title')
+            : ($translation?->title ?? '');
+
+        $service = app(AiSeoService::class);
+
+        return response()->json($service->generateDescription($title ?: '', $content, $locale));
+    }
+
+    public function aiSuggestKeyword(Request $request, Post $post)
+    {
+        $locale = $request->input('locale', app()->getLocale());
+        $content = $this->resolvePostContent($post, $locale);
+
+        $translation = $post->translations->firstWhere('locale', $locale);
+        $title = $locale === config('app.locale')
+            ? $post->getRawOriginal('title')
+            : ($translation?->title ?? '');
+
+        $service = app(AiSeoService::class);
+
+        return response()->json($service->suggestKeyword($title ?: '', $content, $locale));
+    }
+
+    protected function resolvePostContent(Post $post, string $locale): string
+    {
+        $translation = $post->translations->firstWhere('locale', $locale);
+
+        $content = $locale === config('app.locale')
+            ? (string) $post->getRawOriginal('content')
+            : (string) ($translation?->content ?? '');
+
+        if (empty($content) && $post->hasBlocks()) {
+            $content = $this->extractTextFromBlocks($post->blocks['blocks'] ?? []);
+        }
+
+        return $content;
+    }
+
+    protected function extractTextFromBlocks(array $blocks): string
+    {
+        $out = [];
+
+        foreach ($blocks as $block) {
+            if (!is_array($block)) {
+                continue;
+            }
+
+            $settings = $block['settings'] ?? [];
+
+            foreach (['text', 'title', 'subtitle', 'description', 'content', 'label'] as $key) {
+                if (!empty($settings[$key]) && is_string($settings[$key])) {
+                    $out[] = $settings[$key];
+                }
+            }
+
+            if (!empty($block['children']) && is_array($block['children'])) {
+                $childText = $this->extractTextFromBlocks($block['children']);
+                if ($childText !== '') {
+                    $out[] = $childText;
+                }
+            }
+        }
+
+        return implode(' ', $out);
     }
 
     protected function rules(?Post $post = null): array
