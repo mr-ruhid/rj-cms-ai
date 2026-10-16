@@ -58,6 +58,8 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::put('/tags/{tag}', [TagController::class, 'update'])->name('tags.update');
         Route::delete('/tags/{tag}', [TagController::class, 'destroy'])->name('tags.destroy');
 
+        Route::get('/{post}/build', [PostController::class, 'build'])->name('build');
+        Route::post('/{post}/blocks', [PostController::class, 'updateBlocks'])->name('blocks');
         Route::get('/{post}/edit', [PostController::class, 'edit'])->name('edit');
         Route::put('/{post}', [PostController::class, 'update'])->name('update');
         Route::delete('/{post}', [PostController::class, 'destroy'])->name('destroy');
