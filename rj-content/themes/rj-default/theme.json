@@ -29,6 +29,29 @@
         "single_page": "views/single-page.blade.php",
         "archive": "views/archive.blade.php"
     },
+    "custom_templates": [
+        {
+            "id": "contact",
+            "label": "Contact Page",
+            "description": "Two-column layout with contact form and info sidebar.",
+            "view": "views/templates/contact.blade.php",
+            "icon": "mail"
+        },
+        {
+            "id": "landing",
+            "label": "Landing Page",
+            "description": "Full-width hero with centered CTA. No sidebar.",
+            "view": "views/templates/landing.blade.php",
+            "icon": "rocket"
+        },
+        {
+            "id": "full-width",
+            "label": "Full Width",
+            "description": "Edge-to-edge content without container padding.",
+            "view": "views/templates/full-width.blade.php",
+            "icon": "expand"
+        }
+    ],
     "assets": {
         "css": [],
         "js": []
