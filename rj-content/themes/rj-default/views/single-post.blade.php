@@ -8,7 +8,7 @@
             position: relative;
             background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #4c1d95 100%);
             color: #fff;
-            padding: 96px 24px 80px;
+            padding: 56px 24px 48px;
             overflow: hidden;
         }
         .rj-post-hero::before {
@@ -16,18 +16,9 @@
             position: absolute;
             inset: 0;
             background-image:
-                radial-gradient(circle at 20% 30%, rgba(139,92,246,.35), transparent 45%),
-                radial-gradient(circle at 80% 70%, rgba(236,72,153,.25), transparent 45%);
+                radial-gradient(circle at 15% 20%, rgba(139,92,246,.35), transparent 45%),
+                radial-gradient(circle at 85% 80%, rgba(236,72,153,.25), transparent 45%);
             pointer-events: none;
-        }
-        .rj-post-hero::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(139,92,246,.4), transparent);
         }
         .rj-post-hero-inner {
             max-width: 820px;
@@ -40,9 +31,9 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 13px;
+            font-size: 12px;
             color: rgba(255,255,255,.55);
-            margin-bottom: 24px;
+            margin-bottom: 18px;
         }
         .rj-post-breadcrumb a {
             color: rgba(255,255,255,.75);
@@ -56,17 +47,17 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            padding: 6px 14px;
+            padding: 5px 12px;
             border-radius: 999px;
             background: rgba(139,92,246,.2);
             border: 1px solid rgba(139,92,246,.35);
             color: #c4b5fd;
-            font-size: 11px;
+            font-size: 10px;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: .08em;
             text-decoration: none;
-            margin-bottom: 24px;
+            margin-bottom: 18px;
             backdrop-filter: blur(8px);
             transition: all .2s;
         }
@@ -76,120 +67,56 @@
         }
 
         .rj-post-hero h1 {
-            font-size: 52px;
-            line-height: 1.1;
+            font-size: 36px;
+            line-height: 1.2;
             font-weight: 800;
-            margin: 0 0 28px;
-            letter-spacing: -.025em;
+            margin: 0;
+            letter-spacing: -.02em;
             background: linear-gradient(135deg, #ffffff 0%, #e9d5ff 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
 
-        .rj-post-hero-meta {
-            display: flex;
-            align-items: center;
-            gap: 20px;
-            flex-wrap: wrap;
-            padding-top: 24px;
-            border-top: 1px solid rgba(255,255,255,.1);
-        }
-
-        .rj-post-author {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        .rj-post-avatar {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, #8b5cf6, #ec4899);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            font-size: 16px;
-            color: #fff;
-            box-shadow: 0 8px 20px rgba(139,92,246,.4);
-            flex-shrink: 0;
-        }
-        .rj-post-author-info {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
-        .rj-post-author-label {
-            font-size: 11px;
-            text-transform: uppercase;
-            letter-spacing: .08em;
-            color: rgba(255,255,255,.5);
-            font-weight: 600;
-        }
-        .rj-post-author-name {
-            font-size: 14px;
-            font-weight: 600;
-            color: #fff;
-        }
-
-        .rj-post-hero-divider {
-            width: 1px;
-            height: 32px;
-            background: rgba(255,255,255,.15);
-        }
-
-        .rj-post-meta-item {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 14px;
-            color: rgba(255,255,255,.75);
-            font-weight: 500;
-        }
-        .rj-post-meta-item svg {
-            width: 16px;
-            height: 16px;
-            opacity: .65;
-        }
-
         .rj-post-featured {
-            max-width: 1040px;
-            margin: -60px auto 72px;
+            max-width: 1000px;
+            margin: -32px auto 40px;
             padding: 0 24px;
             position: relative;
             z-index: 2;
         }
         .rj-post-featured img {
             width: 100%;
-            border-radius: 20px;
-            box-shadow: 0 30px 80px -20px rgba(0,0,0,.5), 0 0 0 1px rgba(255,255,255,.05);
+            max-height: 420px;
+            object-fit: cover;
+            border-radius: 16px;
+            box-shadow: 0 24px 60px -20px rgba(0,0,0,.5), 0 0 0 1px rgba(255,255,255,.05);
             display: block;
         }
 
         .rj-post-body {
             max-width: 760px;
             margin: 0 auto;
-            padding: 0 24px 48px;
-            font-size: 18px;
+            padding: 0 24px 40px;
+            font-size: 17px;
             line-height: 1.8;
             color: #1f2937;
         }
         .rj-post-body > *:first-child { margin-top: 0; }
         .rj-post-body h2 {
-            font-size: 30px;
+            font-size: 28px;
             font-weight: 700;
-            margin: 48px 0 20px;
+            margin: 44px 0 18px;
             letter-spacing: -.015em;
             color: #0f172a;
         }
         .rj-post-body h3 {
-            font-size: 23px;
+            font-size: 22px;
             font-weight: 700;
-            margin: 36px 0 16px;
+            margin: 32px 0 14px;
             color: #0f172a;
         }
-        .rj-post-body p { margin: 0 0 24px; }
+        .rj-post-body p { margin: 0 0 22px; }
         .rj-post-body a {
             color: #7c3aed;
             text-decoration: underline;
@@ -202,7 +129,7 @@
             margin: 32px 0;
             padding: 8px 0 8px 28px;
             border-left: 4px solid #8b5cf6;
-            font-size: 20px;
+            font-size: 19px;
             font-style: italic;
             color: #4b5563;
             line-height: 1.6;
@@ -218,38 +145,108 @@
         .rj-post-body pre {
             background: #0f172a;
             color: #e5e7eb;
-            padding: 24px;
+            padding: 22px;
             border-radius: 14px;
             overflow-x: auto;
-            margin: 28px 0;
+            margin: 26px 0;
             font-size: 14px;
             line-height: 1.7;
         }
         .rj-post-body pre code { background: none; padding: 0; color: inherit; }
-        .rj-post-body ul, .rj-post-body ol { margin: 0 0 24px; padding-left: 28px; }
+        .rj-post-body ul, .rj-post-body ol { margin: 0 0 22px; padding-left: 26px; }
         .rj-post-body li { margin-bottom: 10px; }
+
+        .rj-post-footer-meta {
+            max-width: 760px;
+            margin: 0 auto;
+            padding: 32px 24px;
+            border-top: 1px solid #f3f4f6;
+            border-bottom: 1px solid #f3f4f6;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .rj-post-author-block {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .rj-post-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #8b5cf6, #ec4899);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 18px;
+            color: #fff;
+            box-shadow: 0 6px 16px rgba(139,92,246,.3);
+            flex-shrink: 0;
+        }
+        .rj-post-author-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .rj-post-author-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            color: #9ca3af;
+            font-weight: 700;
+        }
+        .rj-post-author-name {
+            font-size: 15px;
+            font-weight: 700;
+            color: #0f172a;
+        }
+
+        .rj-post-meta-list {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+        .rj-post-meta-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            font-size: 13px;
+            color: #6b7280;
+            font-weight: 500;
+        }
+        .rj-post-meta-item svg {
+            width: 15px;
+            height: 15px;
+            opacity: .6;
+        }
 
         .rj-post-tags {
             max-width: 760px;
             margin: 0 auto;
-            padding: 0 24px 64px;
+            padding: 24px 24px 56px;
             display: flex;
             flex-wrap: wrap;
             gap: 8px;
             align-items: center;
         }
         .rj-post-tags-label {
-            font-size: 12px;
+            font-size: 11px;
             text-transform: uppercase;
             letter-spacing: .08em;
             color: #9ca3af;
             font-weight: 700;
-            margin-right: 8px;
+            margin-right: 4px;
         }
         .rj-post-tags a {
             display: inline-flex;
             align-items: center;
-            padding: 7px 16px;
+            padding: 6px 14px;
             border-radius: 999px;
             background: #f3f4f6;
             color: #374151;
@@ -267,23 +264,23 @@
 
         .rj-post-related {
             background: #fafafa;
-            padding: 80px 24px;
+            padding: 64px 24px;
             border-top: 1px solid #f3f4f6;
         }
         .rj-post-related-inner { max-width: 1100px; margin: 0 auto; }
         .rj-post-related-header {
             text-align: center;
-            margin-bottom: 40px;
+            margin-bottom: 36px;
         }
         .rj-post-related-header h2 {
-            font-size: 30px;
+            font-size: 26px;
             font-weight: 800;
-            margin: 0 0 8px;
+            margin: 0 0 6px;
             letter-spacing: -.02em;
             color: #0f172a;
         }
         .rj-post-related-header p {
-            font-size: 15px;
+            font-size: 14px;
             color: #6b7280;
             margin: 0;
         }
@@ -294,15 +291,16 @@
         }
 
         @media (max-width: 768px) {
-            .rj-post-hero { padding: 64px 20px 56px; }
-            .rj-post-hero h1 { font-size: 32px; margin-bottom: 20px; }
-            .rj-post-hero-meta { gap: 16px; padding-top: 20px; }
-            .rj-post-hero-divider { display: none; }
-            .rj-post-featured { margin-top: -32px; margin-bottom: 48px; padding: 0 20px; }
-            .rj-post-body { font-size: 16px; padding: 0 20px 40px; }
-            .rj-post-body h2 { font-size: 24px; margin: 36px 0 16px; }
-            .rj-post-related { padding: 56px 20px; }
-            .rj-post-related-header h2 { font-size: 22px; }
+            .rj-post-hero { padding: 40px 20px 32px; }
+            .rj-post-hero h1 { font-size: 26px; }
+            .rj-post-featured { margin-top: -24px; margin-bottom: 32px; padding: 0 20px; }
+            .rj-post-featured img { max-height: 280px; }
+            .rj-post-body { font-size: 16px; padding: 0 20px 32px; }
+            .rj-post-body h2 { font-size: 22px; margin: 32px 0 14px; }
+            .rj-post-footer-meta { padding: 24px 20px; }
+            .rj-post-tags { padding: 20px 20px 44px; }
+            .rj-post-related { padding: 44px 20px; }
+            .rj-post-related-header h2 { font-size: 20px; }
         }
     </style>
 @endpush
@@ -334,34 +332,6 @@
             @endif
 
             <h1>{{ $post->title }}</h1>
-
-            <div class="rj-post-hero-meta">
-
-                <div class="rj-post-author">
-                    <span class="rj-post-avatar">{{ strtoupper(substr($post->author->name ?? '?', 0, 1)) }}</span>
-                    <div class="rj-post-author-info">
-                        <span class="rj-post-author-label">{{ __('Written by') }}</span>
-                        <span class="rj-post-author-name">{{ $post->author->name ?? __('Unknown') }}</span>
-                    </div>
-                </div>
-
-                @if($post->published_at)
-                    <span class="rj-post-hero-divider"></span>
-                    <span class="rj-post-meta-item">
-                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
-                        {{ $post->published_at->translatedFormat('F d, Y') }}
-                    </span>
-                @endif
-
-                @if($post->view_count > 0)
-                    <span class="rj-post-hero-divider"></span>
-                    <span class="rj-post-meta-item">
-                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.46 12C3.73 7.94 7.52 5 12 5s8.27 2.94 9.54 7c-1.27 4.06-5.06 7-9.54 7S3.73 16.06 2.46 12z"/></svg>
-                        {{ number_format($post->view_count) }} {{ __('views') }}
-                    </span>
-                @endif
-
-            </div>
         </div>
     </section>
 
@@ -383,6 +353,32 @@
             <p style="color:#9ca3af; font-style:italic;">{{ __('No content yet.') }}</p>
         @endif
     </article>
+
+    <div class="rj-post-footer-meta">
+        <div class="rj-post-author-block">
+            <span class="rj-post-avatar">{{ strtoupper(substr($post->author->name ?? '?', 0, 1)) }}</span>
+            <div class="rj-post-author-info">
+                <span class="rj-post-author-label">{{ __('Written by') }}</span>
+                <span class="rj-post-author-name">{{ $post->author->name ?? __('Unknown') }}</span>
+            </div>
+        </div>
+
+        <div class="rj-post-meta-list">
+            @if($post->published_at)
+                <span class="rj-post-meta-item">
+                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+                    {{ $post->published_at->translatedFormat('F d, Y') }}
+                </span>
+            @endif
+
+            @if($post->view_count > 0)
+                <span class="rj-post-meta-item">
+                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path d="M2.46 12C3.73 7.94 7.52 5 12 5s8.27 2.94 9.54 7c-1.27 4.06-5.06 7-9.54 7S3.73 16.06 2.46 12z"/></svg>
+                    {{ number_format($post->view_count) }} {{ __('views') }}
+                </span>
+            @endif
+        </div>
+    </div>
 
     @if($post->tags->isNotEmpty())
         <div class="rj-post-tags">
