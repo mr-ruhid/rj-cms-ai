@@ -354,19 +354,23 @@ class ThemeManager
 
     public function activeTheme(): ?Theme
     {
-        return Cache::remember('rj_active_theme', 3600, function () {
-            $slug = rj_get_option('active_theme', '');
+        try {
+            return Cache::remember('rj_active_theme', 3600, function () {
+                $slug = rj_get_option('active_theme', '');
 
-            if ($slug) {
-                $theme = Theme::where('slug', $slug)->where('status', 'active')->first();
+                if ($slug) {
+                    $theme = Theme::where('slug', $slug)->where('status', 'active')->first();
 
-                if ($theme) {
-                    return $theme;
+                    if ($theme) {
+                        return $theme;
+                    }
                 }
-            }
 
-            return Theme::where('status', 'active')->first();
-        });
+                return Theme::where('status', 'active')->first();
+            });
+        } catch (\Throwable $e) {
+            return null;
+        }
     }
 
     public function childTheme(Theme $parent): ?Theme
@@ -384,6 +388,51 @@ class ThemeManager
         return Theme::where('parent_slug', $parent->slug)->where('status', 'active')->first();
     }
 
+    public function registerViews(): void
+    {
+        $theme = $this->activeTheme();
+
+        if (!$theme) {
+            return;
+        }
+
+        $path = $theme->viewPath();
+
+        if (!File::isDirectory($path)) {
+            return;
+        }
+
+        $child = $this->childTheme($theme);
+
+        if ($child) {
+            $childPath = $child->viewPath();
+
+            if (File::isDirectory($childPath)) {
+                view()->prependNamespace('theme', $childPath);
+            }
+        }
+
+        view()->addNamespace('theme', $path);
+    }
+
+    public function renderView(string $view, array $data = [])
+    {
+        $theme = $this->activeTheme();
+
+        if ($theme) {
+            $themeView = 'theme::' . $view;
+
+            try {
+                if (view()->exists($themeView)) {
+                    return view($themeView, $data);
+                }
+            } catch (\Throwable $e) {
+            }
+        }
+
+        return view('frontend.' . $view, $data);
+    }
+
     public function renderPath(string $view = ''): string
     {
         $active = $this->activeTheme();
@@ -399,6 +448,30 @@ class ThemeManager
         }
 
         return $active->viewPath($view);
+    }
+
+    public function resolveAsset(string $slug, string $path): ?string
+    {
+        $theme = Theme::where('slug', $slug)->first();
+
+        if (!$theme) {
+            return null;
+        }
+
+        $fullPath = $theme->path() . '/assets/' . ltrim($path, '/');
+
+        $real = realpath($fullPath);
+        $base = realpath($theme->path() . '/assets');
+
+        if (!$real || !$base || !str_starts_with($real, $base)) {
+            return null;
+        }
+
+        if (!File::isFile($real)) {
+            return null;
+        }
+
+        return $real;
     }
 
     protected function addDirectoryToZip(\ZipArchive $zip, string $dir, string $base): void
