@@ -49,7 +49,6 @@ abstract class PluginServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->registerRoutes();
-        $this->registerAssets();
         $this->registerHooks();
     }
 
@@ -93,13 +92,7 @@ abstract class PluginServiceProvider extends ServiceProvider
         }
     }
 
-    protected function registerAssets(): void
-    {
-        // Asset URL-ləri view-larda `plugin_asset($slug, $path)` helper ilə qurulur.
-    }
-
     protected function registerHooks(): void
     {
-        // Plugin öz hook-larını burada qeyd edir.
     }
 }
