@@ -135,7 +135,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::view('/appearance', 'admin.coming-soon')->name('appearance.index');
     Route::view('/appearance/customize', 'admin.coming-soon')->name('appearance.customize');
     Route::view('/appearance/widgets', 'admin.coming-soon')->name('appearance.widgets');
-    Route::view('/appearance/editor', 'admin.coming-soon')->name('appearance.editor');
+    
+    Route::get('/editor', [\App\Http\Controllers\Admin\PluginEditorController::class, 'index'])->name('editor');
+    Route::get('/editor/{plugin}/files', [\App\Http\Controllers\Admin\PluginEditorController::class, 'files'])->name('editor.files');
+    Route::get('/editor/{plugin}/read', [\App\Http\Controllers\Admin\PluginEditorController::class, 'read'])->name('editor.read');
+    Route::post('/editor/{plugin}/save', [\App\Http\Controllers\Admin\PluginEditorController::class, 'save'])->name('editor.save');
+    Route::post('/editor/review', [\App\Http\Controllers\Admin\PluginEditorController::class, 'review'])->name('editor.review');
+    
     Route::view('/appearance/colors', 'admin.coming-soon')->name('appearance.colors');
     Route::view('/appearance/options', 'admin.coming-soon')->name('appearance.options');
 
