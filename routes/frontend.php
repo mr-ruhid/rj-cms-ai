@@ -22,6 +22,22 @@ Route::get('/theme-assets/{slug}/{path}', function (string $slug, string $path) 
     ]);
 })->where('path', '.*')->name('theme.asset');
 
+Route::get('/plugin-assets/{slug}/{path}', function (string $slug, string $path) {
+    $manager = app(\App\Services\PluginManager::class);
+    $file = $manager->resolveAsset($slug, $path);
+
+    if (!$file) {
+        abort(404);
+    }
+
+    $mime = \Illuminate\Support\Facades\File::mimeType($file) ?: 'application/octet-stream';
+
+    return response()->file($file, [
+        'Content-Type' => $mime,
+        'Cache-Control' => 'public, max-age=31536000',
+    ]);
+})->where('path', '.*')->name('plugin.asset');
+
 Route::get('/', [FrontendController::class, 'home'])->name('home');
 
 Route::get('/rj-preview/{template}', [FrontendController::class, 'preview'])
@@ -38,5 +54,5 @@ Route::get('/blog', [PostController::class, 'archive'])->name('frontend.posts.in
 Route::get('/blog/{slug}', [PostController::class, 'show'])->name('frontend.posts.show');
 
 Route::get('/{slug}', [PageController::class, 'show'])
-    ->where('slug', '^(?!admin|login|register|logout|password|email|verification|api|rj-preview|rj-form|rj-fonts|theme-assets|blog|storage|up|sanctum|livewire).*$')
+    ->where('slug', '^(?!admin|login|register|logout|password|email|verification|api|rj-preview|rj-form|rj-fonts|theme-assets|plugin-assets|blog|storage|up|sanctum|livewire).*$')
     ->name('frontend.page');
