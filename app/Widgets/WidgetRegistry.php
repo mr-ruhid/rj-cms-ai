@@ -42,13 +42,38 @@ class WidgetRegistry
             new PostsWidget(),
         ];
 
+        $plugin = static::discoverFromPlugins();
+
         $uploaded = static::discoverUploaded();
 
-        static::$cache = array_merge($builtin, $uploaded);
+        $all = array_merge($builtin, $plugin, $uploaded);
+
+        $unique = [];
+
+        foreach ($all as $widget) {
+            if (!$widget instanceof BaseWidget) {
+                continue;
+            }
+
+            $unique[$widget->id()] = $widget;
+        }
+
+        static::$cache = array_values($unique);
 
         Cache::put($cacheKey, static::$cache, 3600);
 
         return static::$cache;
+    }
+
+    protected static function discoverFromPlugins(): array
+    {
+        try {
+            $widgets = rj_apply_filters('builder.widgets', []);
+
+            return is_array($widgets) ? array_filter($widgets, fn($w) => $w instanceof BaseWidget) : [];
+        } catch (\Throwable $e) {
+            return [];
+        }
     }
 
     protected static function discoverUploaded(): array
@@ -180,17 +205,30 @@ class WidgetRegistry
                 'description' => $widget->description(),
                 'schema' => $widget->fullSchema(),
                 'defaults' => $widget->fullDefaults(),
-                'source' => static::isUploaded($widget) ? 'uploaded' : 'builtin',
+                'source' => static::widgetSource($widget),
             ];
         }
 
         return $out;
     }
 
-    protected static function isUploaded(BaseWidget $widget): bool
+    protected static function widgetSource(BaseWidget $widget): string
     {
-        return str_starts_with(get_class($widget), 'RjWidgets\\')
-            || !in_array(get_class($widget), static::builtinClasses(), true);
+        $class = get_class($widget);
+
+        if (str_starts_with($class, 'RjPlugins\\')) {
+            return 'plugin';
+        }
+
+        if (str_starts_with($class, 'RjWidgets\\')) {
+            return 'uploaded';
+        }
+
+        if (in_array($class, static::builtinClasses(), true)) {
+            return 'builtin';
+        }
+
+        return 'custom';
     }
 
     protected static function builtinClasses(): array
