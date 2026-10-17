@@ -149,7 +149,67 @@
                     <span>{{ __('RJBuilder') }}</span>
                 </a>
 
+                @php
+                    $pluginMenuItems = rj_apply_filters('admin.menu', []);
+                    usort($pluginMenuItems, fn($a, $b) => ($a['position'] ?? 100) <=> ($b['position'] ?? 100));
+                    $pluginMenuRoots = array_filter($pluginMenuItems, fn($i) => empty($i['parent']));
+                    $pluginMenuChildren = array_filter($pluginMenuItems, fn($i) => !empty($i['parent']));
+                @endphp
 
+                @if (!empty($pluginMenuItems))
+                    <div class="pt-3 mt-3 border-t border-white/5">
+                        <div class="px-3 mb-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            {{ __('Plugins') }}
+                        </div>
+
+                        @foreach ($pluginMenuRoots as $item)
+                            @php
+                                $itemChildren = array_filter($pluginMenuChildren, fn($c) => ($c['parent'] ?? '') === ($item['id'] ?? ''));
+                                $hasChildren = !empty($itemChildren);
+                                $isActive = isset($item['route']) && request()->routeIs($item['route'] . '*');
+                            @endphp
+
+                            @if ($hasChildren)
+                                <div>
+                                    <button @click="openMenu = openMenu === 'plugin-{{ $item['id'] }}' ? null : 'plugin-{{ $item['id'] }}'"
+                                            class="w-full flex items-center justify-between px-3 py-2 rounded-lg transition {{ $isActive ? 'bg-white/10 text-white' : 'hover:bg-white/5 hover:text-white' }}">
+                                        <span class="flex items-center gap-3">
+                                            <span class="w-5 h-5 flex-shrink-0 flex items-center justify-center text-current">
+                                                @if (!empty($item['icon_svg']))
+                                                    {!! $item['icon_svg'] !!}
+                                                @else
+                                                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7"/></svg>
+                                                @endif
+                                            </span>
+                                            {{ $item['title'] }}
+                                        </span>
+                                        <svg class="w-3.5 h-3.5 opacity-60 transition" :class="openMenu === 'plugin-{{ $item['id'] }}' ? 'rotate-180' : ''" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                                    </button>
+                                    <div x-show="openMenu === 'plugin-{{ $item['id'] }}'" x-cloak class="pl-11 mt-1 space-y-0.5">
+                                        @foreach ($itemChildren as $child)
+                                            <a href="{{ isset($child['route']) && Route::has($child['route']) ? route($child['route']) : ($child['url'] ?? '#') }}"
+                                               class="block px-3 py-1.5 rounded-md text-gray-400 hover:text-white hover:bg-white/5">
+                                                {{ $child['title'] }}
+                                            </a>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            @else
+                                <a href="{{ isset($item['route']) && Route::has($item['route']) ? route($item['route']) : ($item['url'] ?? '#') }}"
+                                   class="flex items-center gap-3 px-3 py-2 rounded-lg transition {{ $isActive ? 'bg-gradient-to-r from-rj-purple/30 to-rj-pink/20 text-white border-l-2 border-rj-purple-light' : 'hover:bg-white/5 hover:text-white' }}">
+                                    <span class="w-5 h-5 flex-shrink-0 flex items-center justify-center text-current">
+                                        @if (!empty($item['icon_svg']))
+                                            {!! $item['icon_svg'] !!}
+                                        @else
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h7"/></svg>
+                                        @endif
+                                    </span>
+                                    <span>{{ $item['title'] }}</span>
+                                </a>
+                            @endif
+                        @endforeach
+                    </div>
+                @endif
 
                 <a href="{{ route('admin.users.index') }}" class="flex items-center gap-3 px-3 py-2 rounded-lg transition {{ request()->routeIs('admin.users.*') ? 'bg-gradient-to-r from-rj-purple/30 to-rj-pink/20 text-white border-l-2 border-rj-purple-light' : 'hover:bg-white/5 hover:text-white' }}">
                     <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
