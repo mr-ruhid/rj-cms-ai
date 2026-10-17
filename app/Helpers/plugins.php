@@ -10,6 +10,13 @@ if (!function_exists('rj_plugin_active')) {
     }
 }
 
+if (!function_exists('rj_plugin')) {
+    function rj_plugin(string $slug): ?Plugin
+    {
+        return Plugin::where('slug', $slug)->first();
+    }
+}
+
 if (!function_exists('rj_plugin_path')) {
     function rj_plugin_path(string $slug, string $append = ''): ?string
     {
@@ -36,5 +43,12 @@ if (!function_exists('rj_plugin_setting')) {
         $plugin = Plugin::where('slug', $slug)->first();
 
         return $plugin?->getSetting($key, $default) ?? $default;
+    }
+}
+
+if (!function_exists('rj_plugin_view')) {
+    function rj_plugin_view(string $slug, string $view, array $data = [])
+    {
+        return view('plugin-' . $slug . '::' . $view, $data);
     }
 }
