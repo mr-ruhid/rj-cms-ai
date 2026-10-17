@@ -12,6 +12,8 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->singleton(ThemeManager::class, fn($app) => new ThemeManager());
         $this->app->singleton(PluginManager::class, fn($app) => new PluginManager());
+
+        require_once app_path('Helpers/plugins.php');
     }
 
     public function boot(): void
