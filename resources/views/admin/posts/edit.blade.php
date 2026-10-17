@@ -26,7 +26,7 @@
             <div class="flex items-center gap-3 flex-wrap">
                 @if ($post->status === 'published')
                     @php
-                        $viewLink = $post->type === 'page' ? url('/' . $post->slug) : url('/blog/' . $post->slug);
+                        $viewLink = $post->public_url;
                     @endphp
                     <a href="{{ $viewLink }}" target="_blank"
                        class="inline-flex items-center gap-1.5 text-sm text-gray-600 hover:text-rj-purple transition">
