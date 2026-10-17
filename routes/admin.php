@@ -45,9 +45,6 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::get('/create', [PostController::class, 'create'])->name('create');
         Route::post('/', [PostController::class, 'store'])->name('store');
         Route::post('/bulk', [PostController::class, 'bulk'])->name('bulk');
-        Route::post('/toggle-global', [\App\Http\Controllers\Admin\CommentController::class, 'toggleGlobal'])->name('toggle-global');
-        Route::get('/ai/status', [\App\Http\Controllers\Admin\CommentController::class, 'aiStatus'])->name('ai.status');
-        Route::post('/{comment}/ai/analyze', [\App\Http\Controllers\Admin\CommentController::class, 'aiAnalyze'])->name('ai.analyze');
 
         Route::get('/categories', [CategoryController::class, 'index'])->name('categories');
         Route::get('/categories/create', [CategoryController::class, 'create'])->name('categories.create');
@@ -135,13 +132,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::view('/appearance', 'admin.coming-soon')->name('appearance.index');
     Route::view('/appearance/customize', 'admin.coming-soon')->name('appearance.customize');
     Route::view('/appearance/widgets', 'admin.coming-soon')->name('appearance.widgets');
-    
-    Route::get('/editor', [\App\Http\Controllers\Admin\PluginEditorController::class, 'index'])->name('editor');
-    Route::get('/editor/{plugin}/files', [\App\Http\Controllers\Admin\PluginEditorController::class, 'files'])->name('editor.files');
-    Route::get('/editor/{plugin}/read', [\App\Http\Controllers\Admin\PluginEditorController::class, 'read'])->name('editor.read');
-    Route::post('/editor/{plugin}/save', [\App\Http\Controllers\Admin\PluginEditorController::class, 'save'])->name('editor.save');
-    Route::post('/editor/review', [\App\Http\Controllers\Admin\PluginEditorController::class, 'review'])->name('editor.review');
-    
+    Route::view('/appearance/editor', 'admin.coming-soon')->name('appearance.editor');
     Route::view('/appearance/colors', 'admin.coming-soon')->name('appearance.colors');
     Route::view('/appearance/options', 'admin.coming-soon')->name('appearance.options');
 
@@ -364,8 +355,16 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
 
     Route::prefix('plugins')->name('plugins.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\PluginController::class, 'index'])->name('index');
+        Route::get('/browse', [\App\Http\Controllers\Admin\PluginController::class, 'browse'])->name('browse');
+        Route::post('/install-github', [\App\Http\Controllers\Admin\PluginController::class, 'installFromGitHub'])->name('install-github');
         Route::view('/create', 'admin.coming-soon')->name('create');
-        Route::view('/editor', 'admin.coming-soon')->name('editor');
+        
+        Route::get('/editor', [\App\Http\Controllers\Admin\PluginEditorController::class, 'index'])->name('editor');
+        Route::get('/editor/{plugin}/files', [\App\Http\Controllers\Admin\PluginEditorController::class, 'files'])->name('editor.files');
+        Route::get('/editor/{plugin}/read', [\App\Http\Controllers\Admin\PluginEditorController::class, 'read'])->name('editor.read');
+        Route::post('/editor/{plugin}/save', [\App\Http\Controllers\Admin\PluginEditorController::class, 'save'])->name('editor.save');
+        Route::post('/editor/review', [\App\Http\Controllers\Admin\PluginEditorController::class, 'review'])->name('editor.review');
+
         Route::post('/upload', [\App\Http\Controllers\Admin\PluginController::class, 'upload'])->name('upload');
         Route::post('/bulk', [\App\Http\Controllers\Admin\PluginController::class, 'bulk'])->name('bulk');
         Route::post('/check-updates', [\App\Http\Controllers\Admin\PluginController::class, 'checkUpdates'])->name('check-updates');
