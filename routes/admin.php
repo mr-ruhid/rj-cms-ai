@@ -47,6 +47,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::post('/bulk', [PostController::class, 'bulk'])->name('bulk');
         Route::post('/toggle-global', [\App\Http\Controllers\Admin\CommentController::class, 'toggleGlobal'])->name('toggle-global');
         Route::get('/ai/status', [\App\Http\Controllers\Admin\CommentController::class, 'aiStatus'])->name('ai.status');
+        Route::post('/{comment}/ai/analyze', [\App\Http\Controllers\Admin\CommentController::class, 'aiAnalyze'])->name('ai.analyze');
 
         Route::get('/categories', [CategoryController::class, 'index'])->name('categories');
         Route::get('/categories/create', [CategoryController::class, 'create'])->name('categories.create');
