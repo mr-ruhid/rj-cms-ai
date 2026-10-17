@@ -29,6 +29,50 @@ class PluginManager
         }
     }
 
+        protected function registerPluginAutoloader(Plugin $plugin): void
+    {
+        $manifest = $plugin->metadata();
+        $namespace = $manifest['namespace'] ?? null;
+
+        if (!$namespace) {
+            return;
+        }
+
+        $srcPath = $plugin->path('src');
+
+        if (!File::isDirectory($srcPath)) {
+            return;
+        }
+
+        $key = 'plugin_' . $plugin->slug;
+
+        if (isset(static::$autoloaded[$key])) {
+            return;
+        }
+
+        static::$autoloaded[$key] = true;
+
+        $namespace = rtrim($namespace, '\\') . '\\';
+        $srcPath = rtrim($srcPath, '/');
+
+        spl_autoload_register(function ($class) use ($namespace, $srcPath) {
+            if (!str_starts_with($class, $namespace)) {
+                return;
+            }
+
+            $relative = substr($class, strlen($namespace));
+            $file = $srcPath . '/' . str_replace('\\', '/', $relative) . '.php';
+
+            if (File::exists($file)) {
+                require_once $file;
+            }
+        });
+    }
+
+    protected static array $autoloaded = [];
+
+    $this->registerPluginAutoloader($plugin);
+
     protected function bootSinglePlugin(Plugin $plugin): void
     {
         $metadata = $plugin->metadata();
