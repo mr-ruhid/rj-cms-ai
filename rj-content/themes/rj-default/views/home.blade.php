@@ -217,7 +217,13 @@
 <main class="rj-frontend-main">
 
     @if($page)
-        {!! rj_render_template($page) !!}
+        @if($page->isBuilderMode() && $page->hasBlocks())
+            {!! rj_render_blocks($page->blocks['blocks'] ?? []) !!}
+        @elseif($page->content)
+            <div style="max-width:1200px;margin:0 auto;padding:48px 24px;">
+                {!! $page->content !!}
+            </div>
+        @endif
     @else
 
         <section class="rj-home-hero">
