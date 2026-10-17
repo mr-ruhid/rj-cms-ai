@@ -3,6 +3,8 @@
 @section('title', __('Comments'))
 
 @section('content')
+@php $commentsEnabled = (bool) rj_get_option('comments_enabled', true); @endphp
+
 <div class="space-y-6" x-data="{ selected: [], bulkAction: '' }">
 
     <div class="flex items-center justify-between gap-4 flex-wrap">
@@ -10,7 +12,40 @@
             <h2 class="text-base font-semibold text-gray-900">{{ __('Comments') }}</h2>
             <p class="text-sm text-gray-500 mt-1">{{ __('Manage comments across your site.') }}</p>
         </div>
+
+        <div class="flex items-center gap-2">
+            <button type="button"
+                    @click="$dispatch('open-ai-panel')"
+                    class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-rj-purple to-rj-pink text-white text-sm font-medium hover:opacity-90 transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2l1.09 3.26L16 6.27l-2.91.97L12 10.5l-1.09-3.26L8 6.27l2.91-1.01L12 2z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19 15l.71 2.13L22 17.7l-2.29.71L19 20.5l-.71-2.09L16 17.7l2.29-.57L19 15z"/><path stroke-linecap="round" stroke-linejoin="round" d="M5 14l.71 2.13L8 16.7l-2.29.71L5 19.5l-.71-2.09L2 16.7l2.29-.57L5 14z"/></svg>
+                {{ __('AI Management') }}
+            </button>
+
+            <form method="POST" action="{{ route('admin.comments.toggle-global') }}" class="inline">
+                @csrf
+                <button type="submit"
+                        class="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition {{ $commentsEnabled ? 'bg-white border border-gray-300 text-gray-700 hover:bg-gray-50' : 'bg-red-50 border border-red-200 text-red-700 hover:bg-red-100' }}">
+                    @if ($commentsEnabled)
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+                        {{ __('Disable Comments') }}
+                    @else
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        {{ __('Enable Comments') }}
+                    @endif
+                </button>
+            </form>
+        </div>
     </div>
+
+    @if (!$commentsEnabled)
+        <div class="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 text-sm text-amber-900 flex items-start gap-3">
+            <svg class="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <div>
+                <strong>{{ __('Comments are disabled globally.') }}</strong>
+                <span class="opacity-80">{{ __('No new comments will be accepted on the frontend.') }}</span>
+            </div>
+        </div>
+    @endif
 
     <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
         @php
@@ -257,6 +292,93 @@
             @endif
         @endif
 
+    </div>
+
+    <div x-data="{
+            aiOpen: false,
+            aiLoading: false,
+            aiStatus: null,
+            async loadAiStatus() {
+                this.aiLoading = true;
+                try {
+                    const res = await fetch('{{ route('admin.comments.ai.status') }}', {
+                        headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
+                    });
+                    this.aiStatus = await res.json();
+                } catch (e) {
+                    this.aiStatus = { enabled: false };
+                } finally {
+                    this.aiLoading = false;
+                }
+            }
+         }"
+         @open-ai-panel.window="aiOpen = true; loadAiStatus()"
+         x-show="aiOpen" x-cloak
+         class="fixed inset-0 z-50 flex items-center justify-center p-4"
+         @keydown.escape.window="aiOpen = false">
+
+        <div class="absolute inset-0 bg-black/50" @click="aiOpen = false"></div>
+
+        <div class="relative bg-white rounded-2xl shadow-2xl max-w-lg w-full">
+            <div class="px-6 py-5 border-b border-gray-100 flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-rj-purple to-rj-pink flex items-center justify-center text-white">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2l1.09 3.26L16 6.27l-2.91.97L12 10.5l-1.09-3.26L8 6.27l2.91-1.01L12 2z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19 15l.71 2.13L22 17.7l-2.29.71L19 20.5l-.71-2.09L16 17.7l2.29-.57L19 15z"/><path stroke-linecap="round" stroke-linejoin="round" d="M5 14l.71 2.13L8 16.7l-2.29.71L5 19.5l-.71-2.09L2 16.7l2.29-.57L5 14z"/></svg>
+                    </div>
+                    <div>
+                        <h3 class="text-base font-semibold text-gray-900">{{ __('AI Comment Management') }}</h3>
+                        <p class="text-xs text-gray-500 mt-0.5">{{ __('Automate moderation and replies.') }}</p>
+                    </div>
+                </div>
+                <button type="button" @click="aiOpen = false" class="text-gray-400 hover:text-gray-600">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+
+            <div class="p-6 space-y-3">
+                <div x-show="aiLoading" class="text-center py-4">
+                    <svg class="w-6 h-6 mx-auto text-rj-purple animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path></svg>
+                </div>
+
+                <template x-if="!aiLoading && aiStatus && !aiStatus.enabled">
+                    <div class="bg-amber-50 border border-amber-200 rounded-lg p-4 text-sm text-amber-900">
+                        {{ __('AI is not configured. Go to Settings → AI to add your OpenRouter API key.') }}
+                    </div>
+                </template>
+
+                <template x-if="!aiLoading && aiStatus && aiStatus.enabled">
+                    <div class="space-y-3">
+                        <div class="grid grid-cols-2 gap-3">
+                            <div class="bg-gray-50 rounded-lg p-3 text-center">
+                                <div class="text-xs text-gray-500 uppercase">{{ __('Pending') }}</div>
+                                <div class="text-xl font-bold text-amber-600 mt-1" x-text="aiStatus.pending_count"></div>
+                            </div>
+                            <div class="bg-gray-50 rounded-lg p-3 text-center">
+                                <div class="text-xs text-gray-500 uppercase">{{ __('Spam') }}</div>
+                                <div class="text-xl font-bold text-red-600 mt-1" x-text="aiStatus.spam_count"></div>
+                            </div>
+                        </div>
+
+                        <div class="bg-blue-50 border border-blue-100 rounded-lg p-3 text-xs text-blue-800 leading-relaxed">
+                            {{ __('AI moderation tools are in development. Coming soon:') }}
+                            <ul class="mt-2 ml-4 list-disc space-y-0.5">
+                                <li>{{ __('Auto-classify pending comments') }}</li>
+                                <li>{{ __('Detect spam with AI') }}</li>
+                                <li>{{ __('Suggest replies to comments') }}</li>
+                                <li>{{ __('Sentiment analysis') }}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </template>
+            </div>
+
+            <div class="px-6 py-4 border-t border-gray-100 flex items-center justify-end gap-3">
+                <button type="button" @click="aiOpen = false"
+                        class="px-4 py-2 text-sm text-gray-600 hover:text-gray-900">
+                    {{ __('Close') }}
+                </button>
+            </div>
+        </div>
     </div>
 
 </div>
