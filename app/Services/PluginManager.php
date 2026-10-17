@@ -16,6 +16,98 @@ class PluginManager
         $this->pluginsPath = base_path('rj-content/plugins');
     }
 
+    public function boot(): void
+    {
+        if (!File::isDirectory($this->pluginsPath)) {
+            return;
+        }
+
+        $activePlugins = Plugin::active()->get();
+
+        foreach ($activePlugins as $plugin) {
+            $this->bootSinglePlugin($plugin);
+        }
+    }
+
+    protected function bootSinglePlugin(Plugin $plugin): void
+    {
+        $metadata = $plugin->metadata();
+        $providerClass = $metadata['provider'] ?? null;
+
+        if ($providerClass && class_exists($providerClass)) {
+            try {
+                $reflection = new \ReflectionClass($providerClass);
+
+                if ($reflection->isSubclassOf(\App\Plugins\PluginServiceProvider::class)) {
+                    $instance = $reflection->newInstance(
+                        app(),
+                        $plugin->path(),
+                        $metadata
+                    );
+
+                    $instance->register();
+                    $instance->boot();
+
+                    return;
+                }
+            } catch (\Throwable $e) {
+                $plugin->markAsError($e->getMessage());
+                return;
+            }
+        }
+
+        $mainFile = $plugin->mainFilePath();
+
+        if (File::exists($mainFile)) {
+            try {
+                require_once $mainFile;
+            } catch (\Throwable $e) {
+                $plugin->markAsError($e->getMessage());
+            }
+        }
+    }
+
+    public function assetUrl(string $slug, string $path = ''): ?string
+    {
+        $plugin = Plugin::where('slug', $slug)->first();
+
+        if (!$plugin) {
+            return null;
+        }
+
+        return $plugin->assetUrl($path);
+    }
+
+    public function resolveAsset(string $slug, string $path): ?string
+    {
+        $plugin = Plugin::where('slug', $slug)->first();
+
+        if (!$plugin) {
+            return null;
+        }
+
+        $manifest = $plugin->metadata();
+        $assetsDir = $manifest['provides']['assets'] ?? 'assets';
+
+        $base = realpath($plugin->path($assetsDir));
+
+        if (!$base) {
+            return null;
+        }
+
+        $full = realpath($base . '/' . ltrim($path, '/'));
+
+        if (!$full || !str_starts_with($full, $base)) {
+            return null;
+        }
+
+        if (!File::isFile($full)) {
+            return null;
+        }
+
+        return $full;
+    }
+
     public function discover(): int
     {
         if (!File::isDirectory($this->pluginsPath)) {
