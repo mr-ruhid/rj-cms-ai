@@ -23,7 +23,12 @@ class FrontendController extends Controller
     {
         $header = $this->resolver->header();
         $footer = $this->resolver->footer();
+
         $page = $this->resolver->page();
+
+        if (!$page) {
+            $page = $this->findFrontPage();
+        }
 
         $latestPosts = collect();
 
@@ -41,8 +46,24 @@ class FrontendController extends Controller
             'footer' => $footer,
             'page' => $page,
             'latestPosts' => $latestPosts,
-            'title' => rj_get_option('site_name', config('app.name')),
+            'title' => $page?->title ?? rj_get_option('site_name', config('app.name')),
         ]);
+    }
+
+    protected function findFrontPage(): ?Post
+    {
+        $candidates = Post::with(['author', 'translations', 'template'])
+            ->where('type', 'page')
+            ->published()
+            ->get();
+
+        foreach ($candidates as $candidate) {
+            if ($candidate->isFrontPage()) {
+                return $candidate;
+            }
+        }
+
+        return null;
     }
 
     public function preview(Template $template)
