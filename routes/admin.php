@@ -68,16 +68,36 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::post('/{post}/unpublish', [PostController::class, 'unpublish'])->name('unpublish');
         Route::post('/{post}/trash-action', [PostController::class, 'trash'])->name('trash-action');
         Route::post('/{post}/restore', [PostController::class, 'restore'])->name('restore');
-        Route::get('/{post}', [PostController::class, 'show'])->name('show');
         Route::post('/{post}/ai/seo-analyze', [PostController::class, 'analyzeSeo'])->name('ai.seo-analyze');
         Route::post('/{post}/ai/generate-meta', [PostController::class, 'aiGenerateMeta'])->name('ai.generate-meta');
         Route::post('/{post}/ai/generate-title', [PostController::class, 'aiGenerateTitle'])->name('ai.generate-title');
         Route::post('/{post}/ai/generate-description', [PostController::class, 'aiGenerateDescription'])->name('ai.generate-description');
         Route::post('/{post}/ai/suggest-keyword', [PostController::class, 'aiSuggestKeyword'])->name('ai.suggest-keyword');
+        Route::get('/{post}', [PostController::class, 'show'])->name('show');
     });
 
-    Route::view('/pages', 'admin.coming-soon')->name('pages.index');
-    Route::view('/pages/create', 'admin.coming-soon')->name('pages.create');
+    Route::prefix('pages')->name('pages.')->group(function () {
+        Route::get('/', [PostController::class, 'index'])->name('index')->defaults('type', 'page');
+        Route::get('/create', [PostController::class, 'create'])->name('create')->defaults('type', 'page');
+        Route::post('/', [PostController::class, 'store'])->name('store');
+        Route::post('/bulk', [PostController::class, 'bulk'])->name('bulk');
+        Route::get('/{post}/build', [PostController::class, 'build'])->name('build');
+        Route::post('/{post}/blocks', [PostController::class, 'updateBlocks'])->name('blocks');
+        Route::get('/{post}/edit', [PostController::class, 'edit'])->name('edit');
+        Route::put('/{post}', [PostController::class, 'update'])->name('update');
+        Route::delete('/{post}', [PostController::class, 'destroy'])->name('destroy');
+        Route::post('/{post}/duplicate', [PostController::class, 'duplicate'])->name('duplicate');
+        Route::post('/{post}/publish', [PostController::class, 'publish'])->name('publish');
+        Route::post('/{post}/unpublish', [PostController::class, 'unpublish'])->name('unpublish');
+        Route::post('/{post}/trash-action', [PostController::class, 'trash'])->name('trash-action');
+        Route::post('/{post}/restore', [PostController::class, 'restore'])->name('restore');
+        Route::post('/{post}/ai/seo-analyze', [PostController::class, 'analyzeSeo'])->name('ai.seo-analyze');
+        Route::post('/{post}/ai/generate-meta', [PostController::class, 'aiGenerateMeta'])->name('ai.generate-meta');
+        Route::post('/{post}/ai/generate-title', [PostController::class, 'aiGenerateTitle'])->name('ai.generate-title');
+        Route::post('/{post}/ai/generate-description', [PostController::class, 'aiGenerateDescription'])->name('ai.generate-description');
+        Route::post('/{post}/ai/suggest-keyword', [PostController::class, 'aiSuggestKeyword'])->name('ai.suggest-keyword');
+        Route::get('/{post}', [PostController::class, 'show'])->name('show');
+    });
 
     Route::get('/media', [MediaController::class, 'index'])->name('media.index');
     Route::get('/media/picker', [MediaController::class, 'picker'])->name('media.picker');
