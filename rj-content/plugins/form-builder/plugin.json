@@ -22,17 +22,8 @@
                 "id": "forms",
                 "title": "Forms",
                 "icon": "clipboard-list",
-                "route": "admin.forms.index",
-                "position": 30,
-                "capability": "manage_forms"
-            },
-            {
-                "id": "form-submissions",
-                "title": "Submissions",
-                "icon": "inbox",
-                "route": "admin.forms.submissions",
-                "parent": "forms",
-                "position": 31
+                "route": "admin.plugin.forms.index",
+                "position": 30
             }
         ],
         "widgets": [
@@ -48,7 +39,7 @@
     },
 
     "settings": {
-        "route": "admin.forms.settings",
+        "route": "admin.plugin.forms.index",
         "schema": {
             "recaptcha_enabled": { "type": "toggle", "label": "Enable reCAPTCHA", "default": false },
             "recaptcha_site_key": { "type": "text", "label": "reCAPTCHA Site Key", "default": "" },
