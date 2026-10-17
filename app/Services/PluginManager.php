@@ -10,6 +10,7 @@ use Illuminate\Support\Str;
 class PluginManager
 {
     protected string $pluginsPath;
+    protected static array $autoloaded = [];
 
     public function __construct()
     {
@@ -29,7 +30,7 @@ class PluginManager
         }
     }
 
-        protected function registerPluginAutoloader(Plugin $plugin): void
+    protected function registerPluginAutoloader(Plugin $plugin): void
     {
         $manifest = $plugin->metadata();
         $namespace = $manifest['namespace'] ?? null;
@@ -69,12 +70,10 @@ class PluginManager
         });
     }
 
-    protected static array $autoloaded = [];
-
-    $this->registerPluginAutoloader($plugin);
-
     protected function bootSinglePlugin(Plugin $plugin): void
     {
+        $this->registerPluginAutoloader($plugin);
+
         $metadata = $plugin->metadata();
         $providerClass = $metadata['provider'] ?? null;
 
@@ -216,6 +215,7 @@ class PluginManager
         }
 
         try {
+            $this->registerPluginAutoloader($plugin);
             $this->bootPlugin($plugin);
 
             $plugin->markAsActive();
