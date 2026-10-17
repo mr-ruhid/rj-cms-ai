@@ -234,4 +234,20 @@ class CommentController extends Controller
             'spam_count' => Comment::where('status', 'spam')->count(),
         ]);
     }
+
+        public function aiAnalyze(Comment $comment)
+    {
+        $service = app(\App\Services\AiCommentService::class);
+
+        if (!$service->enabled()) {
+            return response()->json([
+                'success' => false,
+                'message' => __('AI is not configured.'),
+            ], 422);
+        }
+
+        $result = $service->analyze($comment);
+
+        return response()->json($result);
+    }
 }
