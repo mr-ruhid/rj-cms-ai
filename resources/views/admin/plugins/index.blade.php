@@ -11,11 +11,19 @@
             <p class="text-sm text-gray-500 mt-1">{{ __('Extend your site with plugins.') }}</p>
         </div>
 
-        <button type="button" @click="uploadOpen = true"
-                class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-rj-purple to-rj-pink text-white text-sm font-medium hover:opacity-90 transition">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-            {{ __('Upload Plugin') }}
-        </button>
+        <div class="flex items-center gap-2">
+            <a href="{{ route('admin.plugins.browse') }}"
+               class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-50 transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                {{ __('Browse Community') }}
+            </a>
+
+            <button type="button" @click="uploadOpen = true"
+                    class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-rj-purple to-rj-pink text-white text-sm font-medium hover:opacity-90 transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                {{ __('Upload Plugin') }}
+            </button>
+        </div>
     </div>
 
     <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
@@ -63,11 +71,17 @@
             <div class="p-16 text-center">
                 <svg class="w-16 h-16 mx-auto text-gray-300" fill="none" stroke="currentColor" stroke-width="1.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"/></svg>
                 <p class="mt-4 text-sm text-gray-500">{{ __('No plugins installed yet.') }}</p>
-                <button type="button" @click="uploadOpen = true"
-                        class="inline-flex items-center gap-2 mt-4 px-4 py-2 rounded-lg bg-gradient-to-r from-rj-purple to-rj-pink text-white text-sm font-medium hover:opacity-90 transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
-                    {{ __('Upload First Plugin') }}
-                </button>
+                <div class="flex items-center justify-center gap-3 mt-4">
+                    <a href="{{ route('admin.plugins.browse') }}"
+                       class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-50 transition">
+                        {{ __('Browse Community') }}
+                    </a>
+                    <button type="button" @click="uploadOpen = true"
+                            class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-rj-purple to-rj-pink text-white text-sm font-medium hover:opacity-90 transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+                        {{ __('Upload First Plugin') }}
+                    </button>
+                </div>
             </div>
         @else
             <form method="POST" action="{{ route('admin.plugins.bulk') }}">
@@ -242,7 +256,7 @@
                         <ul class="mt-1 ml-4 list-disc space-y-0.5">
                             <li>{{ __('plugin.json in archive root (or one level deep)') }}</li>
                             <li>{{ __('Unique slug') }}</li>
-                            <li>{{ __('Max 20 MB') }}</li>
+                            <li>{{ __('Max 50 MB') }}</li>
                         </ul>
                     </div>
                 </div>
