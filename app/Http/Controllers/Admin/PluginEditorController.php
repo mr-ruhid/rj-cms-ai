@@ -7,7 +7,6 @@ use App\Models\Plugin;
 use App\Services\AiCodeReviewerService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\File;
-use Symfony\Component\Finder\Finder;
 
 class PluginEditorController extends Controller
 {
@@ -22,17 +21,28 @@ class PluginEditorController extends Controller
     public function files(Plugin $plugin)
     {
         $basePath = $plugin->path();
-        if (!File::isDirectory($basePath)) return response()->json(['error' => 'Plugin directory not found.'], 404);
-
-        $finder = new Finder();
-        $finder->files()->in($basePath)->ignoreDotFiles(true)->ignoreVCS(true)->exclude(['vendor', 'node_modules', '.git']);
+        if (!File::isDirectory($basePath)) {
+            return response()->json(['error' => 'Plugin directory not found at: ' . $basePath], 404);
+        }
 
         $tree = [];
-        foreach ($finder as $file) {
+        
+        // Laravel-in native File sistemi ilə bütün faylları oxuyuruq
+        $allFiles = File::allFiles($basePath);
+
+        foreach ($allFiles as $file) {
             $relativePath = str_replace('\\', '/', $file->getRelativePathname());
+            
+            // Vendor və node_modules qovluqlarını keç
+            if (str_contains($relativePath, 'vendor/') || str_contains($relativePath, 'node_modules/')) {
+                continue;
+            }
+
             $ext = $file->getExtension();
             
-            if (!in_array($ext, $this->allowedExtensions) && !str_ends_with($relativePath, '.blade.php')) continue;
+            if (!in_array($ext, $this->allowedExtensions) && !str_ends_with($relativePath, '.blade.php')) {
+                continue;
+            }
 
             $tree[] = [
                 'path' => $relativePath,
@@ -99,7 +109,13 @@ class PluginEditorController extends Controller
 
         $fullPath = realpath($basePath . '/' . ltrim($relativePath, '/\\'));
 
-        if (!$fullPath || !str_starts_with($fullPath, $basePath)) return null;
+        if (!$fullPath) return null;
+
+        // Windows üçün slash normallaşdırması
+        $normBase = str_replace('\\', '/', $basePath);
+        $normFull = str_replace('\\', '/', $fullPath);
+
+        if (!str_starts_with($normFull, $normBase)) return null;
 
         return $fullPath;
     }
