@@ -26,6 +26,10 @@ class PageController extends Controller
             ->published()
             ->firstOrFail();
 
+        if ($page->isFrontPage()) {
+            return redirect()->to(url('/'), 301);
+        }
+
         $page->incrementViews();
 
         $header = $this->resolver->header();
