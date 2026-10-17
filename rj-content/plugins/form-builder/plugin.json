@@ -1,0 +1,60 @@
+{
+    "name": "Form Builder",
+    "slug": "form-builder",
+    "version": "1.0.0",
+    "author": "RJ CMS",
+    "author_url": "https://github.com/mr-ruhid",
+    "plugin_url": "https://github.com/mr-ruhid/rj-plugin-form-builder",
+    "description": "Create, manage, and embed forms. Includes RJBuilder widget and admin panel.",
+    "license": "MIT",
+    "main": "src/Plugin.php",
+    "namespace": "RjPlugins\\FormBuilder",
+    "provider": "RjPlugins\\FormBuilder\\FormBuilderServiceProvider",
+
+    "requires": {
+        "rj_cms": ">=1.0.0",
+        "php": ">=8.2"
+    },
+
+    "provides": {
+        "admin_menu": [
+            {
+                "id": "forms",
+                "title": "Forms",
+                "icon": "clipboard-list",
+                "route": "admin.forms.index",
+                "position": 30,
+                "capability": "manage_forms"
+            },
+            {
+                "id": "form-submissions",
+                "title": "Submissions",
+                "icon": "inbox",
+                "route": "admin.forms.submissions",
+                "parent": "forms",
+                "position": 31
+            }
+        ],
+        "widgets": [
+            "RjPlugins\\FormBuilder\\Widgets\\FormWidget"
+        ],
+        "routes": {
+            "admin": "routes/admin.php",
+            "frontend": "routes/frontend.php"
+        },
+        "views": "views",
+        "migrations": "src/Migrations",
+        "assets": "assets"
+    },
+
+    "settings": {
+        "route": "admin.forms.settings",
+        "schema": {
+            "recaptcha_enabled": { "type": "toggle", "label": "Enable reCAPTCHA", "default": false },
+            "recaptcha_site_key": { "type": "text", "label": "reCAPTCHA Site Key", "default": "" },
+            "recaptcha_secret": { "type": "text", "label": "reCAPTCHA Secret", "default": "" }
+        }
+    },
+
+    "update_url": "https://raw.githubusercontent.com/mr-ruhid/rj-plugin-form-builder/main/plugin.json"
+}
