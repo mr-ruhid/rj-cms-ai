@@ -23,7 +23,8 @@ class PostController extends Controller
 
     public function index(Request $request)
     {
-        $type = $request->input('type', 'post');
+        $type = $request->input('type') ?? $request->route()->defaults['type'] ?? 'post';
+
         $query = Post::with(['author', 'categories', 'tags'])
             ->where('type', $type)
             ->orderByDesc('created_at');
@@ -70,13 +71,13 @@ class PostController extends Controller
 
     public function create(Request $request)
     {
-        $type = $request->input('type', 'post');
+        $type = $request->input('type') ?? $request->route()->defaults['type'] ?? 'post';
 
         $post = new Post([
             'type' => $type,
             'status' => 'draft',
             'allow_comments' => true,
-            'edit_mode' => 'classic',
+            'edit_mode' => $type === 'page' ? 'builder' : 'classic',
         ]);
 
         $categories = Category::with('translations')->ordered()->get()->sortBy('name')->values();
