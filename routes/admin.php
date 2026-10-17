@@ -245,6 +245,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::get('/trash', [\App\Http\Controllers\Admin\CommentController::class, 'index'])->name('trash')->defaults('status_filter', 'trash');
         Route::post('/', [\App\Http\Controllers\Admin\CommentController::class, 'store'])->name('store');
         Route::post('/bulk', [\App\Http\Controllers\Admin\CommentController::class, 'bulk'])->name('bulk');
+        Route::post('/toggle-global', [\App\Http\Controllers\Admin\CommentController::class, 'toggleGlobal'])->name('toggle-global');
+        Route::get('/ai/status', [\App\Http\Controllers\Admin\CommentController::class, 'aiStatus'])->name('ai.status');
+
         Route::get('/{comment}', [\App\Http\Controllers\Admin\CommentController::class, 'show'])->name('show');
         Route::put('/{comment}', [\App\Http\Controllers\Admin\CommentController::class, 'update'])->name('update');
         Route::delete('/{comment}', [\App\Http\Controllers\Admin\CommentController::class, 'destroy'])->name('destroy');
@@ -253,6 +256,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::post('/{comment}/spam-action', [\App\Http\Controllers\Admin\CommentController::class, 'spam'])->name('spam-action');
         Route::post('/{comment}/trash-action', [\App\Http\Controllers\Admin\CommentController::class, 'trash'])->name('trash-action');
         Route::post('/{comment}/restore', [\App\Http\Controllers\Admin\CommentController::class, 'restore'])->name('restore');
+        Route::post('/{comment}/ai/analyze', [\App\Http\Controllers\Admin\CommentController::class, 'aiAnalyze'])->name('ai.analyze');
     });
 
     Route::prefix('post-types')->name('post-types.')->group(function () {
