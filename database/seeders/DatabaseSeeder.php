@@ -16,6 +16,10 @@ class DatabaseSeeder extends Seeder
             PermissionSeeder::class,
             PostTypeSeeder::class,
             TaxonomySeeder::class,
+            MenuSeeder::class,
+            PageSeeder::class,
+            PostSeeder::class,
+            TemplateSeeder::class,
         ]);
     }
 }
