@@ -200,4 +200,38 @@ class CommentController extends Controller
 
         return back()->with('success', __(':n comment(s) updated.', ['n' => $count]));
     }
+
+        public function toggleGlobal(Request $request)
+    {
+        $enabled = (bool) rj_get_option('comments_enabled', true);
+        $newValue = !$enabled;
+
+        rj_set_option('comments_enabled', $newValue ? '1' : '0', 'discussion');
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'success' => true,
+                'enabled' => $newValue,
+                'message' => $newValue
+                    ? __('Comments enabled globally.')
+                    : __('Comments disabled globally.'),
+            ]);
+        }
+
+        return back()->with('success', $newValue
+            ? __('Comments enabled globally.')
+            : __('Comments disabled globally.'));
+    }
+
+    public function aiStatus(Request $request)
+    {
+        $aiService = app(\App\Services\AiSeoService::class);
+
+        return response()->json([
+            'success' => true,
+            'enabled' => $aiService->enabled(),
+            'pending_count' => Comment::where('status', 'pending')->count(),
+            'spam_count' => Comment::where('status', 'spam')->count(),
+        ]);
+    }
 }
