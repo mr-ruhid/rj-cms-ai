@@ -25,10 +25,7 @@
 
             <div class="flex items-center gap-3 flex-wrap">
                 @if ($post->status === 'published')
-                    @php
-                        $viewLink = $post->public_url;
-                    @endphp
-                    <a href="{{ $viewLink }}" target="_blank"
+                    <a href="{{ $post->public_url }}" target="_blank"
                        class="inline-flex items-center gap-1.5 text-sm text-gray-600 hover:text-rj-purple transition">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
                         {{ __('View') }}
