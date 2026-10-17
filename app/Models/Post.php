@@ -298,9 +298,7 @@ class Post extends Model
             return null;
         }
 
-        return $this->type === 'page'
-            ? url('/' . $this->slug)
-            : url('/blog/' . $this->slug);
+        return $this->public_url;
     }
 
     public function hasBlocks(): bool
@@ -321,6 +319,32 @@ class Post extends Model
     public function isThemeMode(): bool
     {
         return $this->edit_mode === 'theme';
+    }
+
+    public function isFrontPage(): bool
+    {
+        if ($this->type !== 'page') {
+            return false;
+        }
+
+        if (!is_array($this->meta)) {
+            return false;
+        }
+
+        return !empty($this->meta['is_front']);
+    }
+
+    public function getPublicUrlAttribute(): string
+    {
+        if ($this->type === 'page') {
+            if ($this->isFrontPage()) {
+                return url('/');
+            }
+
+            return url('/' . $this->slug);
+        }
+
+        return url('/blog/' . $this->slug);
     }
 
     public function getTranslation(string $locale): ?PostTranslation
