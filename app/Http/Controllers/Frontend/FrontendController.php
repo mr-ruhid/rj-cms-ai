@@ -24,10 +24,10 @@ class FrontendController extends Controller
         $header = $this->resolver->header();
         $footer = $this->resolver->footer();
 
-        $page = $this->resolver->page();
+        $page = $this->findFrontPage();
 
         if (!$page) {
-            $page = $this->findFrontPage();
+            $page = $this->resolver->page();
         }
 
         $latestPosts = collect();
@@ -41,6 +41,8 @@ class FrontendController extends Controller
                 ->get();
         }
 
+        view()->share('post', $page);
+
         return $this->themes->renderView('home', [
             'header' => $header,
             'footer' => $footer,
@@ -52,18 +54,11 @@ class FrontendController extends Controller
 
     protected function findFrontPage(): ?Post
     {
-        $candidates = Post::with(['author', 'translations', 'template'])
+        return Post::with(['author', 'translations', 'template'])
             ->where('type', 'page')
             ->published()
-            ->get();
-
-        foreach ($candidates as $candidate) {
-            if ($candidate->isFrontPage()) {
-                return $candidate;
-            }
-        }
-
-        return null;
+            ->get()
+            ->first(fn($p) => $p->isFrontPage());
     }
 
     public function preview(Template $template)
