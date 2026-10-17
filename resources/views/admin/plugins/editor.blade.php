@@ -3,9 +3,26 @@
 @section('title', __('Plugin Editor'))
 
 @section('content')
+
+{{-- Ace Editor CDN --}}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.3/ace.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.32.3/ext-language_tools.js"></script>
+
+<style>
+    #ace-editor {
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        font-size: 14px;
+        border-radius: 0 0 0.75rem 0.75rem;
+    }
+</style>
+
 <div class="h-[calc(100vh-8rem)] flex gap-4" x-data="pluginEditor()" x-init="init()">
 
-    {{-- SIDEBAR (File Tree) --}}
+    {{-- SIDEBAR --}}
     <div class="w-64 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col flex-shrink-0">
         <div class="p-4 border-b border-gray-100">
             <label class="block text-xs font-semibold text-gray-500 uppercase mb-2">{{ __('Active Plugin') }}</label>
@@ -51,108 +68,117 @@
                 </div>
             </div>
 
+            {{-- Ace Editor Container --}}
             <div class="flex-1 relative" wire:ignore>
-                <textarea id="code-editor" x-model="code" @input="isDirty = true"></textarea>
+                <div id="ace-editor"></div>
             </div>
         </div>
 
         {{-- AI REVIEW PANEL --}}
-        <div x-show="aiReview" x-cloak class="w-80 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col flex-shrink-0 overflow-hidden">
-            <div class="p-4 border-b border-gray-100 flex items-center justify-between bg-gray-50">
-                <h3 class="text-sm font-semibold text-gray-900">{{ __('AI Review') }}</h3>
-                <button @click="aiReview = null" class="text-gray-400 hover:text-gray-600"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
-            </div>
-            
-            <div class="flex-1 overflow-y-auto p-4 space-y-4">
-                {{-- Score Card --}}
-                <div class="rounded-lg p-4 text-center border-2"
-                     :class="aiReview.status === 'good' ? 'bg-green-50 border-green-200' : (aiReview.status === 'warning' ? 'bg-amber-50 border-amber-200' : 'bg-red-50 border-red-200')">
-                    <div class="text-3xl font-bold" 
-                         :class="aiReview.status === 'good' ? 'text-green-600' : (aiReview.status === 'warning' ? 'text-amber-600' : 'text-red-600')"
-                         x-text="aiReview.score"></div>
-                    <div class="text-xs uppercase font-semibold mt-1"
-                         :class="aiReview.status === 'good' ? 'text-green-700' : (aiReview.status === 'warning' ? 'text-amber-700' : 'text-red-700')"
-                         x-text="aiReview.status"></div>
+        <template x-if="aiReview">
+            <div class="w-80 bg-white rounded-xl shadow-sm border border-gray-200 flex flex-col flex-shrink-0 overflow-hidden">
+                <div class="p-4 border-b border-gray-100 flex items-center justify-between bg-gray-50">
+                    <h3 class="text-sm font-semibold text-gray-900">{{ __('AI Review') }}</h3>
+                    <button @click="aiReview = null" class="text-gray-400 hover:text-gray-600"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg></button>
                 </div>
-
-                <div class="text-sm text-gray-700 leading-relaxed" x-text="aiReview.summary"></div>
-
-                <template x-if="aiReview.issues && aiReview.issues.length > 0">
-                    <div class="space-y-3">
-                        <h4 class="text-xs font-bold text-gray-500 uppercase">{{ __('Issues found') }}</h4>
-                        <template x-for="(issue, i) in aiReview.issues" :key="i">
-                            <div class="text-xs p-3 rounded-lg border"
-                                 :class="issue.severity === 'error' ? 'bg-red-50 border-red-100 text-red-800' : (issue.severity === 'warning' ? 'bg-amber-50 border-amber-100 text-amber-800' : 'bg-blue-50 border-blue-100 text-blue-800')">
-                                <div class="font-semibold mb-1 flex items-center gap-2">
-                                    <span x-text="issue.severity.toUpperCase()"></span>
-                                    <span class="opacity-60" x-show="issue.line !== 'global'">Line <span x-text="issue.line"></span></span>
-                                </div>
-                                <div x-text="issue.message"></div>
-                            </div>
-                        </template>
+                
+                <div class="flex-1 overflow-y-auto p-4 space-y-4">
+                    <div class="rounded-lg p-4 text-center border-2"
+                         :class="aiReview.status === 'good' ? 'bg-green-50 border-green-200' : (aiReview.status === 'warning' ? 'bg-amber-50 border-amber-200' : 'bg-red-50 border-red-200')">
+                        <div class="text-3xl font-bold" 
+                             :class="aiReview.status === 'good' ? 'text-green-600' : (aiReview.status === 'warning' ? 'text-amber-600' : 'text-red-600')"
+                             x-text="aiReview.score"></div>
+                        <div class="text-xs uppercase font-semibold mt-1"
+                             :class="aiReview.status === 'good' ? 'text-green-700' : (aiReview.status === 'warning' ? 'text-amber-700' : 'text-red-700')"
+                             x-text="aiReview.status"></div>
                     </div>
-                </template>
+
+                    <div class="text-sm text-gray-700 leading-relaxed" x-text="aiReview.summary"></div>
+
+                    <template x-if="aiReview.issues && aiReview.issues.length > 0">
+                        <div class="space-y-3">
+                            <h4 class="text-xs font-bold text-gray-500 uppercase">{{ __('Issues found') }}</h4>
+                            <template x-for="(issue, i) in aiReview.issues" :key="i">
+                                <div class="text-xs p-3 rounded-lg border"
+                                     :class="issue.severity === 'error' ? 'bg-red-50 border-red-100 text-red-800' : (issue.severity === 'warning' ? 'bg-amber-50 border-amber-100 text-amber-800' : 'bg-blue-50 border-blue-100 text-blue-800')">
+                                    <div class="font-semibold mb-1 flex items-center gap-2">
+                                        <span x-text="issue.severity.toUpperCase()"></span>
+                                        <span class="opacity-60" x-show="issue.line !== 'global'">Line <span x-text="issue.line"></span></span>
+                                    </div>
+                                    <div x-text="issue.message"></div>
+                                </div>
+                            </template>
+                        </div>
+                    </template>
+                </div>
             </div>
-        </div>
+        </template>
     </div>
 </div>
 
-{{-- CodeMirror CDN --}}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/theme/material-darker.min.css">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/codemirror.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/xml/xml.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/javascript/javascript.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/css/css.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/htmlmixed/htmlmixed.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/clike/clike.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.65.13/mode/php/php.min.js"></script>
-
-<style>
-    .CodeMirror { height: 100%; font-size: 13px; font-family: 'Fira Code', monospace; }
-</style>
-
 <script>
 function pluginEditor() {
+    let aceEditor = null;
+    let isUpdating = false; // Fayl keçidində "save" xətasının qarşısını alır
+
     return {
         plugins: @json($plugins),
         activePlugin: '{{ $plugins->first()?->slug }}',
         files: [],
         currentFile: null,
-        code: '',
         isDirty: false,
         saving: false,
-        
+
         aiLoading: false,
         aiReview: null,
-        editor: null,
 
         init() {
-            // CodeMirror init
-            this.editor = CodeMirror.fromTextArea(document.getElementById('code-editor'), {
-                lineNumbers: true,
-                mode: 'application/x-httpd-php',
-                theme: 'material-darker',
-                indentUnit: 4,
-                tabSize: 4,
-                lineWrapping: true,
+            if (typeof ace === 'undefined') {
+                alert('Ace Editor yüklənmədi. İnternet bağlantısını yoxlayın.');
+                return;
+            }
+
+            // Ace Editor-u işə salırıq
+            aceEditor = ace.edit("ace-editor");
+            aceEditor.setTheme("ace/theme/monokai");
+            aceEditor.session.setMode("ace/mode/php");
+            aceEditor.setOptions({
+                fontSize: "14px",
+                showPrintMargin: false,
+                useWorker: false,
+                wrap: true
             });
 
-            // Sync CodeMirror changes to Alpine state
-            this.editor.on('change', () => {
-                this.code = this.editor.getValue();
+            // Dəyişiklik olduqda isDirty-ni true edirik (əgər proqram tərəfindən yazılmırsa)
+            aceEditor.session.on('change', () => {
+                if (isUpdating) return;
                 this.isDirty = true;
             });
 
             if (this.activePlugin) this.loadFiles();
         },
 
+        detectMode(name) {
+            if (name.endsWith('.php')) return 'ace/mode/php';
+            if (name.endsWith('.js')) return 'ace/mode/javascript';
+            if (name.endsWith('.css')) return 'ace/mode/css';
+            if (name.endsWith('.json')) return 'ace/mode/json';
+            if (name.endsWith('.html')) return 'ace/mode/html';
+            if (name.endsWith('.svg')) return 'ace/mode/xml';
+            if (name.endsWith('.md')) return 'ace/mode/markdown';
+            return 'ace/mode/text';
+        },
+
         async loadFiles() {
             this.files = [];
             this.currentFile = null;
-            this.code = '';
+            this.isDirty = false;
             this.aiReview = null;
             
+            isUpdating = true;
+            if (aceEditor) aceEditor.setValue('');
+            isUpdating = false;
+
             if (!this.activePlugin) return;
 
             try {
@@ -162,46 +188,42 @@ function pluginEditor() {
                 const data = await res.json();
                 this.files = data.files || [];
             } catch (e) {
-                alert('Failed to load files');
+                alert('Fayllar yüklənmədi: ' + e.message);
             }
         },
 
         async openFile(file) {
-            if (this.isDirty && !confirm('You have unsaved changes. Continue?')) return;
-            
+            if (this.isDirty && !confirm('Yadda saxlanmamış dəyişikliklər var. Davam edilsin?')) return;
+
             try {
                 const res = await fetch(`/admin/plugins/editor/${this.activePlugin}/read?path=${encodeURIComponent(file.path)}`, {
                     headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' }
                 });
                 const data = await res.json();
-                
+
                 if (data.error) { alert(data.error); return; }
 
                 this.currentFile = file.path;
-                this.code = data.content || '';
-                this.isDirty = false;
                 this.aiReview = null;
-                
-                this.editor.setValue(this.code);
-                
-                // Set mode based on extension
-                let mode = 'text/plain';
-                if (file.name.endsWith('.php') || file.name.endsWith('.blade.php')) mode = 'application/x-httpd-php';
-                else if (file.name.endsWith('.js')) mode = 'javascript';
-                else if (file.name.endsWith('.css')) mode = 'css';
-                else if (file.name.endsWith('.json')) mode = 'application/json';
-                else if (file.name.endsWith('.html') || file.name.endsWith('.svg')) mode = 'htmlmixed';
-                
-                this.editor.setOption('mode', mode);
-                setTimeout(() => this.editor.refresh(), 100);
+
+                if (!aceEditor) return;
+
+                // Kodu Ace Editor-a yazırıq (isUpdating ilə xətanın qarşısını alırıq)
+                isUpdating = true;
+                aceEditor.setValue(data.content || '', -1); // -1 kursoru ən başa atır
+                aceEditor.session.setMode(this.detectMode(file.name));
+                aceEditor.clearSelection();
+                isUpdating = false;
+
+                this.isDirty = false;
 
             } catch (e) {
-                alert('Failed to read file');
+                alert('Fayl oxunmadı: ' + e.message);
             }
         },
 
         async saveFile() {
-            if (!this.currentFile || !this.isDirty) return;
+            if (!this.currentFile || !this.isDirty || !aceEditor) return;
             this.saving = true;
 
             try {
@@ -212,24 +234,24 @@ function pluginEditor() {
                         'Accept': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                     },
-                    body: JSON.stringify({ path: this.currentFile, content: this.code })
+                    body: JSON.stringify({ path: this.currentFile, content: aceEditor.getValue() })
                 });
-                
+
                 const data = await res.json();
                 if (res.ok && data.success) {
                     this.isDirty = false;
                 } else {
-                    alert(data.error || 'Failed to save');
+                    alert(data.error || 'Yadda saxlanmadı');
                 }
             } catch (e) {
-                alert('Network error');
+                alert('Şəbəkə xətası');
             } finally {
                 this.saving = false;
             }
         },
 
         async askAi() {
-            if (!this.currentFile) return;
+            if (!this.currentFile || !aceEditor) return;
             this.aiLoading = true;
             this.aiReview = null;
 
@@ -241,18 +263,18 @@ function pluginEditor() {
                         'Accept': 'application/json',
                         'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                     },
-                    body: JSON.stringify({ filename: this.currentFile, code: this.code })
+                    body: JSON.stringify({ filename: this.currentFile, code: aceEditor.getValue() })
                 });
-                
+
                 const data = await res.json();
-                
+
                 if (data.success && data.data) {
                     this.aiReview = data.data;
                 } else {
-                    alert(data.error || 'Review failed');
+                    alert(data.error || 'AI analizi alınmadı');
                 }
             } catch (e) {
-                alert('AI request failed');
+                alert('AI xətası');
             } finally {
                 this.aiLoading = false;
             }

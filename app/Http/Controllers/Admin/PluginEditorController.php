@@ -18,28 +18,26 @@ class PluginEditorController extends Controller
         return view('admin.plugins.editor', compact('plugins'));
     }
 
-    public function files(Plugin $plugin)
+    public function files($slug)
     {
+        $plugin = Plugin::where('slug', $slug)->firstOrFail();
         $basePath = $plugin->path();
+        
         if (!File::isDirectory($basePath)) {
             return response()->json(['error' => 'Plugin directory not found at: ' . $basePath], 404);
         }
 
         $tree = [];
-        
-        // Laravel-in native File sistemi ilə bütün faylları oxuyuruq
         $allFiles = File::allFiles($basePath);
 
         foreach ($allFiles as $file) {
             $relativePath = str_replace('\\', '/', $file->getRelativePathname());
             
-            // Vendor və node_modules qovluqlarını keç
             if (str_contains($relativePath, 'vendor/') || str_contains($relativePath, 'node_modules/')) {
                 continue;
             }
 
             $ext = $file->getExtension();
-            
             if (!in_array($ext, $this->allowedExtensions) && !str_ends_with($relativePath, '.blade.php')) {
                 continue;
             }
@@ -56,27 +54,38 @@ class PluginEditorController extends Controller
         return response()->json(['files' => $tree]);
     }
 
-    public function read(Plugin $plugin, Request $request)
+    public function read($slug, Request $request)
     {
-        $path = $this->resolveSafePath($plugin, $request->input('path'));
-        if (!$path || !File::exists($path)) return response()->json(['error' => 'File not found or invalid path.'], 404);
+        try {
+            $plugin = Plugin::where('slug', $slug)->firstOrFail();
+            $path = $this->resolveSafePath($plugin, $request->input('path'));
+            
+            if (!$path || !File::exists($path)) {
+                return response()->json(['error' => 'Fayl tapılmadı.'], 404);
+            }
 
-        return response()->json([
-            'content' => File::get($path),
-            'path' => $request->input('path'),
-        ]);
+            return response()->json([
+                'content' => File::get($path),
+                'path' => $request->input('path'),
+            ]);
+        } catch (\Throwable $e) {
+            return response()->json(['error' => 'Xəta: ' . $e->getMessage()], 500);
+        }
     }
 
-    public function save(Plugin $plugin, Request $request)
+    public function save($slug, Request $request)
     {
+        $plugin = Plugin::where('slug', $slug)->firstOrFail();
         $validated = $request->validate(['path' => 'required|string', 'content' => 'nullable|string']);
         $path = $this->resolveSafePath($plugin, $validated['path']);
 
-        if (!$path || !File::exists($path)) return response()->json(['error' => 'Invalid file path.'], 403);
+        if (!$path || !File::exists($path)) {
+            return response()->json(['error' => 'Yanlış fayl yolu.'], 403);
+        }
 
         try {
             File::put($path, $validated['content'] ?? '');
-            return response()->json(['success' => true, 'message' => __('File saved.')]);
+            return response()->json(['success' => true, 'message' => __('Fayl yadda saxlanıldı.')]);
         } catch (\Throwable $e) {
             return response()->json(['error' => $e->getMessage()], 500);
         }
@@ -90,32 +99,24 @@ class PluginEditorController extends Controller
         ]);
 
         $service = app(AiCodeReviewerService::class);
-
         if (!$service->enabled()) {
-            return response()->json(['success' => false, 'error' => __('AI is not configured. Go to Settings → AI.')], 422);
+            return response()->json(['success' => false, 'error' => __('AI konfiqurasiya edilməyib.')], 422);
         }
 
-        $result = $service->review($validated['code'], $validated['filename']);
-
-        return response()->json($result);
+        return response()->json($service->review($validated['code'], $validated['filename']));
     }
 
     protected function resolveSafePath(Plugin $plugin, ?string $relativePath): ?string
     {
         if (!$relativePath || str_contains($relativePath, '..')) return null;
 
-        $basePath = realpath($plugin->path());
-        if (!$basePath) return null;
-
-        $fullPath = realpath($basePath . '/' . ltrim($relativePath, '/\\'));
-
-        if (!$fullPath) return null;
-
-        // Windows üçün slash normallaşdırması
-        $normBase = str_replace('\\', '/', $basePath);
-        $normFull = str_replace('\\', '/', $fullPath);
-
-        if (!str_starts_with($normFull, $normBase)) return null;
+        $basePath = str_replace('\\', '/', $plugin->path());
+        $relativePath = str_replace('\\', '/', $relativePath);
+        $relativePath = ltrim($relativePath, '/');
+        
+        $fullPath = $basePath . '/' . $relativePath;
+        
+        if (!str_starts_with($fullPath, $basePath)) return null;
 
         return $fullPath;
     }

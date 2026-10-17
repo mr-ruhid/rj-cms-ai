@@ -28,6 +28,11 @@ class Plugin extends Model
         'activated_by',
     ];
 
+     public function getRouteKeyName(): string
+    {
+        return 'slug';
+    }
+
     protected $casts = [
         'requires' => 'array',
         'metadata' => 'array',
