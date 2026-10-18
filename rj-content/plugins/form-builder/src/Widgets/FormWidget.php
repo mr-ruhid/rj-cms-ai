@@ -36,7 +36,7 @@ class FormWidget extends BaseWidget
     {
         $forms = Form::active()->get();
         $options = ['' => __('— Select Form —')];
-
+        
         foreach ($forms as $form) {
             $options[$form->id] = $form->name;
         }
@@ -61,40 +61,15 @@ class FormWidget extends BaseWidget
                 ],
             ],
             [
-                'name' => 'button_bg',
-                'type' => 'color',
-                'label' => __('Button Background'),
-                'default' => '#7c3aed',
-            ],
-            [
-                'name' => 'button_text_color',
-                'type' => 'color',
-                'label' => __('Button Text Color'),
-                'default' => '#ffffff',
-            ],
-            [
-                'name' => 'field_bg',
-                'type' => 'color',
-                'label' => __('Field Background'),
-                'default' => '#ffffff',
-            ],
-            [
-                'name' => 'field_border_color',
-                'type' => 'color',
-                'label' => __('Field Border Color'),
-                'default' => '#d1d5db',
-            ],
-            [
-                'name' => 'rounded',
+                'name' => 'design_preset',
                 'type' => 'select',
-                'label' => __('Border Radius'),
-                'default' => 'md',
+                'label' => __('Design Style'),
+                'default' => 'default',
                 'options' => [
-                    'none' => __('None'),
-                    'sm' => __('Small'),
-                    'md' => __('Medium'),
-                    'lg' => __('Large'),
-                    'full' => __('Full'),
+                    'default' => __('Default'),
+                    'modern' => __('Modern (Rounded & Shadow)'),
+                    'minimal' => __('Minimal (Underline)'),
+                    'dark' => __('Dark / Glassmorphism'),
                 ],
             ],
         ];
@@ -103,7 +78,7 @@ class FormWidget extends BaseWidget
     public function render(array $settings): string
     {
         $formId = $settings['form_id'] ?? null;
-
+        
         if (!$formId) {
             return '<div class="p-4 bg-amber-50 text-amber-800 text-sm border border-amber-200 rounded-lg">' . __('Please select a form to display.') . '</div>';
         }
@@ -115,29 +90,8 @@ class FormWidget extends BaseWidget
         }
 
         $layout = $settings['layout'] ?? 'stack';
-        $buttonBg = $settings['button_bg'] ?? '#7c3aed';
-        $buttonTextColor = $settings['button_text_color'] ?? '#ffffff';
-        $fieldBg = $settings['field_bg'] ?? '#ffffff';
-        $fieldBorderColor = $settings['field_border_color'] ?? '#d1d5db';
-        $rounded = $settings['rounded'] ?? 'md';
+        $designPreset = $settings['design_preset'] ?? 'default';
 
-        $radiusMap = [
-            'none' => '0',
-            'sm' => '4px',
-            'md' => '8px',
-            'lg' => '12px',
-            'full' => '9999px',
-        ];
-        $radius = $radiusMap[$rounded] ?? '8px';
-
-        $styles = [
-            'button_bg' => $buttonBg,
-            'button_text' => $buttonTextColor,
-            'field_bg' => $fieldBg,
-            'field_border' => $fieldBorderColor,
-            'radius' => $radius,
-        ];
-
-        return view('plugin-form-builder::widget', compact('form', 'layout', 'styles'))->render();
+        return view('plugin-form-builder::widget', compact('form', 'layout', 'designPreset'))->render();
     }
 }
