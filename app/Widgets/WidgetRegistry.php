@@ -4,7 +4,6 @@ namespace App\Widgets;
 
 use App\Models\UploadedWidget;
 use App\Widgets\Builtin\ContainerWidget;
-use App\Widgets\Builtin\FormWidget;
 use App\Widgets\Builtin\HeadingWidget;
 use App\Widgets\Builtin\ImageWidget;
 use App\Widgets\Builtin\LogoWidget;
@@ -38,7 +37,6 @@ class WidgetRegistry
             new ContainerWidget(),
             new LogoWidget(),
             new MenuWidget(),
-            new FormWidget(),
             new PostsWidget(),
         ];
 
@@ -240,7 +238,6 @@ class WidgetRegistry
             ContainerWidget::class,
             LogoWidget::class,
             MenuWidget::class,
-            FormWidget::class,
             PostsWidget::class,
         ];
     }
