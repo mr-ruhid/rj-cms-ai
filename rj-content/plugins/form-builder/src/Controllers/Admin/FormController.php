@@ -4,7 +4,9 @@ namespace RjPlugins\FormBuilder\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use RjPlugins\FormBuilder\Models\Form;
+use RjPlugins\FormBuilder\Models\FormField;
 
 class FormController extends Controller
 {
@@ -53,11 +55,42 @@ class FormController extends Controller
             'slug' => 'nullable|string|max:255',
             'description' => 'nullable|string',
             'status' => 'nullable|in:active,inactive',
+            'fields' => 'nullable|string',
         ]);
 
         $validated['slug'] = Form::uniqueSlug($validated['slug'] ?: $validated['name'], $form->id);
 
-        $form->update($validated);
+        $form->update([
+            'name' => $validated['name'],
+            'slug' => $validated['slug'],
+            'description' => $validated['description'] ?? null,
+            'status' => $validated['status'] ?? 'active',
+        ]);
+
+        if (isset($validated['fields'])) {
+            $fieldsData = json_decode($validated['fields'], true);
+
+            if (is_array($fieldsData)) {
+                $form->fields()->delete();
+
+                foreach ($fieldsData as $index => $field) {
+                    $fieldName = !empty($field['name']) ? Str::slug($field['name'], '_') : 'field_' . Str::random(5);
+                    $fieldLabel = !empty($field['label']) ? $field['label'] : ucfirst(str_replace('_', ' ', $fieldName));
+
+                    FormField::create([
+                        'form_id' => $form->id,
+                        'type' => $field['type'] ?? 'text',
+                        'name' => $fieldName,
+                        'label' => $fieldLabel,
+                        'placeholder' => $field['placeholder'] ?? null,
+                        'is_required' => filter_var($field['is_required'] ?? false, FILTER_VALIDATE_BOOLEAN),
+                        'sort_order' => $index,
+                        'options' => $field['options'] ?? null,
+                        'settings' => null,
+                    ]);
+                }
+            }
+        }
 
         return back()->with('success', __('Form saved.'));
     }
