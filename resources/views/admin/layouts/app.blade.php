@@ -150,7 +150,10 @@
                 </a>
 
                 @php
-                    $pluginMenuItems = rj_apply_filters('admin.menu', []);
+                    $pluginMenuItems = rj_apply_filters('admin.menu', []) ?? [];
+                    if (!is_array($pluginMenuItems)) {
+                        $pluginMenuItems = [];
+                    }
                     usort($pluginMenuItems, fn($a, $b) => ($a['position'] ?? 100) <=> ($b['position'] ?? 100));
                     $pluginMenuRoots = array_filter($pluginMenuItems, fn($i) => empty($i['parent']));
                     $pluginMenuChildren = array_filter($pluginMenuItems, fn($i) => !empty($i['parent']));
@@ -365,6 +368,16 @@
             </header>
 
             <main class="p-6 flex-1">
+                @if ($errors->any())
+                    <div class="mb-4 bg-red-50 border-l-4 border-red-500 text-red-800 px-4 py-3 rounded-r-lg rj-fade-in">
+                        <ul class="text-sm space-y-1">
+                            @foreach ($errors->all() as $error)
+                                <li>{{ $error }}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
                 @if (session('success'))
                     <div class="mb-4 bg-green-50 border-l-4 border-green-500 text-green-800 px-4 py-3 rounded-r-lg rj-fade-in">
                         {{ session('success') }}
