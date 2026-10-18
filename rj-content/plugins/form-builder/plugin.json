@@ -38,14 +38,5 @@
         "assets": "assets"
     },
 
-    "settings": {
-        "route": "admin.plugin.forms.index",
-        "schema": {
-            "recaptcha_enabled": { "type": "toggle", "label": "Enable reCAPTCHA", "default": false },
-            "recaptcha_site_key": { "type": "text", "label": "reCAPTCHA Site Key", "default": "" },
-            "recaptcha_secret": { "type": "text", "label": "reCAPTCHA Secret", "default": "" }
-        }
-    },
-
     "update_url": "https://raw.githubusercontent.com/mr-ruhid/rj-plugin-form-builder/main/plugin.json"
 }
