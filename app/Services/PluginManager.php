@@ -77,7 +77,6 @@ class PluginManager
         $metadata = $plugin->metadata();
         $providerClass = $metadata['provider'] ?? null;
 
-        // Əgər class hələ də tapılmırsa, faylı məcburi yükləyirik (DÜZƏLİŞ BURADADIR)
         if ($providerClass && !class_exists($providerClass)) {
             $namespace = rtrim($metadata['namespace'] ?? '', '\\');
             if ($namespace && str_starts_with($providerClass, $namespace . '\\')) {
@@ -222,7 +221,6 @@ class PluginManager
         $manifest = $plugin->metadata();
         $assetsDir = $manifest['provides']['assets'] ?? 'assets';
 
-        // DÜZƏLİŞ BURADADIR
         $base = realpath($plugin->path() . '/' . $assetsDir);
 
         if (!$base) {
@@ -266,6 +264,17 @@ class PluginManager
             }
 
             $slug = $manifest['slug'] ?? Str::slug($manifest['name']);
+
+            // DÜZƏLİŞ BURADADIR: Köhnə yeniləmə məlumatlarını qoruyuruq
+            $existing = Plugin::where('slug', $slug)->first();
+            $oldMeta = $existing ? $existing->metadata() : [];
+
+            if (isset($oldMeta['latest_version'])) {
+                $manifest['latest_version'] = $oldMeta['latest_version'];
+            }
+            if (isset($oldMeta['download_url'])) {
+                $manifest['download_url'] = $oldMeta['download_url'];
+            }
 
             Plugin::updateOrCreate(
                 ['slug' => $slug],
