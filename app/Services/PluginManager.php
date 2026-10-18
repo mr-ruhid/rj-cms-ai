@@ -416,7 +416,6 @@ class PluginManager
 
         return $count;
     }
-
     public function update(Plugin $plugin): array
     {
         $metadata = $plugin->metadata();
@@ -436,9 +435,63 @@ class PluginManager
             $tmpFile = tempnam(sys_get_temp_dir(), 'plugin_update_');
             file_put_contents($tmpFile, $response->body());
 
-            $fake = new UploadedFile($tmpFile, 'update.zip', 'application/zip', null, true);
+            $zip = new \ZipArchive();
 
-            return $this->installFromZip($fake);
+            if ($zip->open($tmpFile) !== true) {
+                return ['success' => false, 'message' => __('Could not open ZIP archive.')];
+            }
+
+            $extractPath = storage_path('app/plugin-temp/' . uniqid('plugin_update_'));
+            File::makeDirectory($extractPath, 0755, true);
+            $zip->extractTo($extractPath);
+            $zip->close();
+            @unlink($tmpFile);
+
+            $manifestPath = $this->findManifest($extractPath);
+
+            if (!$manifestPath) {
+                File::deleteDirectory($extractPath);
+                return ['success' => false, 'message' => __('plugin.json not found in archive.')];
+            }
+
+            $newManifest = json_decode(File::get($manifestPath), true);
+
+            if (!is_array($newManifest) || empty($newManifest['name']) || empty($newManifest['main'])) {
+                File::deleteDirectory($extractPath);
+                return ['success' => false, 'message' => __('Invalid plugin.json.')];
+            }
+
+            $sourceDir = dirname($manifestPath);
+            $targetDir = $plugin->path();
+
+            // Köhnə faylları silirik (Update üçün)
+            if (File::isDirectory($targetDir)) {
+                File::deleteDirectory($targetDir);
+            }
+
+            // Yeni faylları köçürürük
+            File::moveDirectory($sourceDir, $targetDir, true);
+            File::deleteDirectory($extractPath);
+
+            // Verilənlər bazasını yeniləyirik
+            $newMeta = array_merge($metadata, $newManifest);
+
+            // Yeniləmə düyməsinin yox olması üçün keşi təmizləyirik
+            unset($newMeta['latest_version']);
+            unset($newMeta['download_url']);
+
+            $plugin->update([
+                'version' => $newManifest['version'] ?? $plugin->version,
+                'metadata' => $newMeta,
+            ]);
+
+            // Yeni migrasiyalar varsa işə salırıq
+            \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+
+            // Builder widget-lərini yeniləyirik
+            \App\Widgets\WidgetRegistry::reset();
+
+            return ['success' => true, 'message' => __('Plugin updated successfully to v:version', ['version' => $plugin->version])];
         } catch (\Throwable $e) {
             return ['success' => false, 'message' => $e->getMessage()];
         }
