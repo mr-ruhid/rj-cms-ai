@@ -190,24 +190,6 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::post('/preview', [\App\Http\Controllers\Admin\TemplateLibraryController::class, 'preview'])->name('preview');
     });
 
-    Route::prefix('forms')->name('forms.')->group(function () {
-        Route::get('/', [\App\Http\Controllers\Admin\FormController::class, 'index'])->name('index');
-        Route::get('/create', [\App\Http\Controllers\Admin\FormController::class, 'create'])->name('create');
-        Route::post('/', [\App\Http\Controllers\Admin\FormController::class, 'store'])->name('store');
-        Route::get('/{form}/edit', [\App\Http\Controllers\Admin\FormController::class, 'edit'])->name('edit');
-        Route::put('/{form}', [\App\Http\Controllers\Admin\FormController::class, 'update'])->name('update');
-        Route::delete('/{form}', [\App\Http\Controllers\Admin\FormController::class, 'destroy'])->name('destroy');
-        Route::post('/{form}/duplicate', [\App\Http\Controllers\Admin\FormController::class, 'duplicate'])->name('duplicate');
-        Route::prefix('{form}/submissions')->name('submissions.')->group(function () {
-            Route::get('/', [\App\Http\Controllers\Admin\FormSubmissionController::class, 'index'])->name('index');
-            Route::get('/export', [\App\Http\Controllers\Admin\FormSubmissionController::class, 'export'])->name('export');
-            Route::post('/bulk', [\App\Http\Controllers\Admin\FormSubmissionController::class, 'bulk'])->name('bulk');
-            Route::get('/{submission}', [\App\Http\Controllers\Admin\FormSubmissionController::class, 'show'])->name('show');
-            Route::put('/{submission}', [\App\Http\Controllers\Admin\FormSubmissionController::class, 'update'])->name('update');
-            Route::delete('/{submission}', [\App\Http\Controllers\Admin\FormSubmissionController::class, 'destroy'])->name('destroy');
-        });
-    });
-
     Route::prefix('global-widgets')->name('global-widgets.')->group(function () {
         Route::get('/', [\App\Http\Controllers\Admin\GlobalWidgetController::class, 'index'])->name('index');
         Route::post('/', [\App\Http\Controllers\Admin\GlobalWidgetController::class, 'store'])->name('store');
