@@ -487,7 +487,7 @@
                                     <template x-if="formOptions.length === 0">
                                         <p class="rj-help" style="text-align:center; padding:12px; background:rgba(245,158,11,.08); border:1px dashed rgba(245,158,11,.3); border-radius:6px; color:#fbbf24;">
                                             <span x-text="t('No forms yet.')"></span>
-                                            @if(rj_plugin_active('form-builder'))
+                                            @if(rj_plugin_active('form-builder') && Route::has('admin.plugin.forms.index'))
                                                 <a href="{{ route('admin.plugin.forms.index') }}" target="_blank" style="color:#a78bfa; text-decoration:underline;" x-text="t('Create one →')"></a>
                                             @endif
                                         </p>
