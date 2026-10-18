@@ -54,7 +54,7 @@ class PluginManager
         static::$autoloaded[$key] = true;
 
         $namespace = rtrim($namespace, '\\') . '\\';
-        $srcPath = rtrim($srcPath, '/');
+        $srcPath = str_replace('\\', '/', rtrim($srcPath, '/'));
 
         spl_autoload_register(function ($class) use ($namespace, $srcPath) {
             if (!str_starts_with($class, $namespace)) {
@@ -76,6 +76,18 @@ class PluginManager
 
         $metadata = $plugin->metadata();
         $providerClass = $metadata['provider'] ?? null;
+
+        // Əgər class hələ də tapılmırsa, faylı məcburi yükləyirik
+        if ($providerClass && !class_exists($providerClass)) {
+            $namespace = rtrim($metadata['namespace'] ?? '', '\\');
+            if ($namespace && str_starts_with($providerClass, $namespace . '\\')) {
+                $relative = substr($providerClass, strlen($namespace) + 1);
+                $file = $plugin->path('src/' . str_replace('\\', '/', $relative) . '.php');
+                if (File::exists($file)) {
+                    require_once $file;
+                }
+            }
+        }
 
         if ($providerClass && class_exists($providerClass)) {
             try {
@@ -107,6 +119,86 @@ class PluginManager
             } catch (\Throwable $e) {
                 $plugin->markAsError($e->getMessage());
             }
+        }
+    }
+
+    public function activate(Plugin $plugin): array
+    {
+        if ($plugin->isActive()) {
+            return ['success' => false, 'message' => __('Plugin is already active.')];
+        }
+
+        if (!File::exists($plugin->mainFilePath())) {
+            $plugin->markAsError(__('Main file not found.'));
+            return ['success' => false, 'message' => __('Main file not found.')];
+        }
+
+        if (!$plugin->meetsRequirements()) {
+            $plugin->markAsError(__('Plugin requirements are not met.'));
+            return ['success' => false, 'message' => __('Plugin requirements are not met.')];
+        }
+
+        try {
+            $this->registerPluginAutoloader($plugin);
+            $this->bootPlugin($plugin);
+
+            $plugin->markAsActive();
+
+            // Builder-dəki widget-ləri yeniləyirik
+            \App\Widgets\WidgetRegistry::reset();
+
+            return ['success' => true, 'message' => __('Plugin activated.')];
+        } catch (\Throwable $e) {
+            $plugin->markAsError($e->getMessage());
+
+            return ['success' => false, 'message' => $e->getMessage()];
+        }
+    }
+
+    public function deactivate(Plugin $plugin): array
+    {
+        if (!$plugin->isActive()) {
+            return ['success' => false, 'message' => __('Plugin is not active.')];
+        }
+
+        try {
+            $deactivator = $this->resolveClass($plugin, 'deactivate');
+
+            if (is_callable($deactivator)) {
+                call_user_func($deactivator);
+            }
+
+            $plugin->markAsInactive();
+
+            // Deaktiv olanda builder-dən widget-i silirik
+            \App\Widgets\WidgetRegistry::reset();
+
+            return ['success' => true, 'message' => __('Plugin deactivated.')];
+        } catch (\Throwable $e) {
+            return ['success' => false, 'message' => $e->getMessage()];
+        }
+    }
+
+    public function delete(Plugin $plugin): array
+    {
+        if ($plugin->isActive()) {
+            return ['success' => false, 'message' => __('Deactivate the plugin before deleting.')];
+        }
+
+        try {
+            $path = $plugin->path();
+
+            if (File::isDirectory($path)) {
+                File::deleteDirectory($path);
+            }
+
+            $plugin->delete();
+
+            \App\Widgets\WidgetRegistry::reset();
+
+            return ['success' => true, 'message' => __('Plugin deleted.')];
+        } catch (\Throwable $e) {
+            return ['success' => false, 'message' => $e->getMessage()];
         }
     }
 
@@ -196,78 +288,6 @@ class PluginManager
         }
 
         return $count;
-    }
-
-    public function activate(Plugin $plugin): array
-    {
-        if ($plugin->isActive()) {
-            return ['success' => false, 'message' => __('Plugin is already active.')];
-        }
-
-        if (!File::exists($plugin->mainFilePath())) {
-            $plugin->markAsError(__('Main file not found.'));
-            return ['success' => false, 'message' => __('Main file not found.')];
-        }
-
-        if (!$plugin->meetsRequirements()) {
-            $plugin->markAsError(__('Plugin requirements are not met.'));
-            return ['success' => false, 'message' => __('Plugin requirements are not met.')];
-        }
-
-        try {
-            $this->registerPluginAutoloader($plugin);
-            $this->bootPlugin($plugin);
-
-            $plugin->markAsActive();
-
-            return ['success' => true, 'message' => __('Plugin activated.')];
-        } catch (\Throwable $e) {
-            $plugin->markAsError($e->getMessage());
-
-            return ['success' => false, 'message' => $e->getMessage()];
-        }
-    }
-
-    public function deactivate(Plugin $plugin): array
-    {
-        if (!$plugin->isActive()) {
-            return ['success' => false, 'message' => __('Plugin is not active.')];
-        }
-
-        try {
-            $deactivator = $this->resolveClass($plugin, 'deactivate');
-
-            if (is_callable($deactivator)) {
-                call_user_func($deactivator);
-            }
-
-            $plugin->markAsInactive();
-
-            return ['success' => true, 'message' => __('Plugin deactivated.')];
-        } catch (\Throwable $e) {
-            return ['success' => false, 'message' => $e->getMessage()];
-        }
-    }
-
-    public function delete(Plugin $plugin): array
-    {
-        if ($plugin->isActive()) {
-            return ['success' => false, 'message' => __('Deactivate the plugin before deleting.')];
-        }
-
-        try {
-            $path = $plugin->path();
-
-            if (File::isDirectory($path)) {
-                File::deleteDirectory($path);
-            }
-
-            $plugin->delete();
-
-            return ['success' => true, 'message' => __('Plugin deleted.')];
-        } catch (\Throwable $e) {
-            return ['success' => false, 'message' => $e->getMessage()];
-        }
     }
 
     public function installFromZip(UploadedFile $file): array
