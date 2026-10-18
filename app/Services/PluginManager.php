@@ -348,26 +348,45 @@ class PluginManager
 
         foreach (Plugin::all() as $plugin) {
             $metadata = $plugin->metadata();
-            $updateUrl = $metadata['update_url'] ?? null;
+            $pluginUrl = $metadata['plugin_url'] ?? null;
 
-            if (!$updateUrl) {
-                continue;
-            }
+            if (!$pluginUrl) continue;
 
-            try {
-                $response = \Illuminate\Support\Facades\Http::timeout(10)->get($updateUrl);
+            if (preg_match('/github\.com\/([^\/]+)\/([^\/]+)/', $pluginUrl, $matches)) {
+                $repo = $matches[1] . '/' . $matches[2];
 
-                if (!$response->successful()) {
+                try {
+                    $headers = ['Accept' => 'application/vnd.github+json', 'User-Agent' => 'RJ-CMS'];
+                    if ($token = rj_get_option('github_token')) {
+                        $headers['Authorization'] = 'Bearer ' . $token;
+                    }
+
+                    $response = \Illuminate\Support\Facades\Http::timeout(10)->withHeaders($headers)->get("https://api.github.com/repos/{$repo}/releases/latest");
+
+                    if (!$response->successful()) continue;
+
+                    $release = $response->json();
+                    $latestVersion = ltrim($release['tag_name'] ?? '', 'vV');
+
+                    if ($latestVersion && version_compare($latestVersion, $plugin->version, '>')) {
+                        $zipUrl = null;
+                        foreach ($release['assets'] ?? [] as $asset) {
+                            if (str_ends_with(strtolower($asset['name'] ?? ''), '.zip')) {
+                                $zipUrl = $asset['browser_download_url'];
+                                break;
+                            }
+                        }
+
+                        if ($zipUrl) {
+                            $metadata['latest_version'] = $latestVersion;
+                            $metadata['download_url'] = $zipUrl;
+                            $plugin->update(['metadata' => $metadata]);
+                            $count++;
+                        }
+                    }
+                } catch (\Throwable $e) {
                     continue;
                 }
-
-                $remote = $response->json();
-
-                if (!empty($remote['version']) && version_compare($remote['version'], $plugin->version, '>')) {
-                    $count++;
-                }
-            } catch (\Throwable $e) {
-                continue;
             }
         }
 
