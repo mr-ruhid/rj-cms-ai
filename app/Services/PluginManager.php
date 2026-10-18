@@ -39,7 +39,7 @@ class PluginManager
             return;
         }
 
-        $srcPath = $plugin->path('src');
+        $srcPath = $plugin->path() . '/src';
 
         if (!File::isDirectory($srcPath)) {
             return;
@@ -77,12 +77,12 @@ class PluginManager
         $metadata = $plugin->metadata();
         $providerClass = $metadata['provider'] ?? null;
 
-        // Əgər class hələ də tapılmırsa, faylı məcburi yükləyirik
+        // Əgər class hələ də tapılmırsa, faylı məcburi yükləyirik (DÜZƏLİŞ BURADADIR)
         if ($providerClass && !class_exists($providerClass)) {
             $namespace = rtrim($metadata['namespace'] ?? '', '\\');
             if ($namespace && str_starts_with($providerClass, $namespace . '\\')) {
                 $relative = substr($providerClass, strlen($namespace) + 1);
-                $file = $plugin->path('src/' . str_replace('\\', '/', $relative) . '.php');
+                $file = $plugin->path() . '/src/' . str_replace('\\', '/', $relative) . '.php';
                 if (File::exists($file)) {
                     require_once $file;
                 }
@@ -144,7 +144,6 @@ class PluginManager
 
             $plugin->markAsActive();
 
-            // Builder-dəki widget-ləri yeniləyirik
             \App\Widgets\WidgetRegistry::reset();
 
             return ['success' => true, 'message' => __('Plugin activated.')];
@@ -170,7 +169,6 @@ class PluginManager
 
             $plugin->markAsInactive();
 
-            // Deaktiv olanda builder-dən widget-i silirik
             \App\Widgets\WidgetRegistry::reset();
 
             return ['success' => true, 'message' => __('Plugin deactivated.')];
@@ -224,7 +222,8 @@ class PluginManager
         $manifest = $plugin->metadata();
         $assetsDir = $manifest['provides']['assets'] ?? 'assets';
 
-        $base = realpath($plugin->path($assetsDir));
+        // DÜZƏLİŞ BURADADIR
+        $base = realpath($plugin->path() . '/' . $assetsDir);
 
         if (!$base) {
             return null;
