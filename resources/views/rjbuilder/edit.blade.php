@@ -25,7 +25,12 @@
     $bpMobile = (int) ($breakpoints['mobile']['max'] ?? 560);
     $bpTablet = (int) ($breakpoints['tablet']['max'] ?? 860);
 
-    $formsData = \App\Models\Form::active()->orderBy('name')->get(['id', 'name'])->toArray();
+    // Yalnız plugin aktiv olanda formları yükləyirik
+    $formsData = [];
+    if (function_exists('rj_plugin_active') && rj_plugin_active('form-builder') && class_exists('\RjPlugins\FormBuilder\Models\Form')) {
+        $formsData = \RjPlugins\FormBuilder\Models\Form::active()->orderBy('name')->get(['id', 'name'])->toArray();
+    }
+
     $postTypesData = \App\Models\PostType::active()->ordered()->get(['id', 'slug', 'name', 'singular_name'])->toArray();
 
     $termsByTaxonomy = [];
@@ -481,7 +486,10 @@
                                 <div>
                                     <template x-if="formOptions.length === 0">
                                         <p class="rj-help" style="text-align:center; padding:12px; background:rgba(245,158,11,.08); border:1px dashed rgba(245,158,11,.3); border-radius:6px; color:#fbbf24;">
-                                            <span x-text="t('No forms yet.')"></span> <a href="{{ route('admin.forms.index') }}" target="_blank" style="color:#a78bfa; text-decoration:underline;" x-text="t('Create one →')"></a>
+                                            <span x-text="t('No forms yet.')"></span>
+                                            @if(rj_plugin_active('form-builder'))
+                                                <a href="{{ route('admin.plugin.forms.index') }}" target="_blank" style="color:#a78bfa; text-decoration:underline;" x-text="t('Create one →')"></a>
+                                            @endif
                                         </p>
                                     </template>
 
