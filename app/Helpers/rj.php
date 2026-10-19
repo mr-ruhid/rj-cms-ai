@@ -523,6 +523,55 @@ if (!function_exists('rj_global_color_css')) {
         return $vars ? ':root{' . implode('', $vars) . '}' : '';
     }
 }
+
+if (!function_exists('rj_default_global_colors')) {
+    function rj_default_global_colors(): array
+    {
+        return [
+            ['id' => 'primary', 'name' => 'Primary', 'color' => '#7c3aed'],
+            ['id' => 'secondary', 'name' => 'Secondary', 'color' => '#ec4899'],
+            ['id' => 'accent', 'name' => 'Accent', 'color' => '#06b6d4'],
+            ['id' => 'text', 'name' => 'Text', 'color' => '#111827'],
+            ['id' => 'muted', 'name' => 'Muted', 'color' => '#6b7280'],
+            ['id' => 'background', 'name' => 'Background', 'color' => '#ffffff'],
+            ['id' => 'success', 'name' => 'Success', 'color' => '#10b981'],
+            ['id' => 'danger', 'name' => 'Danger', 'color' => '#ef4444'],
+            ['id' => 'warning', 'name' => 'Warning', 'color' => '#f59e0b'],
+            ['id' => 'info', 'name' => 'Info', 'color' => '#3b82f6'],
+        ];
+    }
+}
+
+if (!function_exists('rj_save_global_colors')) {
+    function rj_save_global_colors(array $colors): void
+    {
+        $clean = [];
+
+        foreach ($colors as $c) {
+            $id = preg_replace('/[^a-z0-9_-]/i', '', (string) ($c['id'] ?? ''));
+            $name = trim((string) ($c['name'] ?? ''));
+            $color = trim((string) ($c['color'] ?? ''));
+
+            if ($id === '' || $name === '' || $color === '') {
+                continue;
+            }
+
+            $clean[] = ['id' => $id, 'name' => $name, 'color' => $color];
+        }
+
+        rj_set_option('global_colors', json_encode($clean, JSON_UNESCAPED_UNICODE));
+        rj_flush_options();
+    }
+}
+
+if (!function_exists('rj_reset_global_colors')) {
+    function rj_reset_global_colors(): void
+    {
+        rj_delete_option('global_colors');
+        rj_flush_options();
+    }
+}
+
 if (!function_exists('rj_breakpoints')) {
     function rj_breakpoints(): array
     {
