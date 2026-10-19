@@ -572,6 +572,67 @@ if (!function_exists('rj_reset_global_colors')) {
     }
 }
 
+if (!function_exists('rj_site_options_defaults')) {
+    function rj_site_options_defaults(): array
+    {
+        return [
+            'logo_light' => '',
+            'logo_dark' => '',
+            'favicon' => '',
+            'og_image' => '',
+            'custom_css' => '',
+            'custom_js' => '',
+            'head_html' => '',
+            'body_start_html' => '',
+            'body_end_html' => '',
+            'ga4_id' => '',
+            'gtm_id' => '',
+            'fb_pixel_id' => '',
+            'tracking_script' => '',
+        ];
+    }
+}
+
+if (!function_exists('rj_site_option')) {
+    function rj_site_option(string $key, $default = '')
+    {
+        $defaults = rj_site_options_defaults();
+
+        $fallback = array_key_exists($key, $defaults) ? $defaults[$key] : $default;
+
+        $value = rj_get_option('site_opt_' . $key, $fallback);
+
+        return $value === null ? $fallback : $value;
+    }
+}
+
+if (!function_exists('rj_set_site_option')) {
+    function rj_set_site_option(string $key, $value): void
+    {
+        rj_set_option('site_opt_' . $key, $value);
+    }
+}
+
+if (!function_exists('rj_flush_site_options')) {
+    function rj_flush_site_options(): void
+    {
+        rj_flush_options();
+    }
+}
+
+if (!function_exists('rj_site_options_all')) {
+    function rj_site_options_all(): array
+    {
+        $out = [];
+
+        foreach (array_keys(rj_site_options_defaults()) as $key) {
+            $out[$key] = rj_site_option($key);
+        }
+
+        return $out;
+    }
+}
+
 if (!function_exists('rj_breakpoints')) {
     function rj_breakpoints(): array
     {
