@@ -3,20 +3,24 @@
 @section('title', $builder['name'])
 
 @php
-    $widgetsData = collect(\App\Widgets\WidgetRegistry::all())->map(function ($w) {
+    $templateType = $builder['templateType'];
+    $blocksData = $builder['blocks'];
+
+    $widgetsData = collect(rj_widgets_for_context($templateType))->map(function ($w) {
         return [
             'id' => $w->id(),
             'name' => $w->name(),
-            'category' => $w->category(),
+            'category' => rj_widget_category($w->id(), $w->category()),
             'icon' => $w->icon(),
             'schema' => $w->fullSchema(),
             'defaults' => $w->fullDefaults(),
         ];
     })->values()->toArray();
 
-    $categoriesData = \App\Widgets\WidgetRegistry::categories();
-    $blocksData = $builder['blocks'];
-    $templateType = $builder['templateType'];
+    $allCategories = \App\Widgets\WidgetRegistry::categories();
+    $usedKeys = array_values(array_unique(array_column($widgetsData, 'category')));
+    $categoriesData = array_intersect_key($allCategories, array_flip($usedKeys));
+
     $locales = $builder['locales'];
     $baseLocale = $builder['baseLocale'];
     $menusData = rj_menu_options();
