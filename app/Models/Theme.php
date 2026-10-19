@@ -65,27 +65,37 @@ class Theme extends Model
         return $this->is_child === true;
     }
 
-    public function supports(): array
-    {
-        $defaults = [
-            'header',
-            'footer',
-            'sidebar',
-            'widgets',
-            'menus',
-            'custom_logo',
-            'featured_image',
-            'post_thumbnail',
-            'customizer',
-            'builder',
-        ];
+public function supports(): array
+{
+    $defaults = [
+        'header',
+        'footer',
+        'sidebar',
+        'widgets',
+        'menus',
+        'custom_logo',
+        'featured_image',
+        'post_thumbnail',
+        'customizer',
+        'builder',
+    ];
 
-        if (!is_array($this->supports)) {
-            return $defaults;
-        }
-
-        return array_values(array_unique(array_merge($defaults, $this->supports)));
+    if (!is_array($this->supports)) {
+        return $defaults;
     }
+
+    $features = $defaults;
+
+    foreach ($this->supports as $key => $value) {
+        if (is_int($key) && is_string($value)) {
+            $features[] = $value;
+        } elseif (is_string($key) && !empty($value)) {
+            $features[] = $key;
+        }
+    }
+
+    return array_values(array_unique($features));
+}
 
     public function supportsFeature(string $feature): bool
     {
