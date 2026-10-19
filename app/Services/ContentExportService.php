@@ -30,7 +30,7 @@ class ContentExportService
             'custom_fields' => ['label' => __('Custom Fields'), 'count' => CustomField::count(), 'default' => true],
             'templates' => ['label' => __('RJBuilder Templates'), 'count' => Template::count(), 'default' => true],
             'global_widgets' => ['label' => __('Global Widgets'), 'count' => GlobalWidget::count(), 'default' => true],
-            'options' => ['label' => __('Site Settings'), 'count' => Option::whereNotIn('name', ['active_theme', 'rj_version'])->count(), 'default' => false],
+            'options' => ['label' => __('Site Settings'), 'count' => Option::whereNotIn('key', ['active_theme', 'rj_version'])->count(), 'default' => false],
         ];
     }
 
@@ -286,11 +286,11 @@ class ContentExportService
     {
         $exclude = ['active_theme', 'rj_version'];
 
-        return Option::whereNotIn('name', $exclude)
-            ->orderBy('name')
+        return Option::whereNotIn('key', $exclude)
+            ->orderBy('key')
             ->get()
             ->map(fn($o) => [
-                'name' => $o->name,
+                'key' => $o->key,
                 'value' => $o->value,
                 'group' => $o->group ?? 'general',
                 'type' => $o->type ?? 'text',
