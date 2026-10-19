@@ -374,7 +374,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::get('/', [\App\Http\Controllers\Admin\PluginController::class, 'index'])->name('index');
         Route::get('/browse', [\App\Http\Controllers\Admin\PluginController::class, 'browse'])->name('browse');
         Route::post('/install-github', [\App\Http\Controllers\Admin\PluginController::class, 'installFromGitHub'])->name('install-github');
-        Route::view('/create', 'admin.coming-soon')->name('create');
+        Route::view('/create', 'admin.plugins.create')->name('create');
 
         Route::get('/editor', [\App\Http\Controllers\Admin\PluginEditorController::class, 'index'])->name('editor');
         Route::get('/editor/{plugin}/files', [\App\Http\Controllers\Admin\PluginEditorController::class, 'files'])->name('editor.files');
