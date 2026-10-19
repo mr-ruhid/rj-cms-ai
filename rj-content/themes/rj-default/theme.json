@@ -6,7 +6,7 @@
     "author_url": "https://github.com/mr-ruhid",
     "description": "The official default theme for RJ CMS. Clean, minimal, builder-first.",
     "license": "MIT",
-    "screenshot": "screenshot.png",
+    "preview": "screenshot.png",
     "requires": {
         "rj_cms": ">=1.0.0",
         "php": ">=8.2"
@@ -55,5 +55,199 @@
     "assets": {
         "css": [],
         "js": []
+    },
+    "customizer": {
+        "sections": {
+            "colors": {
+                "label": "Colors",
+                "icon": "palette",
+                "controls": {
+                    "primary_color": {
+                        "type": "color",
+                        "label": "Primary Color",
+                        "default": "#7c3aed"
+                    },
+                    "secondary_color": {
+                        "type": "color",
+                        "label": "Secondary Color",
+                        "default": "#ec4899"
+                    },
+                    "text_color": {
+                        "type": "color",
+                        "label": "Text Color",
+                        "default": "#111827"
+                    },
+                    "background_color": {
+                        "type": "color",
+                        "label": "Background Color",
+                        "default": "#ffffff"
+                    },
+                    "link_color": {
+                        "type": "color",
+                        "label": "Link Color",
+                        "default": "#7c3aed"
+                    }
+                }
+            },
+            "typography": {
+                "label": "Typography",
+                "icon": "type",
+                "controls": {
+                    "font_body": {
+                        "type": "select",
+                        "label": "Body Font",
+                        "default": "Inter",
+                        "options": {
+                            "Inter": "Inter",
+                            "Figtree": "Figtree",
+                            "Roboto": "Roboto",
+                            "Open Sans": "Open Sans",
+                            "Lato": "Lato",
+                            "Poppins": "Poppins",
+                            "system-ui": "System Default"
+                        }
+                    },
+                    "font_heading": {
+                        "type": "select",
+                        "label": "Heading Font",
+                        "default": "Inter",
+                        "options": {
+                            "Inter": "Inter",
+                            "Figtree": "Figtree",
+                            "Roboto": "Roboto",
+                            "Open Sans": "Open Sans",
+                            "Lato": "Lato",
+                            "Poppins": "Poppins",
+                            "system-ui": "System Default"
+                        }
+                    },
+                    "font_size_base": {
+                        "type": "range",
+                        "label": "Base Font Size",
+                        "default": 16,
+                        "min": 12,
+                        "max": 24,
+                        "step": 1,
+                        "suffix": "px"
+                    },
+                    "line_height": {
+                        "type": "range",
+                        "label": "Line Height",
+                        "default": 1.6,
+                        "min": 1.2,
+                        "max": 2.2,
+                        "step": 0.1
+                    }
+                }
+            },
+            "layout": {
+                "label": "Layout",
+                "icon": "layout",
+                "controls": {
+                    "container_width": {
+                        "type": "range",
+                        "label": "Container Width",
+                        "default": 1200,
+                        "min": 960,
+                        "max": 1600,
+                        "step": 20,
+                        "suffix": "px"
+                    },
+                    "sidebar_position": {
+                        "type": "select",
+                        "label": "Sidebar Position",
+                        "default": "right",
+                        "options": {
+                            "right": "Right",
+                            "left": "Left",
+                            "none": "No Sidebar"
+                        }
+                    },
+                    "sticky_header": {
+                        "type": "toggle",
+                        "label": "Sticky Header",
+                        "default": true
+                    }
+                }
+            },
+            "header": {
+                "label": "Header",
+                "icon": "header",
+                "controls": {
+                    "logo_text": {
+                        "type": "text",
+                        "label": "Logo Text",
+                        "default": "RJ CMS"
+                    },
+                    "logo_image": {
+                        "type": "text",
+                        "label": "Logo Image URL",
+                        "default": ""
+                    },
+                    "header_bg": {
+                        "type": "color",
+                        "label": "Header Background",
+                        "default": "#ffffff"
+                    },
+                    "header_text_color": {
+                        "type": "color",
+                        "label": "Header Text Color",
+                        "default": "#111827"
+                    }
+                }
+            },
+            "footer": {
+                "label": "Footer",
+                "icon": "footer",
+                "controls": {
+                    "footer_text": {
+                        "type": "textarea",
+                        "label": "Footer Text",
+                        "default": "© 2026 RJ CMS. All rights reserved."
+                    },
+                    "footer_bg": {
+                        "type": "color",
+                        "label": "Footer Background",
+                        "default": "#1a1030"
+                    },
+                    "footer_text_color": {
+                        "type": "color",
+                        "label": "Footer Text Color",
+                        "default": "#d1d5db"
+                    }
+                }
+            },
+            "social": {
+                "label": "Social Links",
+                "icon": "link",
+                "controls": {
+                    "facebook": {
+                        "type": "url",
+                        "label": "Facebook URL",
+                        "default": ""
+                    },
+                    "twitter": {
+                        "type": "url",
+                        "label": "Twitter / X URL",
+                        "default": ""
+                    },
+                    "instagram": {
+                        "type": "url",
+                        "label": "Instagram URL",
+                        "default": ""
+                    },
+                    "youtube": {
+                        "type": "url",
+                        "label": "YouTube URL",
+                        "default": ""
+                    },
+                    "linkedin": {
+                        "type": "url",
+                        "label": "LinkedIn URL",
+                        "default": ""
+                    }
+                }
+            }
+        }
     }
 }
