@@ -548,3 +548,112 @@ if (!function_exists('rj_breakpoint_css')) {
         return ":root{--rj-bp-mobile:{$mobile};--rj-bp-tablet:{$tablet};}";
     }
 }
+if (!function_exists('rj_widget_settings')) {
+    function rj_widget_settings(): array
+    {
+        $raw = rj_get_option('rj_widget_settings', '{}');
+
+        if (is_string($raw)) {
+            $decoded = json_decode($raw, true);
+            return is_array($decoded) ? $decoded : [];
+        }
+
+        return is_array($raw) ? $raw : [];
+    }
+}
+
+if (!function_exists('rj_widget_setting')) {
+    function rj_widget_setting(string $id, string $key, $default = null)
+    {
+        $settings = rj_widget_settings();
+        return $settings[$id][$key] ?? $default;
+    }
+}
+
+if (!function_exists('rj_widget_save_settings')) {
+    function rj_widget_save_settings(string $id, array $data): void
+    {
+        $settings = rj_widget_settings();
+        $settings[$id] = array_merge($settings[$id] ?? [], $data);
+
+        rj_set_option('rj_widget_settings', json_encode($settings, JSON_UNESCAPED_UNICODE));
+    }
+}
+
+if (!function_exists('rj_widget_reset_settings')) {
+    function rj_widget_reset_settings(string $id): void
+    {
+        $settings = rj_widget_settings();
+        unset($settings[$id]);
+
+        rj_set_option('rj_widget_settings', json_encode($settings, JSON_UNESCAPED_UNICODE));
+    }
+}
+
+if (!function_exists('rj_widget_enabled')) {
+    function rj_widget_enabled(string $id): bool
+    {
+        return (bool) rj_widget_setting($id, 'enabled', true);
+    }
+}
+
+if (!function_exists('rj_widget_category')) {
+    function rj_widget_category(string $id, string $fallback = 'custom'): string
+    {
+        $override = rj_widget_setting($id, 'category');
+        return $override ? (string) $override : $fallback;
+    }
+}
+
+if (!function_exists('rj_widget_contexts')) {
+    function rj_widget_contexts(string $id): array
+    {
+        $contexts = rj_widget_setting($id, 'contexts');
+
+        if (is_array($contexts) && !empty($contexts)) {
+            return array_values($contexts);
+        }
+
+        return array_keys(rj_widget_contexts_list());
+    }
+}
+
+if (!function_exists('rj_widget_contexts_list')) {
+    function rj_widget_contexts_list(): array
+    {
+        return [
+            'page' => ['label' => __('Page'), 'icon' => 'document'],
+            'header' => ['label' => __('Header'), 'icon' => 'top'],
+            'footer' => ['label' => __('Footer'), 'icon' => 'bottom'],
+            'popup' => ['label' => __('Popup'), 'icon' => 'window'],
+            'block' => ['label' => __('Block'), 'icon' => 'cube'],
+        ];
+    }
+}
+
+if (!function_exists('rj_widgets_for_context')) {
+    function rj_widgets_for_context(string $context): array
+    {
+        $result = [];
+
+        if (!class_exists(\App\Widgets\WidgetRegistry::class)) {
+            return [];
+        }
+
+        foreach (\App\Widgets\WidgetRegistry::discover() as $widget) {
+            $id = $widget->id();
+
+            if (!rj_widget_enabled($id)) {
+                continue;
+            }
+
+            if (!in_array($context, rj_widget_contexts($id), true)) {
+                continue;
+            }
+
+            $result[] = $widget;
+        }
+
+        return $result;
+    }
+}
