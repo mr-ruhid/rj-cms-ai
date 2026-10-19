@@ -26,6 +26,7 @@ use App\Http\Controllers\Admin\MenuController;
 use App\Http\Controllers\Admin\MenuItemController;
 use App\Http\Controllers\Admin\PostController;
 use App\Http\Controllers\Admin\AppearanceWidgetsController;
+use App\Http\Controllers\Admin\ThemeEditorController;
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', fn() => redirect()->route('admin.dashboard'))->name('home');
@@ -150,7 +151,14 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/appearance/widgets/{id}/update', [AppearanceWidgetsController::class, 'update'])->name('appearance.widgets.update');
     Route::post('/appearance/widgets/{id}/reset', [AppearanceWidgetsController::class, 'reset'])->name('appearance.widgets.reset');
 
-    Route::view('/appearance/editor', 'admin.coming-soon')->name('appearance.editor');
+    Route::get('/appearance/editor', [ThemeEditorController::class, 'index'])->name('appearance.editor');
+    Route::get('/appearance/editor/{slug}/files', [ThemeEditorController::class, 'files'])->name('appearance.editor.files');
+    Route::get('/appearance/editor/{slug}/read', [ThemeEditorController::class, 'read'])->name('appearance.editor.read');
+    Route::post('/appearance/editor/{slug}/save', [ThemeEditorController::class, 'save'])->name('appearance.editor.save');
+    Route::get('/appearance/editor/{slug}/backups', [ThemeEditorController::class, 'backups'])->name('appearance.editor.backups');
+    Route::post('/appearance/editor/{slug}/backups/{timestamp}/restore', [ThemeEditorController::class, 'restore'])->name('appearance.editor.restore');
+    Route::delete('/appearance/editor/{slug}/backups/{timestamp}', [ThemeEditorController::class, 'deleteBackup'])->name('appearance.editor.backups.delete');
+
     Route::view('/appearance/colors', 'admin.coming-soon')->name('appearance.colors');
     Route::view('/appearance/options', 'admin.coming-soon')->name('appearance.options');
 
