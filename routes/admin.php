@@ -29,6 +29,8 @@ use App\Http\Controllers\Admin\AppearanceWidgetsController;
 use App\Http\Controllers\Admin\ThemeEditorController;
 use App\Http\Controllers\Admin\AppearanceColorsController;
 use App\Http\Controllers\Admin\AppearanceOptionsController;
+use App\Http\Controllers\Admin\ToolsImportController;
+use App\Http\Controllers\Admin\ToolsExportController;
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', fn() => redirect()->route('admin.dashboard'))->name('home');
@@ -186,8 +188,15 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::view('/support/status', 'admin.coming-soon')->name('support.status');
 
     Route::view('/tools', 'admin.coming-soon')->name('tools.index');
-    Route::view('/tools/import', 'admin.coming-soon')->name('tools.import');
-    Route::view('/tools/export', 'admin.coming-soon')->name('tools.export');
+
+    Route::get('/tools/import', [ToolsImportController::class, 'index'])->name('tools.import');
+    Route::post('/tools/import/preview', [ToolsImportController::class, 'preview'])->name('tools.import.preview');
+    Route::post('/tools/import/run', [ToolsImportController::class, 'run'])->name('tools.import.run');
+    Route::post('/tools/import/cancel', [ToolsImportController::class, 'cancel'])->name('tools.import.cancel');
+
+    Route::get('/tools/export', [ToolsExportController::class, 'index'])->name('tools.export');
+    Route::post('/tools/export/run', [ToolsExportController::class, 'run'])->name('tools.export.run');
+
     Route::view('/tools/health', 'admin.coming-soon')->name('tools.health');
     Route::view('/tools/backup', 'admin.coming-soon')->name('tools.backup');
     Route::view('/tools/logs', 'admin.coming-soon')->name('tools.logs');
