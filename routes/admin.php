@@ -130,7 +130,19 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     });
 
     Route::view('/appearance', 'admin.coming-soon')->name('appearance.index');
-    Route::view('/appearance/customize', 'admin.coming-soon')->name('appearance.customize');
+
+    Route::get('/appearance/customize', function () {
+        $theme = app(\App\Services\ThemeManager::class)->activeTheme();
+
+        if (!$theme) {
+            return redirect()
+                ->route('admin.themes.index')
+                ->with('error', __('No active theme. Please activate a theme first.'));
+        }
+
+        return redirect()->route('admin.themes.customizer', $theme);
+    })->name('appearance.customize');
+
     Route::view('/appearance/widgets', 'admin.coming-soon')->name('appearance.widgets');
     Route::view('/appearance/editor', 'admin.coming-soon')->name('appearance.editor');
     Route::view('/appearance/colors', 'admin.coming-soon')->name('appearance.colors');
