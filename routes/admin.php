@@ -28,6 +28,7 @@ use App\Http\Controllers\Admin\PostController;
 use App\Http\Controllers\Admin\AppearanceWidgetsController;
 use App\Http\Controllers\Admin\ThemeEditorController;
 use App\Http\Controllers\Admin\AppearanceColorsController;
+use App\Http\Controllers\Admin\AppearanceOptionsController;
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', fn() => redirect()->route('admin.dashboard'))->name('home');
@@ -166,7 +167,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/appearance/colors/export', [AppearanceColorsController::class, 'export'])->name('appearance.colors.export');
     Route::post('/appearance/colors/import', [AppearanceColorsController::class, 'import'])->name('appearance.colors.import');
 
-    Route::view('/appearance/options', 'admin.coming-soon')->name('appearance.options');
+    Route::get('/appearance/options', [AppearanceOptionsController::class, 'index'])->name('appearance.options');
+    Route::post('/appearance/options/save', [AppearanceOptionsController::class, 'save'])->name('appearance.options.save');
+    Route::post('/appearance/options/reset', [AppearanceOptionsController::class, 'reset'])->name('appearance.options.reset');
 
     Route::view('/ai', 'admin.coming-soon')->name('ai.index');
     Route::view('/ai/models', 'admin.coming-soon')->name('ai.models');
