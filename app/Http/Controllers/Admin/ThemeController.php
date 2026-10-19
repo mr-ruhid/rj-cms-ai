@@ -263,6 +263,9 @@ class ThemeController extends Controller
 
     public function customizer(Theme $theme)
     {
+        $this->manager->discover();
+        $theme->refresh();
+
         if (!$theme->isActive()) {
             return redirect()
                 ->route('admin.themes.index')
