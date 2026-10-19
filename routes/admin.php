@@ -25,6 +25,7 @@ use App\Http\Controllers\Admin\TagController;
 use App\Http\Controllers\Admin\MenuController;
 use App\Http\Controllers\Admin\MenuItemController;
 use App\Http\Controllers\Admin\PostController;
+use App\Http\Controllers\Admin\AppearanceWidgetsController;
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', fn() => redirect()->route('admin.dashboard'))->name('home');
@@ -143,7 +144,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         return redirect()->route('admin.themes.customizer', $theme);
     })->name('appearance.customize');
 
-    Route::view('/appearance/widgets', 'admin.coming-soon')->name('appearance.widgets');
+    Route::get('/appearance/widgets', [AppearanceWidgetsController::class, 'index'])->name('appearance.widgets');
+    Route::post('/appearance/widgets/bulk', [AppearanceWidgetsController::class, 'bulk'])->name('appearance.widgets.bulk');
+    Route::post('/appearance/widgets/{id}/toggle', [AppearanceWidgetsController::class, 'toggle'])->name('appearance.widgets.toggle');
+    Route::post('/appearance/widgets/{id}/update', [AppearanceWidgetsController::class, 'update'])->name('appearance.widgets.update');
+    Route::post('/appearance/widgets/{id}/reset', [AppearanceWidgetsController::class, 'reset'])->name('appearance.widgets.reset');
+
     Route::view('/appearance/editor', 'admin.coming-soon')->name('appearance.editor');
     Route::view('/appearance/colors', 'admin.coming-soon')->name('appearance.colors');
     Route::view('/appearance/options', 'admin.coming-soon')->name('appearance.options');
