@@ -127,48 +127,25 @@ class MenuItemController extends Controller
     public function options(Request $request)
     {
         $type = $request->input('type');
-        $data = [];
 
-        if ($type === 'page') {
-            $data = Post::with('translations')
-                ->where('type', 'page')
-                ->where('status', 'published')
-                ->orderBy('id', 'desc')
-                ->get()
-                ->map(fn($p) => [
-                    'id' => $p->id,
-                    'label' => $p->title,
-                    'url' => '/' . $p->slug
-                ]);
-        } elseif ($type === 'post') {
-            $data = Post::with('translations')
-                ->where('type', 'post')
-                ->where('status', 'published')
-                ->orderBy('id', 'desc')
-                ->get()
-                ->map(fn($p) => [
-                    'id' => $p->id,
-                    'label' => $p->title,
-                    'url' => '/blog/' . $p->slug
-                ]);
-        } elseif ($type === 'category') {
-            $data = Category::with('translations')
-                ->get()
-                ->map(fn($c) => [
-                    'id' => $c->id,
-                    'label' => $c->name,
-                    'url' => '/category/' . $c->slug
-                ]);
+        $result = [];
+
+        if ($type === 'category') {
+            $categories = \App\Models\Category::with('translations')->ordered()->get();
+            foreach ($categories as $c) {
+                $result[] = ['id' => $c->id, 'label' => $c->name, 'url' => '/category/' . $c->slug];
+            }
         } elseif ($type === 'tag') {
-            $data = Tag::with('translations')
-                ->get()
-                ->map(fn($t) => [
-                    'id' => $t->id,
-                    'label' => $t->name,
-                    'url' => '/tag/' . $t->slug
-                ]);
+            $tags = \App\Models\Tag::with('translations')->ordered()->get();
+            foreach ($tags as $t) {
+                $result[] = ['id' => $t->id, 'label' => $t->name, 'url' => '/tag/' . $t->slug];
+            }
+        } elseif ($type === 'page') {
+            $result = [];
+        } elseif ($type === 'post') {
+            $result = [];
         }
 
-        return response()->json($data);
+        return response()->json($result);
     }
 }
