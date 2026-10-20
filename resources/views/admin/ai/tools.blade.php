@@ -70,9 +70,11 @@
             </div>
             <h3 class="text-lg font-bold text-gray-900 mb-2">{{ __('SEO Auditor') }}</h3>
             <p class="text-sm text-gray-500 mb-6 flex-1">{{ __('Scan your entire site to find published posts missing SEO titles or descriptions.') }}</p>
-            <button @click="runAudit()" :disabled="loading.audit" class="w-full py-2.5 rounded-xl bg-gray-50 text-gray-700 font-semibold text-sm hover:bg-gray-100 transition flex items-center justify-center gap-2">
-                <svg x-show="loading.audit" class="w-4 h-4 animate-spin text-amber-600" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" opacity=".25"/><path fill="currentColor" d="M4 12a8 8 0 018-8v3a5 5 0 00-5 5H4z"/></svg>
-                <span x-text="loading.audit ? '{{ __('Scanning...') }}' : '{{ __('Run Audit') }}'"></span>
+            
+            <button @click="runAudit()" :disabled="loading.audit" class="w-full py-2.5 rounded-xl bg-gray-50 text-gray-700 font-semibold text-sm hover:bg-gray-100 transition flex items-center justify-center gap-2 disabled:opacity-50">
+                <svg x-show="loading.audit" x-cloak class="w-4 h-4 animate-spin text-amber-600" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" opacity=".25"/><path fill="currentColor" d="M4 12a8 8 0 018-8v3a5 5 0 00-5 5H4z"/></svg>
+                <span x-show="!loading.audit">{{ __('Run Audit') }}</span>
+                <span x-show="loading.audit" x-cloak>{{ __('Scanning...') }}</span>
             </button>
         </div>
 
@@ -141,7 +143,7 @@
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">{{ __('Title') }}</label>
-                            <div class="p-3 bg-gray-50 rounded-xl border border-gray-200 text-sm font-medium">{{ '' }}<span x-text="result.title"></span></div>
+                            <div class="p-3 bg-gray-50 rounded-xl border border-gray-200 text-sm font-medium"><span x-text="result.title"></span></div>
                         </div>
                         <div>
                             <label class="block text-xs font-bold text-gray-500 uppercase tracking-wide mb-1">{{ __('Excerpt') }}</label>
@@ -172,15 +174,28 @@
 
                 <template x-if="auditResult">
                     <div>
-                        <h4 class="text-sm font-bold text-gray-900 mb-3">{{ __('Posts Missing SEO Data') }} (<span x-text="auditResult.length"></span>)</h4>
-                        <div class="max-h-60 overflow-y-auto space-y-2 pr-2">
-                            <template x-for="post in auditResult" :key="post.id">
-                                <a :href="post.url" class="flex items-center justify-between p-3 rounded-xl border border-gray-200 hover:border-rj-purple/50 hover:bg-gray-50 transition group">
-                                    <span class="text-sm font-medium text-gray-900 group-hover:text-rj-purple" x-text="post.title"></span>
-                                    <svg class="w-4 h-4 text-gray-400 group-hover:text-rj-purple" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
-                                </a>
-                            </template>
-                        </div>
+                        <template x-if="auditResult.length === 0">
+                            <div class="text-center py-8">
+                                <div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto mb-4">
+                                    <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                </div>
+                                <h4 class="text-lg font-bold text-gray-900">{{ __('All clear!') }}</h4>
+                                <p class="text-sm text-gray-500 mt-2">{{ __('No missing SEO data found.') }}</p>
+                            </div>
+                        </template>
+                        <template x-if="auditResult.length > 0">
+                            <div>
+                                <h4 class="text-sm font-bold text-gray-900 mb-3">{{ __('Posts Missing SEO Data') }} (<span x-text="auditResult.length"></span>)</h4>
+                                <div class="max-h-60 overflow-y-auto space-y-2 pr-2">
+                                    <template x-for="post in auditResult" :key="post.id">
+                                        <a :href="post.url" class="flex items-center justify-between p-3 rounded-xl border border-gray-200 hover:border-rj-purple/50 hover:bg-gray-50 transition group">
+                                            <span class="text-sm font-medium text-gray-900 group-hover:text-rj-purple" x-text="post.title"></span>
+                                            <svg class="w-4 h-4 text-gray-400 group-hover:text-rj-purple" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                                        </a>
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
                     </div>
                 </template>
 
@@ -193,7 +208,8 @@
                 
                 <button x-show="modal.type !== 'audit' && !result" @click="submitForm()" :disabled="loading.modal" class="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-rj-purple to-rj-pink text-white text-sm font-bold hover:opacity-90 transition shadow-sm disabled:opacity-50 min-w-[120px]">
                     <svg x-show="loading.modal" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" opacity=".25"/><path fill="currentColor" d="M4 12a8 8 0 018-8v3a5 5 0 00-5 5H4z"/></svg>
-                    <span x-text="loading.modal ? '{{ __('Processing...') }}' : '{{ __('Generate') }}'"></span>
+                    <span x-show="!loading.modal">{{ __('Generate') }}</span>
+                    <span x-show="loading.modal" x-cloak>{{ __('Processing...') }}</span>
                 </button>
             </div>
         </div>
@@ -260,9 +276,11 @@ function aiTools() {
         },
 
         async runAudit() {
-            this.modal = { show: true, type: 'audit', title: '{{ __('SEO Audit Results') }}' };
+            if (this.loading.audit) return;
             this.loading.audit = true;
+            this.modal = { show: true, type: 'audit', title: '{{ __('SEO Audit Results') }}' };
             this.auditResult = null;
+            this.error = '';
 
             try {
                 const res = await fetch('{{ route('admin.ai.tools.seo-audit') }}', {
@@ -271,9 +289,11 @@ function aiTools() {
                 const data = await res.json();
                 if (data.success) {
                     this.auditResult = data.missing || [];
+                } else {
+                    this.error = data.message || '{{ __('Failed to run audit.') }}';
                 }
             } catch (e) {
-                this.error = '{{ __('Failed to run audit.') }}';
+                this.error = '{{ __('Network error. Please try again.') }}';
             } finally {
                 this.loading.audit = false;
             }
