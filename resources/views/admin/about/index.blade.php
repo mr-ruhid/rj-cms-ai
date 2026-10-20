@@ -55,6 +55,44 @@
     }
 @endphp
 
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+    <a href="https://rj-nexus.github.io/documents/" target="_blank" rel="noopener" class="group relative bg-white rounded-2xl border border-gray-200 p-5 shadow-sm hover:shadow-md hover:border-rj-purple/40 transition-all overflow-hidden flex items-center gap-4">
+        <div class="absolute -right-4 -top-4 w-20 h-20 bg-rj-purple/5 rounded-full blur-xl group-hover:bg-rj-purple/10 transition-colors"></div>
+        <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform z-10">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+        </div>
+        <div class="z-10 min-w-0">
+            <h3 class="text-sm font-bold text-gray-900 group-hover:text-rj-purple transition-colors truncate">{{ __('Full Documentation') }}</h3>
+            <p class="text-xs text-gray-500 mt-0.5 truncate">{{ __('Official RJ Nexus docs') }}</p>
+        </div>
+        <svg class="w-4 h-4 text-gray-300 group-hover:text-rj-purple ml-auto flex-shrink-0 z-10 transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+    </a>
+
+    <a href="https://ruhidjavadoff.blogspot.com/search/label/rj%20cms" target="_blank" rel="noopener" class="group relative bg-white rounded-2xl border border-gray-200 p-5 shadow-sm hover:shadow-md hover:border-orange-400/40 transition-all overflow-hidden flex items-center gap-4">
+        <div class="absolute -right-4 -top-4 w-20 h-20 bg-orange-500/5 rounded-full blur-xl group-hover:bg-orange-500/10 transition-colors"></div>
+        <div class="w-12 h-12 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform z-10">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l6 6v8a2 2 0 01-2 2z"/><path stroke-linecap="round" stroke-linejoin="round" d="M14 4v6h6M8 13h8M8 17h5"/></svg>
+        </div>
+        <div class="z-10 min-w-0">
+            <h3 class="text-sm font-bold text-gray-900 group-hover:text-orange-600 transition-colors truncate">{{ __('RJ CMS Blog') }}</h3>
+            <p class="text-xs text-gray-500 mt-0.5 truncate">{{ __('News & tutorials') }}</p>
+        </div>
+        <svg class="w-4 h-4 text-gray-300 group-hover:text-orange-600 ml-auto flex-shrink-0 z-10 transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+    </a>
+
+    <a href="https://ruhidjavadoff.blogspot.com/search/label/rj%20nexus" target="_blank" rel="noopener" class="group relative bg-white rounded-2xl border border-gray-200 p-5 shadow-sm hover:shadow-md hover:border-emerald-400/40 transition-all overflow-hidden flex items-center gap-4">
+        <div class="absolute -right-4 -top-4 w-20 h-20 bg-emerald-500/5 rounded-full blur-xl group-hover:bg-emerald-500/10 transition-colors"></div>
+        <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0 group-hover:scale-110 transition-transform z-10">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l6 6v8a2 2 0 01-2 2z"/><path stroke-linecap="round" stroke-linejoin="round" d="M14 4v6h6M8 13h8M8 17h5"/></svg>
+        </div>
+        <div class="z-10 min-w-0">
+            <h3 class="text-sm font-bold text-gray-900 group-hover:text-emerald-600 transition-colors truncate">{{ __('RJ Nexus Blog') }}</h3>
+            <p class="text-xs text-gray-500 mt-0.5 truncate">{{ __('Development updates') }}</p>
+        </div>
+        <svg class="w-4 h-4 text-gray-300 group-hover:text-emerald-600 ml-auto flex-shrink-0 z-10 transition-colors" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+    </a>
+</div>
+
 <style>
     .ra-wrap { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 24px; align-items: start; padding-bottom: 48px; }
     @media (max-width: 1023px) { .ra-wrap { grid-template-columns: minmax(0, 1fr); } }
@@ -71,7 +109,7 @@
     .ra-search input { width: 100%; box-sizing: border-box; padding: 9px 12px 9px 36px; font-size: 13px; color: #111827; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 10px; outline: none; transition: border-color .15s, background .15s; }
     .ra-search input:focus { background: #fff; border-color: #9ca3af; }
 
-    .ra-nav { display: flex; flex-direction: column; gap: 2px; padding: 8px; max-height: calc(100vh - 300px); overflow-y: auto; }
+    .ra-nav { display: flex; flex-direction: column; gap: 2px; padding: 8px; max-height: calc(100vh - 210px); overflow-y: auto; }
     @media (max-width: 1023px) { .ra-nav { max-height: 340px; } }
     .ra-link { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; font-size: 14px; font-weight: 500; color: #4b5563; text-decoration: none; transition: background .15s, color .15s; }
     .ra-link:hover { background: #f9fafb; color: #111827; }
@@ -181,25 +219,6 @@
                 <div class="ra-empty-search" x-show="!found" x-cloak>
                     {{ __('Nothing found.') }}
                 </div>
-            </nav>
-
-            <div class="ra-side-head" style="border-top: 1px solid #f3f4f6; border-bottom: none;">
-                <svg class="text-rj-purple" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
-                {{ __('External Links') }}
-            </div>
-            <nav class="ra-nav" style="max-height: none; padding-top: 4px;">
-                <a href="https://rj-nexus.github.io/documents/" target="_blank" rel="noopener" class="ra-link">
-                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
-                    <span>{{ __('Full Documentation') }}</span>
-                </a>
-                <a href="https://ruhidjavadoff.blogspot.com/search/label/rj%20cms" target="_blank" rel="noopener" class="ra-link">
-                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l6 6v8a2 2 0 01-2 2z"/><path stroke-linecap="round" stroke-linejoin="round" d="M14 4v6h6M8 13h8M8 17h5"/></svg>
-                    <span>{{ __('RJ CMS Blog') }}</span>
-                </a>
-                <a href="https://ruhidjavadoff.blogspot.com/search/label/rj%20nexus" target="_blank" rel="noopener" class="ra-link">
-                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l6 6v8a2 2 0 01-2 2z"/><path stroke-linecap="round" stroke-linejoin="round" d="M14 4v6h6M8 13h8M8 17h5"/></svg>
-                    <span>{{ __('RJ Nexus Blog') }}</span>
-                </a>
             </nav>
         </div>
     </aside>
