@@ -1,184 +1,302 @@
 @extends('admin.layouts.app')
 
-@section('title', __('Menus'))
+@section('title', $type === 'page' ? __('Pages') : __('Posts'))
 
 @section('content')
-<div class="space-y-6">
+<div class="space-y-6" x-data="{ selected: [], bulkAction: '' }">
 
-    <div>
-        <h2 class="text-base font-semibold text-gray-900">{{ __('Menus') }}</h2>
-        <p class="text-sm text-gray-500 mt-1">{{ __('Create navigation menus and assign them to header, footer or custom locations.') }}</p>
-    </div>
-
-    <div class="bg-white rounded-lg shadow-sm border border-gray-100" x-data="{ showNewLocation: false }">
-        <div class="px-6 py-4 border-b border-gray-100">
-            <h3 class="text-base font-semibold text-gray-900">{{ __('Create New Menu') }}</h3>
-            <p class="text-sm text-gray-500 mt-1">{{ __('Give your menu a name and assign it to a location.') }}</p>
+    <div class="flex items-center justify-between gap-4 flex-wrap">
+        <div>
+            <h2 class="text-base font-semibold text-gray-900">{{ $type === 'page' ? __('Pages') : __('Posts') }}</h2>
+            <p class="text-sm text-gray-500 mt-1">{{ __('Manage your content, drafts, and scheduled items.') }}</p>
         </div>
 
-        <form method="POST" action="{{ route('admin.menus.store') }}" class="p-6 space-y-4">
-            @csrf
+        <a href="{{ route('admin.posts.create', ['type' => $type]) }}"
+           class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-rj-purple to-rj-pink text-white text-sm font-medium hover:opacity-90 transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+            {{ __('Add New') }}
+        </a>
+    </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Menu Name') }} <span class="text-red-500">*</span></label>
-                    <input type="text" name="name" value="{{ old('name') }}" required
-                           placeholder="{{ __('e.g. Main Menu') }}"
-                           class="w-full rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm">
-                    @error('name')
-                        <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
-                    @enderror
+    <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+        @php
+            $statusCards = [
+                ['key' => 'all', 'label' => __('All'), 'value' => $counts['all'], 'color' => 'text-gray-900'],
+                ['key' => 'published', 'label' => __('Published'), 'value' => $counts['published'], 'color' => 'text-green-600'],
+                ['key' => 'draft', 'label' => __('Draft'), 'value' => $counts['draft'], 'color' => 'text-amber-600'],
+                ['key' => 'scheduled', 'label' => __('Scheduled'), 'value' => $counts['scheduled'], 'color' => 'text-blue-600'],
+                ['key' => 'trash', 'label' => __('Trash'), 'value' => $counts['trash'], 'color' => 'text-red-600'],
+            ];
+        @endphp
+
+        @foreach ($statusCards as $card)
+            <a href="{{ route('admin.posts.index', array_filter(['type' => $type, 'status' => $card['key'], 'category' => request('category'), 'tag' => request('tag'), 'q' => request('q')])) }}"
+               class="bg-white rounded-lg shadow-sm border {{ $status === $card['key'] ? 'border-rj-purple ring-1 ring-rj-purple/20' : 'border-gray-100' }} p-5 hover:border-rj-purple/50 transition">
+                <div class="text-xs text-gray-500 uppercase tracking-wide">{{ $card['label'] }}</div>
+                <div class="text-2xl font-bold {{ $card['color'] }} mt-1">{{ number_format($card['value']) }}</div>
+            </a>
+        @endforeach
+    </div>
+
+    <div class="bg-white rounded-lg shadow-sm border border-gray-100">
+
+        <div class="px-4 py-3 border-b border-gray-100 flex items-center justify-between gap-3 flex-wrap">
+            <form method="GET" action="{{ route('admin.posts.index') }}" class="flex items-center gap-3 flex-1 min-w-[200px] flex-wrap">
+                <input type="hidden" name="type" value="{{ $type }}">
+                <input type="hidden" name="status" value="{{ $status }}">
+
+                <div class="relative flex-1 min-w-[200px] max-w-md">
+                    <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                    <input type="text" name="q" value="{{ request('q') }}"
+                           placeholder="{{ __('Search posts...') }}"
+                           class="w-full pl-10 pr-3 py-2 rounded-lg border border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm">
                 </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Location') }}</label>
-                    <select name="location" class="w-full rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm">
-                        <option value="">{{ __('— Not assigned —') }}</option>
-                        @foreach ($locations as $key => $label)
-                            <option value="{{ $key }}" {{ old('location') === $key ? 'selected' : '' }}>{{ $label }}</option>
-                        @endforeach
-                    </select>
-                </div>
+                <select name="category" class="rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm">
+                    <option value="">{{ __('All Categories') }}</option>
+                    @foreach ($categories as $cat)
+                        <option value="{{ $cat->id }}" {{ request('category') == $cat->id ? 'selected' : '' }}>{{ $cat->name }}</option>
+                    @endforeach
+                </select>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Description') }}</label>
-                    <input type="text" name="description" value="{{ old('description') }}"
-                           placeholder="{{ __('Optional note') }}"
-                           class="w-full rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm">
-                </div>
-            </div>
+                <select name="tag" class="rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm">
+                    <option value="">{{ __('All Tags') }}</option>
+                    @foreach ($tags as $tag)
+                        <option value="{{ $tag->id }}" {{ request('tag') == $tag->id ? 'selected' : '' }}>{{ $tag->name }}</option>
+                    @endforeach
+                </select>
 
-            <div class="flex items-center gap-3 pt-1">
-                <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-gradient-to-r from-rj-purple to-rj-pink text-white text-sm font-medium hover:opacity-90 transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-                    {{ __('Create Menu') }}
+                <button type="submit" class="px-3 py-2 rounded-lg bg-gray-100 hover:bg-gray-200 text-sm font-medium text-gray-700 transition">
+                    {{ __('Filter') }}
                 </button>
 
-                <button type="button" @click="showNewLocation = !showNewLocation"
-                        class="text-sm text-rj-purple hover:underline">
-                    {{ __('+ Add custom location') }}
-                </button>
-            </div>
-        </form>
-
-        <div x-show="showNewLocation" x-cloak x-transition class="px-6 py-4 border-t border-gray-100 bg-gray-50">
-            <form method="POST" action="{{ route('admin.menus.locations.store') }}" class="flex items-end gap-3 flex-wrap">
-                @csrf
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">{{ __('Key') }}</label>
-                    <input type="text" name="key" required pattern="[a-z0-9_\-]+"
-                           placeholder="topbar"
-                           class="w-32 rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-xs font-mono lowercase">
-                </div>
-                <div>
-                    <label class="block text-xs font-medium text-gray-700 mb-1">{{ __('Label') }}</label>
-                    <input type="text" name="label" required
-                           placeholder="{{ __('Top Bar') }}"
-                           class="w-48 rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-xs">
-                </div>
-                <button type="submit" class="inline-flex items-center px-3 py-2 rounded-lg bg-gray-900 text-white text-xs font-medium hover:bg-gray-800 transition">
-                    {{ __('Add Location') }}
-                </button>
-                <p class="text-xs text-gray-500">{{ __('Lowercase letters, numbers, hyphens only.') }}</p>
+                @if (request()->hasAny(['q', 'category', 'tag']))
+                    <a href="{{ route('admin.posts.index', ['type' => $type, 'status' => $status]) }}"
+                       class="text-sm text-gray-500 hover:text-gray-900">{{ __('Clear') }}</a>
+                @endif
             </form>
-        </div>
-    </div>
 
-    <div class="bg-white rounded-lg shadow-sm border border-gray-100 overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
-            <h3 class="text-base font-semibold text-gray-900">{{ __('Existing Menus') }}</h3>
-            <span class="text-xs text-gray-500">{{ $menus->count() }} {{ __('menu(s)') }}</span>
+            @if ($posts->total() > 0)
+                <div class="text-xs text-gray-500">{{ $posts->total() }} {{ __('item(s)') }}</div>
+            @endif
         </div>
 
-        @if ($menus->isEmpty())
-            <div class="p-12 text-center">
-                <svg class="w-12 h-12 mx-auto text-gray-300" fill="none" stroke="currentColor" stroke-width="1.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
-                <p class="mt-3 text-sm text-gray-500">{{ __('No menus yet. Create one above.') }}</p>
+        @if ($posts->isEmpty())
+            <div class="p-16 text-center">
+                <svg class="w-16 h-16 mx-auto text-gray-300" fill="none" stroke="currentColor" stroke-width="1.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l6 6v8a2 2 0 01-2 2z"/><path stroke-linecap="round" stroke-linejoin="round" d="M14 4v6h6M8 13h8M8 17h5"/></svg>
+                <p class="mt-4 text-sm text-gray-500">
+                    @if (request('q') || request('category') || request('tag'))
+                        {{ __('No posts match your filters.') }}
+                    @elseif ($status === 'trash')
+                        {{ __('Trash is empty.') }}
+                    @else
+                        {{ __('No posts yet. Create your first one.') }}
+                    @endif
+                </p>
+                <a href="{{ route('admin.posts.create', ['type' => $type]) }}"
+                   class="inline-flex items-center gap-2 mt-4 px-4 py-2 rounded-lg bg-gradient-to-r from-rj-purple to-rj-pink text-white text-sm font-medium hover:opacity-90 transition">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                    {{ __('Create First Post') }}
+                </a>
             </div>
         @else
-            <table class="w-full text-sm">
-                <thead class="bg-gray-50 border-b border-gray-100">
-                    <tr>
-                        <th class="text-left font-medium text-gray-600 px-4 py-3">{{ __('Name') }}</th>
-                        <th class="text-left font-medium text-gray-600 px-4 py-3 hidden md:table-cell">{{ __('Location') }}</th>
-                        <th class="text-center font-medium text-gray-600 px-4 py-3">{{ __('Items') }}</th>
-                        <th class="text-center font-medium text-gray-600 px-4 py-3 hidden lg:table-cell">{{ __('Status') }}</th>
-                        <th class="text-right font-medium text-gray-600 px-4 py-3">{{ __('Actions') }}</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-gray-100">
-                    @foreach ($menus as $menu)
-                        <tr class="hover:bg-gray-50/50 transition">
-                            <td class="px-4 py-3">
-                                <div class="flex items-center gap-3">
-                                    <div class="w-9 h-9 rounded-lg bg-gradient-to-br from-rj-purple/15 to-rj-pink/15 flex items-center justify-center flex-shrink-0">
-                                        <svg class="w-4 h-4 text-rj-purple" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+            <form method="POST" action="{{ route('admin.posts.bulk') }}" @submit.prevent="if (selected.length === 0 || !bulkAction) return; $el.submit()">
+                @csrf
+
+                <div x-show="selected.length > 0" x-cloak class="px-4 py-2.5 border-b border-gray-100 bg-rj-purple/5 flex items-center gap-3 flex-wrap">
+                    <span class="text-xs text-gray-600"><b x-text="selected.length"></b> {{ __('selected') }}</span>
+
+                    <select x-model="bulkAction" class="rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-xs">
+                        <option value="">{{ __('Bulk Actions') }}</option>
+                        <option value="publish">{{ __('Publish') }}</option>
+                        <option value="draft">{{ __('Move to Draft') }}</option>
+                        <option value="sticky">{{ __('Mark Sticky') }}</option>
+                        <option value="unsticky">{{ __('Unmark Sticky') }}</option>
+                        <option value="trash">{{ __('Move to Trash') }}</option>
+                        <option value="delete">{{ __('Delete Permanently') }}</option>
+                    </select>
+
+                    <button type="submit" class="px-3 py-1.5 rounded-lg bg-gray-900 text-white text-xs font-medium hover:bg-gray-800 transition">
+                        {{ __('Apply') }}
+                    </button>
+
+                    <template x-for="id in selected" :key="id">
+                        <input type="hidden" name="ids[]" :value="id">
+                    </template>
+                    <input type="hidden" name="action" :value="bulkAction">
+                </div>
+
+                <table class="w-full text-sm">
+                    <thead class="bg-gray-50 border-b border-gray-100">
+                        <tr>
+                            <th class="w-10 px-4 py-3">
+                                <input type="checkbox"
+                                       @change="selected = $event.target.checked ? [{{ $posts->pluck('id')->implode(',') }}] : []"
+                                       :checked="selected.length === {{ $posts->count() }} && {{ $posts->count() }} > 0"
+                                       class="rounded border-gray-300 text-rj-purple focus:ring-rj-purple">
+                            </th>
+                            <th class="text-left font-medium text-gray-600 px-4 py-3">{{ __('Title') }}</th>
+                            <th class="text-left font-medium text-gray-600 px-4 py-3 hidden lg:table-cell">{{ __('Author') }}</th>
+                            <th class="text-left font-medium text-gray-600 px-4 py-3 hidden xl:table-cell">{{ __('Categories / Tags') }}</th>
+                            <th class="text-center font-medium text-gray-600 px-4 py-3 hidden md:table-cell">{{ __('Comments') }}</th>
+                            <th class="text-left font-medium text-gray-600 px-4 py-3 hidden md:table-cell">{{ __('Date') }}</th>
+                            <th class="text-right font-medium text-gray-600 px-4 py-3">{{ __('Actions') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        @foreach ($posts as $post)
+                            <tr class="hover:bg-gray-50/50 transition">
+                                <td class="px-4 py-3">
+                                    <input type="checkbox" :value="{{ $post->id }}" x-model.number="selected"
+                                           class="rounded border-gray-300 text-rj-purple focus:ring-rj-purple">
+                                </td>
+
+                                <td class="px-4 py-3">
+                                    <div class="flex items-start gap-3 min-w-0">
+                                        @if ($post->featured_image)
+                                            <img src="{{ Str::startsWith($post->featured_image, 'http') ? $post->featured_image : asset($post->featured_image) }}"
+                                                 alt="" class="w-12 h-12 rounded-lg object-cover flex-shrink-0 border border-gray-200">
+                                        @else
+                                            <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-rj-purple/15 to-rj-pink/15 flex items-center justify-center flex-shrink-0">
+                                                <svg class="w-5 h-5 text-rj-purple/60" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l6 6v8a2 2 0 01-2 2z"/><path stroke-linecap="round" stroke-linejoin="round" d="M14 4v6h6"/></svg>
+                                            </div>
+                                        @endif
+
+                                        <div class="min-w-0">
+                                            <div class="flex items-center gap-2 flex-wrap">
+                                                @if ($post->is_sticky)
+                                                    <span title="{{ __('Sticky') }}" class="text-amber-500">
+                                                        <svg class="w-3.5 h-3.5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                                    </span>
+                                                @endif
+
+                                                <a href="{{ route('admin.posts.edit', $post) }}"
+                                                   class="text-sm font-medium text-gray-900 hover:text-rj-purple truncate">
+                                                    {{ $post->title ?: __('(no title)') }}
+                                                </a>
+
+                                                @if ($post->status === 'draft')
+                                                    <span class="px-1.5 py-0.5 rounded text-xs font-medium bg-amber-50 text-amber-700">{{ __('Draft') }}</span>
+                                                @elseif ($post->status === 'scheduled')
+                                                    <span class="px-1.5 py-0.5 rounded text-xs font-medium bg-blue-50 text-blue-700">{{ __('Scheduled') }}</span>
+                                                @elseif ($post->status === 'trash')
+                                                    <span class="px-1.5 py-0.5 rounded text-xs font-medium bg-red-50 text-red-700">{{ __('Trash') }}</span>
+                                                @endif
+                                            </div>
+
+                                            <div class="text-xs text-gray-500 mt-0.5 truncate">
+                                                <code class="font-mono">/{{ $post->slug }}</code>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="min-w-0">
-                                        <div class="text-sm font-medium text-gray-900 truncate">{{ $menu->name }}</div>
-                                        @if ($menu->description)
-                                            <div class="text-xs text-gray-500 mt-0.5 truncate">{{ $menu->description }}</div>
+                                </td>
+
+                                <td class="px-4 py-3 hidden lg:table-cell">
+                                    <div class="flex items-center gap-2">
+                                        <div class="w-7 h-7 rounded-full bg-gradient-to-br from-rj-purple to-rj-pink flex items-center justify-center text-white text-xs font-semibold">
+                                            {{ strtoupper(substr($post->author->name ?? '?', 0, 1)) }}
+                                        </div>
+                                        <span class="text-sm text-gray-700">{{ $post->author->name ?? '—' }}</span>
+                                    </div>
+                                </td>
+
+                                <td class="px-4 py-3 hidden xl:table-cell">
+                                    <div class="flex flex-wrap gap-1">
+                                        @foreach ($post->categories->take(2) as $cat)
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-rj-purple/10 text-rj-purple text-xs font-medium">
+                                                {{ $cat->name }}
+                                            </span>
+                                        @endforeach
+
+                                        @if ($post->categories->count() > 2)
+                                            <span class="text-xs text-gray-400">+{{ $post->categories->count() - 2 }}</span>
+                                        @endif
+
+                                        @if ($post->categories->isEmpty() && $post->tags->isEmpty())
+                                            <span class="text-xs text-gray-400">—</span>
                                         @endif
                                     </div>
-                                </div>
-                            </td>
+                                </td>
 
-                            <td class="px-4 py-3 hidden md:table-cell">
-                                @if ($menu->location)
-                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-rj-purple/10 text-rj-purple text-xs font-medium">
-                                        {{ $menu->locationLabel() }}
+                                <td class="px-4 py-3 hidden md:table-cell text-center">
+                                    <span class="inline-flex items-center gap-1 text-xs text-gray-500">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                                        {{ $post->comments_count ?? 0 }}
                                     </span>
-                                @else
-                                    <span class="text-xs text-gray-400 italic">{{ __('Not assigned') }}</span>
-                                @endif
-                            </td>
+                                </td>
 
-                            <td class="px-4 py-3 text-center">
-                                <span class="inline-flex items-center justify-center min-w-[32px] px-2 py-0.5 rounded-full text-xs font-medium {{ $menu->items_count > 0 ? 'bg-rj-purple/10 text-rj-purple' : 'bg-gray-100 text-gray-500' }}">
-                                    {{ $menu->items_count }}
-                                </span>
-                            </td>
+                                <td class="px-4 py-3 hidden md:table-cell">
+                                    <div class="text-xs text-gray-600">
+                                        @if ($post->status === 'scheduled' && $post->published_at)
+                                            <div class="text-blue-600 font-medium">{{ __('Scheduled') }}</div>
+                                            <div>{{ $post->published_at->format('M d, Y H:i') }}</div>
+                                        @elseif ($post->published_at)
+                                            <div>{{ $post->published_at->format('M d, Y') }}</div>
+                                            <div class="text-gray-400">{{ $post->published_at->format('H:i') }}</div>
+                                        @else
+                                            <div>{{ $post->created_at->format('M d, Y') }}</div>
+                                            <div class="text-gray-400">{{ __('Last modified') }}</div>
+                                        @endif
+                                    </div>
+                                </td>
 
-                            <td class="px-4 py-3 text-center hidden lg:table-cell">
-                                @if ($menu->is_active)
-                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-green-50 text-green-700 text-xs font-medium">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-green-500"></span>
-                                        {{ __('Active') }}
-                                    </span>
-                                @else
-                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-gray-100 text-gray-600 text-xs font-medium">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-gray-400"></span>
-                                        {{ __('Inactive') }}
-                                    </span>
-                                @endif
-                            </td>
+                                <td class="px-4 py-3">
+                                    <div class="flex items-center justify-end gap-1">
+                                        @if ($post->status === 'trash')
+                                            <form id="restore-form-{{ $post->id }}" method="POST" action="{{ route('admin.posts.restore', $post) }}" class="hidden">
+                                                @csrf
+                                            </form>
+                                            <button type="submit" form="restore-form-{{ $post->id }}" class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-gray-500 hover:bg-green-50 hover:text-green-600 transition" title="{{ __('Restore') }}">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                                            </button>
 
-                            <td class="px-4 py-3">
-                                <div class="flex items-center justify-end gap-1">
-                                    <a href="{{ route('admin.menus.edit', $menu) }}"
-                                       class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-gray-500 hover:bg-rj-purple/10 hover:text-rj-purple transition"
-                                       title="{{ __('Edit') }}">
-                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
-                                    </a>
+                                            <form id="delete-form-{{ $post->id }}" method="POST" action="{{ route('admin.posts.destroy', $post) }}" class="hidden">
+                                                @csrf
+                                                @method('DELETE')
+                                            </form>
+                                            <button type="submit" form="delete-form-{{ $post->id }}" onclick="return confirm('{{ __('Permanently delete this post?') }}')" class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-gray-500 hover:bg-red-50 hover:text-red-600 transition" title="{{ __('Delete Permanently') }}">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3"/></svg>
+                                            </button>
+                                        @else
+                                            <a href="{{ route('admin.posts.edit', $post) }}"
+                                               class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-gray-500 hover:bg-rj-purple/10 hover:text-rj-purple transition" title="{{ __('Edit') }}">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                                            </a>
 
-                                    <form method="POST" action="{{ route('admin.menus.destroy', $menu) }}"
-                                          onsubmit="return confirm('{{ __('Delete this menu? All items will be removed.') }}')"
-                                          class="inline">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit"
-                                                class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-gray-500 hover:bg-red-50 hover:text-red-600 transition"
-                                                title="{{ __('Delete') }}">
-                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3"/></svg>
-                                        </button>
-                                    </form>
-                                </div>
-                            </td>
-                        </tr>
-                    @endforeach
-                </tbody>
-            </table>
+                                            <a href="{{ route('admin.posts.show', $post) }}"
+                                               class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition" title="{{ __('View') }}">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.46 12C3.73 7.94 7.52 5 12 5s8.27 2.94 9.54 7c-1.27 4.06-5.06 7-9.54 7S3.73 16.06 2.46 12z"/></svg>
+                                            </a>
+
+                                            <form id="duplicate-form-{{ $post->id }}" method="POST" action="{{ route('admin.posts.duplicate', $post) }}" class="hidden">
+                                                @csrf
+                                            </form>
+                                            <button type="submit" form="duplicate-form-{{ $post->id }}" class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-gray-500 hover:bg-gray-100 hover:text-gray-700 transition" title="{{ __('Duplicate') }}">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                                            </button>
+
+                                            <form id="trash-form-{{ $post->id }}" method="POST" action="{{ route('admin.posts.trash-action', $post) }}" class="hidden">
+                                                @csrf
+                                            </form>
+                                            <button type="submit" form="trash-form-{{ $post->id }}" onclick="return confirm('{{ __('Move this post to trash?') }}')" class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-gray-500 hover:bg-red-50 hover:text-red-600 transition" title="{{ __('Move to Trash') }}">
+                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6M1 7h22M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3"/></svg>
+                                            </button>
+                                        @endif
+                                    </div>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </form>
+
+            @if ($posts->hasPages())
+                <div class="px-4 py-3 border-t border-gray-100">
+                    {{ $posts->links() }}
+                </div>
+            @endif
         @endif
+
     </div>
 
 </div>
