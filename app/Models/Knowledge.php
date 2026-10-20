@@ -11,9 +11,7 @@ class Knowledge extends Model
 
     protected $fillable = [
         'slug',
-        'title',
         'category',
-        'content',
         'is_active',
     ];
 
@@ -21,9 +19,54 @@ class Knowledge extends Model
         'is_active' => 'boolean',
     ];
 
+    public function translations()
+    {
+        return $this->hasMany(KnowledgeTranslation::class, 'knowledge_id');
+    }
+
     public function scopeActive($query)
     {
         return $query->where('is_active', true);
+    }
+
+    public function getTitleAttribute(): string
+    {
+        $locale = app()->getLocale();
+        $base = config('app.locale', 'en');
+
+        $translation = $this->translations->firstWhere('locale', $locale);
+
+        if ($translation && !empty($translation->title)) {
+            return $translation->title;
+        }
+
+        $baseTranslation = $this->translations->firstWhere('locale', $base);
+
+        if ($baseTranslation && !empty($baseTranslation->title)) {
+            return $baseTranslation->title;
+        }
+
+        return Str::title(str_replace('-', ' ', $this->slug));
+    }
+
+    public function getContentAttribute(): ?string
+    {
+        $locale = app()->getLocale();
+        $base = config('app.locale', 'en');
+
+        $translation = $this->translations->firstWhere('locale', $locale);
+
+        if ($translation && !empty($translation->content)) {
+            return $translation->content;
+        }
+
+        $baseTranslation = $this->translations->firstWhere('locale', $base);
+
+        if ($baseTranslation && !empty($baseTranslation->content)) {
+            return $baseTranslation->content;
+        }
+
+        return null;
     }
 
     public static function uniqueSlug(string $title, ?int $ignoreId = null): string
