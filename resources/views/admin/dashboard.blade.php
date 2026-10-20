@@ -3,7 +3,7 @@
 @section('title', __('Dashboard'))
 
 @section('content')
-<div class="space-y-6" x-data="aiChat()">
+<div class="space-y-6" x-data="aiChat(@js($stats))">
 
     <div class="flex items-center justify-between gap-4 flex-wrap">
         <div>
@@ -140,7 +140,7 @@
                     </div>
                     <div>
                         <h3 class="text-sm font-bold">{{ __('AI Assistant') }}</h3>
-                        <p class="text-[10px] text-white/80">{{ __('Ask about site features') }}</p>
+                        <p class="text-[10px] text-white/80">{{ __('Instant answers about your site') }}</p>
                     </div>
                 </div>
 
@@ -167,13 +167,14 @@
 
                 <div class="p-3 border-t border-gray-100 bg-gray-50/50">
                     <div class="flex flex-wrap gap-1.5 mb-2" x-show="messages.length === 1">
-                        <button @click="askQuick('How do I create a new post?')" class="text-[10px] bg-white border border-gray-200 text-gray-600 px-2.5 py-1 rounded-full hover:border-rj-purple hover:text-rj-purple transition">{{ __('How to create a post?') }}</button>
-                        <button @click="askQuick('How do I change the theme?')" class="text-[10px] bg-white border border-gray-200 text-gray-600 px-2.5 py-1 rounded-full hover:border-rj-purple hover:text-rj-purple transition">{{ __('How to change theme?') }}</button>
-                        <button @click="askQuick('How do I add a menu?')" class="text-[10px] bg-white border border-gray-200 text-gray-600 px-2.5 py-1 rounded-full hover:border-rj-purple hover:text-rj-purple transition">{{ __('How to add a menu?') }}</button>
+                        <button @click="askQuick('How many posts do I have?')" class="text-[10px] bg-white border border-gray-200 text-gray-600 px-2.5 py-1 rounded-full hover:border-rj-purple hover:text-rj-purple transition">{{ __('Post count?') }}</button>
+                        <button @click="askQuick('How many users are registered?')" class="text-[10px] bg-white border border-gray-200 text-gray-600 px-2.5 py-1 rounded-full hover:border-rj-purple hover:text-rj-purple transition">{{ __('User count?') }}</button>
+                        <button @click="askQuick('How many comments are there?')" class="text-[10px] bg-white border border-gray-200 text-gray-600 px-2.5 py-1 rounded-full hover:border-rj-purple hover:text-rj-purple transition">{{ __('Comment count?') }}</button>
+                        <button @click="askQuick('Give me an overview.')" class="text-[10px] bg-white border border-gray-200 text-gray-600 px-2.5 py-1 rounded-full hover:border-rj-purple hover:text-rj-purple transition">{{ __('Overview') }}</button>
                     </div>
 
                     <form @submit.prevent="sendMessage()" class="flex items-center gap-2">
-                        <input type="text" x-model="input" :disabled="loading" placeholder="{{ __('Type your question...') }}" class="flex-1 px-3 py-2 rounded-xl border border-gray-300 focus:border-rj-purple focus:ring-2 focus:ring-rj-purple/20 text-sm bg-white">
+                        <input type="text" x-model="input" :disabled="loading" placeholder="{{ __('Type a question...') }}" class="flex-1 px-3 py-2 rounded-xl border border-gray-300 focus:border-rj-purple focus:ring-2 focus:ring-rj-purple/20 text-sm bg-white">
                         <button type="submit" :disabled="!input.trim() || loading" class="w-9 h-9 rounded-xl bg-rj-purple text-white flex items-center justify-center hover:opacity-90 transition disabled:opacity-50 flex-shrink-0">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
                         </button>
@@ -187,10 +188,11 @@
 
 @push('scripts')
 <script>
-function aiChat() {
+function aiChat(stats) {
     return {
+        stats: stats,
         messages: [
-            { role: 'assistant', text: 'Salam! Mən RJ CMS-in AI köməkçisiyəm. Saytın funksiyaları, yazı yaratmaq, menyu əlavə etmək və ya digər mövzular haqqında mənə sual verə bilərsiniz.' }
+            { role: 'assistant', text: 'Salam! Mən saytın daxili köməkçisiyəm. Saytın statistikası, yazılar, səhifələr və ya istifadəçilər haqqında mənə sual verə bilərsiniz.' }
         ],
         input: '',
         loading: false,
@@ -204,30 +206,35 @@ function aiChat() {
             this.loading = true;
             this.scrollToBottom();
 
-            try {
-                const res = await fetch('{{ route('admin.ask-ai') }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                    },
-                    body: JSON.stringify({ question: text })
-                });
+            setTimeout(() => {
+                const lower = text.toLowerCase();
+                let reply = "";
 
-                const data = await res.json();
-
-                if (data.success) {
-                    this.messages.push({ role: 'assistant', text: data.answer });
+                if (lower.includes('post') || lower.includes('yazı') || lower.includes('bloq')) {
+                    reply = `Hazırda saytınızda <strong>${this.stats.posts}</strong> ədəd yazı (post) var.`;
+                } else if (lower.includes('page') || lower.includes('səhifə')) {
+                    reply = `Saytınızda <strong>${this.stats.pages}</strong> ədəd səhifə (page) mövcuddur.`;
+                } else if (lower.includes('user') || lower.includes('istifadəçi')) {
+                    reply = `Sistemdə qeydiyyatdan keçmiş <strong>${this.stats.users}</strong> istifadəçi var.`;
+                } else if (lower.includes('comment') || lower.includes('şərh')) {
+                    reply = `Saytınızda ümumilikdə <strong>${this.stats.comments}</strong> ədəd şərh yazılıb.`;
+                } else if (lower.includes('media') || lower.includes('şəkil') || lower.includes('fayl')) {
+                    reply = `Media kitabxanasında <strong>${this.stats.media}</strong> ədəd fayl (şəkil/video) var.`;
+                } else if (lower.includes('overview') || lower.includes('ümumi') || lower.includes('statistika')) {
+                    reply = `Saytın ümumi vəziyyəti:<br>
+                            • Yazılar: <strong>${this.stats.posts}</strong><br>
+                            • Səhifələr: <strong>${this.stats.pages}</strong><br>
+                            • Şərhlər: <strong>${this.stats.comments}</strong><br>
+                            • İstifadəçilər: <strong>${this.stats.users}</strong><br>
+                            • Media: <strong>${this.stats.media}</strong>`;
                 } else {
-                    this.messages.push({ role: 'assistant', text: data.message || 'Xəta baş verdi. Zəhmət olmasa yenidən cəhd edin.' });
+                    reply = "Mən sizə yalnız saytın statistikası (yazılar, səhifələr, şərhlər, istifadəçilər) haqqında məlumat verə bilərəm. Zəhmət olmasa sualınızı bu mövzuda verin.";
                 }
-            } catch (e) {
-                this.messages.push({ role: 'assistant', text: 'Şəbəkə xətası. İnternet bağlantınızı yoxlayın.' });
-            } finally {
+
+                this.messages.push({ role: 'assistant', text: reply });
                 this.loading = false;
                 this.scrollToBottom();
-            }
+            }, 600);
         },
 
         askQuick(text) {
@@ -242,7 +249,7 @@ function aiChat() {
         },
 
         formatMessage(text) {
-            return text.replace(/\n/g, '<br>');
+            return text;
         }
     }
 }
