@@ -37,6 +37,8 @@ use App\Http\Controllers\Admin\ToolsHealthController;
 use App\Http\Controllers\Admin\ToolsBackupController;
 use App\Http\Controllers\Admin\ToolsLogsController;
 use App\Http\Controllers\Admin\ToolsDiagnosticsController;
+use App\Http\Controllers\Admin\AiCenterController;
+use App\Http\Controllers\Admin\AiToolController;
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', fn() => redirect()->route('admin.dashboard'))->name('home');
@@ -179,11 +181,16 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/appearance/options/save', [AppearanceOptionsController::class, 'save'])->name('appearance.options.save');
     Route::post('/appearance/options/reset', [AppearanceOptionsController::class, 'reset'])->name('appearance.options.reset');
 
-    Route::view('/ai', 'admin.coming-soon')->name('ai.index');
-    Route::view('/ai/models', 'admin.coming-soon')->name('ai.models');
-    Route::view('/ai/prompts', 'admin.coming-soon')->name('ai.prompts');
-    Route::view('/ai/usage', 'admin.coming-soon')->name('ai.usage');
-    Route::view('/ai/tools', 'admin.coming-soon')->name('ai.tools');
+    Route::get('/ai', [AiCenterController::class, 'index'])->name('ai.index');
+    Route::get('/ai/models', [AiCenterController::class, 'models'])->name('ai.models');
+    Route::post('/ai/models', [AiCenterController::class, 'saveModels'])->name('ai.models.save');
+    Route::get('/ai/prompts', [AiCenterController::class, 'prompts'])->name('ai.prompts');
+    Route::post('/ai/prompts', [AiCenterController::class, 'savePrompts'])->name('ai.prompts.save');
+    Route::get('/ai/usage', [AiCenterController::class, 'usage'])->name('ai.usage');
+    Route::get('/ai/tools', [AiToolController::class, 'index'])->name('ai.tools');
+    Route::post('/ai/tools/generate-content', [AiToolController::class, 'generateContent'])->name('ai.tools.generate-content');
+    Route::post('/ai/tools/bulk-translate', [AiToolController::class, 'bulkTranslate'])->name('ai.tools.bulk-translate');
+    Route::get('/ai/tools/seo-audit', [AiToolController::class, 'seoAudit'])->name('ai.tools.seo-audit');
 
     Route::view('/support', 'admin.coming-soon')->name('support.index');
     Route::view('/support/tickets', 'admin.coming-soon')->name('support.tickets');
