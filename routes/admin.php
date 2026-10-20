@@ -31,6 +31,7 @@ use App\Http\Controllers\Admin\AppearanceColorsController;
 use App\Http\Controllers\Admin\AppearanceOptionsController;
 use App\Http\Controllers\Admin\ToolsImportController;
 use App\Http\Controllers\Admin\ToolsExportController;
+use App\Http\Controllers\Admin\ToolsHealthController;
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', fn() => redirect()->route('admin.dashboard'))->name('home');
@@ -197,7 +198,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::get('/tools/export', [ToolsExportController::class, 'index'])->name('tools.export');
     Route::post('/tools/export/run', [ToolsExportController::class, 'run'])->name('tools.export.run');
 
-    Route::view('/tools/health', 'admin.coming-soon')->name('tools.health');
+    Route::get('/tools/health', [ToolsHealthController::class, 'index'])->name('tools.health');
+    Route::post('/tools/health/analyze', [ToolsHealthController::class, 'analyze'])->name('tools.health.analyze');
+    Route::post('/tools/health/refresh', [ToolsHealthController::class, 'refresh'])->name('tools.health.refresh');
+
     Route::view('/tools/backup', 'admin.coming-soon')->name('tools.backup');
     Route::view('/tools/logs', 'admin.coming-soon')->name('tools.logs');
     Route::view('/tools/diagnostics', 'admin.coming-soon')->name('tools.diagnostics');
