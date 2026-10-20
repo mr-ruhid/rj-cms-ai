@@ -7,10 +7,12 @@ use App\Models\Knowledge;
 
 class AboutController extends Controller
 {
-    public function index()
+    public function index($slug = 'info')
     {
         $items = Knowledge::active()->orderBy('id')->get();
         
+        $activeItem = $items->firstWhere('slug', $slug) ?? $items->first();
+
         $categories = [
             'info' => ['label' => __('Info'), 'icon' => 'info'],
             'api' => ['label' => __('API Document'), 'icon' => 'code'],
@@ -24,6 +26,6 @@ class AboutController extends Controller
             'license' => ['label' => __('License'), 'icon' => 'shield'],
         ];
 
-        return view('admin.about.index', compact('items', 'categories'));
+        return view('admin.about.index', compact('items', 'activeItem', 'categories'));
     }
 }
