@@ -13,11 +13,15 @@
         transition: background-color .25s ease, box-shadow .25s ease;
         box-shadow: inset 0 1px 3px rgba(0,0,0,.12);
     }
+    .rj-switch-fill {
+        position: absolute; inset: 0; border-radius: 9999px; opacity: 0;
+        transition: opacity .25s ease; pointer-events: none;
+    }
     .rj-switch-knob {
         position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 9999px;
         background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.3);
         transition: transform .25s cubic-bezier(.4,0,.2,1);
-        pointer-events: none;
+        pointer-events: none; z-index: 2;
     }
     .rj-switch input:checked ~ .rj-switch-knob { transform: translateX(22px); }
     .rj-switch input:focus-visible ~ .rj-switch-track { box-shadow: 0 0 0 4px rgba(124,58,237,.18); }
@@ -28,7 +32,7 @@
     /* ---------- Menu tree ---------- */
     #menu-tree .sortable-ghost { opacity: .4; }
     @media (prefers-reduced-motion: reduce) {
-        .rj-switch-track, .rj-switch-knob, .rj-tab { transition: none; }
+        .rj-switch-track, .rj-switch-fill, .rj-switch-knob, .rj-tab { transition: none; }
     }
 </style>
 
@@ -37,7 +41,7 @@
     {{-- ============ Header ============ --}}
     <div class="flex items-center justify-between gap-4 flex-wrap">
         <div class="flex items-center gap-4">
-            <a href="{{ route('admin.menus.index') }}" aria-label="{{ __('Back') }}" class="w-11 h-11 rounded-xl bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:text-rj-purple hover:border-rj-purple/40 hover:-translate-x-0.5 transition shadow-sm">
+            <a href="{{ route('admin.menus.index') }}" aria-label="{{ __('Back') }}" class="w-11 h-11 rounded-xl bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:text-rj-purple hover:border-rj-purple/30 hover:-translate-x-0.5 transition shadow-sm">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
             </a>
             <div>
@@ -138,7 +142,7 @@
                             <label class="block text-sm font-semibold text-gray-700 mb-1.5">
                                 {{ __('Label') }} <span class="text-red-500">*</span>
                             </label>
-                            <input type="text" name="label" value="{{ old('label') }}" placeholder="{{ __('e.g. Home') }}" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 bg-white hover:border-gray-400 focus:border-rj-purple focus:ring-4 focus:ring-rj-purple/10 text-sm transition">
+                            <input type="text" name="label" value="{{ old('label') }}" placeholder="{{ __('e.g. Home') }}" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 bg-white hover:border-gray-400 focus:border-rj-purple focus:ring-2 focus:ring-rj-purple/20 text-sm transition">
                             @error('label') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
                         </div>
 
@@ -161,7 +165,7 @@
                                                 <label class="block text-xs font-semibold text-gray-600 mb-1">
                                                     {{ rj_lang_name($locale) }} <span class="uppercase text-gray-400 font-normal">({{ $locale }})</span>
                                                 </label>
-                                                <input type="text" name="translations[{{ $locale }}]" value="{{ old('translations.' . $locale) }}" placeholder="{{ __('Optional') }}" class="w-full px-4 py-2 rounded-xl border border-gray-300 bg-white focus:border-rj-purple focus:ring-4 focus:ring-rj-purple/10 text-sm transition">
+                                                <input type="text" name="translations[{{ $locale }}]" value="{{ old('translations.' . $locale) }}" placeholder="{{ __('Optional') }}" class="w-full px-4 py-2 rounded-xl border border-gray-300 bg-white focus:border-rj-purple focus:ring-2 focus:ring-rj-purple/20 text-sm transition">
                                             </div>
                                         @endforeach
                                     </div>
@@ -174,7 +178,7 @@
                     <div x-show="activeType !== 'custom'" class="space-y-4">
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-1.5">{{ __('Select') }} <span class="text-red-500">*</span></label>
-                            <select name="object_id" x-model="selectedObjectId" @change="onObjectSelect($event)" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 bg-white hover:border-gray-400 focus:border-rj-purple focus:ring-4 focus:ring-rj-purple/10 text-sm transition">
+                            <select name="object_id" x-model="selectedObjectId" @change="onObjectSelect($event)" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 bg-white hover:border-gray-400 focus:border-rj-purple focus:ring-2 focus:ring-rj-purple/20 text-sm transition">
                                 <option value="">{{ __('— Choose —') }}</option>
                                 <template x-for="opt in options" :key="opt.id">
                                     <option :value="opt.id" x-text="opt.label"></option>
@@ -189,13 +193,13 @@
 
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1.5">{{ __('URL') }}</label>
-                        <input type="text" name="url" value="{{ old('url') }}" x-model="url" placeholder="{{ __('https://example.com or /path') }}" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 hover:border-gray-300 focus:bg-white focus:border-rj-purple focus:ring-4 focus:ring-rj-purple/10 text-sm font-mono transition">
+                        <input type="text" name="url" value="{{ old('url') }}" x-model="url" placeholder="{{ __('https://example.com or /path') }}" class="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 hover:border-gray-300 focus:bg-white focus:border-rj-purple focus:ring-2 focus:ring-rj-purple/20 text-sm font-mono transition">
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-1.5">{{ __('Parent') }}</label>
-                            <select name="parent_id" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 bg-white hover:border-gray-400 focus:border-rj-purple focus:ring-4 focus:ring-rj-purple/10 text-sm transition">
+                            <select name="parent_id" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 bg-white hover:border-gray-400 focus:border-rj-purple focus:ring-2 focus:ring-rj-purple/20 text-sm transition">
                                 <option value="">{{ __('— Top level —') }}</option>
                                 @foreach ($menu->items->whereNull('parent_id') as $item)
                                     <option value="{{ $item->id }}" {{ old('parent_id') == $item->id ? 'selected' : '' }}>{{ $item->label }}</option>
@@ -204,7 +208,7 @@
                         </div>
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-1.5">{{ __('Target') }}</label>
-                            <select name="target" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 bg-white hover:border-gray-400 focus:border-rj-purple focus:ring-4 focus:ring-rj-purple/10 text-sm transition">
+                            <select name="target" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 bg-white hover:border-gray-400 focus:border-rj-purple focus:ring-2 focus:ring-rj-purple/20 text-sm transition">
                                 <option value="_self">{{ __('Same window') }}</option>
                                 <option value="_blank">{{ __('New window') }}</option>
                             </select>
@@ -212,7 +216,7 @@
                     </div>
 
                     <div class="pt-1">
-                        <button type="submit" class="inline-flex items-center justify-center w-full gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-rj-purple to-rj-pink text-white text-sm font-bold hover:opacity-90 active:scale-[.99] focus-visible:ring-4 focus-visible:ring-rj-purple/25 transition shadow-sm">
+                        <button type="submit" class="inline-flex items-center justify-center w-full gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-rj-purple to-rj-pink text-white text-sm font-bold hover:opacity-90 active:scale-[.99] focus-visible:ring-2 focus-visible:ring-rj-purple/20 transition shadow-sm">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
                             {{ __('Add to Menu') }}
                         </button>
@@ -274,12 +278,12 @@
 
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1.5">{{ __('Name') }}</label>
-                        <input type="text" name="name" value="{{ $menu->name }}" required class="w-full px-4 py-2.5 rounded-xl border border-gray-300 bg-white hover:border-gray-400 focus:border-rj-purple focus:ring-4 focus:ring-rj-purple/10 text-sm transition">
+                        <input type="text" name="name" value="{{ $menu->name }}" required class="w-full px-4 py-2.5 rounded-xl border border-gray-300 bg-white hover:border-gray-400 focus:border-rj-purple focus:ring-2 focus:ring-rj-purple/20 text-sm transition">
                     </div>
 
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1.5">{{ __('Location') }}</label>
-                        <select name="location" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 bg-white hover:border-gray-400 focus:border-rj-purple focus:ring-4 focus:ring-rj-purple/10 text-sm transition">
+                        <select name="location" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 bg-white hover:border-gray-400 focus:border-rj-purple focus:ring-2 focus:ring-rj-purple/20 text-sm transition">
                             <option value="">{{ __('— Not assigned —') }}</option>
                             @foreach ($locations as $key => $label)
                                 <option value="{{ $key }}" {{ $menu->location === $key ? 'selected' : '' }}>{{ $label }}</option>
@@ -289,21 +293,24 @@
 
                     <div>
                         <label class="block text-sm font-semibold text-gray-700 mb-1.5">{{ __('Description') }}</label>
-                        <input type="text" name="description" value="{{ $menu->description }}" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 bg-white hover:border-gray-400 focus:border-rj-purple focus:ring-4 focus:ring-rj-purple/10 text-sm transition">
+                        <input type="text" name="description" value="{{ $menu->description }}" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 bg-white hover:border-gray-400 focus:border-rj-purple focus:ring-2 focus:ring-rj-purple/20 text-sm transition">
                     </div>
 
                     {{-- Active toggle (duzeldilib) --}}
                     <div x-data="{ active: {{ $menu->is_active ? 'true' : 'false' }} }"
-                         :class="active ? 'border-rj-purple/40 bg-rj-purple/5' : 'border-gray-200 bg-gray-50'"
+                         :class="active ? 'border-rj-purple/30 bg-white shadow-sm' : 'border-gray-200 bg-gray-50'"
                          class="rounded-xl border p-4 transition-colors">
                         <label class="flex items-center justify-between gap-4 cursor-pointer">
                             <div class="min-w-0">
-                                <span class="block text-sm font-bold text-gray-900">{{ __('Active Menu') }}</span>
+                                <span class="flex items-center gap-2 text-sm font-bold text-gray-900">{{ __('Active Menu') }}
+                                    <span class="text-xs font-semibold" :class="active ? 'text-rj-purple' : 'text-gray-400'" x-text="active ? '{{ __('On') }}' : '{{ __('Off') }}'"></span>
+                                </span>
                                 <span class="block text-xs text-gray-500 mt-0.5">{{ __('Only one menu per location can be active.') }}</span>
                             </div>
                             <span class="rj-switch">
                                 <input type="checkbox" name="is_active" value="1" x-model="active" {{ $menu->is_active ? 'checked' : '' }} class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10 m-0">
-                                <span class="rj-switch-track" :class="active ? 'bg-rj-purple' : ''" :style="active ? '' : 'background:#d1d5db'"></span>
+                                <span class="rj-switch-track"></span>
+                                <span class="rj-switch-fill bg-gradient-to-r from-rj-purple to-rj-pink" :style="active ? 'opacity:1' : 'opacity:0'"></span>
                                 <span class="rj-switch-knob" :style="active ? 'transform: translateX(22px)' : 'transform: translateX(0)'"></span>
                             </span>
                         </label>
@@ -312,7 +319,7 @@
                 </div>
 
                 <div class="px-6 py-4 border-t border-gray-100 bg-gray-50/70">
-                    <button type="submit" class="inline-flex items-center justify-center w-full gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-rj-purple to-rj-pink text-white text-sm font-bold hover:opacity-90 active:scale-[.99] focus-visible:ring-4 focus-visible:ring-rj-purple/25 transition shadow-sm">
+                    <button type="submit" class="inline-flex items-center justify-center w-full gap-2 px-5 py-3 rounded-xl bg-gradient-to-r from-rj-purple to-rj-pink text-white text-sm font-bold hover:opacity-90 active:scale-[.99] focus-visible:ring-2 focus-visible:ring-rj-purple/20 transition shadow-sm">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
                         {{ __('Save Settings') }}
                     </button>
