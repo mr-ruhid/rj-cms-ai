@@ -33,6 +33,7 @@ use App\Http\Controllers\Admin\ToolsImportController;
 use App\Http\Controllers\Admin\ToolsExportController;
 use App\Http\Controllers\Admin\ToolsHealthController;
 use App\Http\Controllers\Admin\ToolsBackupController;
+use App\Http\Controllers\Admin\ToolsLogsController;
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', fn() => redirect()->route('admin.dashboard'))->name('home');
@@ -210,7 +211,11 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/tools/backup/restore/{filename}', [ToolsBackupController::class, 'restore'])->name('tools.backup.restore');
     Route::post('/tools/backup/settings', [ToolsBackupController::class, 'updateSettings'])->name('tools.backup.settings');
 
-    Route::view('/tools/logs', 'admin.coming-soon')->name('tools.logs');
+    Route::get('/tools/logs', [ToolsLogsController::class, 'index'])->name('tools.logs');
+    Route::post('/tools/logs/fetch', [ToolsLogsController::class, 'fetch'])->name('tools.logs.fetch');
+    Route::post('/tools/logs/clear', [ToolsLogsController::class, 'clear'])->name('tools.logs.clear');
+    Route::get('/tools/logs/download/{filename}', [ToolsLogsController::class, 'download'])->name('tools.logs.download');
+
     Route::view('/tools/diagnostics', 'admin.coming-soon')->name('tools.diagnostics');
 
     Route::prefix('rjbuilder')->name('rjbuilder.')->group(function () {
