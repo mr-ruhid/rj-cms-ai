@@ -16,6 +16,16 @@ class BackupService
         $this->ensureDirs();
     }
 
+    protected function ensureDirs(): void
+    {
+        if (!File::isDirectory($this->basePath . '/local')) {
+            File::makeDirectory($this->basePath . '/local', 0755, true);
+        }
+        if (!File::isDirectory($this->basePath . '/download')) {
+            File::makeDirectory($this->basePath . '/download', 0755, true);
+        }
+    }
+
     public function create(string $type = 'local'): array
     {
         $filename = 'backup-' . date('Y-m-d-H-i-s') . '-' . Str::random(4) . '.zip';

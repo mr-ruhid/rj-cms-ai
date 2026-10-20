@@ -52,9 +52,10 @@ class ToolsBackupController extends Controller
         return back()->with('error', $result['message']);
     }
 
-    public function download(string $filename)
+    public function download(Request $request, string $filename)
     {
-        $path = storage_path('app/backups/download/' . basename($filename));
+        $type = $request->input('type', 'download');
+        $path = storage_path('app/backups/' . $type . '/' . basename($filename));
 
         if (!File::exists($path)) {
             return back()->with('error', __('Backup file not found.'));
