@@ -5,31 +5,13 @@
 @section('content')
 <style>
     .no-scrollbar::-webkit-scrollbar { display: none; }
-
-    /* ---------- Toggle switch (Tailwind sinifindan asili deyil) ---------- */
     .rj-switch { position: relative; display: inline-block; width: 48px; height: 26px; flex-shrink: 0; }
-    .rj-switch-track {
-        position: absolute; inset: 0; border-radius: 9999px; background: #d1d5db;
-        transition: background-color .25s ease, box-shadow .25s ease;
-        box-shadow: inset 0 1px 3px rgba(0,0,0,.12);
-    }
-    .rj-switch-fill {
-        position: absolute; inset: 0; border-radius: 9999px; opacity: 0;
-        transition: opacity .25s ease; pointer-events: none;
-    }
-    .rj-switch-knob {
-        position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 9999px;
-        background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.3);
-        transition: transform .25s cubic-bezier(.4,0,.2,1);
-        pointer-events: none; z-index: 2;
-    }
+    .rj-switch-track { position: absolute; inset: 0; border-radius: 9999px; background: #d1d5db; transition: background-color .25s ease, box-shadow .25s ease; box-shadow: inset 0 1px 3px rgba(0,0,0,.12); }
+    .rj-switch-fill { position: absolute; inset: 0; border-radius: 9999px; opacity: 0; transition: opacity .25s ease; pointer-events: none; }
+    .rj-switch-knob { position: absolute; top: 3px; left: 3px; width: 20px; height: 20px; border-radius: 9999px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.3); transition: transform .25s cubic-bezier(.4,0,.2,1); pointer-events: none; z-index: 2; }
     .rj-switch input:checked ~ .rj-switch-knob { transform: translateX(22px); }
     .rj-switch input:focus-visible ~ .rj-switch-track { box-shadow: 0 0 0 4px rgba(124,58,237,.18); }
-
-    /* ---------- Segmented tabs ---------- */
     .rj-tab { transition: background-color .2s, color .2s, box-shadow .2s; }
-
-    /* ---------- Menu tree ---------- */
     #menu-tree .sortable-ghost { opacity: .4; }
     @media (prefers-reduced-motion: reduce) {
         .rj-switch-track, .rj-switch-fill, .rj-switch-knob, .rj-tab { transition: none; }
@@ -38,7 +20,6 @@
 
 <div class="space-y-8" x-data="menuEditor()">
 
-    {{-- ============ Header ============ --}}
     <div class="flex items-center justify-between gap-4 flex-wrap">
         <div class="flex items-center gap-4">
             <a href="{{ route('admin.menus.index') }}" aria-label="{{ __('Back') }}" class="w-11 h-11 rounded-xl bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:text-rj-purple hover:border-rj-purple/30 hover:-translate-x-0.5 transition shadow-sm">
@@ -89,10 +70,8 @@
 
     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 min-w-0 items-start">
 
-        {{-- ============ Sol sutun ============ --}}
         <div class="lg:col-span-2 space-y-8 min-w-0">
 
-            {{-- ---------- Add Menu Item ---------- --}}
             <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
                 <div class="px-6 py-5 border-b border-gray-100 flex items-center gap-4">
                     <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-rj-purple to-rj-pink text-white flex items-center justify-center shadow-sm flex-shrink-0">
@@ -104,7 +83,6 @@
                     </div>
                 </div>
 
-                {{-- Tabs --}}
                 <div class="px-6 pt-5" x-data="{
                          isDragging: false, isMoved: false, startX: 0, scrollLeft: 0,
                          scrollTabs(e) { if (e.deltaY !== 0) { this.$refs.tabContainer.scrollLeft += e.deltaY; e.preventDefault(); } },
@@ -136,16 +114,17 @@
                     @csrf
                     <input type="hidden" name="type" :value="activeType">
 
-                    {{-- Custom --}}
-                    <div x-show="activeType === 'custom'" class="space-y-4">
+                    <div class="space-y-4 mb-4">
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-1.5">
                                 {{ __('Label') }} <span class="text-red-500">*</span>
                             </label>
-                            <input type="text" name="label" value="{{ old('label') }}" placeholder="{{ __('e.g. Home') }}" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 bg-white hover:border-gray-400 focus:border-rj-purple focus:ring-2 focus:ring-rj-purple/20 text-sm transition">
+                            <input type="text" name="label" x-model="label" value="{{ old('label') }}" placeholder="{{ __('e.g. Home') }}" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 bg-white hover:border-gray-400 focus:border-rj-purple focus:ring-2 focus:ring-rj-purple/20 text-sm transition">
                             @error('label') <p class="text-xs text-red-500 mt-1">{{ $message }}</p> @enderror
                         </div>
+                    </div>
 
+                    <div x-show="activeType === 'custom'" class="space-y-4">
                         @php $locales = rj_available_locales(); @endphp
                         @if (count($locales) > 1)
                             <div x-data="{ openTranslations: false }" class="rounded-xl border border-gray-200 bg-gray-50/60">
@@ -174,7 +153,6 @@
                         @endif
                     </div>
 
-                    {{-- Obyekt secimi --}}
                     <div x-show="activeType !== 'custom'" class="space-y-4">
                         <div>
                             <label class="block text-sm font-semibold text-gray-700 mb-1.5">{{ __('Select') }} <span class="text-red-500">*</span></label>
@@ -224,7 +202,6 @@
                 </form>
             </div>
 
-            {{-- ---------- Menu Structure ---------- --}}
             <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
                 <div class="px-6 py-5 border-b border-gray-100 flex items-center justify-between gap-4">
                     <div class="flex items-center gap-4">
@@ -260,7 +237,6 @@
 
         </div>
 
-        {{-- ============ Sag sutun ============ --}}
         <div class="space-y-6 min-w-0 lg:sticky lg:top-6">
 
             <form method="POST" action="{{ route('admin.menus.update', $menu) }}" class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
@@ -296,7 +272,6 @@
                         <input type="text" name="description" value="{{ $menu->description }}" class="w-full px-4 py-2.5 rounded-xl border border-gray-300 bg-white hover:border-gray-400 focus:border-rj-purple focus:ring-2 focus:ring-rj-purple/20 text-sm transition">
                     </div>
 
-                    {{-- Active toggle (duzeldilib) --}}
                     <div x-data="{ active: {{ $menu->is_active ? 'true' : 'false' }} }"
                          :class="active ? 'border-rj-purple/30 bg-white shadow-sm' : 'border-gray-200 bg-gray-50'"
                          class="rounded-xl border p-4 transition-colors">
@@ -344,6 +319,7 @@ function toggleEdit(id) {
 function menuEditor() {
     return {
         activeType: 'custom',
+        label: '',
         selectedObjectId: '',
         url: '',
         options: [],
@@ -352,6 +328,7 @@ function menuEditor() {
         async loadOptions(type) {
             this.options = [];
             this.selectedObjectId = '';
+            this.label = '';
             this.url = '';
 
             if (type === 'custom') return;
@@ -373,6 +350,9 @@ function menuEditor() {
             const id = e.target.value;
             const opt = this.options.find(o => String(o.id) === String(id));
             this.url = opt ? opt.url : '';
+            if (opt) {
+                this.label = opt.label;
+            }
         }
     }
 }
