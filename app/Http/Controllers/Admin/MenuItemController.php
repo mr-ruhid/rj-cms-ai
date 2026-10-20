@@ -14,7 +14,7 @@ class MenuItemController extends Controller
     {
         $data = $request->validate([
             'type' => ['required', 'in:custom,page,post,category,tag'],
-            'label' => ['required', 'string', 'max:200'],
+            'label' => ['nullable', 'string', 'max:200'], // nullable etdik
             'translations' => ['nullable', 'array'],
             'translations.*' => ['nullable', 'string', 'max:200'],
             'url' => ['nullable', 'string', 'max:500'],
@@ -29,8 +29,22 @@ class MenuItemController extends Controller
             return back()->with('error', __('URL is required for custom links.'))->withInput();
         }
 
-        $translations = null;
+        // Label boşdursa, obyektin adını götürürük
+        $label = $data['label'] ?? '';
+        if (empty($label) && !empty($data['object_id'])) {
+            if ($data['type'] === 'page' || $data['type'] === 'post') {
+                $label = Post::find($data['object_id'])?->title;
+            } elseif ($data['type'] === 'category') {
+                $label = \App\Models\Category::find($data['object_id'])?->name;
+            } elseif ($data['type'] === 'tag') {
+                $label = \App\Models\Tag::find($data['object_id'])?->name;
+            }
+        }
+        if (empty($label)) {
+            $label = __('Item');
+        }
 
+        $translations = null;
         if ($data['type'] === 'custom' && !empty($data['translations'])) {
             $translations = array_filter($data['translations'], fn($v) => !empty($v));
             $translations = !empty($translations) ? $translations : null;
@@ -44,7 +58,7 @@ class MenuItemController extends Controller
             'menu_id' => $menu->id,
             'parent_id' => $data['parent_id'] ?? null,
             'type' => $data['type'],
-            'label' => $data['label'],
+            'label' => $label,
             'translations' => $translations,
             'url' => $data['url'] ?? null,
             'target' => $data['target'] ?? '_self',
