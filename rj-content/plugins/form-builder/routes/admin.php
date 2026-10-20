@@ -8,6 +8,11 @@ Route::middleware(['web', 'auth', 'admin'])->prefix('admin/plugin/forms')->name(
     Route::get('/', [FormController::class, 'index'])->name('index');
     Route::get('/create', [FormController::class, 'create'])->name('create');
     Route::post('/', [FormController::class, 'store'])->name('store');
+    
+    Route::get('/{form}', function (\RjPlugins\FormBuilder\Models\Form $form) {
+        return redirect()->route('admin.plugin.forms.edit', $form);
+    })->name('show');
+
     Route::get('/{form}/edit', [FormController::class, 'edit'])->name('edit');
     Route::put('/{form}', [FormController::class, 'update'])->name('update');
     Route::delete('/{form}', [FormController::class, 'destroy'])->name('destroy');
