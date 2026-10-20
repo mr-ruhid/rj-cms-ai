@@ -7,8 +7,6 @@ use App\Models\Post;
 use App\Models\Comment;
 use App\Models\User;
 use App\Models\Media;
-use App\Services\AiKnowledgeService;
-use Illuminate\Http\Request;
 
 class DashboardController extends Controller
 {
@@ -27,16 +25,5 @@ class DashboardController extends Controller
         $recentComments = Comment::with('post')->orderByDesc('created_at')->limit(5)->get();
 
         return view('admin.dashboard', compact('stats', 'recentPosts', 'recentComments'));
-    }
-
-    public function askAi(Request $request, AiKnowledgeService $aiService)
-    {
-        $validated = $request->validate([
-            'question' => 'required|string|max:500',
-        ]);
-
-        $result = $aiService->ask($validated['question']);
-
-        return response()->json($result);
     }
 }
