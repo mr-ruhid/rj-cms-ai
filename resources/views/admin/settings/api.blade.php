@@ -13,13 +13,27 @@
 
 <style>
     [x-cloak]{display:none!important}
-    .rjapi{--p:var(--rj-purple,#7c3aed);--k:var(--rj-pink,#ec4899);--p-soft:color-mix(in srgb,var(--p) 10%,white);--p-faint:color-mix(in srgb,var(--p) 5%,white);--p-line:color-mix(in srgb,var(--p) 30%,white);--p-deep:color-mix(in srgb,var(--p) 65%,black);--p-ring:color-mix(in srgb,var(--p) 18%,transparent);--p-glow:color-mix(in srgb,var(--p) 30%,transparent);--p-dark:color-mix(in srgb,var(--p) 14%,#0b1020);--p-bar:color-mix(in srgb,var(--p) 22%,#111827);--p-edge:color-mix(in srgb,var(--p) 28%,#111827);--ink:#111827;--mut:#6b7280;--line:#e5e7eb;--soft:#f9fafb;display:flex;flex-direction:column;gap:24px;color:var(--ink)}
+    .rjapi{
+        --p: var(--rj-purple, 124 58 237);
+        --k: var(--rj-pink, 236 72 153);
+        --p-soft:color-mix(in srgb,rgb(var(--p)) 10%,white);
+        --p-faint:color-mix(in srgb,rgb(var(--p)) 5%,white);
+        --p-line:color-mix(in srgb,rgb(var(--p)) 30%,white);
+        --p-deep:color-mix(in srgb,rgb(var(--p)) 65%,black);
+        --p-ring:color-mix(in srgb,rgb(var(--p)) 18%,transparent);
+        --p-glow:color-mix(in srgb,rgb(var(--p)) 30%,transparent);
+        --p-dark:color-mix(in srgb,rgb(var(--p)) 14%,#0b1020);
+        --p-bar:color-mix(in srgb,rgb(var(--p)) 22%,#111827);
+        --p-edge:color-mix(in srgb,rgb(var(--p)) 28%,#111827);
+        --ink:#111827;--mut:#6b7280;--line:#e5e7eb;--soft:#f9fafb;
+        display:flex;flex-direction:column;gap:24px;color:var(--ink)
+    }
     .rjapi *{box-sizing:border-box}
     .rjapi svg{width:18px;height:18px;flex-shrink:0}
     .rjapi button{cursor:pointer;font-family:inherit}
 
     /* hero */
-    .rjapi-hero{position:relative;overflow:hidden;border-radius:20px;padding:28px;color:#fff;background:linear-gradient(135deg,var(--p-deep) 0%,var(--p) 55%,var(--k) 125%)}
+    .rjapi-hero{position:relative;overflow:hidden;border-radius:20px;padding:28px;color:#fff;background:linear-gradient(135deg,var(--p-deep) 0%,rgb(var(--p)) 55%,rgb(var(--k)) 125%)}
     .rjapi-hero:after{content:"";position:absolute;right:-60px;top:-60px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.12)}
     .rjapi-hero h2{margin:0;font-size:22px;font-weight:800;letter-spacing:-.02em}
     .rjapi-hero p{margin:6px 0 0;font-size:14px;opacity:.85;max-width:560px}
@@ -41,8 +55,8 @@
     .rjapi-head-l{display:flex;align-items:center;gap:14px;min-width:0}
     .rjapi-ico{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
     .rjapi-ico svg{width:20px;height:20px}
-    .rjapi-ico.i{background:var(--p-soft);color:var(--p)}
-    .rjapi-ico.e{background:color-mix(in srgb,var(--k) 10%,white);color:var(--k)}
+    .rjapi-ico.i{background:var(--p-soft);color:rgb(var(--p))}
+    .rjapi-ico.e{background:color-mix(in srgb,rgb(var(--k)) 10%,white);color:rgb(var(--k))}
     .rjapi-head h3{margin:0;font-size:16px;font-weight:700}
     .rjapi-head p{margin:2px 0 0;font-size:12px;color:var(--mut)}
     .rjapi-count{background:#f3f4f6;color:#4b5563;font-size:12px;font-weight:700;padding:4px 12px;border-radius:999px}
@@ -55,14 +69,14 @@
     .rjapi-input{position:relative;flex:1;min-width:220px}
     .rjapi-input svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:#9ca3af;width:16px;height:16px}
     .rjapi-input input{width:100%;padding:11px 14px 11px 38px;border:1px solid #d1d5db;border-radius:12px;font-size:14px;background:#fff;outline:none;transition:.15s}
-    .rjapi-input input:focus{border-color:var(--p);box-shadow:0 0 0 3px var(--p-ring)}
-    .rjapi-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 22px;border:0;border-radius:12px;font-size:14px;font-weight:600;color:#fff;background:linear-gradient(90deg,var(--p),var(--k));box-shadow:0 4px 12px var(--p-glow);transition:.15s}
+    .rjapi-input input:focus{border-color:rgb(var(--p));box-shadow:0 0 0 3px var(--p-ring)}
+    .rjapi-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 22px;border:0;border-radius:12px;font-size:14px;font-weight:600;color:#fff;background:linear-gradient(90deg,rgb(var(--p)),rgb(var(--k)));box-shadow:0 4px 12px var(--p-glow);transition:.15s}
     .rjapi-btn:hover{opacity:.92;transform:translateY(-1px)}
     .rjapi-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
 
     /* empty */
     .rjapi-empty{text-align:center;padding:44px 16px;border:2px dashed var(--line);border-radius:16px;background:linear-gradient(180deg,#fff,#fafafa)}
-    .rjapi-empty .ic{width:60px;height:60px;border-radius:18px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;background:var(--p-soft);color:color-mix(in srgb,var(--p) 65%,white)}
+    .rjapi-empty .ic{width:60px;height:60px;border-radius:18px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;background:var(--p-soft);color:color-mix(in srgb,rgb(var(--p)) 65%,white)}
     .rjapi-empty .ic svg{width:28px;height:28px}
     .rjapi-empty b{display:block;font-size:14px}
     .rjapi-empty span{font-size:12px;color:var(--mut)}
@@ -71,7 +85,7 @@
     .rjapi-key{border:1px solid var(--line);border-radius:16px;padding:18px;background:#fff;transition:.15s}
     .rjapi-key:hover{border-color:var(--p-line);box-shadow:0 6px 18px var(--p-ring)}
     .rjapi-key-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
-    .rjapi-av{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;background:linear-gradient(135deg,var(--p),var(--k));flex-shrink:0}
+    .rjapi-av{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;background:linear-gradient(135deg,rgb(var(--p)),rgb(var(--k)));flex-shrink:0}
     .rjapi-key-id{display:flex;align-items:center;gap:12px;min-width:0}
     .rjapi-key-id h4{margin:0;font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .rjapi-key-id p{margin:2px 0 0;font-size:12px;color:var(--mut)}
@@ -93,21 +107,21 @@
     .rjapi-tabs{display:flex;gap:4px;background:var(--p-dark);padding:3px;border-radius:10px}
     .rjapi-tab{border:0;background:transparent;color:#9ca3af;font-size:12px;font-weight:600;padding:5px 12px;border-radius:8px}
     .rjapi-tab:hover{color:#fff}
-    .rjapi-tab.on{background:var(--p);color:#fff}
+    .rjapi-tab.on{background:rgb(var(--p));color:#fff}
     .rjapi-copy{display:inline-flex;align-items:center;gap:6px;border:0;background:transparent;color:#9ca3af;font-size:12px;font-weight:600;padding:6px 10px;border-radius:8px}
     .rjapi-copy:hover{background:rgba(255,255,255,.08);color:#fff}
     .rjapi-copy svg{width:14px;height:14px}
-    .rjapi-pre{margin:0;padding:18px 20px;overflow-x:auto;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;line-height:1.75;color:color-mix(in srgb,var(--k) 35%,white);white-space:pre;min-height:96px}
+    .rjapi-pre{margin:0;padding:18px 20px;overflow-x:auto;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;line-height:1.75;color:color-mix(in srgb,rgb(var(--k)) 35%,white);white-space:pre;min-height:96px}
 
     /* endpoints */
     .rjapi-tools{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
     .rjapi-search{position:relative;flex:1;min-width:200px}
     .rjapi-search svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#9ca3af;width:16px;height:16px}
     .rjapi-search input{width:100%;padding:9px 12px 9px 36px;border:1px solid #d1d5db;border-radius:10px;font-size:13px;outline:none}
-    .rjapi-search input:focus{border-color:var(--p);box-shadow:0 0 0 3px var(--p-ring)}
+    .rjapi-search input:focus{border-color:rgb(var(--p));box-shadow:0 0 0 3px var(--p-ring)}
     .rjapi-chips{display:flex;gap:6px;flex-wrap:wrap}
     .rjapi-chip{border:1px solid var(--line);background:#fff;color:#4b5563;font-size:11px;font-weight:700;padding:6px 11px;border-radius:999px}
-    .rjapi-chip.on{background:var(--p);border-color:var(--p);color:#fff}
+    .rjapi-chip.on{background:rgb(var(--p));border-color:rgb(var(--p));color:#fff}
     .rjapi-list{border:1px solid var(--line);border-radius:14px;overflow:hidden}
     .rjapi-li{display:grid;grid-template-columns:84px minmax(180px,1.3fr) 2fr;gap:14px;align-items:center;padding:13px 18px;border-top:1px solid #f3f4f6;transition:.12s}
     .rjapi-li:first-child{border-top:0}
