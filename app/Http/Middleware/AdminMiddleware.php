@@ -18,7 +18,8 @@ class AdminMiddleware
 
         $role = $user->role ?? null;
 
-        if (!in_array($role, ['admin', 'super-admin'], true)) {
+        // Həm 'super_admin', həm 'super-admin', həm də 'admin' rollarına icazə verilir
+        if (!in_array($role, ['admin', 'super-admin', 'super_admin'], true)) {
             abort(403, 'Unauthorized. Admin access required.');
         }
 
