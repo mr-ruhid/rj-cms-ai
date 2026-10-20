@@ -14,7 +14,6 @@
                 <a href="{{ route('admin.settings.colors') }}" class="block px-3 py-2 rounded hover:bg-gray-100 {{ request()->routeIs('admin.settings.colors') ? 'bg-gray-100 font-medium' : '' }}">{{ __('Colors') }}</a>
                 <a href="{{ route('admin.settings.seo') }}" class="block px-3 py-2 rounded hover:bg-gray-100 {{ request()->routeIs('admin.settings.seo') ? 'bg-gray-100 font-medium' : '' }}">{{ __('SEO') }}</a>
                 <a href="{{ route('admin.settings.email') }}" class="block px-3 py-2 rounded hover:bg-gray-100 {{ request()->routeIs('admin.settings.email') ? 'bg-gray-100 font-medium' : '' }}">{{ __('Email / SMTP') }}</a>
-                <a href="{{ route('admin.settings.payments') }}" class="block px-3 py-2 rounded hover:bg-gray-100 {{ request()->routeIs('admin.settings.payments') ? 'bg-gray-100 font-medium' : '' }}">{{ __('Payments') }}</a>
                 <a href="{{ route('admin.settings.security') }}" class="block px-3 py-2 rounded hover:bg-gray-100 {{ request()->routeIs('admin.settings.security') ? 'bg-gray-100 font-medium' : '' }}">{{ __('Security') }}</a>
                 <a href="{{ route('admin.settings.backup') }}" class="block px-3 py-2 rounded hover:bg-gray-100 {{ request()->routeIs('admin.settings.backup') ? 'bg-gray-100 font-medium' : '' }}">{{ __('Backup') }}</a>
                 <a href="{{ route('admin.settings.cache') }}" class="block px-3 py-2 rounded hover:bg-gray-100 {{ request()->routeIs('admin.settings.cache') ? 'bg-gray-100 font-medium' : '' }}">{{ __('Cache') }}</a>
