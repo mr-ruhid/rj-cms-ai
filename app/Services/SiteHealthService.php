@@ -1,588 +1,746 @@
-@extends('admin.layouts.app')
+<?php
 
-@section('title', __('Site Health'))
+namespace App\Services;
 
-@section('content')
-@php
-    $i18n = [
-        'excellent' => __('Excellent'),
-        'good' => __('Good'),
-        'fair' => __('Fair'),
-        'poor' => __('Poor'),
-        'warning' => __('Warning'),
-        'critical' => __('Critical'),
-        'passing' => __('Good'),
-        'issuesCritical' => __(':n critical issue(s) need fixing first.'),
-        'issuesWarning' => __(':n warning(s) are worth a look.'),
-        'allGood' => __('Everything looks healthy.'),
-        'refreshFailed' => __('Refresh failed.'),
-        'refreshed' => __('Checks updated.'),
-        'networkError' => __('Network error.'),
-        'aiFailed' => __('AI analysis failed.'),
-        'copied' => __('Copied to clipboard.'),
-        'copyFailed' => __('Could not copy.'),
-        'aiOff' => __('AI is not configured'),
-        'analyze' => __('AI Analysis'),
-        'analyzing' => __('Analyzing...'),
-        'severity' => [
-            'critical' => __('Critical'),
-            'high' => __('High'),
-            'medium' => __('Medium'),
-            'low' => __('Low'),
-        ],
-    ];
+use App\Models\Media;
+use App\Models\Plugin;
+use App\Models\Post;
+use App\Models\Theme;
+use App\Models\User;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Schema;
 
-    $urls = [
-        'analyze' => route('admin.tools.health.analyze'),
-        'refresh' => route('admin.tools.health.refresh'),
-    ];
-@endphp
+class SiteHealthService
+{
+    public function check(): array
+    {
+        $groups = [
+            'checkEnvironment',
+            'checkStorage',
+            'checkDatabase',
+            'checkSecurity',
+            'checkPerformance',
+            'checkContent',
+            'checkLogs',
+            'checkIntegrations',
+        ];
 
-<div class="max-w-6xl mx-auto space-y-6 pb-12" x-data="healthTool(@js($boot), @js($i18n), @js($urls))" @keydown.escape.window="drawer = false">
+        $checks = [];
 
-    {{-- HEADER --}}
-    <div class="flex items-start justify-between gap-4 flex-wrap">
-        <div>
-            <h2 class="text-xl font-bold text-gray-900">{{ __('Site Health') }}</h2>
-            <p class="text-sm text-gray-500 mt-1">
-                {{ __('Automated checks and AI-powered analysis of your site.') }}
-                <span class="text-gray-400 block sm:inline sm:ml-2">· {{ __('Last checked') }}: <span x-text="checkedAt"></span></span>
-            </p>
-        </div>
-
-        <div class="flex items-center gap-2">
-            <button type="button" @click="refresh()" :disabled="refreshing"
-                    class="inline-flex items-center gap-2 h-10 px-4 rounded-lg bg-white border border-gray-300 text-gray-700 text-sm font-medium hover:bg-gray-50 transition disabled:opacity-60 shadow-sm">
-                <svg :class="refreshing ? 'animate-spin' : ''" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                {{ __('Refresh') }}
-            </button>
-
-            <button type="button" @click="openAi()" :disabled="!aiEnabled || aiLoading"
-                    :title="!aiEnabled ? t.aiOff : ''"
-                    class="inline-flex items-center gap-2 h-10 px-4 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-medium hover:opacity-90 transition disabled:opacity-50 disabled:cursor-not-allowed shadow-sm">
-                <svg x-show="!aiLoading" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                <svg x-show="aiLoading" x-cloak class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" opacity=".25"/><path fill="currentColor" d="M4 12a8 8 0 018-8v3a5 5 0 00-5 5H4z"/></svg>
-                <span x-text="aiLoading ? t.analyzing : t.analyze"></span>
-            </button>
-        </div>
-    </div>
-
-    @if (!$aiEnabled)
-        <div class="flex items-start gap-3 rounded-xl border border-blue-100 bg-blue-50 px-4 py-3 shadow-sm">
-            <svg class="w-5 h-5 text-blue-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            <p class="text-sm text-blue-900 leading-relaxed">
-                {{ __('AI analysis is disabled. Configure OpenRouter API key in Settings → AI to unlock detailed analysis.') }}
-                <a href="{{ route('admin.settings.ai') }}" class="ml-1 font-bold underline hover:text-blue-700">{{ __('Configure now') }} →</a>
-            </p>
-        </div>
-    @endif
-
-    {{-- OVERVIEW --}}
-    <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
-        <div class="p-6 grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
-            
-            {{-- Score Ring --}}
-            <div class="md:col-span-4 flex flex-col items-center justify-center border-b md:border-b-0 md:border-r border-gray-100 pb-6 md:pb-0 md:pr-6">
-                <div class="relative w-40 h-40">
-                    <svg class="w-40 h-40 transform -rotate-90" viewBox="0 0 120 120">
-                        <circle cx="60" cy="60" r="52" fill="none" stroke="#f3f4f6" stroke-width="10"/>
-                        <circle cx="60" cy="60" r="52" fill="none" :stroke="scoreColor" stroke-width="10" stroke-linecap="round"
-                                :stroke-dasharray="circumference" :stroke-dashoffset="dashOffset" class="health-ring"/>
-                    </svg>
-                    <div class="absolute inset-0 flex flex-col items-center justify-center">
-                        <span class="text-4xl font-extrabold tabular-nums tracking-tight" :style="'color:' + scoreColor" x-text="summary.score"></span>
-                        <span class="text-[10px] uppercase tracking-widest font-bold text-gray-400 mt-1">{{ __('Score') }}</span>
-                    </div>
-                </div>
-                <div class="mt-4 text-center">
-                    <div class="inline-flex px-3 py-1 rounded-full text-sm font-bold"
-                         :class="{
-                            'bg-emerald-100 text-emerald-700': summary.score >= 90,
-                            'bg-amber-100 text-amber-700': summary.score >= 70 && summary.score < 90,
-                            'bg-orange-100 text-orange-700': summary.score >= 50 && summary.score < 70,
-                            'bg-red-100 text-red-700': summary.score < 50
-                         }"
-                         x-text="scoreLabel"></div>
-                </div>
-            </div>
-
-            {{-- Stats --}}
-            <div class="md:col-span-8 space-y-6">
-                <div>
-                    <h3 class="text-lg font-bold text-gray-900" x-text="verdict"></h3>
-                    <p class="text-sm text-gray-500 mt-1" x-text="summary.total + ' {{ __('checks performed') }}'"></p>
-                </div>
-
-                <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div class="bg-emerald-50 rounded-xl p-4 border border-emerald-100 flex items-center gap-4">
-                        <div class="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center flex-shrink-0">
-                            <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                        </div>
-                        <div>
-                            <div class="text-2xl font-bold text-gray-900 tabular-nums" x-text="summary.good"></div>
-                            <div class="text-xs font-semibold text-emerald-700 uppercase tracking-wide">{{ __('Good') }}</div>
-                        </div>
-                    </div>
-
-                    <div class="bg-amber-50 rounded-xl p-4 border border-amber-100 flex items-center gap-4">
-                        <div class="w-10 h-10 rounded-full bg-amber-100 flex items-center justify-center flex-shrink-0">
-                            <svg class="w-5 h-5 text-amber-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01"/></svg>
-                        </div>
-                        <div>
-                            <div class="text-2xl font-bold text-gray-900 tabular-nums" x-text="summary.warning"></div>
-                            <div class="text-xs font-semibold text-amber-700 uppercase tracking-wide">{{ __('Warnings') }}</div>
-                        </div>
-                    </div>
-
-                    <div class="bg-red-50 rounded-xl p-4 border border-red-100 flex items-center gap-4">
-                        <div class="w-10 h-10 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
-                            <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                        </div>
-                        <div>
-                            <div class="text-2xl font-bold text-gray-900 tabular-nums" x-text="summary.critical"></div>
-                            <div class="text-xs font-semibold text-red-700 uppercase tracking-wide">{{ __('Critical') }}</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {{-- TOOLBAR --}}
-    <div class="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2">
-        <div class="relative w-full sm:max-w-md">
-            <svg class="w-4 h-4 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 10.5a6.5 6.5 0 11-13 0 6.5 6.5 0 0113 0z"/></svg>
-            <input type="search" x-model.debounce.150ms="query" placeholder="{{ __('Search checks...') }}"
-                   class="w-full h-10 pl-9 pr-3 rounded-lg border border-gray-300 bg-white text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm">
-        </div>
-        
-        <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
-            <button type="button" x-show="status !== 'all' || query" x-cloak @click="status = 'all'; query = ''"
-                    class="text-xs font-medium text-indigo-600 hover:underline px-2">
-                {{ __('Clear filters') }}
-            </button>
-            <button type="button" @click="toggleAll()" class="h-10 px-4 rounded-lg text-sm font-medium text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 shadow-sm transition"
-                    x-text="allCollapsed ? '{{ __('Expand all') }}' : '{{ __('Collapse all') }}'"></button>
-        </div>
-    </div>
-
-    {{-- LIST --}}
-    <div class="space-y-4">
-        <template x-for="cat in visibleCategories" :key="cat.key">
-            <div :id="'cat-' + cat.key" class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden scroll-mt-6">
-                
-                {{-- Category Header --}}
-                <button type="button" @click="collapsed[cat.key] = !collapsed[cat.key]"
-                        class="w-full px-5 py-4 flex items-center justify-between gap-3 bg-gray-50/50 hover:bg-gray-50 transition text-left">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-lg bg-white border border-gray-200 flex items-center justify-center text-gray-500 shadow-sm">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" x-html="icon(cat.icon)"></svg>
-                        </div>
-                        <span class="text-sm font-bold text-gray-900" x-text="cat.label"></span>
-                        <span class="inline-flex items-center gap-1.5">
-                            <span x-show="cat.counts.critical > 0" class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-red-100 text-red-700" x-text="cat.counts.critical + ' {{ __('Critical') }}'"></span>
-                            <span x-show="cat.counts.warning > 0" class="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-amber-100 text-amber-700" x-text="cat.counts.warning + ' {{ __('Warning') }}'"></span>
-                        </span>
-                    </div>
-                    <svg class="w-4 h-4 text-gray-400 transition-transform duration-200" :class="collapsed[cat.key] ? 'rotate-180' : ''" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
-                </button>
-
-                {{-- Category Items --}}
-                <ul x-show="!collapsed[cat.key]" class="divide-y divide-gray-100 border-t border-gray-200">
-                    <template x-for="item in visibleItems(cat)" :key="item.id">
-                        <li class="px-5 py-4 flex flex-col sm:flex-row sm:items-start gap-3 hover:bg-gray-50/30 transition-colors">
-                            
-                            {{-- Status Icon --}}
-                            <div class="flex-shrink-0 mt-0.5">
-                                <template x-if="item.status === 'good'">
-                                    <div class="w-5 h-5 rounded-full bg-emerald-100 flex items-center justify-center">
-                                        <svg class="w-3 h-3 text-emerald-600" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                                    </div>
-                                </template>
-                                <template x-if="item.status === 'warning'">
-                                    <div class="w-5 h-5 rounded-full bg-amber-100 flex items-center justify-center">
-                                        <svg class="w-3 h-3 text-amber-600" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01"/></svg>
-                                    </div>
-                                </template>
-                                <template x-if="item.status === 'critical'">
-                                    <div class="w-5 h-5 rounded-full bg-red-100 flex items-center justify-center">
-                                        <svg class="w-3 h-3 text-red-600" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                                    </div>
-                                </template>
-                            </div>
-
-                            {{-- Content --}}
-                            <div class="flex-1 min-w-0">
-                                <div class="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-2">
-                                    <span class="text-sm font-bold text-gray-900" x-text="item.label"></span>
-                                    <span class="text-sm text-gray-500 font-mono bg-gray-100 px-1.5 py-0.5 rounded text-xs" x-text="item.message"></span>
-                                </div>
-                                
-                                <p x-show="item.recommendation" class="mt-1.5 text-xs text-amber-700 bg-amber-50 border border-amber-100 p-2 rounded inline-flex items-start gap-1.5 w-full sm:w-auto">
-                                    <svg class="w-3.5 h-3.5 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                                    <span x-text="item.recommendation"></span>
-                                </p>
-                            </div>
-
-                            {{-- Status Badge --}}
-                            <div class="flex-shrink-0 mt-1 sm:mt-0">
-                                <span class="inline-flex items-center px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wide"
-                                      :class="st[item.status].badge" x-text="st[item.status].label"></span>
-                            </div>
-                        </li>
-                    </template>
-                </ul>
-            </div>
-        </template>
-        
-        {{-- Empty State --}}
-        <div x-show="visibleCategories.length === 0" x-cloak class="bg-white rounded-xl border border-dashed border-gray-300 py-16 text-center shadow-sm">
-            <svg class="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
-            <p class="text-sm font-medium text-gray-900">{{ __('No checks match your filters.') }}</p>
-            <button type="button" @click="status = 'all'; query = ''" class="mt-3 text-sm font-bold text-indigo-600 hover:underline">{{ __('Clear all filters') }}</button>
-        </div>
-    </div>
-
-    {{-- AI DRAWER (Modal) --}}
-    <div x-show="drawer" x-cloak class="fixed inset-0 z-50" role="dialog" aria-modal="true">
-        <div class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" x-show="drawer" x-transition.opacity @click="drawer = false"></div>
-
-        <div class="absolute inset-y-0 right-0 w-full max-w-xl bg-white shadow-2xl flex flex-col"
-             x-show="drawer"
-             x-transition:enter="transition ease-out duration-300" x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0"
-             x-transition:leave="transition ease-in duration-200" x-transition:leave-start="translate-x-0" x-transition:leave-end="translate-x-full">
-
-            <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-gradient-to-r from-blue-600 to-indigo-600 text-white">
-                <div class="flex items-center gap-3">
-                    <div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                    </div>
-                    <div>
-                        <h3 class="text-base font-bold">{{ __('AI Health Analysis') }}</h3>
-                        <p class="text-xs text-blue-100 mt-0.5" x-text="aiData && aiData.model ? aiData.model : aiModel"></p>
-                    </div>
-                </div>
-                <button type="button" @click="drawer = false" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white transition">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                </button>
-            </div>
-
-            <div class="flex-1 overflow-y-auto px-6 py-6 space-y-6 custom-scrollbar bg-gray-50/50">
-                {{-- Loading --}}
-                <div x-show="aiLoading" x-cloak class="space-y-4 pt-10 text-center">
-                    <div class="w-16 h-16 mx-auto rounded-full bg-blue-100 flex items-center justify-center mb-4">
-                        <svg class="w-8 h-8 text-blue-600 animate-spin" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" opacity=".25"/><path fill="currentColor" d="M4 12a8 8 0 018-8v3a5 5 0 00-5 5H4z"/></svg>
-                    </div>
-                    <h4 class="text-base font-bold text-gray-900">{{ __('Analyzing your site...') }}</h4>
-                    <p class="text-sm text-gray-500">{{ __('OpenRouter is reviewing your health checks.') }}</p>
-                </div>
-
-                {{-- Error --}}
-                <div x-show="aiError && !aiLoading" x-cloak class="rounded-xl border border-red-200 bg-red-50 p-4">
-                    <p class="text-sm font-medium text-red-800" x-text="aiError"></p>
-                    <button type="button" @click="runAi(true)" class="mt-3 px-3 py-1.5 rounded-lg bg-white border border-red-200 text-sm font-bold text-red-700 hover:bg-red-100 transition">{{ __('Try again') }}</button>
-                </div>
-
-                {{-- Result --}}
-                <template x-if="aiData && !aiLoading && !aiError">
-                    <div class="space-y-6">
-                        <div class="rounded-xl border p-5 shadow-sm" :class="overallStyle(aiData.overall)">
-                            <div class="flex items-center gap-2 mb-2">
-                                <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-white/60 border border-black/5" x-text="aiData.overall"></span>
-                                <span class="text-xs font-medium text-gray-600">{{ __('Score') }}: <strong class="text-gray-900" x-text="aiData.score"></strong></span>
-                            </div>
-                            <h4 class="text-base font-bold text-gray-900 leading-snug" x-text="aiData.headline"></h4>
-                            <p class="text-sm text-gray-700 mt-2 leading-relaxed" x-text="aiData.summary"></p>
-                        </div>
-
-                        <div x-show="aiData.priorities && aiData.priorities.length">
-                            <h4 class="text-sm font-bold text-gray-900 mb-3 flex items-center gap-2">
-                                <svg class="w-4 h-4 text-indigo-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
-                                {{ __('Action Plan') }}
-                            </h4>
-                            <div class="space-y-4">
-                                <template x-for="(p, idx) in aiData.priorities" :key="idx">
-                                    <div class="rounded-xl border bg-white p-4 shadow-sm" :class="sev[p.severity].border">
-                                        <div class="flex items-start justify-between gap-3">
-                                            <div class="min-w-0">
-                                                <div class="flex items-center gap-2 flex-wrap mb-1">
-                                                    <span class="text-[10px] font-bold uppercase tracking-wide px-2 py-0.5 rounded" :class="sev[p.severity].badge" x-text="t.severity[p.severity]"></span>
-                                                    <span x-show="p.category" class="text-[10px] text-gray-500 uppercase font-semibold" x-text="p.category"></span>
-                                                </div>
-                                                <h5 class="text-sm font-bold text-gray-900" x-text="p.title"></h5>
-                                            </div>
-                                        </div>
-
-                                        <p x-show="p.why" class="text-xs text-gray-600 mt-1.5 leading-relaxed" x-text="p.why"></p>
-
-                                        <div x-show="p.action" class="mt-3 rounded-lg bg-gray-900 overflow-hidden">
-                                            <div class="flex items-center justify-between px-3 py-1.5 border-b border-white/10">
-                                                <span class="text-[10px] font-bold uppercase tracking-wide text-gray-400">{{ __('Action to take') }}</span>
-                                                <button type="button" @click="copy(p.action, idx)" class="text-xs text-gray-300 hover:text-white transition font-medium"
-                                                        x-text="copiedIdx === idx ? t.copied : '{{ __('Copy') }}'"></button>
-                                            </div>
-                                            <pre class="text-xs text-gray-100 whitespace-pre-wrap font-mono leading-relaxed p-3 overflow-x-auto" x-text="p.action"></pre>
-                                        </div>
-                                    </div>
-                                </template>
-                            </div>
-                        </div>
-
-                        <div x-show="aiData.quick_wins && aiData.quick_wins.length" class="rounded-xl border border-emerald-200 bg-emerald-50 p-4 shadow-sm">
-                            <h4 class="text-sm font-bold text-emerald-900 mb-2 flex items-center gap-2">
-                                <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                                {{ __('Quick Wins') }}
-                            </h4>
-                            <ul class="space-y-1.5">
-                                <template x-for="(w, i) in aiData.quick_wins" :key="i">
-                                    <li class="flex items-start gap-2 text-sm text-emerald-800 font-medium">
-                                        <svg class="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                                        <span x-text="w"></span>
-                                    </li>
-                                </template>
-                            </ul>
-                        </div>
-                    </div>
-                </template>
-            </div>
-
-            <div class="px-6 py-4 border-t border-gray-200 bg-white flex items-center justify-between">
-                <span class="text-[10px] text-gray-400 max-w-[200px] leading-tight">{{ __('AI suggestions can be wrong. Review commands before running.') }}</span>
-                <button type="button" @click="drawer = false" class="px-5 py-2 rounded-lg bg-gray-900 text-white text-sm font-bold hover:bg-gray-800 transition shadow-sm">{{ __('Close') }}</button>
-            </div>
-        </div>
-    </div>
-
-    {{-- TOAST --}}
-    <div x-show="toast.show" x-cloak x-transition aria-live="polite"
-         class="fixed bottom-6 right-6 px-4 py-3 rounded-xl shadow-lg text-white text-sm font-bold z-[60]"
-         :class="toast.type === 'error' ? 'bg-red-600' : 'bg-emerald-600'" x-text="toast.message"></div>
-</div>
-
-<script>
-function healthTool(boot, t, urls) {
-    const csrf = () => document.querySelector('meta[name="csrf-token"]')?.content || '';
-
-    const ICONS = {
-        server: '<path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M5 12a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v4a2 2 0 01-2 2M5 12a2 2 0 00-2 2v4a2 2 0 002 2h14a2 2 0 002-2v-4a2 2 0 00-2-2m-2-4h.01M17 16h.01"/>',
-        folder: '<path stroke-linecap="round" stroke-linejoin="round" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"/>',
-        database: '<path stroke-linecap="round" stroke-linejoin="round" d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4"/>',
-        shield: '<path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>',
-        bolt: '<path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/>',
-        document: '<path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>',
-        list: '<path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/>',
-        plug: '<path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3M5 11h14M7 11v4a5 5 0 0010 0v-4M12 20v1"/>',
-        circle: '<circle cx="12" cy="12" r="9"/>',
-    };
-
-    return {
-        summary: boot.summary,
-        categories: boot.categories,
-        checkedAt: boot.checkedAt,
-        aiEnabled: boot.aiEnabled,
-        aiModel: boot.aiModel,
-        t: t,
-
-        circumference: 2 * Math.PI * 52,
-        animatedScore: 0,
-
-        status: 'all',
-        query: '',
-        collapsed: {},
-        refreshing: false,
-
-        drawer: false,
-        aiLoading: false,
-        aiError: '',
-        aiData: null,
-        copiedIdx: null,
-
-        toast: { show: false, message: '', type: 'success' },
-        _toastTimer: null,
-
-        st: {
-            good: { label: t.passing, dot: 'bg-emerald-500', badge: 'bg-emerald-100 text-emerald-700' },
-            warning: { label: t.warning, dot: 'bg-amber-400', badge: 'bg-amber-100 text-amber-700' },
-            critical: { label: t.critical, dot: 'bg-red-500', badge: 'bg-red-100 text-red-700' },
-        },
-
-        sev: {
-            critical: { badge: 'bg-red-100 text-red-700', border: 'border-red-200' },
-            high: { badge: 'bg-orange-100 text-orange-700', border: 'border-orange-200' },
-            medium: { badge: 'bg-amber-100 text-amber-700', border: 'border-amber-200' },
-            low: { badge: 'bg-gray-100 text-gray-600', border: 'border-gray-200' },
-        },
-
-        init() {
-            this.$nextTick(() => setTimeout(() => { this.animatedScore = this.summary.score; }, 80));
-        },
-
-        get dashOffset() {
-            return this.circumference * ((100 - this.animatedScore) / 100);
-        },
-
-        get scoreColor() {
-            const s = this.summary.score;
-            if (s >= 90) return '#10b981';
-            if (s >= 70) return '#f59e0b';
-            if (s >= 50) return '#f97316';
-            return '#ef4444';
-        },
-
-        get scoreLabel() {
-            const s = this.summary.score;
-            if (s >= 90) return t.excellent;
-            if (s >= 70) return t.good;
-            if (s >= 50) return t.fair;
-            return t.poor;
-        },
-
-        get verdict() {
-            if (this.summary.critical > 0) return t.issuesCritical.replace(':n', this.summary.critical);
-            if (this.summary.warning > 0) return t.issuesWarning.replace(':n', this.summary.warning);
-            return t.allGood;
-        },
-
-        get visibleCategories() {
-            return this.categories.filter(c => this.visibleItems(c).length > 0);
-        },
-
-        get allCollapsed() {
-            return this.categories.length > 0 && this.categories.every(c => this.collapsed[c.key]);
-        },
-
-        icon(name) {
-            return ICONS[name] || ICONS.circle;
-        },
-
-        visibleItems(cat) {
-            const q = this.query.trim().toLowerCase();
-            return cat.items.filter(i => {
-                if (this.status !== 'all' && i.status !== this.status) return false;
-                if (!q) return true;
-                return (i.label + ' ' + i.message + ' ' + (i.recommendation || '')).toLowerCase().includes(q);
-            });
-        },
-
-        toggleStatus(key) {
-            this.status = this.status === key ? 'all' : key;
-        },
-
-        toggleAll() {
-            const collapse = !this.allCollapsed;
-            const next = {};
-            this.categories.forEach(c => { next[c.key] = collapse; });
-            this.collapsed = next;
-        },
-
-        overallStyle(overall) {
-            if (overall === 'excellent' || overall === 'good') return 'bg-emerald-50 border-emerald-200';
-            if (overall === 'fair') return 'bg-amber-50 border-amber-200';
-            return 'bg-red-50 border-red-200';
-        },
-
-        showToast(message, type) {
-            this.toast = { show: true, message, type: type || 'success' };
-            clearTimeout(this._toastTimer);
-            this._toastTimer = setTimeout(() => { this.toast.show = false; }, 3500);
-        },
-
-        async request(url, body) {
-            const res = await fetch(url, {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json',
-                    'X-CSRF-TOKEN': csrf(),
-                    'X-Requested-With': 'XMLHttpRequest',
-                },
-                body: JSON.stringify(body || {}),
-            });
-            const data = await res.json().catch(() => ({}));
-            return { ok: res.ok, data };
-        },
-
-        async refresh() {
-            if (this.refreshing) return;
-            this.refreshing = true;
+        foreach ($groups as $group) {
             try {
-                const { ok, data } = await this.request(urls.refresh);
-                if (!ok || !data.success) {
-                    this.showToast(data.message || t.refreshFailed, 'error');
-                    return;
-                }
-                this.summary = data.summary;
-                this.categories = data.categories;
-                this.checkedAt = data.checked_at;
-                this.animatedScore = data.summary.score;
-                this.aiData = null;
-                this.showToast(t.refreshed);
-            } catch (e) {
-                this.showToast(t.refreshFailed, 'error');
-            } finally {
-                this.refreshing = false;
+                $checks = array_merge($checks, $this->{$group}());
+            } catch (\Throwable $e) {
+                // Bir qrup xəta versə, bütün səhifə çökməsin
+                $checks[] = $this->makeCheck(
+                    'group_' . $group,
+                    $this->categoryOf($group),
+                    __('Check group failed'),
+                    'warning',
+                    __('Could not run this group of checks.'),
+                    $e->getMessage()
+                );
             }
-        },
+        }
 
-        openAi() {
-            if (!this.aiEnabled || this.aiLoading) return;
-            this.drawer = true;
-            if (!this.aiData) this.runAi(false);
-        },
+        return $checks;
+    }
 
-        async runAi(force) {
-            if (this.aiLoading) return;
-            this.drawer = true;
-            this.aiLoading = true;
-            this.aiError = '';
-            if (force) this.aiData = null;
+    public function summary(array $checks): array
+    {
+        $counts = ['good' => 0, 'warning' => 0, 'critical' => 0];
 
+        foreach ($checks as $c) {
+            $counts[$c['status']] = ($counts[$c['status']] ?? 0) + 1;
+        }
+
+        $total = count($checks);
+        $score = 100;
+
+        if ($total > 0) {
+            $score = (int) round((($counts['good'] * 100) + ($counts['warning'] * 60)) / $total);
+        }
+
+        // Kritik problem varsa skor 89-dan yuxarı çıxmasın
+        if ($counts['critical'] > 0) {
+            $score = min($score, 89);
+        }
+
+        return [
+            'score' => max(0, min(100, $score)),
+            'good' => $counts['good'],
+            'warning' => $counts['warning'],
+            'critical' => $counts['critical'],
+            'total' => $total,
+        ];
+    }
+
+    protected function categoryOf(string $method): string
+    {
+        return strtolower(substr($method, 5));
+    }
+
+    protected function makeCheck(string $id, string $category, string $label, string $status, $message, $value = null, ?string $recommendation = null): array
+    {
+        return [
+            'id' => $id,
+            'category' => $category,
+            'label' => $label,
+            'status' => $status,
+            'message' => is_scalar($message) || $message === null ? (string) $message : json_encode($message),
+            'value' => $value,
+            'recommendation' => $recommendation,
+        ];
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* Environment                                                         */
+    /* ------------------------------------------------------------------ */
+
+    protected function checkEnvironment(): array
+    {
+        $items = [];
+
+        $phpVersion = PHP_VERSION;
+        $phpOk = version_compare($phpVersion, '8.2.0', '>=');
+        $items[] = $this->makeCheck(
+            'php_version', 'environment', __('PHP Version'),
+            $phpOk ? 'good' : 'critical',
+            $phpVersion, $phpVersion,
+            $phpOk ? null : __('Update PHP to 8.2 or higher.')
+        );
+
+        $laravelVersion = app()->version();
+        $items[] = $this->makeCheck(
+            'laravel_version', 'environment', __('Laravel Version'),
+            version_compare($laravelVersion, '11.0.0', '>=') ? 'good' : 'warning',
+            $laravelVersion, $laravelVersion
+        );
+
+        $appKey = config('app.key');
+        $items[] = $this->makeCheck(
+            'app_key', 'environment', __('Application Key'),
+            $appKey ? 'good' : 'critical',
+            $appKey ? __('Set') : __('Missing'),
+            null, // açarın heç bir hissəsi göstərilmir / AI-yə göndərilmir
+            $appKey ? null : __('Run php artisan key:generate')
+        );
+
+        $env = app()->environment();
+        $isProd = $env === 'production';
+        $items[] = $this->makeCheck(
+            'app_env', 'environment', __('Environment'),
+            $isProd ? 'good' : 'warning',
+            $env, $env,
+            $isProd ? null : __('Set APP_ENV=production when live.')
+        );
+
+        $debug = (bool) config('app.debug');
+        $items[] = $this->makeCheck(
+            'app_debug', 'environment', __('Debug Mode'),
+            ($debug && $isProd) ? 'critical' : 'good',
+            $debug ? __('Enabled') : __('Disabled'),
+            $debug ? 'true' : 'false',
+            ($debug && $isProd) ? __('Disable APP_DEBUG in production.') : null
+        );
+
+        $timezone = config('app.timezone');
+        $items[] = $this->makeCheck(
+            'timezone', 'environment', __('Timezone'),
+            $timezone ? 'good' : 'warning',
+            $timezone ?: __('Not set'), $timezone
+        );
+
+        $https = request()->isSecure() || str_starts_with((string) config('app.url', ''), 'https://');
+        $items[] = $this->makeCheck(
+            'https', 'environment', __('HTTPS'),
+            $https ? 'good' : ($isProd ? 'critical' : 'warning'),
+            $https ? __('Enabled') : __('Disabled'),
+            $https ? 'on' : 'off',
+            $https ? null : __('Enable HTTPS for security.')
+        );
+
+        if (!app()->runningInConsole()) {
+            $appHost = parse_url((string) config('app.url'), PHP_URL_HOST);
+            $reqHost = request()->getHost();
+            $hostOk = !$appHost || strcasecmp($appHost, $reqHost) === 0;
+            $items[] = $this->makeCheck(
+                'app_url', 'environment', __('APP_URL'),
+                $hostOk ? 'good' : 'warning',
+                $hostOk ? __('Matches current host') : __('Differs from current host'),
+                $appHost,
+                $hostOk ? null : __('Set APP_URL in .env to :host.', ['host' => $reqHost])
+            );
+        }
+
+        $memory = (string) ini_get('memory_limit');
+        $memoryBytes = $this->parseSize($memory);
+        $memOk = $memoryBytes === -1 || $memoryBytes >= 128 * 1024 * 1024;
+        $items[] = $this->makeCheck(
+            'memory_limit', 'environment', __('Memory Limit'),
+            $memOk ? 'good' : 'warning',
+            $memory, $memory,
+            $memOk ? null : __('Set memory_limit to at least 128M.')
+        );
+
+        $uploadMax = (string) ini_get('upload_max_filesize');
+        $uploadBytes = $this->parseSize($uploadMax);
+        $uploadOk = $uploadBytes === -1 || $uploadBytes >= 2 * 1024 * 1024;
+        $items[] = $this->makeCheck(
+            'upload_max', 'environment', __('Upload Max Filesize'),
+            $uploadOk ? 'good' : 'warning',
+            $uploadMax, $uploadMax,
+            $uploadOk ? null : __('Set upload_max_filesize to at least 2M for media uploads.')
+        );
+
+        $postMax = (string) ini_get('post_max_size');
+        $postBytes = $this->parseSize($postMax);
+        $postOk = $postBytes === -1 || $postBytes >= $uploadBytes;
+        $items[] = $this->makeCheck(
+            'post_max', 'environment', __('Post Max Size'),
+            $postOk ? 'good' : 'warning',
+            $postMax, $postMax,
+            $postOk ? null : __('post_max_size should be equal to or larger than upload_max_filesize.')
+        );
+
+        $maxExec = (string) ini_get('max_execution_time');
+        $execOk = (int) $maxExec === 0 || (int) $maxExec >= 60;
+        $items[] = $this->makeCheck(
+            'max_execution', 'environment', __('Max Execution Time'),
+            $execOk ? 'good' : 'warning',
+            $maxExec . 's', $maxExec,
+            $execOk ? null : __('Increase max_execution_time to 60s or more.')
+        );
+
+        $required = ['pdo', 'mbstring', 'openssl', 'tokenizer', 'xml', 'ctype', 'json', 'fileinfo', 'curl'];
+        $missing = array_values(array_filter($required, fn($e) => !extension_loaded($e)));
+        $items[] = $this->makeCheck(
+            'php_extensions', 'environment', __('Required PHP Extensions'),
+            empty($missing) ? 'good' : 'critical',
+            empty($missing) ? __('All installed') : __('Missing: :list', ['list' => implode(', ', $missing)]),
+            $missing,
+            empty($missing) ? null : __('Install and enable: :list', ['list' => implode(', ', $missing)])
+        );
+
+        $optionalMissing = [];
+        if (!extension_loaded('gd') && !extension_loaded('imagick')) {
+            $optionalMissing[] = 'gd/imagick';
+        }
+        foreach (['zip', 'intl'] as $ext) {
+            if (!extension_loaded($ext)) {
+                $optionalMissing[] = $ext;
+            }
+        }
+        $items[] = $this->makeCheck(
+            'php_extensions_optional', 'environment', __('Recommended PHP Extensions'),
+            empty($optionalMissing) ? 'good' : 'warning',
+            empty($optionalMissing) ? __('All installed') : __('Missing: :list', ['list' => implode(', ', $optionalMissing)]),
+            $optionalMissing,
+            empty($optionalMissing) ? null : __('Install for image processing and archive support: :list', ['list' => implode(', ', $optionalMissing)])
+        );
+
+        return $items;
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* Storage                                                             */
+    /* ------------------------------------------------------------------ */
+
+    protected function checkStorage(): array
+    {
+        $items = [];
+
+        $writable = [
+            ['storage_writable', __('Storage Writable'), storage_path(), __('Make storage/ writable (chmod -R 775 storage).')],
+            ['storage_uploads', __('Uploads Folder Writable'), storage_path('app/public'), __('Make storage/app/public writable.')],
+            ['bootstrap_cache', __('Bootstrap Cache Writable'), base_path('bootstrap/cache'), __('Make bootstrap/cache writable.')],
+        ];
+
+        foreach ($writable as [$id, $label, $path, $hint]) {
+            $ok = is_dir($path) && is_writable($path);
+            $items[] = $this->makeCheck(
+                $id, 'storage', $label,
+                $ok ? 'good' : 'critical',
+                $ok ? __('Writable') : __('Not writable'),
+                $path,
+                $ok ? null : $hint
+            );
+        }
+
+        $envExists = File::exists(base_path('.env'));
+        $items[] = $this->makeCheck(
+            'env_file', 'storage', __('.env File'),
+            $envExists ? 'good' : 'critical',
+            $envExists ? __('Present') : __('Missing'),
+            null,
+            $envExists ? null : __('Create .env file from .env.example.')
+        );
+
+        $publicStorage = public_path('storage');
+        $linkOk = file_exists($publicStorage) || is_link($publicStorage);
+        $items[] = $this->makeCheck(
+            'storage_link', 'storage', __('Public Storage Link'),
+            $linkOk ? 'good' : 'warning',
+            $linkOk ? __('Linked') : __('Missing'),
+            null,
+            $linkOk ? null : __('Run php artisan storage:link')
+        );
+
+        $diskFree = @disk_free_space(base_path());
+        $diskTotal = @disk_total_space(base_path());
+        $diskPercent = ($diskFree && $diskTotal) ? round(($diskFree / $diskTotal) * 100, 1) : null;
+        $diskStatus = 'good';
+        if ($diskPercent !== null) {
+            if ($diskPercent < 5) {
+                $diskStatus = 'critical';
+            } elseif ($diskPercent < 15) {
+                $diskStatus = 'warning';
+            }
+        }
+        $items[] = $this->makeCheck(
+            'disk_space', 'storage', __('Disk Free Space'),
+            $diskStatus,
+            ($diskFree && $diskTotal) ? $this->formatSize($diskFree) . ' / ' . $this->formatSize($diskTotal) : __('Unknown'),
+            $diskPercent !== null ? $diskPercent . '% free' : null,
+            $diskStatus === 'good' ? null : __('Free up disk space.')
+        );
+
+        return $items;
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* Database                                                            */
+    /* ------------------------------------------------------------------ */
+
+    protected function checkDatabase(): array
+    {
+        $items = [];
+
+        try {
+            $conn = DB::connection();
+            $conn->getPdo();
+            $connected = true;
+        } catch (\Throwable $e) {
+            $connected = false;
+        }
+
+        $items[] = $this->makeCheck(
+            'db_connection', 'database', __('Database Connection'),
+            $connected ? 'good' : 'critical',
+            $connected ? __('Connected') : __('Failed'),
+            null,
+            $connected ? null : __('Check database credentials in .env.')
+        );
+
+        if (!$connected) {
+            return $items;
+        }
+
+        $driver = $conn->getDriverName();
+        $dbName = $conn->getDatabaseName();
+
+        try {
+            $version = $conn->getPdo()->getAttribute(\PDO::ATTR_SERVER_VERSION);
+        } catch (\Throwable $e) {
+            $version = '?';
+        }
+        $items[] = $this->makeCheck(
+            'db_version', 'database', __('Database Engine'),
+            'good', strtoupper($driver) . ' ' . $version, $version
+        );
+
+        try {
+            $sizeMb = null;
+
+            if (in_array($driver, ['mysql', 'mariadb'], true)) {
+                $row = DB::selectOne(
+                    'SELECT ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) AS size FROM information_schema.TABLES WHERE table_schema = ?',
+                    [$dbName]
+                );
+                $sizeMb = (float) ($row->size ?? 0);
+            } elseif ($driver === 'pgsql') {
+                $row = DB::selectOne('SELECT pg_database_size(current_database()) AS size');
+                $sizeMb = round(((float) ($row->size ?? 0)) / 1024 / 1024, 2);
+            } elseif ($driver === 'sqlite' && $dbName && is_file($dbName)) {
+                $sizeMb = round(filesize($dbName) / 1024 / 1024, 2);
+            }
+
+            if ($sizeMb !== null) {
+                $items[] = $this->makeCheck(
+                    'db_size', 'database', __('Database Size'),
+                    'good', $sizeMb . ' MB', $sizeMb
+                );
+            }
+        } catch (\Throwable $e) {
+        }
+
+        try {
+            $tableCount = count(Schema::getTables());
+            $items[] = $this->makeCheck(
+                'db_tables', 'database', __('Database Tables'),
+                $tableCount > 0 ? 'good' : 'warning',
+                $tableCount . ' ' . __('tables'), $tableCount
+            );
+        } catch (\Throwable $e) {
+        }
+
+        $hasPosts = Schema::hasTable('rj_posts');
+        $items[] = $this->makeCheck(
+            'db_schema', 'database', __('RJ CMS Schema'),
+            $hasPosts ? 'good' : 'critical',
+            $hasPosts ? __('Installed') : __('Missing tables'),
+            null,
+            $hasPosts ? null : __('Run php artisan migrate')
+        );
+
+        $pending = $this->pendingMigrations();
+        $items[] = $this->makeCheck(
+            'db_migrations', 'database', __('Migrations'),
+            $pending === 0 ? 'good' : 'warning',
+            $pending === 0 ? __('Up to date') : $pending . ' ' . __('pending'),
+            $pending,
+            $pending > 0 ? __('Run php artisan migrate') : null
+        );
+
+        return $items;
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* Security                                                            */
+    /* ------------------------------------------------------------------ */
+
+    protected function checkSecurity(): array
+    {
+        $items = [];
+
+        $sessionDriver = (string) config('session.driver');
+        $items[] = $this->makeCheck(
+            'session_driver', 'security', __('Session Driver'),
+            in_array($sessionDriver, ['database', 'redis', 'file', 'memcached', 'dynamodb'], true) ? 'good' : 'warning',
+            $sessionDriver, $sessionDriver,
+            in_array($sessionDriver, ['array', 'cookie'], true) ? __('Use database, redis or file sessions.') : null
+        );
+
+        $https = request()->isSecure() || str_starts_with((string) config('app.url', ''), 'https://');
+        $sessionSecure = (bool) config('session.secure', false);
+        $secureStatus = $sessionSecure ? 'good' : ($https ? 'warning' : 'good');
+        $items[] = $this->makeCheck(
+            'session_secure', 'security', __('Secure Cookies'),
+            $secureStatus,
+            $sessionSecure ? __('Enabled') : ($https ? __('Disabled') : __('Not required (no HTTPS)')),
+            $sessionSecure,
+            ($https && !$sessionSecure) ? __('Set SESSION_SECURE_COOKIE=true if using HTTPS.') : null
+        );
+
+        $httpOnly = (bool) config('session.http_only', true);
+        $items[] = $this->makeCheck(
+            'session_http_only', 'security', __('HttpOnly Cookies'),
+            $httpOnly ? 'good' : 'warning',
+            $httpOnly ? __('Enabled') : __('Disabled'),
+            $httpOnly,
+            $httpOnly ? null : __('Set SESSION_HTTP_ONLY=true.')
+        );
+
+        $sameSite = config('session.same_site');
+        $items[] = $this->makeCheck(
+            'session_same_site', 'security', __('SameSite Cookies'),
+            in_array($sameSite, ['lax', 'strict'], true) ? 'good' : 'warning',
+            $sameSite ?: __('Not set'),
+            $sameSite,
+            in_array($sameSite, ['lax', 'strict'], true) ? null : __('Set SESSION_SAME_SITE=lax.')
+        );
+
+        $adminCount = User::whereIn('role', ['admin', 'super_admin'])->count();
+        $items[] = $this->makeCheck(
+            'admin_user', 'security', __('Admin Users'),
+            $adminCount > 0 ? 'good' : 'critical',
+            $adminCount . ' ' . __('admin(s)'),
+            $adminCount,
+            $adminCount > 0 ? null : __('Create an admin account.')
+        );
+
+        $items[] = $this->makeCheck(
+            'csrf', 'security', __('CSRF Protection'),
+            'good', __('Enabled'), 'Laravel'
+        );
+
+        return $items;
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* Performance                                                         */
+    /* ------------------------------------------------------------------ */
+
+    protected function checkPerformance(): array
+    {
+        $items = [];
+        $prod = $this->isProduction();
+
+        $cacheDriver = (string) config('cache.default');
+        $items[] = $this->makeCheck(
+            'cache_driver', 'performance', __('Cache Driver'),
+            in_array($cacheDriver, ['file', 'array', 'null'], true) ? 'warning' : 'good',
+            $cacheDriver, $cacheDriver,
+            in_array($cacheDriver, ['file', 'array', 'null'], true) ? __('Consider Redis or Memcached for better performance.') : null
+        );
+
+        $opcache = function_exists('opcache_get_status') && filter_var(ini_get('opcache.enable'), FILTER_VALIDATE_BOOLEAN);
+        $items[] = $this->makeCheck(
+            'opcache', 'performance', __('OPcache'),
+            $opcache ? 'good' : 'warning',
+            $opcache ? __('Enabled') : __('Disabled'),
+            $opcache,
+            $opcache ? null : __('Enable OPcache for PHP performance.')
+        );
+
+        $queue = (string) config('queue.default');
+        $items[] = $this->makeCheck(
+            'queue_driver', 'performance', __('Queue Driver'),
+            $queue === 'sync' || $queue === 'null' ? 'warning' : 'good',
+            $queue, $queue,
+            $queue === 'sync' ? __('Use redis or database queue for background jobs.') : null
+        );
+
+        $routeCached = app()->routesAreCached();
+        $items[] = $this->makeCheck(
+            'route_cache', 'performance', __('Route Cache'),
+            ($routeCached || !$prod) ? 'good' : 'warning',
+            $routeCached ? __('Cached') : __('Not cached'),
+            $routeCached,
+            (!$routeCached && $prod) ? __('Run php artisan route:cache') : null
+        );
+
+        $configCached = app()->configurationIsCached();
+        $items[] = $this->makeCheck(
+            'config_cache', 'performance', __('Config Cache'),
+            ($configCached || !$prod) ? 'good' : 'warning',
+            $configCached ? __('Cached') : __('Not cached'),
+            $configCached,
+            (!$configCached && $prod) ? __('Run php artisan config:cache') : null
+        );
+
+        return $items;
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* Content                                                             */
+    /* ------------------------------------------------------------------ */
+
+    protected function checkContent(): array
+    {
+        $items = [];
+
+        $postCount = Post::where('type', 'post')->count();
+        $items[] = $this->makeCheck(
+            'content_posts', 'content', __('Posts'),
+            $postCount > 0 ? 'good' : 'warning',
+            $postCount . ' ' . __('posts'), $postCount,
+            $postCount === 0 ? __('Create your first post.') : null
+        );
+
+        $pageCount = Post::where('type', 'page')->count();
+        $items[] = $this->makeCheck(
+            'content_pages', 'content', __('Pages'),
+            $pageCount > 0 ? 'good' : 'warning',
+            $pageCount . ' ' . __('pages'), $pageCount
+        );
+
+        $activeTheme = Theme::active();
+        $items[] = $this->makeCheck(
+            'active_theme', 'content', __('Active Theme'),
+            $activeTheme ? 'good' : 'critical',
+            $activeTheme ? $activeTheme->name : __('None'),
+            $activeTheme?->slug,
+            $activeTheme ? null : __('Activate a theme in Appearance → Themes.')
+        );
+
+        $mediaCount = Media::count();
+        $items[] = $this->makeCheck(
+            'media_count', 'content', __('Media Files'),
+            'good', $mediaCount . ' ' . __('files'), $mediaCount
+        );
+
+        $activePlugins = Plugin::where('status', 'active')->count();
+        $items[] = $this->makeCheck(
+            'active_plugins', 'content', __('Active Plugins'),
+            'good', $activePlugins . ' ' . __('active'), $activePlugins
+        );
+
+        return $items;
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* Logs                                                                */
+    /* ------------------------------------------------------------------ */
+
+    protected function checkLogs(): array
+    {
+        $items = [];
+
+        $files = glob(storage_path('logs/*.log')) ?: [];
+        $totalSize = 0;
+        $latest = null;
+        $latestTime = 0;
+
+        foreach ($files as $f) {
+            $totalSize += (int) @filesize($f);
+            $mt = (int) @filemtime($f);
+            if ($mt >= $latestTime) {
+                $latestTime = $mt;
+                $latest = $f;
+            }
+        }
+
+        $logSizeMb = round($totalSize / 1024 / 1024, 2);
+        $logOk = $logSizeMb < 50;
+        $items[] = $this->makeCheck(
+            'log_size', 'logs', __('Log Files Size'),
+            $logOk ? 'good' : 'warning',
+            $logSizeMb . ' MB', $logSizeMb,
+            $logOk ? null : __('Clear or rotate files in storage/logs (use the daily log channel).')
+        );
+
+        // Son 24 saatın səhvləri (faylın yalnız son hissəsi oxunur)
+        $recentErrors = 0;
+        if ($latest) {
             try {
-                const { ok, data } = await this.request(urls.analyze, { force: !!force });
-                if (ok && data.success) {
-                    this.aiData = data.data || null;
-                } else {
-                    this.aiError = data.message || t.aiFailed;
+                $content = $this->tailFile($latest, 512 * 1024);
+                $pattern = '/^\[(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})[^\]]*\]\s+\S+\.(?:ERROR|CRITICAL|ALERT|EMERGENCY):/m';
+                if (preg_match_all($pattern, $content, $m)) {
+                    $since = time() - 86400;
+                    foreach ($m[1] as $ts) {
+                        $t = strtotime($ts);
+                        if ($t !== false && $t >= $since) {
+                            $recentErrors++;
+                        }
+                    }
                 }
-            } catch (e) {
-                this.aiError = t.networkError;
-            } finally {
-                this.aiLoading = false;
+            } catch (\Throwable $e) {
             }
-        },
+        }
+        $items[] = $this->makeCheck(
+            'log_errors', 'logs', __('Errors (last 24h)'),
+            $recentErrors === 0 ? 'good' : ($recentErrors > 25 ? 'critical' : 'warning'),
+            $recentErrors . ' ' . __('errors'), $recentErrors,
+            $recentErrors > 0 ? __('Review storage/logs for details.') : null
+        );
 
-        async copy(text, idx) {
-            try {
-                if (navigator.clipboard && window.isSecureContext) {
-                    await navigator.clipboard.writeText(text);
-                } else {
-                    const ta = document.createElement('textarea');
-                    ta.value = text;
-                    ta.style.position = 'fixed';
-                    ta.style.opacity = '0';
-                    document.body.appendChild(ta);
-                    ta.select();
-                    document.execCommand('copy');
-                    document.body.removeChild(ta);
-                }
-                this.copiedIdx = idx;
-                setTimeout(() => { if (this.copiedIdx === idx) this.copiedIdx = null; }, 1800);
-            } catch (e) {
-                this.showToast(t.copyFailed, 'error');
+        $failedJobs = Schema::hasTable('failed_jobs') ? DB::table('failed_jobs')->count() : 0;
+        $items[] = $this->makeCheck(
+            'failed_jobs', 'logs', __('Failed Jobs'),
+            $failedJobs === 0 ? 'good' : 'warning',
+            $failedJobs . ' ' . __('failed'), $failedJobs,
+            $failedJobs > 0 ? __('Review and retry failed queue jobs (php artisan queue:retry all).') : null
+        );
+
+        return $items;
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* Integrations                                                        */
+    /* ------------------------------------------------------------------ */
+
+    protected function checkIntegrations(): array
+    {
+        $items = [];
+
+        $aiEnabled = !empty(rj_get_option('ai_api_key'));
+        $items[] = $this->makeCheck(
+            'ai_api', 'integrations', __('AI Integration'),
+            $aiEnabled ? 'good' : 'warning',
+            $aiEnabled ? __('Configured') : __('Not configured'),
+            $aiEnabled,
+            $aiEnabled ? null : __('Configure OpenRouter API key in Settings → AI.')
+        );
+
+        $mailHost = rj_get_option('mail_host');
+        $items[] = $this->makeCheck(
+            'mail_config', 'integrations', __('Mail Configuration'),
+            $mailHost ? 'good' : 'warning',
+            $mailHost ? __('Configured') : __('Not configured'),
+            (bool) $mailHost,
+            $mailHost ? null : __('Configure SMTP in Settings → Email.')
+        );
+
+        return $items;
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* Helpers                                                             */
+    /* ------------------------------------------------------------------ */
+
+    protected function pendingMigrations(): int
+    {
+        try {
+            $migrator = app('migrator');
+            $files = $migrator->getMigrationFiles(database_path('migrations'));
+
+            if (!Schema::hasTable(config('database.migrations.table', 'migrations'))) {
+                return count($files);
             }
-        },
-    };
+
+            $ran = $migrator->getRepository()->getRan();
+
+            return count(array_diff(array_keys($files), $ran));
+        } catch (\Throwable $e) {
+            return 0;
+        }
+    }
+
+    protected function tailFile(string $path, int $bytes): string
+    {
+        $size = (int) @filesize($path);
+        $handle = @fopen($path, 'rb');
+
+        if (!$handle) {
+            return '';
+        }
+
+        if ($size > $bytes) {
+            fseek($handle, -$bytes, SEEK_END);
+        }
+
+        $content = stream_get_contents($handle);
+        fclose($handle);
+
+        return (string) $content;
+    }
+
+    protected function parseSize(string $size): int
+    {
+        $size = trim($size);
+
+        if ($size === '' || $size === '-1') {
+            return -1;
+        }
+
+        $last = strtolower(substr($size, -1));
+        $value = (int) $size;
+
+        return match ($last) {
+            'g' => $value * 1024 * 1024 * 1024,
+            'm' => $value * 1024 * 1024,
+            'k' => $value * 1024,
+            default => $value,
+        };
+    }
+
+    protected function formatSize(float $bytes): string
+    {
+        $units = ['B', 'KB', 'MB', 'GB', 'TB'];
+        $i = 0;
+
+        while ($bytes >= 1024 && $i < count($units) - 1) {
+            $bytes /= 1024;
+            $i++;
+        }
+
+        return round($bytes, 2) . ' ' . $units[$i];
+    }
+
+    protected function isProduction(): bool
+    {
+        return app()->environment() === 'production';
+    }
 }
-</script>
-
-<style>
-.health-ring { transition: stroke-dashoffset 1.2s cubic-bezier(.4, 0, .2, 1), stroke .3s; }
-.custom-scrollbar::-webkit-scrollbar { width: 6px; }
-.custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-.custom-scrollbar::-webkit-scrollbar-thumb { background: #e5e7eb; border-radius: 10px; }
-.custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #d1d5db; }
-@media (prefers-reduced-motion: reduce) {
-    .health-ring { transition: none; }
-}
-</style>
-@endsection
