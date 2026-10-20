@@ -30,7 +30,7 @@ class ContentExportService
             'custom_fields' => ['label' => __('Custom Fields'), 'count' => CustomField::count(), 'default' => true],
             'templates' => ['label' => __('RJBuilder Templates'), 'count' => Template::count(), 'default' => true],
             'global_widgets' => ['label' => __('Global Widgets'), 'count' => GlobalWidget::count(), 'default' => true],
-            'options' => ['label' => __('Site Settings'), 'count' => Option::whereNotIn('key', ['active_theme', 'rj_version'])->count(), 'default' => false],
+            'options' => ['label' => __('Site Settings'), 'count' => Option::count(), 'default' => false],
         ];
     }
 
@@ -285,18 +285,26 @@ class ContentExportService
     protected function exportOptions(): array
     {
         $exclude = ['active_theme', 'rj_version'];
+        $result = [];
 
-        return Option::whereNotIn('key', $exclude)
-            ->orderBy('key')
-            ->get()
-            ->map(fn($o) => [
-                'key' => $o->key,
-                'value' => $o->value,
-                'group' => $o->group ?? 'general',
-                'type' => $o->type ?? 'text',
-            ])
-            ->values()
-            ->toArray();
+        foreach (Option::all() as $o) {
+            $arr = $o->toArray();
+
+            $key = $arr['name'] ?? $arr['key'] ?? $arr['option_name'] ?? null;
+
+            if (!$key || in_array($key, $exclude, true)) {
+                continue;
+            }
+
+            $result[] = [
+                'key' => $key,
+                'value' => $arr['value'] ?? $arr['option_value'] ?? null,
+                'group' => $arr['group'] ?? 'general',
+                'type' => $arr['type'] ?? 'text',
+            ];
+        }
+
+        return $result;
     }
 
     protected function buildJsonFile(array $data): array
