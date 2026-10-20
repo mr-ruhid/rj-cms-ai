@@ -4,146 +4,265 @@
 
 @section('settings')
 @php
-    $methodStyles = [
-        'GET'    => 'bg-sky-50 text-sky-700 ring-sky-200',
-        'POST'   => 'bg-emerald-50 text-emerald-700 ring-emerald-200',
-        'PUT'    => 'bg-amber-50 text-amber-700 ring-amber-200',
-        'PATCH'  => 'bg-violet-50 text-violet-700 ring-violet-200',
-        'DELETE' => 'bg-red-50 text-red-700 ring-red-200',
-    ];
-    $endpointList = collect($availableEndpoints ?? []);
+    $endpointList = collect($availableEndpoints ?? [])->map(fn ($e) => [
+        'method' => strtoupper($e['method'] ?? 'GET'),
+        'uri'    => $e['uri'] ?? '',
+        'desc'   => $e['desc'] ?? '',
+    ])->values();
 @endphp
 
-<div class="space-y-6" x-data="apiSettings()" @keydown.escape.window="revoke.show = false">
+<style>
+    [x-cloak]{display:none!important}
+    .rjapi{--p:#7c3aed;--k:#ec4899;--ink:#111827;--mut:#6b7280;--line:#e5e7eb;--soft:#f9fafb;display:flex;flex-direction:column;gap:24px;color:var(--ink)}
+    .rjapi *{box-sizing:border-box}
+    .rjapi svg{width:18px;height:18px;flex-shrink:0}
+    .rjapi button{cursor:pointer;font-family:inherit}
 
-    {{-- HEADER --}}
-    <div>
-        <h2 class="text-xl font-bold text-gray-900 tracking-tight">{{ __('API & Integrations') }}</h2>
-        <p class="text-sm text-gray-500 mt-1">{{ __('Manage API keys to allow external applications to access your site data.') }}</p>
+    /* hero */
+    .rjapi-hero{position:relative;overflow:hidden;border-radius:20px;padding:28px;color:#fff;background:linear-gradient(135deg,#4f46e5 0%,var(--p) 55%,var(--k) 120%)}
+    .rjapi-hero:after{content:"";position:absolute;right:-60px;top:-60px;width:220px;height:220px;border-radius:50%;background:rgba(255,255,255,.12)}
+    .rjapi-hero h2{margin:0;font-size:22px;font-weight:800;letter-spacing:-.02em}
+    .rjapi-hero p{margin:6px 0 0;font-size:14px;opacity:.85;max-width:560px}
+    .rjapi-stats{display:flex;gap:12px;margin-top:18px;flex-wrap:wrap;position:relative;z-index:1}
+    .rjapi-stat{background:rgba(255,255,255,.16);backdrop-filter:blur(6px);border:1px solid rgba(255,255,255,.25);border-radius:12px;padding:10px 16px;min-width:110px}
+    .rjapi-stat b{display:block;font-size:20px;font-weight:800;line-height:1.1}
+    .rjapi-stat span{font-size:11px;opacity:.85;text-transform:uppercase;letter-spacing:.06em}
+
+    /* alerts */
+    .rjapi-alert{display:flex;gap:12px;align-items:flex-start;padding:12px 16px;border-radius:12px;font-size:14px;border:1px solid}
+    .rjapi-alert.ok{background:#ecfdf5;border-color:#a7f3d0;color:#065f46}
+    .rjapi-alert.err{background:#fef2f2;border-color:#fecaca;color:#991b1b}
+    .rjapi-alert.warn{background:#fffbeb;border-color:#fde68a;color:#92400e;font-size:13px}
+    .rjapi-alert ul{margin:0;padding-left:18px}
+
+    /* cards */
+    .rjapi-card{background:#fff;border:1px solid var(--line);border-radius:20px;box-shadow:0 1px 2px rgba(0,0,0,.04);overflow:hidden}
+    .rjapi-head{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 24px;border-bottom:1px solid #f3f4f6}
+    .rjapi-head-l{display:flex;align-items:center;gap:14px;min-width:0}
+    .rjapi-ico{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .rjapi-ico svg{width:20px;height:20px}
+    .rjapi-ico.i{background:#eef2ff;color:#4f46e5}
+    .rjapi-ico.e{background:#ecfdf5;color:#059669}
+    .rjapi-head h3{margin:0;font-size:16px;font-weight:700}
+    .rjapi-head p{margin:2px 0 0;font-size:12px;color:var(--mut)}
+    .rjapi-count{background:#f3f4f6;color:#4b5563;font-size:12px;font-weight:700;padding:4px 12px;border-radius:999px}
+    .rjapi-body{padding:24px;display:flex;flex-direction:column;gap:20px}
+
+    /* generate */
+    .rjapi-gen{background:var(--soft);border:1px solid var(--line);border-radius:14px;padding:16px}
+    .rjapi-gen label{display:block;font-size:13px;font-weight:700;margin-bottom:8px}
+    .rjapi-row{display:flex;gap:12px;flex-wrap:wrap}
+    .rjapi-input{position:relative;flex:1;min-width:220px}
+    .rjapi-input svg{position:absolute;left:13px;top:50%;transform:translateY(-50%);color:#9ca3af;width:16px;height:16px}
+    .rjapi-input input{width:100%;padding:11px 14px 11px 38px;border:1px solid #d1d5db;border-radius:12px;font-size:14px;background:#fff;outline:none;transition:.15s}
+    .rjapi-input input:focus{border-color:var(--p);box-shadow:0 0 0 3px rgba(124,58,237,.15)}
+    .rjapi-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 22px;border:0;border-radius:12px;font-size:14px;font-weight:600;color:#fff;background:linear-gradient(90deg,var(--p),var(--k));box-shadow:0 4px 12px rgba(124,58,237,.25);transition:.15s}
+    .rjapi-btn:hover{opacity:.92;transform:translateY(-1px)}
+    .rjapi-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+
+    /* empty */
+    .rjapi-empty{text-align:center;padding:44px 16px;border:2px dashed var(--line);border-radius:16px;background:linear-gradient(180deg,#fff,#fafafa)}
+    .rjapi-empty .ic{width:60px;height:60px;border-radius:18px;margin:0 auto 12px;display:flex;align-items:center;justify-content:center;background:#f5f3ff;color:#a78bfa}
+    .rjapi-empty .ic svg{width:28px;height:28px}
+    .rjapi-empty b{display:block;font-size:14px}
+    .rjapi-empty span{font-size:12px;color:var(--mut)}
+
+    /* keys */
+    .rjapi-key{border:1px solid var(--line);border-radius:16px;padding:18px;background:#fff;transition:.15s}
+    .rjapi-key:hover{border-color:#c7d2fe;box-shadow:0 6px 18px rgba(79,70,229,.08)}
+    .rjapi-key-top{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .rjapi-av{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;background:linear-gradient(135deg,#6366f1,var(--p));flex-shrink:0}
+    .rjapi-key-id{display:flex;align-items:center;gap:12px;min-width:0}
+    .rjapi-key-id h4{margin:0;font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .rjapi-key-id p{margin:2px 0 0;font-size:12px;color:var(--mut)}
+    .rjapi-revoke{display:inline-flex;align-items:center;gap:6px;padding:8px 12px;border-radius:10px;border:1px solid #fee2e2;background:#fef2f2;color:#dc2626;font-size:12px;font-weight:600}
+    .rjapi-revoke:hover{background:#fee2e2}
+    .rjapi-fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px;margin-top:16px}
+    .rjapi-field label{display:block;font-size:11px;font-weight:600;color:var(--mut);text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+    .rjapi-val{display:flex;align-items:center;gap:4px;background:var(--soft);border:1px solid var(--line);border-radius:10px;padding:6px 6px 6px 12px}
+    .rjapi-val code{flex:1;min-width:0;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .rjapi-ib{background:transparent;border:0;padding:6px;border-radius:8px;color:#9ca3af;display:flex}
+    .rjapi-ib:hover{background:#fff;color:#374151}
+    .rjapi-ib.done{color:#059669}
+
+    /* code block */
+    .rjapi-code{border-radius:16px;overflow:hidden;background:#0b1020;border:1px solid #1f2937}
+    .rjapi-code-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;background:#111827;border-bottom:1px solid #1f2937;flex-wrap:wrap}
+    .rjapi-dots{display:flex;gap:6px}
+    .rjapi-dots i{width:10px;height:10px;border-radius:50%;display:block}
+    .rjapi-tabs{display:flex;gap:4px;background:#0b1020;padding:3px;border-radius:10px}
+    .rjapi-tab{border:0;background:transparent;color:#9ca3af;font-size:12px;font-weight:600;padding:5px 12px;border-radius:8px}
+    .rjapi-tab:hover{color:#fff}
+    .rjapi-tab.on{background:#312e81;color:#fff}
+    .rjapi-copy{display:inline-flex;align-items:center;gap:6px;border:0;background:transparent;color:#9ca3af;font-size:12px;font-weight:600;padding:6px 10px;border-radius:8px}
+    .rjapi-copy:hover{background:rgba(255,255,255,.08);color:#fff}
+    .rjapi-copy svg{width:14px;height:14px}
+    .rjapi-pre{margin:0;padding:18px 20px;overflow-x:auto;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;line-height:1.75;color:#6ee7b7;white-space:pre;min-height:96px}
+
+    /* endpoints */
+    .rjapi-tools{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+    .rjapi-search{position:relative;flex:1;min-width:200px}
+    .rjapi-search svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#9ca3af;width:16px;height:16px}
+    .rjapi-search input{width:100%;padding:9px 12px 9px 36px;border:1px solid #d1d5db;border-radius:10px;font-size:13px;outline:none}
+    .rjapi-search input:focus{border-color:var(--p);box-shadow:0 0 0 3px rgba(124,58,237,.12)}
+    .rjapi-chips{display:flex;gap:6px;flex-wrap:wrap}
+    .rjapi-chip{border:1px solid var(--line);background:#fff;color:#4b5563;font-size:11px;font-weight:700;padding:6px 11px;border-radius:999px}
+    .rjapi-chip.on{background:#111827;border-color:#111827;color:#fff}
+    .rjapi-list{border:1px solid var(--line);border-radius:14px;overflow:hidden}
+    .rjapi-li{display:grid;grid-template-columns:84px minmax(180px,1.3fr) 2fr;gap:14px;align-items:center;padding:13px 18px;border-top:1px solid #f3f4f6;transition:.12s}
+    .rjapi-li:first-child{border-top:0}
+    .rjapi-li:hover{background:#fafaff}
+    .rjapi-li.hd{background:var(--soft);font-size:12px;font-weight:700;color:#4b5563;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--line)}
+    .rjapi-li.hd:hover{background:var(--soft)}
+    .rjapi-uri{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:12.5px;color:#1f2937;word-break:break-all}
+    .rjapi-desc{font-size:13px;color:#4b5563}
+    .rjapi-m{display:inline-block;text-align:center;min-width:64px;padding:3px 8px;border-radius:7px;font-size:11px;font-weight:800;letter-spacing:.03em;border:1px solid}
+    .m-GET{background:#f0f9ff;color:#0369a1;border-color:#bae6fd}
+    .m-POST{background:#ecfdf5;color:#047857;border-color:#a7f3d0}
+    .m-PUT{background:#fffbeb;color:#b45309;border-color:#fde68a}
+    .m-PATCH{background:#f5f3ff;color:#6d28d9;border-color:#ddd6fe}
+    .m-DELETE{background:#fef2f2;color:#b91c1c;border-color:#fecaca}
+    .rjapi-none{padding:32px;text-align:center;font-size:13px;color:var(--mut)}
+
+    /* dialog + toast */
+    .rjapi-ov{position:fixed;inset:0;z-index:50;display:flex;align-items:center;justify-content:center;padding:16px}
+    .rjapi-bd{position:absolute;inset:0;background:rgba(17,24,39,.5);backdrop-filter:blur(4px)}
+    .rjapi-dlg{position:relative;width:100%;max-width:440px;background:#fff;border-radius:20px;padding:24px;box-shadow:0 25px 50px rgba(0,0,0,.25)}
+    .rjapi-dlg-top{display:flex;gap:16px}
+    .rjapi-dlg .wi{width:46px;height:46px;border-radius:50%;background:#fee2e2;color:#dc2626;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .rjapi-dlg .wi svg{width:24px;height:24px}
+    .rjapi-dlg h4{margin:0;font-size:16px;font-weight:700}
+    .rjapi-dlg .nm{margin:4px 0 0;font-size:14px;font-weight:600;color:#374151;word-break:break-word}
+    .rjapi-dlg .tx{margin:6px 0 0;font-size:13px;color:#4b5563;line-height:1.5}
+    .rjapi-dlg-act{display:flex;justify-content:flex-end;gap:8px;margin-top:22px}
+    .rjapi-b2{padding:9px 16px;border-radius:10px;border:0;background:#f3f4f6;color:#374151;font-size:13px;font-weight:600}
+    .rjapi-b2:hover{background:#e5e7eb}
+    .rjapi-b3{display:inline-flex;align-items:center;gap:8px;padding:9px 16px;border-radius:10px;border:0;background:#dc2626;color:#fff;font-size:13px;font-weight:600}
+    .rjapi-b3:hover{background:#b91c1c}
+    .rjapi-b2:disabled,.rjapi-b3:disabled{opacity:.55;cursor:not-allowed}
+    .rjapi-toast{position:fixed;bottom:24px;right:24px;z-index:60;display:flex;align-items:center;gap:10px;padding:12px 20px;border-radius:12px;color:#fff;font-size:14px;font-weight:500;max-width:360px;box-shadow:0 20px 40px rgba(0,0,0,.25)}
+    .rjapi-toast.success{background:#059669}
+    .rjapi-toast.error{background:#dc2626}
+    .spin{animation:rjspin 1s linear infinite}
+    @@keyframes rjspin{to{transform:rotate(360deg)}}
+    @@media (max-width:700px){
+        .rjapi-li{grid-template-columns:1fr;gap:6px}
+        .rjapi-li.hd{display:none}
+        .rjapi-hero{padding:22px}
+    }
+</style>
+
+<div class="rjapi" x-data="apiSettings()" @keydown.escape.window="revoke.show = false">
+
+    {{-- HERO --}}
+    <div class="rjapi-hero">
+        <h2>{{ __('API & Integrations') }}</h2>
+        <p>{{ __('Manage API keys to allow external applications to access your site data.') }}</p>
+        <div class="rjapi-stats">
+            <div class="rjapi-stat"><b x-text="keys.length"></b><span>{{ __('Active API Keys') }}</span></div>
+            <div class="rjapi-stat"><b>{{ $endpointList->count() }}</b><span>{{ __('Endpoints') }}</span></div>
+            <div class="rjapi-stat"><b>v1</b><span>{{ __('Version') }}</span></div>
+        </div>
     </div>
 
-    {{-- SUCCESS --}}
     @if (session('success'))
-        <div x-data="{ open: true }" x-init="setTimeout(() => open = false, 5000)"
-             x-show="open" x-transition.opacity.duration.300ms role="status"
-             class="flex items-start gap-3 bg-emerald-50 border border-emerald-200 text-emerald-800 px-4 py-3 rounded-xl">
-            <svg class="w-5 h-5 text-emerald-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            <p class="text-sm font-medium flex-1">{{ session('success') }}</p>
+        <div x-data="{ open: true }" x-init="setTimeout(() => open = false, 5000)" x-show="open" x-transition.opacity role="status" class="rjapi-alert ok">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span>{{ session('success') }}</span>
         </div>
     @endif
 
-    {{-- ERRORS --}}
     @if ($errors->any())
-        <div role="alert" class="flex items-start gap-3 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-xl">
-            <svg class="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            <ul class="list-disc list-inside text-sm space-y-1">
-                @foreach ($errors->all() as $error)
-                    <li>{{ $error }}</li>
-                @endforeach
-            </ul>
+        <div role="alert" class="rjapi-alert err">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <ul>@foreach ($errors->all() as $error)<li>{{ $error }}</li>@endforeach</ul>
         </div>
     @endif
 
     {{-- ============ API KEYS ============ --}}
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between gap-4">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 ring-1 ring-indigo-100 flex items-center justify-center flex-shrink-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+    <div class="rjapi-card">
+        <div class="rjapi-head">
+            <div class="rjapi-head-l">
+                <div class="rjapi-ico i">
+                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
                 </div>
                 <div>
-                    <h3 class="text-base font-bold text-gray-900">{{ __('Active API Keys') }}</h3>
-                    <p class="text-xs text-gray-500 mt-0.5">{{ __('Use these keys to authenticate your external requests.') }}</p>
+                    <h3>{{ __('Active API Keys') }}</h3>
+                    <p>{{ __('Use these keys to authenticate your external requests.') }}</p>
                 </div>
             </div>
-            <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-gray-100 text-xs font-semibold text-gray-600 tabular-nums" x-text="keys.length"></span>
+            <span class="rjapi-count" x-text="keys.length"></span>
         </div>
 
-        <div class="p-6 space-y-6">
+        <div class="rjapi-body">
+            <div class="rjapi-alert warn">
+                <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M5.07 19h13.86c1.54 0 2.5-1.67 1.73-3L13.73 4c-.77-1.33-2.69-1.33-3.46 0L3.34 16c-.77 1.33.19 3 1.73 3z"/></svg>
+                <span>{{ __('Never share your private key or expose it in client-side code.') }}</span>
+            </div>
 
-            {{-- Generate form --}}
-            <form @submit.prevent="generateKey()" class="rounded-xl bg-gray-50 border border-gray-200 p-4">
-                <label for="key_name" class="block text-sm font-semibold text-gray-900 mb-2">{{ __('Application Name') }}</label>
-                <div class="flex flex-col sm:flex-row gap-3">
-                    <div class="relative flex-1">
-                        <span class="absolute inset-y-0 left-0 w-10 flex items-center justify-center text-gray-400 pointer-events-none">
-                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-                        </span>
-                        <input id="key_name" type="text" x-model="newKeyName" required maxlength="60"
-                               placeholder="{{ __('e.g. Mobile App, Zapier') }}"
-                               class="w-full pl-10 pr-3 py-2.5 rounded-xl border border-gray-300 bg-white focus:border-rj-purple focus:ring-2 focus:ring-rj-purple/20 text-sm">
+            <form @submit.prevent="generateKey()" class="rjapi-gen">
+                <label for="key_name">{{ __('Application Name') }}</label>
+                <div class="rjapi-row">
+                    <div class="rjapi-input">
+                        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                        <input id="key_name" type="text" x-model="newKeyName" required maxlength="60" placeholder="{{ __('e.g. Mobile App, Zapier') }}">
                     </div>
-                    <button type="submit" :disabled="generating || !newKeyName.trim()"
-                            class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-rj-purple to-rj-pink text-white text-sm font-semibold hover:opacity-90 active:scale-[.98] transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus-visible:ring-2 focus-visible:ring-rj-purple focus-visible:ring-offset-2">
-                        <svg x-show="!generating" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-                        <svg x-show="generating" x-cloak class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" opacity=".25"/><path fill="currentColor" d="M4 12a8 8 0 018-8v3a5 5 0 00-5 5H4z"/></svg>
+                    <button type="submit" class="rjapi-btn" :disabled="generating || !newKeyName.trim()">
+                        <svg x-show="!generating" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+                        <svg x-show="generating" x-cloak class="spin" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" opacity=".25"/><path fill="currentColor" d="M4 12a8 8 0 018-8v3a5 5 0 00-5 5H4z"/></svg>
                         <span x-text="generating ? @js(__('Generating...')) : @js(__('Generate Key'))"></span>
                     </button>
                 </div>
             </form>
 
-            {{-- Empty state --}}
-            <div x-show="keys.length === 0" x-cloak class="text-center py-12 border-2 border-dashed border-gray-200 rounded-xl">
-                <div class="w-14 h-14 rounded-2xl bg-gray-50 ring-1 ring-gray-100 mx-auto mb-3 flex items-center justify-center">
-                    <svg class="w-7 h-7 text-gray-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+            <div x-show="keys.length === 0" x-cloak class="rjapi-empty">
+                <div class="ic">
+                    <svg fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
                 </div>
-                <p class="text-sm font-semibold text-gray-900">{{ __('No API keys generated yet.') }}</p>
-                <p class="text-xs text-gray-500 mt-1">{{ __('Create one above to start using the API.') }}</p>
+                <b>{{ __('No API keys generated yet.') }}</b>
+                <span>{{ __('Create one above to start using the API.') }}</span>
             </div>
 
-            {{-- Keys list --}}
-            <div class="space-y-4" x-show="keys.length > 0" x-cloak>
+            <div x-show="keys.length > 0" x-cloak style="display:flex;flex-direction:column;gap:14px">
                 <template x-for="key in keys" :key="key.id">
-                    <div class="border border-gray-200 rounded-xl p-5 hover:border-indigo-200 hover:shadow-sm transition bg-white">
-                        <div class="flex items-start justify-between gap-4">
-                            <div class="flex items-center gap-3 min-w-0">
-                                <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-rj-purple text-white flex items-center justify-center font-bold text-sm flex-shrink-0 shadow-sm">
-                                    <span x-text="(key.name || '?').substring(0, 1).toUpperCase()"></span>
-                                </div>
-                                <div class="min-w-0">
-                                    <h4 class="text-sm font-bold text-gray-900 truncate" x-text="key.name"></h4>
-                                    <p class="text-xs text-gray-500 mt-0.5">
-                                        {{ __('Created') }}: <span x-text="key.created_at"></span>
-                                    </p>
+                    <div class="rjapi-key">
+                        <div class="rjapi-key-top">
+                            <div class="rjapi-key-id">
+                                <div class="rjapi-av" x-text="(key.name || '?').substring(0, 1).toUpperCase()"></div>
+                                <div style="min-width:0">
+                                    <h4 x-text="key.name"></h4>
+                                    <p>{{ __('Created') }}: <span x-text="key.created_at"></span></p>
                                 </div>
                             </div>
-
-                            <button type="button" @click="askRevoke(key)"
-                                    class="inline-flex items-center gap-1.5 text-red-600 text-xs font-semibold px-3 py-2 rounded-lg bg-red-50 ring-1 ring-red-100 hover:bg-red-100 transition flex-shrink-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
+                            <button type="button" class="rjapi-revoke" @click="askRevoke(key)">
+                                <svg style="width:15px;height:15px" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"/></svg>
                                 {{ __('Revoke') }}
                             </button>
                         </div>
 
-                        <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {{-- Public --}}
-                            <div>
-                                <label class="block text-xs font-medium text-gray-500 mb-1.5">{{ __('Public Key') }}</label>
-                                <div class="flex items-center gap-2 bg-gray-50 rounded-lg pl-3 pr-1.5 py-1.5 border border-gray-200">
-                                    <code class="text-xs text-gray-800 font-mono flex-1 truncate" x-text="key.public_key"></code>
-                                    <button type="button" @click="copyText(key.public_key, key.id + ':public')"
-                                            class="p-1.5 rounded-md text-gray-400 hover:text-gray-700 hover:bg-white transition" title="{{ __('Copy') }}" aria-label="{{ __('Copy') }}">
-                                        <svg x-show="copied !== key.id + ':public'" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                                        <svg x-show="copied === key.id + ':public'" x-cloak class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                        <div class="rjapi-fields">
+                            <div class="rjapi-field">
+                                <label>{{ __('Public Key') }}</label>
+                                <div class="rjapi-val">
+                                    <code x-text="key.public_key"></code>
+                                    <button type="button" class="rjapi-ib" :class="copied === key.id + ':public' && 'done'" @click="copyText(key.public_key, key.id + ':public')" aria-label="{{ __('Copy') }}">
+                                        <svg x-show="copied !== key.id + ':public'" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                                        <svg x-show="copied === key.id + ':public'" x-cloak fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
                                     </button>
                                 </div>
                             </div>
 
-                            {{-- Private --}}
-                            <div>
-                                <label class="block text-xs font-medium text-gray-500 mb-1.5">{{ __('Private Key') }}</label>
-                                <div class="flex items-center gap-1 bg-gray-50 rounded-lg pl-3 pr-1.5 py-1.5 border border-gray-200">
-                                    <code class="text-xs text-gray-800 font-mono flex-1 truncate"
-                                          x-text="showPrivate[key.id] ? key.private_key : '••••••••••••••••••••••••'"></code>
-                                    <button type="button" @click="showPrivate[key.id] = !showPrivate[key.id]"
-                                            class="p-1.5 rounded-md text-gray-400 hover:text-gray-700 hover:bg-white transition" title="{{ __('Toggle visibility') }}" aria-label="{{ __('Toggle visibility') }}">
-                                        <svg x-show="!showPrivate[key.id]" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
-                                        <svg x-show="showPrivate[key.id]" x-cloak class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
+                            <div class="rjapi-field">
+                                <label>{{ __('Private Key') }}</label>
+                                <div class="rjapi-val">
+                                    <code x-text="showPrivate[key.id] ? key.private_key : '••••••••••••••••••••••••'"></code>
+                                    <button type="button" class="rjapi-ib" @click="showPrivate[key.id] = !showPrivate[key.id]" aria-label="{{ __('Toggle visibility') }}">
+                                        <svg x-show="!showPrivate[key.id]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                                        <svg x-show="showPrivate[key.id]" x-cloak fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>
                                     </button>
-                                    <button type="button" @click="copyText(key.private_key, key.id + ':private')"
-                                            class="p-1.5 rounded-md text-gray-400 hover:text-gray-700 hover:bg-white transition" title="{{ __('Copy') }}" aria-label="{{ __('Copy') }}">
-                                        <svg x-show="copied !== key.id + ':private'" class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                                        <svg x-show="copied === key.id + ':private'" x-cloak class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                    <button type="button" class="rjapi-ib" :class="copied === key.id + ':private' && 'done'" @click="copyText(key.private_key, key.id + ':private')" aria-label="{{ __('Copy') }}">
+                                        <svg x-show="copied !== key.id + ':private'" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                                        <svg x-show="copied === key.id + ':private'" x-cloak fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
                                     </button>
                                 </div>
                             </div>
@@ -155,112 +274,96 @@
     </div>
 
     {{-- ============ DOCUMENTATION ============ --}}
-    <div class="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-        <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between gap-4">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100 flex items-center justify-center flex-shrink-0">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+    <div class="rjapi-card">
+        <div class="rjapi-head">
+            <div class="rjapi-head-l">
+                <div class="rjapi-ico e">
+                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                 </div>
                 <div>
-                    <h3 class="text-base font-bold text-gray-900">{{ __('API Documentation') }}</h3>
-                    <p class="text-xs text-gray-500 mt-0.5">{{ __('Available endpoints for external integrations.') }}</p>
+                    <h3>{{ __('API Documentation') }}</h3>
+                    <p>{{ __('Available endpoints for external integrations.') }}</p>
                 </div>
             </div>
-            <span class="inline-flex items-center px-2.5 py-1 rounded-full bg-gray-100 text-xs font-semibold text-gray-600 tabular-nums">{{ $endpointList->count() }}</span>
+            <span class="rjapi-count">{{ $endpointList->count() }}</span>
         </div>
 
-        <div class="p-6 space-y-6">
+        <div class="rjapi-body">
 
-            {{-- Auth example --}}
-            <div class="rounded-xl bg-gray-900 overflow-hidden ring-1 ring-gray-800">
-                <div class="flex items-center justify-between px-4 py-2.5 bg-gray-800/70 border-b border-gray-800">
-                    <div class="flex items-center gap-3">
-                        <div class="flex gap-1.5">
-                            <span class="w-2.5 h-2.5 rounded-full bg-red-400/80"></span>
-                            <span class="w-2.5 h-2.5 rounded-full bg-amber-400/80"></span>
-                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400/80"></span>
+            {{-- Code examples --}}
+            <div class="rjapi-code">
+                <div class="rjapi-code-bar">
+                    <div style="display:flex;align-items:center;gap:14px">
+                        <div class="rjapi-dots">
+                            <i style="background:#f87171"></i><i style="background:#fbbf24"></i><i style="background:#34d399"></i>
                         </div>
-                        <span class="text-xs font-medium text-gray-400">{{ __('Authentication') }}</span>
+                        <span style="font-size:12px;font-weight:600;color:#9ca3af">{{ __('Authentication') }}</span>
                     </div>
-                    <button type="button" @click="copyText($refs.curl.innerText, 'curl')"
-                            class="inline-flex items-center gap-1.5 text-xs font-medium text-gray-400 hover:text-white px-2 py-1 rounded-md hover:bg-white/10 transition">
-                        <svg x-show="copied !== 'curl'" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                        <svg x-show="copied === 'curl'" x-cloak class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                        <span x-text="copied === 'curl' ? @js(__('Copied')) : @js(__('Copy'))"></span>
+                    <div class="rjapi-tabs">
+                        <template x-for="t in Object.keys(snippets)" :key="t">
+                            <button type="button" class="rjapi-tab" :class="tab === t && 'on'" @click="tab = t" x-text="t"></button>
+                        </template>
+                    </div>
+                    <button type="button" class="rjapi-copy" @click="copyText(snippets[tab], 'code')">
+                        <svg x-show="copied !== 'code'" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                        <svg x-show="copied === 'code'" x-cloak style="color:#34d399" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                        <span x-text="copied === 'code' ? @js(__('Copied')) : @js(__('Copy'))"></span>
                     </button>
                 </div>
-                <div class="p-4 overflow-x-auto">
-<pre x-ref="curl" class="text-xs text-emerald-300 font-mono leading-relaxed">curl -X GET "{{ url('/api/v1/posts') }}" \
-  -H "X-Public-Key: YOUR_PUBLIC_KEY" \
-  -H "X-Private-Key: YOUR_PRIVATE_KEY" \
-  -H "Accept: application/json"</pre>
-                </div>
+                <pre class="rjapi-pre" x-text="snippets[tab]"></pre>
             </div>
 
             {{-- Endpoints --}}
-            <div class="overflow-x-auto rounded-xl border border-gray-200">
-                <table class="w-full text-sm min-w-[32rem]">
-                    <thead class="bg-gray-50 border-b border-gray-200">
-                        <tr>
-                            <th class="text-left font-semibold text-gray-600 px-4 py-3 w-28">{{ __('Method') }}</th>
-                            <th class="text-left font-semibold text-gray-600 px-4 py-3">{{ __('Endpoint') }}</th>
-                            <th class="text-left font-semibold text-gray-600 px-4 py-3">{{ __('Description') }}</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-100">
-                        @forelse ($endpointList as $endpoint)
-                            @php $method = strtoupper($endpoint['method'] ?? 'GET'); @endphp
-                            <tr class="hover:bg-gray-50/70 transition">
-                                <td class="px-4 py-3">
-                                    <span class="inline-flex px-2 py-0.5 rounded-md text-[11px] font-bold ring-1 {{ $methodStyles[$method] ?? 'bg-gray-50 text-gray-700 ring-gray-200' }}">
-                                        {{ $method }}
-                                    </span>
-                                </td>
-                                <td class="px-4 py-3 font-mono text-xs text-gray-800 whitespace-nowrap">{{ $endpoint['uri'] ?? '' }}</td>
-                                <td class="px-4 py-3 text-sm text-gray-600">{{ $endpoint['desc'] ?? '' }}</td>
-                            </tr>
-                        @empty
-                            <tr>
-                                <td colspan="3" class="px-4 py-8 text-center text-sm text-gray-500">{{ __('No endpoints available.') }}</td>
-                            </tr>
-                        @endforelse
-                    </tbody>
-                </table>
+            <div class="rjapi-tools">
+                <div class="rjapi-search">
+                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35M17 11a6 6 0 11-12 0 6 6 0 0112 0z"/></svg>
+                    <input type="text" x-model="q" placeholder="{{ __('Search') }}...">
+                </div>
+                <div class="rjapi-chips">
+                    <button type="button" class="rjapi-chip" :class="method === 'ALL' && 'on'" @click="method = 'ALL'">ALL</button>
+                    <template x-for="m in methods" :key="m">
+                        <button type="button" class="rjapi-chip" :class="method === m && 'on'" @click="method = m" x-text="m"></button>
+                    </template>
+                </div>
+            </div>
+
+            <div class="rjapi-list">
+                <div class="rjapi-li hd">
+                    <span>{{ __('Method') }}</span><span>{{ __('Endpoint') }}</span><span>{{ __('Description') }}</span>
+                </div>
+                <template x-for="(e, i) in filtered()" :key="i">
+                    <div class="rjapi-li">
+                        <span><span class="rjapi-m" :class="'m-' + e.method" x-text="e.method"></span></span>
+                        <span class="rjapi-uri" x-text="e.uri"></span>
+                        <span class="rjapi-desc" x-text="e.desc"></span>
+                    </div>
+                </template>
+                <div class="rjapi-none" x-show="filtered().length === 0" x-cloak>{{ __('No endpoints available.') }}</div>
             </div>
         </div>
     </div>
 
     {{-- ============ REVOKE DIALOG ============ --}}
-    <div x-show="revoke.show" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true">
-        <div x-show="revoke.show" x-transition.opacity @click="!revoke.loading && (revoke.show = false)"
-             class="absolute inset-0 bg-gray-900/50 backdrop-blur-sm"></div>
-
-        <div x-show="revoke.show"
+    <div x-show="revoke.show" x-cloak class="rjapi-ov" role="dialog" aria-modal="true">
+        <div class="rjapi-bd" x-show="revoke.show" x-transition.opacity @click="!revoke.loading && (revoke.show = false)"></div>
+        <div class="rjapi-dlg" x-show="revoke.show"
              x-transition:enter="transition ease-out duration-200"
-             x-transition:enter-start="opacity-0 scale-95 translate-y-2"
-             x-transition:enter-end="opacity-100 scale-100 translate-y-0"
-             x-transition:leave="transition ease-in duration-100"
-             x-transition:leave-start="opacity-100 scale-100"
-             x-transition:leave-end="opacity-0 scale-95"
-             class="relative w-full max-w-md bg-white rounded-2xl shadow-2xl p-6">
-            <div class="flex items-start gap-4">
-                <div class="w-11 h-11 rounded-full bg-red-100 text-red-600 flex items-center justify-center flex-shrink-0">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+             x-transition:enter-start="opacity-0 scale-95"
+             x-transition:enter-end="opacity-100 scale-100">
+            <div class="rjapi-dlg-top">
+                <div class="wi">
+                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
                 </div>
-                <div class="min-w-0">
-                    <h4 class="text-base font-bold text-gray-900">{{ __('Revoke API key?') }}</h4>
-                    <p class="text-sm font-medium text-gray-700 mt-1 truncate" x-text="revoke.name"></p>
-                    <p class="text-sm text-gray-600 mt-1.5">{{ __('Are you sure you want to revoke this API key? External applications using it will lose access immediately.') }}</p>
+                <div style="min-width:0">
+                    <h4>{{ __('Revoke API key?') }}</h4>
+                    <p class="nm" x-text="revoke.name"></p>
+                    <p class="tx">{{ __('Are you sure you want to revoke this API key? External applications using it will lose access immediately.') }}</p>
                 </div>
             </div>
-            <div class="flex items-center justify-end gap-2 mt-6">
-                <button type="button" @click="revoke.show = false" :disabled="revoke.loading"
-                        class="px-4 py-2 rounded-lg bg-gray-100 text-gray-700 text-sm font-medium hover:bg-gray-200 transition disabled:opacity-50">
-                    {{ __('Cancel') }}
-                </button>
-                <button type="button" @click="revokeKey()" :disabled="revoke.loading"
-                        class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-red-600 text-white text-sm font-semibold hover:bg-red-700 transition shadow-sm disabled:opacity-60">
-                    <svg x-show="revoke.loading" x-cloak class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" opacity=".25"/><path fill="currentColor" d="M4 12a8 8 0 018-8v3a5 5 0 00-5 5H4z"/></svg>
+            <div class="rjapi-dlg-act">
+                <button type="button" class="rjapi-b2" @click="revoke.show = false" :disabled="revoke.loading">{{ __('Cancel') }}</button>
+                <button type="button" class="rjapi-b3" @click="revokeKey()" :disabled="revoke.loading">
+                    <svg x-show="revoke.loading" x-cloak class="spin" style="width:15px;height:15px" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" opacity=".25"/><path fill="currentColor" d="M4 12a8 8 0 018-8v3a5 5 0 00-5 5H4z"/></svg>
                     {{ __('Revoke') }}
                 </button>
             </div>
@@ -268,39 +371,53 @@
     </div>
 
     {{-- ============ TOAST ============ --}}
-    <div x-show="toast.show" x-cloak
-         x-transition:enter="transition ease-out duration-200"
-         x-transition:enter-start="opacity-0 translate-y-2"
-         x-transition:enter-end="opacity-100 translate-y-0"
-         x-transition:leave="transition ease-in duration-150"
-         x-transition:leave-start="opacity-100"
-         x-transition:leave-end="opacity-0"
-         class="fixed bottom-6 right-6 z-[60] flex items-center gap-3 pl-4 pr-5 py-3 rounded-xl shadow-2xl text-white text-sm font-medium max-w-sm"
-         :class="toast.type === 'error' ? 'bg-red-600' : 'bg-emerald-600'">
-        <svg x-show="toast.type !== 'error'" class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-        <svg x-show="toast.type === 'error'" class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+    <div x-show="toast.show" x-cloak x-transition class="rjapi-toast" :class="toast.type">
+        <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         <span x-text="toast.message"></span>
     </div>
-
 </div>
 
 <script>
     function apiSettings() {
         const csrf = () => document.querySelector('meta[name="csrf-token"]').content;
+        const base = @js(url('/api/v1/posts'));
 
         return {
             keys: @js($apiKeys),
+            endpoints: @js($endpointList),
             newKeyName: '',
             generating: false,
             showPrivate: {},
             copied: null,
+            tab: 'cURL',
+            q: '',
+            method: 'ALL',
             revoke: { show: false, id: null, name: '', loading: false },
             toast: { show: false, message: '', type: 'success' },
             _toastTimer: null,
             _copyTimer: null,
 
+            snippets: {
+                'cURL': `curl -X GET "${base}" \\\n  -H "X-Public-Key: YOUR_PUBLIC_KEY" \\\n  -H "X-Private-Key: YOUR_PRIVATE_KEY" \\\n  -H "Accept: application/json"`,
+                'JavaScript': `const res = await fetch("${base}", {\n  headers: {\n    "X-Public-Key": "YOUR_PUBLIC_KEY",\n    "X-Private-Key": "YOUR_PRIVATE_KEY",\n    "Accept": "application/json"\n  }\n});\nconst data = await res.json();`,
+                'PHP': `$response = Http::withHeaders([\n    'X-Public-Key'  => 'YOUR_PUBLIC_KEY',\n    'X-Private-Key' => 'YOUR_PRIVATE_KEY',\n])->acceptJson()->get('${base}');\n\n$data = $response->json();`,
+                'Python': `import requests\n\nres = requests.get(\n    "${base}",\n    headers={\n        "X-Public-Key": "YOUR_PUBLIC_KEY",\n        "X-Private-Key": "YOUR_PRIVATE_KEY",\n        "Accept": "application/json",\n    },\n)\nprint(res.json())`
+            },
+
+            get methods() {
+                return [...new Set(this.endpoints.map(e => e.method))];
+            },
+
             init() {
                 this.keys.forEach(k => { this.showPrivate[k.id] = false; });
+            },
+
+            filtered() {
+                const q = this.q.trim().toLowerCase();
+                return this.endpoints.filter(e =>
+                    (this.method === 'ALL' || e.method === this.method) &&
+                    (!q || e.uri.toLowerCase().includes(q) || (e.desc || '').toLowerCase().includes(q))
+                );
             },
 
             firstError(data, fallback) {
@@ -314,20 +431,14 @@
             async generateKey() {
                 const name = this.newKeyName.trim();
                 if (!name || this.generating) return;
-
                 this.generating = true;
 
                 try {
                     const res = await fetch('{{ route('admin.settings.api.generate') }}', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json',
-                            'X-CSRF-TOKEN': csrf()
-                        },
+                        headers: { 'Content-Type': 'application/json', 'Accept': 'application/json', 'X-CSRF-TOKEN': csrf() },
                         body: JSON.stringify({ name })
                     });
-
                     const data = await res.json().catch(() => ({}));
 
                     if (res.ok && data.success) {
@@ -347,7 +458,6 @@
 
             async copyText(text, id) {
                 let ok = false;
-
                 try {
                     await navigator.clipboard.writeText(text);
                     ok = true;
@@ -362,9 +472,7 @@
                         ta.select();
                         ok = document.execCommand('copy');
                         document.body.removeChild(ta);
-                    } catch (_) {
-                        ok = false;
-                    }
+                    } catch (_) { ok = false; }
                 }
 
                 if (ok) {
@@ -383,7 +491,6 @@
 
             async revokeKey() {
                 if (this.revoke.loading || this.revoke.id === null) return;
-
                 this.revoke.loading = true;
                 const id = this.revoke.id;
 
@@ -398,7 +505,6 @@
                         },
                         body: JSON.stringify({ _method: 'DELETE' })
                     });
-
                     const data = await res.json().catch(() => ({}));
 
                     if (res.ok && data.success) {
