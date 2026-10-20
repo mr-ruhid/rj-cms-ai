@@ -39,10 +39,12 @@ use App\Http\Controllers\Admin\ToolsLogsController;
 use App\Http\Controllers\Admin\ToolsDiagnosticsController;
 use App\Http\Controllers\Admin\AiCenterController;
 use App\Http\Controllers\Admin\AiToolController;
+use App\Http\Controllers\Admin\AboutController;
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', fn() => redirect()->route('admin.dashboard'))->name('home');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::post('/dashboard/ask-ai', [DashboardController::class, 'askAi'])->name('ask-ai');
 
     Route::get('/lang/{locale}', [LangController::class, 'switch'])->name('lang.switch');
 
@@ -531,18 +533,18 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     });
 
     Route::prefix('about')->name('about.')->group(function () {
-        Route::get('/', [\App\Http\Controllers\Admin\AboutController::class, 'index'])->name('index')->defaults('slug', 'info');
-        Route::get('/api', [\App\Http\Controllers\Admin\AboutController::class, 'index'])->name('api')->defaults('slug', 'api');
-        Route::get('/theme', [\App\Http\Controllers\Admin\AboutController::class, 'index'])->name('theme')->defaults('slug', 'theme');
-        Route::get('/admin', [\App\Http\Controllers\Admin\AboutController::class, 'index'])->name('admin')->defaults('slug', 'admin');
-        Route::get('/plugin', [\App\Http\Controllers\Admin\AboutController::class, 'index'])->name('plugin')->defaults('slug', 'plugin');
-        Route::get('/developer', [\App\Http\Controllers\Admin\AboutController::class, 'index'])->name('developer')->defaults('slug', 'developer');
-        Route::get('/hooks', [\App\Http\Controllers\Admin\AboutController::class, 'index'])->name('hooks')->defaults('slug', 'hooks');
-        Route::get('/other', [\App\Http\Controllers\Admin\AboutController::class, 'index'])->name('other')->defaults('slug', 'other');
-        Route::get('/credits', [\App\Http\Controllers\Admin\AboutController::class, 'index'])->name('credits')->defaults('slug', 'credits');
-        Route::get('/license', [\App\Http\Controllers\Admin\AboutController::class, 'index'])->name('license')->defaults('slug', 'license');
-        Route::get('/user-guide', [\App\Http\Controllers\Admin\AboutController::class, 'index'])->name('user-guide')->defaults('slug', 'user-guide');
-        Route::get('/faq', [\App\Http\Controllers\Admin\AboutController::class, 'index'])->name('faq')->defaults('slug', 'faq');
-        Route::get('/troubleshooting', [\App\Http\Controllers\Admin\AboutController::class, 'index'])->name('troubleshooting')->defaults('slug', 'troubleshooting');
+        Route::get('/', [AboutController::class, 'index'])->name('index')->defaults('slug', 'info');
+        Route::get('/api', [AboutController::class, 'index'])->name('api')->defaults('slug', 'api');
+        Route::get('/theme', [AboutController::class, 'index'])->name('theme')->defaults('slug', 'theme');
+        Route::get('/admin', [AboutController::class, 'index'])->name('admin')->defaults('slug', 'admin');
+        Route::get('/plugin', [AboutController::class, 'index'])->name('plugin')->defaults('slug', 'plugin');
+        Route::get('/developer', [AboutController::class, 'index'])->name('developer')->defaults('slug', 'developer');
+        Route::get('/hooks', [AboutController::class, 'index'])->name('hooks')->defaults('slug', 'hooks');
+        Route::get('/other', [AboutController::class, 'index'])->name('other')->defaults('slug', 'other');
+        Route::get('/credits', [AboutController::class, 'index'])->name('credits')->defaults('slug', 'credits');
+        Route::get('/license', [AboutController::class, 'index'])->name('license')->defaults('slug', 'license');
+        Route::get('/user-guide', [AboutController::class, 'index'])->name('user-guide')->defaults('slug', 'user-guide');
+        Route::get('/faq', [AboutController::class, 'index'])->name('faq')->defaults('slug', 'faq');
+        Route::get('/troubleshooting', [AboutController::class, 'index'])->name('troubleshooting')->defaults('slug', 'troubleshooting');
     });
 });
