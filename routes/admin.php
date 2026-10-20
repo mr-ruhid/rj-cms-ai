@@ -17,6 +17,7 @@ use App\Http\Controllers\Admin\Settings\SeoSettingsController;
 use App\Http\Controllers\Admin\Settings\SocialSettingsController;
 use App\Http\Controllers\Admin\Settings\BackupSettingsController;
 use App\Http\Controllers\Admin\Settings\NotificationSettingsController;
+use App\Http\Controllers\Admin\Settings\ApiSettingsController;
 use App\Http\Controllers\Admin\UpdatesController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\MediaCleanupController;
@@ -507,7 +508,9 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::get('/notifications', [NotificationSettingsController::class, 'index'])->name('notifications');
         Route::put('/notifications', [NotificationSettingsController::class, 'update'])->name('notifications.update');
         
-        Route::view('/api', 'admin.coming-soon')->name('api');
+        Route::get('/api', [ApiSettingsController::class, 'index'])->name('api');
+        Route::post('/api/generate', [ApiSettingsController::class, 'generate'])->name('api.generate');
+        Route::delete('/api/{id}/revoke', [ApiSettingsController::class, 'revoke'])->name('api.revoke');
 
         Route::get('/ai', [SettingsController::class, 'ai'])->name('ai');
         Route::put('/ai', [SettingsController::class, 'updateAi'])->name('ai.update');
