@@ -34,10 +34,8 @@
 
         $content = (string) $activeItem->content;
 
-        // Literal "\n" sequences inside code blocks -> real line breaks
         $content = preg_replace_callback('/<pre\b[^>]*>.*?<\/pre>/is', fn ($m) => str_replace(['\\r\\n', '\\n'], "\n", $m[0]), $content);
 
-        // Anchor ids on h2/h3 + table of contents
         $used = [];
         $content = preg_replace_callback('/<(h[23])([^>]*)>(.*?)<\/\1>/is', function ($m) use (&$toc, &$used) {
             $text = trim(strip_tags($m[3]));
@@ -58,7 +56,6 @@
 @endphp
 
 <style>
-    /* ---------- Layout (self-contained, independent of the Tailwind build) ---------- */
     .ra-wrap { display: grid; grid-template-columns: 300px minmax(0, 1fr); gap: 24px; align-items: start; padding-bottom: 48px; }
     @media (max-width: 1023px) { .ra-wrap { grid-template-columns: minmax(0, 1fr); } }
 
@@ -74,7 +71,7 @@
     .ra-search input { width: 100%; box-sizing: border-box; padding: 9px 12px 9px 36px; font-size: 13px; color: #111827; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 10px; outline: none; transition: border-color .15s, background .15s; }
     .ra-search input:focus { background: #fff; border-color: #9ca3af; }
 
-    .ra-nav { display: flex; flex-direction: column; gap: 2px; padding: 8px; max-height: calc(100vh - 210px); overflow-y: auto; }
+    .ra-nav { display: flex; flex-direction: column; gap: 2px; padding: 8px; max-height: calc(100vh - 300px); overflow-y: auto; }
     @media (max-width: 1023px) { .ra-nav { max-height: 340px; } }
     .ra-link { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 12px; font-size: 14px; font-weight: 500; color: #4b5563; text-decoration: none; transition: background .15s, color .15s; }
     .ra-link:hover { background: #f9fafb; color: #111827; }
@@ -84,7 +81,6 @@
     .ra-link.is-active svg { color: inherit; }
     .ra-empty-search { padding: 20px 12px; font-size: 13px; color: #9ca3af; text-align: center; }
 
-    /* ---------- Article header ---------- */
     .ra-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; padding: 28px 40px 24px; border-bottom: 1px solid #f3f4f6; background: #fafafa; }
     @media (max-width: 640px) { .ra-head { padding: 22px 20px 18px; } }
     .ra-title { margin: 0; font-size: 28px; line-height: 1.2; font-weight: 800; letter-spacing: -.02em; color: #111827; }
@@ -95,7 +91,6 @@
     .ra-icon { flex-shrink: 0; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 14px; background: #f3f4f6; background: color-mix(in srgb, currentColor 12%, transparent); }
     .ra-icon svg { width: 24px; height: 24px; }
 
-    /* ---------- Table of contents ---------- */
     .ra-toc { padding: 16px 40px; border-bottom: 1px solid #f3f4f6; }
     @media (max-width: 640px) { .ra-toc { padding: 14px 20px; } }
     .ra-toc-label { margin-bottom: 8px; font-size: 12px; font-weight: 600; color: #9ca3af; }
@@ -103,7 +98,6 @@
     .ra-toc-list a { padding: 5px 12px; font-size: 13px; font-weight: 500; color: #4b5563; background: #f3f4f6; border-radius: 999px; text-decoration: none; transition: background .15s, color .15s; }
     .ra-toc-list a:hover { background: #e5e7eb; color: #111827; }
 
-    /* ---------- Article body ---------- */
     .ra-body { padding: 32px 40px 40px; }
     @media (max-width: 640px) { .ra-body { padding: 22px 20px 28px; } }
 
@@ -135,7 +129,6 @@
     .ra-copy { position: absolute; top: 10px; right: 10px; padding: 4px 10px; font-size: 11px; font-weight: 600; color: #d1d5db; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12); border-radius: 8px; cursor: pointer; transition: background .15s, color .15s; }
     .ra-copy:hover { background: rgba(255,255,255,.16); color: #fff; }
 
-    /* ---------- Prev / Next ---------- */
     .ra-pager { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; padding: 20px 40px 32px; border-top: 1px solid #f3f4f6; }
     @media (max-width: 640px) { .ra-pager { grid-template-columns: 1fr; padding: 16px 20px 24px; } }
     .ra-pager a { display: block; padding: 14px 18px; border: 1px solid #e5e7eb; border-radius: 14px; text-decoration: none; transition: border-color .15s, background .15s; }
@@ -145,7 +138,6 @@
     .ra-pager .is-next { text-align: right; grid-column: 2; }
     @media (max-width: 640px) { .ra-pager .is-next { grid-column: 1; } }
 
-    /* ---------- Empty state ---------- */
     .ra-none { padding: 80px 24px; text-align: center; }
     .ra-none-icon { width: 80px; height: 80px; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center; border-radius: 999px; background: #f9fafb; }
     .ra-none-icon svg { width: 40px; height: 40px; color: #d1d5db; }
@@ -155,7 +147,6 @@
 
 <div class="ra-wrap">
 
-    {{-- ============ SIDEBAR ============ --}}
     <aside class="ra-side" x-data="{
         q: '',
         titles: @js($itemsList->pluck('title')->map(fn ($t) => mb_strtolower($t))->values()),
@@ -191,10 +182,28 @@
                     {{ __('Nothing found.') }}
                 </div>
             </nav>
+
+            <div class="ra-side-head" style="border-top: 1px solid #f3f4f6; border-bottom: none;">
+                <svg class="text-rj-purple" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+                {{ __('External Links') }}
+            </div>
+            <nav class="ra-nav" style="max-height: none; padding-top: 4px;">
+                <a href="https://rj-nexus.github.io/documents/" target="_blank" rel="noopener" class="ra-link">
+                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+                    <span>{{ __('Full Documentation') }}</span>
+                </a>
+                <a href="https://ruhidjavadoff.blogspot.com/search/label/rj%20cms" target="_blank" rel="noopener" class="ra-link">
+                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l6 6v8a2 2 0 01-2 2z"/><path stroke-linecap="round" stroke-linejoin="round" d="M14 4v6h6M8 13h8M8 17h5"/></svg>
+                    <span>{{ __('RJ CMS Blog') }}</span>
+                </a>
+                <a href="https://ruhidjavadoff.blogspot.com/search/label/rj%20nexus" target="_blank" rel="noopener" class="ra-link">
+                    <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l6 6v8a2 2 0 01-2 2z"/><path stroke-linecap="round" stroke-linejoin="round" d="M14 4v6h6M8 13h8M8 17h5"/></svg>
+                    <span>{{ __('RJ Nexus Blog') }}</span>
+                </a>
+            </nav>
         </div>
     </aside>
 
-    {{-- ============ ARTICLE ============ --}}
     <main style="min-width:0;">
         <div class="ra-card" style="min-height:500px;">
             @if ($activeItem)
