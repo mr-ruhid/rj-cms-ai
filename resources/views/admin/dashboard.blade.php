@@ -3,7 +3,14 @@
 @section('title', __('RJ AI Assistant'))
 
 @section('content')
-<div class="h-[calc(100vh-8rem)] bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden flex flex-col" x-data="aiChat(@js($stats))" x-init="init()">
+<div class="h-[calc(100vh-8rem)] bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden flex flex-col" 
+     x-data="aiChat({
+         posts: {{ $stats['posts'] }},
+         pages: {{ $stats['pages'] }},
+         users: {{ $stats['users'] }},
+         comments: {{ $stats['comments'] }},
+         media: {{ $stats['media'] }}
+     })">
 
     <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-white shrink-0">
         <div class="flex items-center gap-3">
@@ -27,7 +34,7 @@
     <div class="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-50/30" x-ref="chatContainer">
         <div class="max-w-3xl mx-auto space-y-6 pb-4">
             
-            <div x-show="messages.length === 1" x-transition class="flex flex-col items-center justify-center min-h-[50vh] text-center">
+            <div x-show="messages.length === 1" class="flex flex-col items-center justify-center min-h-[50vh] text-center">
                 <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-rj-purple to-rj-pink flex items-center justify-center text-white shadow-lg mb-6">
                     <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                 </div>
@@ -35,42 +42,42 @@
                 <p class="text-sm text-gray-500 mb-8 max-w-md">{{ __('Ask me anything about managing your site or click one of the suggestions below to get instant stats.') }}</p>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 w-full max-w-2xl text-left">
-                    <button @click="askQuick('How many posts do I have?', 'post')" class="group flex flex-col p-4 bg-white rounded-xl border border-gray-200 hover:border-rj-purple/50 hover:shadow-md transition">
+                    <button @click="askQuick('How many posts do I have?')" class="group flex flex-col p-4 bg-white rounded-xl border border-gray-200 hover:border-rj-purple/50 hover:shadow-md transition">
                         <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l6 6v8a2 2 0 01-2 2z"/></svg>
                         </div>
                         <span class="text-sm font-bold text-gray-900 group-hover:text-rj-purple">{{ __('How many posts do I have?') }}</span>
                     </button>
 
-                    <button @click="askQuick('How many pages do I have?', 'page')" class="group flex flex-col p-4 bg-white rounded-xl border border-gray-200 hover:border-rj-purple/50 hover:shadow-md transition">
+                    <button @click="askQuick('How many pages do I have?')" class="group flex flex-col p-4 bg-white rounded-xl border border-gray-200 hover:border-rj-purple/50 hover:shadow-md transition">
                         <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                         </div>
                         <span class="text-sm font-bold text-gray-900 group-hover:text-rj-purple">{{ __('How many pages do I have?') }}</span>
                     </button>
 
-                    <button @click="askQuick('How many users are there?', 'user')" class="group flex flex-col p-4 bg-white rounded-xl border border-gray-200 hover:border-rj-purple/50 hover:shadow-md transition">
+                    <button @click="askQuick('How many users are there?')" class="group flex flex-col p-4 bg-white rounded-xl border border-gray-200 hover:border-rj-purple/50 hover:shadow-md transition">
                         <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                         </div>
                         <span class="text-sm font-bold text-gray-900 group-hover:text-rj-purple">{{ __('How many users are there?') }}</span>
                     </button>
 
-                    <button @click="askQuick('How many comments do I have?', 'comment')" class="group flex flex-col p-4 bg-white rounded-xl border border-gray-200 hover:border-rj-purple/50 hover:shadow-md transition">
+                    <button @click="askQuick('How many comments do I have?')" class="group flex flex-col p-4 bg-white rounded-xl border border-gray-200 hover:border-rj-purple/50 hover:shadow-md transition">
                         <div class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
                         </div>
                         <span class="text-sm font-bold text-gray-900 group-hover:text-rj-purple">{{ __('How many comments?') }}</span>
                     </button>
 
-                    <button @click="askQuick('How many media files do I have?', 'media')" class="group flex flex-col p-4 bg-white rounded-xl border border-gray-200 hover:border-rj-purple/50 hover:shadow-md transition">
+                    <button @click="askQuick('How many media files do I have?')" class="group flex flex-col p-4 bg-white rounded-xl border border-gray-200 hover:border-rj-purple/50 hover:shadow-md transition">
                         <div class="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                         </div>
                         <span class="text-sm font-bold text-gray-900 group-hover:text-rj-purple">{{ __('How many media files?') }}</span>
                     </button>
 
-                    <button @click="askQuick('Give me an overview of my site.', 'overview')" class="group flex flex-col p-4 bg-white rounded-xl border border-gray-200 hover:border-rj-purple/50 hover:shadow-md transition">
+                    <button @click="askQuick('Give me an overview of my site.')" class="group flex flex-col p-4 bg-white rounded-xl border border-gray-200 hover:border-rj-purple/50 hover:shadow-md transition">
                         <div class="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
                         </div>
@@ -95,7 +102,7 @@
                              :class="msg.role === 'user' 
                                 ? 'bg-white border-gray-200 text-gray-800 rounded-tr-sm' 
                                 : 'bg-white border-rj-purple/20 text-gray-800 rounded-tl-sm'">
-                            <div x-html="formatMessage(msg.text)"></div>
+                            <div x-html="msg.text"></div>
                         </div>
                     </div>
                 </div>
@@ -136,21 +143,21 @@
 @endsection
 
 @push('scripts')
+<script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
 <script>
 function aiChat(stats) {
     return {
         stats: stats,
-        defaultMessage: 'Salam! Mən RJ AI köməkçisiyəm. Saytınızın statistikası, yazılar, səhifələr və ya CMS-in necə işləməsi haqqında mənə istənilən sualı verə bilərsiniz.',
-        messages: [],
+        messages: [
+            { role: 'assistant', text: 'Salam! Mən RJ AI köməkçisiyəm. Saytınızın statistikası, yazılar, səhifələr və ya CMS-in necə işləməsi haqqında mənə istənilən sualı verə bilərsiniz.' }
+        ],
         input: '',
         loading: false,
 
-        init() {
-            this.messages.push({ role: 'assistant', text: this.defaultMessage });
-        },
-
         clearChat() {
-            this.messages = [{ role: 'assistant', text: this.defaultMessage }];
+            this.messages = [
+                { role: 'assistant', text: 'Salam! Mən RJ AI köməkçisiyəm. Saytınızın statistikası, yazılar, səhifələr və ya CMS-in necə işləməsi haqqında mənə istənilən sualı verə bilərsiniz.' }
+            ];
         },
 
         async sendMessage() {
@@ -164,17 +171,27 @@ function aiChat(stats) {
 
             const lower = text.toLowerCase();
 
-            setTimeout(() => {
+            setTimeout(async () => {
                 if (lower.includes('post') || lower.includes('yazı')) {
                     this.messages.push({ role: 'assistant', text: `Hazırda saytınızda <strong>${this.stats.posts}</strong> ədəd yazı (post) var.` });
+                    this.loading = false;
+                    this.scrollToBottom();
                 } else if (lower.includes('page') || lower.includes('səhifə')) {
                     this.messages.push({ role: 'assistant', text: `Saytınızda <strong>${this.stats.pages}</strong> ədəd səhifə (page) mövcuddur.` });
+                    this.loading = false;
+                    this.scrollToBottom();
                 } else if (lower.includes('user') || lower.includes('istifadəçi')) {
                     this.messages.push({ role: 'assistant', text: `Sistemdə <strong>${this.stats.users}</strong> istifadəçi qeydiyyatdan keçib.` });
+                    this.loading = false;
+                    this.scrollToBottom();
                 } else if (lower.includes('comment') || lower.includes('şərh')) {
                     this.messages.push({ role: 'assistant', text: `Saytınızda ümumilikdə <strong>${this.stats.comments}</strong> ədəd şərh var.` });
+                    this.loading = false;
+                    this.scrollToBottom();
                 } else if (lower.includes('media') || lower.includes('fayl')) {
                     this.messages.push({ role: 'assistant', text: `Media kitabxanasında <strong>${this.stats.media}</strong> ədəd fayl var.` });
+                    this.loading = false;
+                    this.scrollToBottom();
                 } else if (lower.includes('overview') || lower.includes('ümumi')) {
                     this.messages.push({ role: 'assistant', text: `Saytın ümumi vəziyyəti:<br><br>
                         <div class="flex flex-wrap gap-2">
@@ -184,44 +201,38 @@ function aiChat(stats) {
                             <span class="px-2.5 py-1 rounded-lg bg-amber-50 text-amber-700 text-xs font-medium border border-amber-100">💬 ${this.stats.comments} Comments</span>
                             <span class="px-2.5 py-1 rounded-lg bg-purple-50 text-purple-700 text-xs font-medium border border-purple-100">🖼️ ${this.stats.media} Media</span>
                         </div>` });
+                    this.loading = false;
+                    this.scrollToBottom();
                 } else {
-                    this.fetchAI(text);
-                    return;
+                    try {
+                        const res = await fetch('{{ route('admin.ask-ai') }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Accept': 'application/json',
+                                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
+                            },
+                            body: JSON.stringify({ question: text })
+                        });
+                        
+                        const data = await res.json();
+                        
+                        if (data.success) {
+                            this.messages.push({ role: 'assistant', text: data.answer });
+                        } else {
+                            this.messages.push({ role: 'assistant', text: data.answer || data.message || 'Xəta baş verdi.' });
+                        }
+                    } catch (e) {
+                        this.messages.push({ role: 'assistant', text: 'Şəbəkə xətası. İnternet bağlantınızı yoxlayın.' });
+                    } finally {
+                        this.loading = false;
+                        this.scrollToBottom();
+                    }
                 }
-
-                this.loading = false;
-                this.scrollToBottom();
-            }, 600);
+            }, 400);
         },
 
-        async fetchAI(text) {
-            try {
-                const res = await fetch('{{ route('admin.ask-ai') }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content
-                    },
-                    body: JSON.stringify({ question: text })
-                });
-
-                const data = await res.json();
-
-                if (data.success) {
-                    this.messages.push({ role: 'assistant', text: data.answer });
-                } else {
-                    this.messages.push({ role: 'assistant', text: data.answer || data.message || 'Xəta baş verdi.' });
-                }
-            } catch (e) {
-                this.messages.push({ role: 'assistant', text: 'Şəbəkə xətası.' });
-            } finally {
-                this.loading = false;
-                this.scrollToBottom();
-            }
-        },
-
-        askQuick(text, type) {
+        askQuick(text) {
             this.input = text;
             this.sendMessage();
         },
@@ -230,10 +241,6 @@ function aiChat(stats) {
             this.$nextTick(() => {
                 this.$refs.chatContainer.scrollTop = this.$refs.chatContainer.scrollHeight;
             });
-        },
-
-        formatMessage(text) {
-            return text;
         }
     }
 }
