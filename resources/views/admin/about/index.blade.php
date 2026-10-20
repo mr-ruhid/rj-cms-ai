@@ -13,10 +13,10 @@
     .rj-doc-content pre code { background: transparent; color: inherit; padding: 0; }
 </style>
 
-<div class="max-w-7xl mx-auto flex flex-col md:flex-row gap-6 min-w-0 pb-12">
+<div class="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start pb-12">
 
-    <aside class="w-full md:w-64 flex-shrink-0">
-        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden md:sticky md:top-6">
+    <aside class="lg:col-span-1">
+        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
             <div class="px-5 py-4 border-b border-gray-100 bg-gray-50/50">
                 <h2 class="text-sm font-bold text-gray-900 flex items-center gap-2">
                     <svg class="w-4 h-4 text-rj-purple" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
@@ -24,7 +24,7 @@
                 </h2>
             </div>
             
-            <nav class="p-2 space-y-0.5 max-h-[calc(100vh-12rem)] overflow-y-auto">
+            <nav class="p-2 space-y-0.5">
                 @foreach($items as $item)
                     @php
                         $isActive = $activeItem && $activeItem->id === $item->id;
@@ -72,7 +72,7 @@
         </div>
     </aside>
 
-    <main class="flex-1 min-w-0">
+    <main class="lg:col-span-3 min-w-0">
         <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden min-h-[500px]">
             @if($activeItem)
                 <div class="px-8 py-6 border-b border-gray-100 bg-gray-50/30 flex items-center justify-between">
