@@ -500,6 +500,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::delete('/backup/{file}', [BackupSettingsController::class, 'delete'])->name('backup.delete');
         Route::get('/cache', [CacheSettingsController::class, 'index'])->name('cache');
         Route::put('/cache', [CacheSettingsController::class, 'update'])->name('cache.update');
+        Route::post('/cache/clear/{type}', [CacheSettingsController::class, 'clear'])->name('cache.clear');
         Route::get('/social', [SocialSettingsController::class, 'index'])->name('social');
         Route::put('/social', [SocialSettingsController::class, 'update'])->name('social.update');
         Route::view('/notifications', 'admin.coming-soon')->name('notifications');
@@ -513,7 +514,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::get('/advanced', [AdvancedSettingsController::class, 'index'])->name('advanced');
         Route::put('/advanced', [AdvancedSettingsController::class, 'update'])->name('advanced.update');
         Route::post('/advanced/clear-logs', [AdvancedSettingsController::class, 'clearLogs'])->name('advanced.clear-logs');
-        Route::view('/roles', 'admin.coming-soon')->name('roles');
+        Route::redirect('/roles', '/admin/roles')->name('roles');
     });
 
     Route::prefix('about')->name('about.')->group(function () {
