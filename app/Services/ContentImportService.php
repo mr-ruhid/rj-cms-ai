@@ -860,11 +860,11 @@ class ContentImportService
                 continue;
             }
 
-            $existing = Option::where('key', $key)->first();
+            $existing = Option::where('option_name', $key)->first();
 
             if ($existing) {
                 if ($strategy === 'update') {
-                    $existing->update(['value' => $item['value']]);
+                    $existing->update(['option_value' => $item['value'] ?? null]);
                     $this->track('options', 'updated');
                 } else {
                     $this->track('options', 'skipped');
@@ -873,10 +873,11 @@ class ContentImportService
             }
 
             Option::create([
-                'key' => $key,
-                'value' => $item['value'] ?? '',
-                'group' => $item['group'] ?? 'general',
-                'type' => $item['type'] ?? 'text',
+                'option_name' => $key,
+                'option_value' => $item['value'] ?? '',
+                'option_group' => $item['group'] ?? 'general',
+                'option_type' => $item['type'] ?? 'text',
+                'autoload' => true,
             ]);
             $this->track('options', 'created');
         }
