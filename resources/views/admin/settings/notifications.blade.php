@@ -164,8 +164,9 @@
                                    x-model="events.{{ $key }}" role="switch" class="peer sr-only">
                             <span class="block w-11 h-6 rounded-full transition-colors duration-200 peer-focus-visible:ring-4 peer-focus-visible:ring-rj-purple/30"
                                   :class="events.{{ $key }} ? 'bg-rj-purple' : 'bg-gray-300'"></span>
-                            <span class="absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform duration-200"
-                                  :class="events.{{ $key }} ? 'translate-x-5' : 'translate-x-0'"></span>
+                            <span class="absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow pointer-events-none"
+                                  style="transition: transform .2s ease;"
+                                  :style="'transform: translateX(' + (events.{{ $key }} ? '20px' : '0px') + ')'"></span>
                         </div>
                     </label>
                 @endforeach
