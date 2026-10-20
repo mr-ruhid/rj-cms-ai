@@ -69,9 +69,6 @@ class ContentImportService
         }
 
         $namespaces = $xml->getNamespaces(true);
-        $wp = $xml->channel->children($namespaces['wp'] ?? 'http://wordpress.org/export/1.2/');
-        $contentNs = $xml->channel->children($namespaces['content'] ?? 'http://purl.org/rss/1.0/modules/content/');
-        $excerptNs = $xml->channel->children($namespaces['excerpt'] ?? 'http://wordpress.org/export/1.2/excerpt/');
 
         $items = [];
 
@@ -857,10 +854,13 @@ class ContentImportService
         $dangerous = ['active_theme', 'rj_version', 'site_opt_custom_js', 'site_opt_head_html'];
 
         foreach ($items as $item) {
-            $name = $item['name'] ?? null;
-            if (!$name || in_array($name, $dangerous, true)) continue;
+            $key = $item['key'] ?? $item['name'] ?? null;
 
-            $existing = Option::where('name', $name)->first();
+            if (!$key || in_array($key, $dangerous, true)) {
+                continue;
+            }
+
+            $existing = Option::where('key', $key)->first();
 
             if ($existing) {
                 if ($strategy === 'update') {
@@ -873,7 +873,7 @@ class ContentImportService
             }
 
             Option::create([
-                'name' => $name,
+                'key' => $key,
                 'value' => $item['value'] ?? '',
                 'group' => $item['group'] ?? 'general',
                 'type' => $item['type'] ?? 'text',
