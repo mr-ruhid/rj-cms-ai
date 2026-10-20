@@ -20,7 +20,7 @@ class AiCenterController extends Controller
 
     public function index()
     {
-        $aiEnabled = $this->openRouter->enabled();
+        $aiEnabled = !empty(rj_get_option('ai_api_key'));
         $activeModel = rj_get_option('ai_default_model', 'openai/gpt-4o-mini');
 
         $totalTokens = AiLog::sum('total_tokens');
