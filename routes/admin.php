@@ -34,6 +34,7 @@ use App\Http\Controllers\Admin\ToolsExportController;
 use App\Http\Controllers\Admin\ToolsHealthController;
 use App\Http\Controllers\Admin\ToolsBackupController;
 use App\Http\Controllers\Admin\ToolsLogsController;
+use App\Http\Controllers\Admin\ToolsDiagnosticsController;
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', fn() => redirect()->route('admin.dashboard'))->name('home');
@@ -216,7 +217,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/tools/logs/clear', [ToolsLogsController::class, 'clear'])->name('tools.logs.clear');
     Route::get('/tools/logs/download/{filename}', [ToolsLogsController::class, 'download'])->name('tools.logs.download');
 
-    Route::view('/tools/diagnostics', 'admin.coming-soon')->name('tools.diagnostics');
+    Route::get('/tools/diagnostics', [ToolsDiagnosticsController::class, 'index'])->name('tools.diagnostics');
 
     Route::prefix('rjbuilder')->name('rjbuilder.')->group(function () {
         Route::get('/', [BuilderController::class, 'index'])->name('index');
