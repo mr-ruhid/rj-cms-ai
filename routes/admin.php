@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\Settings\AdvancedSettingsController;
 use App\Http\Controllers\Admin\Settings\SeoSettingsController;
 use App\Http\Controllers\Admin\Settings\SocialSettingsController;
 use App\Http\Controllers\Admin\Settings\BackupSettingsController;
+use App\Http\Controllers\Admin\Settings\NotificationSettingsController;
 use App\Http\Controllers\Admin\UpdatesController;
 use App\Http\Controllers\Admin\MediaController;
 use App\Http\Controllers\Admin\MediaCleanupController;
@@ -503,7 +504,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::post('/cache/clear/{type}', [CacheSettingsController::class, 'clear'])->name('cache.clear');
         Route::get('/social', [SocialSettingsController::class, 'index'])->name('social');
         Route::put('/social', [SocialSettingsController::class, 'update'])->name('social.update');
-        Route::view('/notifications', 'admin.coming-soon')->name('notifications');
+        
+        Route::get('/notifications', [NotificationSettingsController::class, 'index'])->name('notifications');
+        Route::put('/notifications', [NotificationSettingsController::class, 'update'])->name('notifications.update');
+        
         Route::view('/api', 'admin.coming-soon')->name('api');
 
         Route::get('/ai', [SettingsController::class, 'ai'])->name('ai');
