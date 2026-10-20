@@ -541,7 +541,6 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::get('/other', [\App\Http\Controllers\Admin\AboutController::class, 'index'])->name('other')->defaults('slug', 'other');
         Route::get('/credits', [\App\Http\Controllers\Admin\AboutController::class, 'index'])->name('credits')->defaults('slug', 'credits');
         Route::get('/license', [\App\Http\Controllers\Admin\AboutController::class, 'index'])->name('license')->defaults('slug', 'license');
-        
         Route::get('/user-guide', [\App\Http\Controllers\Admin\AboutController::class, 'index'])->name('user-guide')->defaults('slug', 'user-guide');
         Route::get('/faq', [\App\Http\Controllers\Admin\AboutController::class, 'index'])->name('faq')->defaults('slug', 'faq');
         Route::get('/troubleshooting', [\App\Http\Controllers\Admin\AboutController::class, 'index'])->name('troubleshooting')->defaults('slug', 'troubleshooting');
