@@ -40,7 +40,6 @@
     .rj-glow    { animation: rjGlow 2.4s ease-in-out infinite; }
     .rj-spin-slow { animation: rjSpin 6s linear infinite; transform-origin: center; }
 
-    /* Tailwind-dən asılı olmayan gradient fon + ağ ikon */
     .rj-grad {
         background: linear-gradient(135deg, #16a34a 0%, #22c55e 50%, #34d399 100%);
         color: #fff;
@@ -138,29 +137,29 @@
             localAnswer(lower) {
                 const s = this.stats;
 
-                if (lower.includes('post') || lower.includes('yazı')) {
-                    return `Hazırda saytınızda <strong>${s.posts}</strong> ədəd yazı (post) var.`;
+                if (lower.includes('post') || lower.includes('yazı') || lower.includes('запис')) {
+                    return `{{ __('You have :count posts on your site.', ['count' => '___COUNT___']) }}`.replace('___COUNT___', `<strong>${s.posts}</strong>`);
                 }
-                if (lower.includes('page') || lower.includes('səhifə')) {
-                    return `Saytınızda <strong>${s.pages}</strong> ədəd səhifə (page) mövcuddur.`;
+                if (lower.includes('page') || lower.includes('səhifə') || lower.includes('страниц')) {
+                    return `{{ __('You have :count pages on your site.', ['count' => '___COUNT___']) }}`.replace('___COUNT___', `<strong>${s.pages}</strong>`);
                 }
-                if (lower.includes('user') || lower.includes('istifadəçi')) {
-                    return `Sistemdə <strong>${s.users}</strong> istifadəçi qeydiyyatdan keçib.`;
+                if (lower.includes('user') || lower.includes('istifadəçi') || lower.includes('пользовател')) {
+                    return `{{ __('There are :count registered users.', ['count' => '___COUNT___']) }}`.replace('___COUNT___', `<strong>${s.users}</strong>`);
                 }
-                if (lower.includes('comment') || lower.includes('şərh')) {
-                    return `Saytınızda ümumilikdə <strong>${s.comments}</strong> ədəd şərh var.`;
+                if (lower.includes('comment') || lower.includes('şərh') || lower.includes('коммент')) {
+                    return `{{ __('You have :count comments in total.', ['count' => '___COUNT___']) }}`.replace('___COUNT___', `<strong>${s.comments}</strong>`);
                 }
-                if (lower.includes('media') || lower.includes('fayl')) {
-                    return `Media kitabxanasında <strong>${s.media}</strong> ədəd fayl var.`;
+                if (lower.includes('media') || lower.includes('fayl') || lower.includes('файл')) {
+                    return `{{ __('There are :count files in the media library.', ['count' => '___COUNT___']) }}`.replace('___COUNT___', `<strong>${s.media}</strong>`);
                 }
-                if (lower.includes('overview') || lower.includes('ümumi')) {
-                    return `Saytın ümumi vəziyyəti:<br><br>
+                if (lower.includes('overview') || lower.includes('ümumi') || lower.includes('обзор')) {
+                    return `{{ __('Site Overview:') }}<br><br>
                         <div class="flex flex-wrap gap-2">
-                            <span class="px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-700 text-xs font-medium border border-indigo-100">📝 ${s.posts} Posts</span>
-                            <span class="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-medium border border-emerald-100">📄 ${s.pages} Pages</span>
-                            <span class="px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 text-xs font-medium border border-blue-100">👥 ${s.users} Users</span>
-                            <span class="px-2.5 py-1 rounded-lg bg-amber-50 text-amber-700 text-xs font-medium border border-amber-100">💬 ${s.comments} Comments</span>
-                            <span class="px-2.5 py-1 rounded-lg bg-purple-50 text-purple-700 text-xs font-medium border border-purple-100">🖼️ ${s.media} Media</span>
+                            <span class="px-2.5 py-1 rounded-lg bg-indigo-50 text-indigo-700 text-xs font-medium border border-indigo-100">📝 ${s.posts} {{ __('Posts') }}</span>
+                            <span class="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 text-xs font-medium border border-emerald-100">📄 ${s.pages} {{ __('Pages') }}</span>
+                            <span class="px-2.5 py-1 rounded-lg bg-blue-50 text-blue-700 text-xs font-medium border border-blue-100">👥 ${s.users} {{ __('Users') }}</span>
+                            <span class="px-2.5 py-1 rounded-lg bg-amber-50 text-amber-700 text-xs font-medium border border-amber-100">💬 ${s.comments} {{ __('Comments') }}</span>
+                            <span class="px-2.5 py-1 rounded-lg bg-purple-50 text-purple-700 text-xs font-medium border border-purple-100">🖼️ ${s.media} {{ __('Media') }}</span>
                         </div>`;
                 }
                 return null;
@@ -195,9 +194,9 @@
                         const data = await res.json();
                         answer = data.success
                             ? data.answer
-                            : (data.answer || data.message || 'Xəta baş verdi.');
+                            : (data.answer || data.message || '{{ __('An error occurred.') }}');
                     } catch (e) {
-                        answer = 'Şəbəkə xətası. İnternet bağlantınızı yoxlayın.';
+                        answer = '{{ __('Network error. Check your connection.') }}';
                     }
                 }
 
@@ -236,7 +235,6 @@
          media: {{ $stats['media'] ?? 0 }}
      })">
 
-    {{-- Header --}}
     <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between bg-white shrink-0">
         <div class="flex items-center gap-3">
             <div class="w-10 h-10 rounded-xl rj-grad flex items-center justify-center shadow-sm rj-glow">
@@ -256,11 +254,9 @@
         </button>
     </div>
 
-    {{-- Chat area --}}
     <div class="flex-1 overflow-y-auto p-4 md:p-6 bg-gray-50/30 scroll-smooth" x-ref="chatContainer">
         <div class="max-w-3xl mx-auto space-y-6 pb-4">
 
-            {{-- Welcome screen --}}
             <div x-show="messages.length === 0" class="flex flex-col items-center justify-center min-h-[50vh] text-center">
                 <div class="w-16 h-16 rounded-2xl rj-grad flex items-center justify-center shadow-lg mb-6 rj-fade-up rj-glow">
                     <svg class="w-8 h-8" fill="none" stroke="#fff" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z"/></svg>
@@ -270,42 +266,42 @@
                 <p class="text-sm text-gray-500 mb-8 max-w-md rj-fade-up" style="animation-delay:.2s">{{ __('Ask me anything about managing your site or click one of the suggestions below to get instant stats.') }}</p>
 
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 w-full max-w-2xl text-left">
-                    <button type="button" @click="askQuick('How many posts do I have?')" style="animation-delay:.30s" class="rj-fade-up rj-card group flex flex-col p-4 bg-white rounded-xl border border-gray-200">
+                    <button type="button" @click="askQuick('{{ __('How many posts do I have?') }}')" style="animation-delay:.30s" class="rj-fade-up rj-card group flex flex-col p-4 bg-white rounded-xl border border-gray-200">
                         <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10l6 6v8a2 2 0 01-2 2z"/></svg>
                         </div>
                         <span class="rj-title text-sm font-bold text-gray-900">{{ __('How many posts do I have?') }}</span>
                     </button>
 
-                    <button type="button" @click="askQuick('How many pages do I have?')" style="animation-delay:.38s" class="rj-fade-up rj-card group flex flex-col p-4 bg-white rounded-xl border border-gray-200">
+                    <button type="button" @click="askQuick('{{ __('How many pages do I have?') }}')" style="animation-delay:.38s" class="rj-fade-up rj-card group flex flex-col p-4 bg-white rounded-xl border border-gray-200">
                         <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
                         </div>
                         <span class="rj-title text-sm font-bold text-gray-900">{{ __('How many pages do I have?') }}</span>
                     </button>
 
-                    <button type="button" @click="askQuick('How many users are there?')" style="animation-delay:.46s" class="rj-fade-up rj-card group flex flex-col p-4 bg-white rounded-xl border border-gray-200">
+                    <button type="button" @click="askQuick('{{ __('How many users are there?') }}')" style="animation-delay:.46s" class="rj-fade-up rj-card group flex flex-col p-4 bg-white rounded-xl border border-gray-200">
                         <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                         </div>
                         <span class="rj-title text-sm font-bold text-gray-900">{{ __('How many users are there?') }}</span>
                     </button>
 
-                    <button type="button" @click="askQuick('How many comments do I have?')" style="animation-delay:.54s" class="rj-fade-up rj-card group flex flex-col p-4 bg-white rounded-xl border border-gray-200">
+                    <button type="button" @click="askQuick('{{ __('How many comments do I have?') }}')" style="animation-delay:.54s" class="rj-fade-up rj-card group flex flex-col p-4 bg-white rounded-xl border border-gray-200">
                         <div class="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
                         </div>
                         <span class="rj-title text-sm font-bold text-gray-900">{{ __('How many comments?') }}</span>
                     </button>
 
-                    <button type="button" @click="askQuick('How many media files do I have?')" style="animation-delay:.62s" class="rj-fade-up rj-card group flex flex-col p-4 bg-white rounded-xl border border-gray-200">
+                    <button type="button" @click="askQuick('{{ __('How many media files do I have?') }}')" style="animation-delay:.62s" class="rj-fade-up rj-card group flex flex-col p-4 bg-white rounded-xl border border-gray-200">
                         <div class="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
                         </div>
                         <span class="rj-title text-sm font-bold text-gray-900">{{ __('How many media files?') }}</span>
                     </button>
 
-                    <button type="button" @click="askQuick('Give me an overview of my site.')" style="animation-delay:.70s" class="rj-fade-up rj-card group flex flex-col p-4 bg-white rounded-xl border border-gray-200">
+                    <button type="button" @click="askQuick('{{ __('Give me an overview of my site.') }}')" style="animation-delay:.70s" class="rj-fade-up rj-card group flex flex-col p-4 bg-white rounded-xl border border-gray-200">
                         <div class="w-8 h-8 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
                         </div>
@@ -314,7 +310,6 @@
                 </div>
             </div>
 
-            {{-- Messages --}}
             <template x-for="(msg, index) in messages" :key="index">
                 <div class="rj-msg-in" :class="msg.role === 'user' ? 'flex justify-end' : 'flex justify-start'">
                     <div class="flex gap-3 max-w-[85%]" :class="msg.role === 'user' ? 'flex-row-reverse' : ''">
@@ -337,7 +332,6 @@
                 </div>
             </template>
 
-            {{-- Thinking (shimmer) --}}
             <div x-cloak x-show="loading" x-transition.opacity class="flex justify-start rj-msg-in">
                 <div class="flex gap-3 w-full max-w-[85%]">
                     <div class="w-8 h-8 rounded-full rj-grad flex items-center justify-center flex-shrink-0 mt-1 shadow-sm rj-glow">
@@ -353,7 +347,6 @@
         </div>
     </div>
 
-    {{-- Input --}}
     <div class="p-4 bg-white border-t border-gray-100 shrink-0">
         <div class="max-w-3xl mx-auto">
             <form @submit.prevent="sendMessage()" class="relative flex items-center gap-2">
