@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Menu;
 use App\Models\MenuItem;
+use App\Models\Post;
 use Illuminate\Http\Request;
 
 class MenuItemController extends Controller
@@ -127,7 +128,6 @@ class MenuItemController extends Controller
     public function options(Request $request)
     {
         $type = $request->input('type');
-
         $result = [];
 
         if ($type === 'category') {
@@ -141,9 +141,25 @@ class MenuItemController extends Controller
                 $result[] = ['id' => $t->id, 'label' => $t->name, 'url' => '/tag/' . $t->slug];
             }
         } elseif ($type === 'page') {
-            $result = [];
+            $pages = Post::with('translations')
+                ->where('type', 'page')
+                ->where('status', 'published')
+                ->orderByDesc('created_at')
+                ->get();
+
+            foreach ($pages as $p) {
+                $result[] = ['id' => $p->id, 'label' => $p->title, 'url' => '/' . $p->slug];
+            }
         } elseif ($type === 'post') {
-            $result = [];
+            $posts = Post::with('translations')
+                ->where('type', 'post')
+                ->where('status', 'published')
+                ->orderByDesc('created_at')
+                ->get();
+
+            foreach ($posts as $p) {
+                $result[] = ['id' => $p->id, 'label' => $p->title, 'url' => '/blog/' . $p->slug];
+            }
         }
 
         return response()->json($result);
