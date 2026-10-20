@@ -531,15 +531,19 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     });
 
     Route::prefix('about')->name('about.')->group(function () {
-        Route::view('/', 'admin.coming-soon')->name('index');
-        Route::view('/api', 'admin.coming-soon')->name('api');
-        Route::view('/theme', 'admin.coming-soon')->name('theme');
-        Route::view('/admin', 'admin.coming-soon')->name('admin');
-        Route::view('/plugin', 'admin.coming-soon')->name('plugin');
-        Route::view('/developer', 'admin.coming-soon')->name('developer');
-        Route::view('/hooks', 'admin.coming-soon')->name('hooks');
-        Route::view('/other', 'admin.coming-soon')->name('other');
-        Route::view('/credits', 'admin.coming-soon')->name('credits');
-        Route::view('/license', 'admin.coming-soon')->name('license');
+        Route::get('/', [\App\Http\Controllers\Admin\AboutController::class, 'index'])->name('index')->defaults('slug', 'info');
+        Route::get('/api', [\App\Http\Controllers\Admin\AboutController::class, 'index'])->name('api')->defaults('slug', 'api');
+        Route::get('/theme', [\App\Http\Controllers\Admin\AboutController::class, 'index'])->name('theme')->defaults('slug', 'theme');
+        Route::get('/admin', [\App\Http\Controllers\Admin\AboutController::class, 'index'])->name('admin')->defaults('slug', 'admin');
+        Route::get('/plugin', [\App\Http\Controllers\Admin\AboutController::class, 'index'])->name('plugin')->defaults('slug', 'plugin');
+        Route::get('/developer', [\App\Http\Controllers\Admin\AboutController::class, 'index'])->name('developer')->defaults('slug', 'developer');
+        Route::get('/hooks', [\App\Http\Controllers\Admin\AboutController::class, 'index'])->name('hooks')->defaults('slug', 'hooks');
+        Route::get('/other', [\App\Http\Controllers\Admin\AboutController::class, 'index'])->name('other')->defaults('slug', 'other');
+        Route::get('/credits', [\App\Http\Controllers\Admin\AboutController::class, 'index'])->name('credits')->defaults('slug', 'credits');
+        Route::get('/license', [\App\Http\Controllers\Admin\AboutController::class, 'index'])->name('license')->defaults('slug', 'license');
+        
+        Route::get('/user-guide', [\App\Http\Controllers\Admin\AboutController::class, 'index'])->name('user-guide')->defaults('slug', 'user-guide');
+        Route::get('/faq', [\App\Http\Controllers\Admin\AboutController::class, 'index'])->name('faq')->defaults('slug', 'faq');
+        Route::get('/troubleshooting', [\App\Http\Controllers\Admin\AboutController::class, 'index'])->name('troubleshooting')->defaults('slug', 'troubleshooting');
     });
 });
