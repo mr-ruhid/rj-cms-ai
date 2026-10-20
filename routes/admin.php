@@ -32,6 +32,7 @@ use App\Http\Controllers\Admin\AppearanceOptionsController;
 use App\Http\Controllers\Admin\ToolsImportController;
 use App\Http\Controllers\Admin\ToolsExportController;
 use App\Http\Controllers\Admin\ToolsHealthController;
+use App\Http\Controllers\Admin\ToolsBackupController;
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', fn() => redirect()->route('admin.dashboard'))->name('home');
@@ -202,7 +203,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/tools/health/analyze', [ToolsHealthController::class, 'analyze'])->name('tools.health.analyze');
     Route::post('/tools/health/refresh', [ToolsHealthController::class, 'refresh'])->name('tools.health.refresh');
 
-    Route::view('/tools/backup', 'admin.coming-soon')->name('tools.backup');
+    Route::get('/tools/backup', [ToolsBackupController::class, 'index'])->name('tools.backup');
+    Route::post('/tools/backup/create', [ToolsBackupController::class, 'create'])->name('tools.backup.create');
+    Route::get('/tools/backup/download/{filename}', [ToolsBackupController::class, 'download'])->name('tools.backup.download');
+    Route::delete('/tools/backup/{filename}', [ToolsBackupController::class, 'delete'])->name('tools.backup.delete');
+    Route::post('/tools/backup/restore/{filename}', [ToolsBackupController::class, 'restore'])->name('tools.backup.restore');
+    Route::post('/tools/backup/settings', [ToolsBackupController::class, 'updateSettings'])->name('tools.backup.settings');
+
     Route::view('/tools/logs', 'admin.coming-soon')->name('tools.logs');
     Route::view('/tools/diagnostics', 'admin.coming-soon')->name('tools.diagnostics');
 
