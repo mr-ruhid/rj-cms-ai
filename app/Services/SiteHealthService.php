@@ -53,7 +53,7 @@ class SiteHealthService
         ];
     }
 
-    protected function check(string $id, string $category, string $label, string $status, string $message, $value = null, ?string $recommendation = null): array
+    protected function makeCheck(string $id, string $category, string $label, string $status, string $message, $value = null, ?string $recommendation = null): array
     {
         return [
             'id' => $id,
@@ -72,7 +72,7 @@ class SiteHealthService
 
         $phpVersion = PHP_VERSION;
         $phpOk = version_compare($phpVersion, '8.2.0', '>=');
-        $items[] = $this->check(
+        $items[] = $this->makeCheck(
             'php_version',
             'environment',
             __('PHP Version'),
@@ -83,7 +83,7 @@ class SiteHealthService
         );
 
         $laravelVersion = app()->version();
-        $items[] = $this->check(
+        $items[] = $this->makeCheck(
             'laravel_version',
             'environment',
             __('Laravel Version'),
@@ -93,7 +93,7 @@ class SiteHealthService
         );
 
         $appKey = config('app.key');
-        $items[] = $this->check(
+        $items[] = $this->makeCheck(
             'app_key',
             'environment',
             __('Application Key'),
@@ -104,7 +104,7 @@ class SiteHealthService
         );
 
         $env = app()->environment();
-        $items[] = $this->check(
+        $items[] = $this->makeCheck(
             'app_env',
             'environment',
             __('Environment'),
@@ -116,7 +116,7 @@ class SiteHealthService
 
         $debug = config('app.debug');
         $isProd = $env === 'production';
-        $items[] = $this->check(
+        $items[] = $this->makeCheck(
             'app_debug',
             'environment',
             __('Debug Mode'),
@@ -127,7 +127,7 @@ class SiteHealthService
         );
 
         $timezone = config('app.timezone');
-        $items[] = $this->check(
+        $items[] = $this->makeCheck(
             'timezone',
             'environment',
             __('Timezone'),
@@ -137,7 +137,7 @@ class SiteHealthService
         );
 
         $https = request()->isSecure() || str_starts_with(config('app.url', ''), 'https://');
-        $items[] = $this->check(
+        $items[] = $this->makeCheck(
             'https',
             'environment',
             __('HTTPS'),
@@ -150,7 +150,7 @@ class SiteHealthService
         $memory = ini_get('memory_limit');
         $memoryBytes = $this->parseSize($memory);
         $memOk = $memoryBytes === -1 || $memoryBytes >= 128 * 1024 * 1024;
-        $items[] = $this->check(
+        $items[] = $this->makeCheck(
             'memory_limit',
             'environment',
             __('Memory Limit'),
@@ -163,7 +163,7 @@ class SiteHealthService
         $uploadMax = ini_get('upload_max_filesize');
         $uploadBytes = $this->parseSize($uploadMax);
         $uploadOk = $uploadBytes >= 2 * 1024 * 1024;
-        $items[] = $this->check(
+        $items[] = $this->makeCheck(
             'upload_max',
             'environment',
             __('Upload Max Filesize'),
@@ -174,7 +174,7 @@ class SiteHealthService
         );
 
         $postMax = ini_get('post_max_size');
-        $items[] = $this->check(
+        $items[] = $this->makeCheck(
             'post_max',
             'environment',
             __('Post Max Size'),
@@ -185,7 +185,7 @@ class SiteHealthService
 
         $maxExec = ini_get('max_execution_time');
         $execOk = (int) $maxExec === 0 || (int) $maxExec >= 60;
-        $items[] = $this->check(
+        $items[] = $this->makeCheck(
             'max_execution',
             'environment',
             __('Max Execution Time'),
@@ -204,7 +204,7 @@ class SiteHealthService
 
         $storagePath = storage_path();
         $storageWritable = is_writable($storagePath);
-        $items[] = $this->check(
+        $items[] = $this->makeCheck(
             'storage_writable',
             'storage',
             __('Storage Writable'),
@@ -216,7 +216,7 @@ class SiteHealthService
 
         $cachePath = base_path('bootstrap/cache');
         $cacheWritable = is_writable($cachePath);
-        $items[] = $this->check(
+        $items[] = $this->makeCheck(
             'bootstrap_cache',
             'storage',
             __('Bootstrap Cache Writable'),
@@ -227,7 +227,7 @@ class SiteHealthService
         );
 
         $envExists = File::exists(base_path('.env'));
-        $items[] = $this->check(
+        $items[] = $this->makeCheck(
             'env_file',
             'storage',
             __('.env File'),
@@ -239,7 +239,7 @@ class SiteHealthService
 
         $publicStorage = public_path('storage');
         $linkOk = file_exists($publicStorage) || is_link($publicStorage);
-        $items[] = $this->check(
+        $items[] = $this->makeCheck(
             'storage_link',
             'storage',
             __('Public Storage Link'),
@@ -257,7 +257,7 @@ class SiteHealthService
             if ($diskPercent < 5) $diskStatus = 'critical';
             elseif ($diskPercent < 15) $diskStatus = 'warning';
         }
-        $items[] = $this->check(
+        $items[] = $this->makeCheck(
             'disk_space',
             'storage',
             __('Disk Free Space'),
@@ -281,7 +281,7 @@ class SiteHealthService
             $connected = false;
         }
 
-        $items[] = $this->check(
+        $items[] = $this->makeCheck(
             'db_connection',
             'database',
             __('Database Connection'),
@@ -296,8 +296,12 @@ class SiteHealthService
         }
 
         $driver = config('database.default');
-        $version = DB::connection()->getPdo()->getAttribute(\PDO::ATTR_SERVER_VERSION);
-        $items[] = $this->check(
+        try {
+            $version = DB::connection()->getPdo()->getAttribute(\PDO::ATTR_SERVER_VERSION);
+        } catch (\Throwable $e) {
+            $version = '?';
+        }
+        $items[] = $this->makeCheck(
             'db_version',
             'database',
             __('Database Engine'),
@@ -310,11 +314,11 @@ class SiteHealthService
             $dbName = config('database.connections.' . $driver . '.database');
             $sizeRow = DB::selectOne("SELECT ROUND(SUM(data_length + index_length) / 1024 / 1024, 2) AS size FROM information_schema.TABLES WHERE table_schema = ?", [$dbName]);
             $dbSize = (float) ($sizeRow->size ?? 0);
-            $items[] = $this->check(
+            $items[] = $this->makeCheck(
                 'db_size',
                 'database',
                 __('Database Size'),
-                $dbSize < 500 ? 'good' : ($dbSize < 2000 ? 'warning' : 'warning'),
+                'good',
                 $dbSize . ' MB',
                 $dbSize
             );
@@ -324,7 +328,7 @@ class SiteHealthService
         try {
             $tables = DB::select('SHOW TABLES');
             $tableCount = count($tables);
-            $items[] = $this->check(
+            $items[] = $this->makeCheck(
                 'db_tables',
                 'database',
                 __('Database Tables'),
@@ -336,7 +340,7 @@ class SiteHealthService
         }
 
         $hasPosts = Schema::hasTable('rj_posts');
-        $items[] = $this->check(
+        $items[] = $this->makeCheck(
             'db_schema',
             'database',
             __('RJ CMS Schema'),
@@ -347,7 +351,7 @@ class SiteHealthService
         );
 
         $pending = $this->pendingMigrations();
-        $items[] = $this->check(
+        $items[] = $this->makeCheck(
             'db_migrations',
             'database',
             __('Migrations'),
@@ -365,7 +369,7 @@ class SiteHealthService
         $items = [];
 
         $sessionDriver = config('session.driver');
-        $items[] = $this->check(
+        $items[] = $this->makeCheck(
             'session_driver',
             'security',
             __('Session Driver'),
@@ -375,7 +379,7 @@ class SiteHealthService
         );
 
         $sessionSecure = config('session.secure', false);
-        $items[] = $this->check(
+        $items[] = $this->makeCheck(
             'session_secure',
             'security',
             __('Secure Cookies'),
@@ -385,8 +389,8 @@ class SiteHealthService
             $sessionSecure ? null : __('Set SESSION_SECURE_COOKIE=true if using HTTPS.')
         );
 
-        $adminCount = \App\Models\User::where('role', 'admin')->orWhere('role', 'super_admin')->count();
-        $items[] = $this->check(
+        $adminCount = \App\Models\User::whereIn('role', ['admin', 'super_admin'])->count();
+        $items[] = $this->makeCheck(
             'admin_user',
             'security',
             __('Admin Users'),
@@ -396,12 +400,7 @@ class SiteHealthService
             $adminCount > 0 ? null : __('Create an admin account.')
         );
 
-        $weakPasswords = \App\Models\User::whereNotNull('password')
-            ->get()
-            ->filter(fn($u) => strlen($u->password) < 4)
-            ->count();
-
-        $items[] = $this->check(
+        $items[] = $this->makeCheck(
             'csrf',
             'security',
             __('CSRF Protection'),
@@ -411,7 +410,7 @@ class SiteHealthService
         );
 
         $hsts = request()->header('Strict-Transport-Security') !== null;
-        $items[] = $this->check(
+        $items[] = $this->makeCheck(
             'hsts',
             'security',
             __('HSTS Header'),
@@ -429,8 +428,7 @@ class SiteHealthService
         $items = [];
 
         $cacheDriver = config('cache.default');
-        $cacheOk = in_array($cacheDriver, ['redis', 'memcached', 'database', 'file'], true);
-        $items[] = $this->check(
+        $items[] = $this->makeCheck(
             'cache_driver',
             'performance',
             __('Cache Driver'),
@@ -441,7 +439,7 @@ class SiteHealthService
         );
 
         $opcache = function_exists('opcache_get_status') && ini_get('opcache.enable');
-        $items[] = $this->check(
+        $items[] = $this->makeCheck(
             'opcache',
             'performance',
             __('OPcache'),
@@ -452,7 +450,7 @@ class SiteHealthService
         );
 
         $queue = config('queue.default');
-        $items[] = $this->check(
+        $items[] = $this->makeCheck(
             'queue_driver',
             'performance',
             __('Queue Driver'),
@@ -463,7 +461,7 @@ class SiteHealthService
         );
 
         $routeCached = app()->routesAreCached();
-        $items[] = $this->check(
+        $items[] = $this->makeCheck(
             'route_cache',
             'performance',
             __('Route Cache'),
@@ -474,7 +472,7 @@ class SiteHealthService
         );
 
         $configCached = app()->configurationIsCached();
-        $items[] = $this->check(
+        $items[] = $this->makeCheck(
             'config_cache',
             'performance',
             __('Config Cache'),
@@ -492,8 +490,7 @@ class SiteHealthService
         $items = [];
 
         $postCount = Post::where('type', 'post')->count();
-        $pageCount = Post::where('type', 'page')->count();
-        $items[] = $this->check(
+        $items[] = $this->makeCheck(
             'content_posts',
             'content',
             __('Posts'),
@@ -503,7 +500,8 @@ class SiteHealthService
             $postCount === 0 ? __('Create your first post.') : null
         );
 
-        $items[] = $this->check(
+        $pageCount = Post::where('type', 'page')->count();
+        $items[] = $this->makeCheck(
             'content_pages',
             'content',
             __('Pages'),
@@ -513,7 +511,7 @@ class SiteHealthService
         );
 
         $activeTheme = Theme::active();
-        $items[] = $this->check(
+        $items[] = $this->makeCheck(
             'active_theme',
             'content',
             __('Active Theme'),
@@ -524,7 +522,7 @@ class SiteHealthService
         );
 
         $mediaCount = Media::count();
-        $items[] = $this->check(
+        $items[] = $this->makeCheck(
             'media_count',
             'content',
             __('Media Files'),
@@ -534,7 +532,7 @@ class SiteHealthService
         );
 
         $activePlugins = Plugin::where('status', 'active')->count();
-        $items[] = $this->check(
+        $items[] = $this->makeCheck(
             'active_plugins',
             'content',
             __('Active Plugins'),
@@ -556,7 +554,7 @@ class SiteHealthService
 
         $logSizeMb = round($logSize / 1024 / 1024, 2);
         $logOk = $logSizeMb < 50;
-        $items[] = $this->check(
+        $items[] = $this->makeCheck(
             'log_size',
             'logs',
             __('Log File Size'),
@@ -568,21 +566,24 @@ class SiteHealthService
 
         $recentErrors = 0;
         if ($logExists && $logSize < 5 * 1024 * 1024) {
-            $content = File::get($logPath);
-            $recentErrors = substr_count($content, '.ERROR:');
+            try {
+                $content = File::get($logPath);
+                $recentErrors = substr_count($content, '.ERROR:');
+            } catch (\Throwable $e) {
+            }
         }
-        $items[] = $this->check(
+        $items[] = $this->makeCheck(
             'log_errors',
             'logs',
             __('Recent Errors'),
-            $recentErrors === 0 ? 'good' : ($recentErrors < 10 ? 'warning' : 'warning'),
+            $recentErrors === 0 ? 'good' : 'warning',
             $recentErrors . ' ' . __('errors'),
             $recentErrors,
             $recentErrors > 0 ? __('Review storage/logs/laravel.log') : null
         );
 
         $failedJobs = Schema::hasTable('failed_jobs') ? DB::table('failed_jobs')->count() : 0;
-        $items[] = $this->check(
+        $items[] = $this->makeCheck(
             'failed_jobs',
             'logs',
             __('Failed Jobs'),
@@ -600,7 +601,7 @@ class SiteHealthService
         $items = [];
 
         $aiEnabled = !empty(rj_get_option('ai_api_key'));
-        $items[] = $this->check(
+        $items[] = $this->makeCheck(
             'ai_api',
             'integrations',
             __('AI Integration'),
@@ -611,7 +612,7 @@ class SiteHealthService
         );
 
         $mailHost = rj_get_option('mail_host');
-        $items[] = $this->check(
+        $items[] = $this->makeCheck(
             'mail_config',
             'integrations',
             __('Mail Configuration'),
@@ -639,6 +640,9 @@ class SiteHealthService
     protected function parseSize(string $size): int
     {
         $size = trim($size);
+        if ($size === '' || $size === '-1') {
+            return -1;
+        }
         $last = strtolower(substr($size, -1));
         $value = (int) $size;
 
