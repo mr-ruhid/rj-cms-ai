@@ -29,7 +29,7 @@
 
         .branding {
             position: fixed;
-            bottom: 24px;
+            top: 85px;
             right: 24px;
             z-index: 100;
             display: flex;
@@ -203,24 +203,11 @@
         .count { margin-top: .7rem; font-size: .75rem; color: #71717a; }
         .count b { color: #d8b4fe; }
 
-        .btn {
-            margin-top: 1.3rem; display: inline-flex; align-items: center; gap: .5rem;
-            padding: .8rem 2rem; border: 0; border-radius: 10px; cursor: pointer;
-            background: linear-gradient(to right, #8b5cf6, #db2777); color: #fff; font-weight: 900; font-size: .95rem;
-            text-transform: uppercase; letter-spacing: .08em; font-family: inherit;
-            box-shadow: 0 6px 0 #4c1d95, 0 12px 30px rgba(139, 92, 246, .4);
-            transition: transform .12s, box-shadow .12s;
-        }
-        .btn:hover { transform: translateY(2px); box-shadow: 0 4px 0 #4c1d95, 0 8px 24px rgba(139, 92, 246, .4); }
-        .btn:active { transform: translateY(6px); box-shadow: 0 0 0 #4c1d95; }
-        .btn svg { width: 18px; height: 18px; transition: transform .5s; }
-        .btn:hover svg { transform: rotate(180deg); }
-
         @media (max-height: 760px) {
             .tape-top { top: 10px; }
             .tape-bottom { bottom: 10px; }
             .desc { display: none; }
-            .branding { bottom: 10px; right: 10px; padding: 6px 10px; }
+            .branding { top: 50px; right: 10px; padding: 6px 10px; }
             .branding svg { width: 16px; height: 16px; }
             .branding-title { font-size: 12px; }
             .branding-sub { font-size: 8px; }
@@ -300,13 +287,6 @@
 
             <div class="progress"><i id="bar"></i></div>
             <p class="count">{{ __('Auto refresh in') }} <b id="count">30</b>s</p>
-
-            <button class="btn" onclick="window.location.reload()">
-                <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                </svg>
-                {{ __('Refresh Page') }}
-            </button>
         </div>
     </div>
 
