@@ -16,7 +16,6 @@
 
 <div class="max-w-6xl mx-auto space-y-6 pb-12" x-data="aiTools()" @keydown.escape.window="closeModal()">
 
-    {{-- ============ HEADER ============ --}}
     <div class="flex items-center gap-4">
         <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-rj-purple to-rj-pink text-white flex items-center justify-center shadow-md flex-shrink-0">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
@@ -27,7 +26,6 @@
         </div>
     </div>
 
-    {{-- ============ TABS ============ --}}
     <div class="border-b border-gray-200">
         <nav class="flex gap-1 overflow-x-auto -mb-px">
             @foreach ($tabs as $tab)
@@ -43,10 +41,7 @@
         </nav>
     </div>
 
-    {{-- ============ TOOL CARDS ============ --}}
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-
-        {{-- Content Generator --}}
         <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 flex flex-col group hover:border-rj-purple/40 hover:shadow-md transition">
             <div class="w-12 h-12 rounded-xl bg-indigo-50 text-indigo-600 ring-1 ring-indigo-100 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
@@ -60,7 +55,6 @@
             </button>
         </div>
 
-        {{-- Bulk Translate --}}
         <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 flex flex-col group hover:border-rj-purple/40 hover:shadow-md transition">
             <div class="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 ring-1 ring-emerald-100 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/></svg>
@@ -75,7 +69,6 @@
             </button>
         </div>
 
-        {{-- SEO Auditor --}}
         <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 flex flex-col group hover:border-rj-purple/40 hover:shadow-md transition">
             <div class="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 ring-1 ring-amber-100 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
@@ -92,7 +85,6 @@
         </div>
     </div>
 
-    {{-- ============ MODAL ============ --}}
     <div x-show="modal.show" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4" role="dialog" aria-modal="true">
         <div x-show="modal.show" x-transition.opacity class="absolute inset-0 bg-gray-900/60 backdrop-blur-sm" @click="closeModal()"></div>
 
@@ -105,7 +97,6 @@
              x-transition:leave-end="opacity-0 scale-95"
              class="relative bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] flex flex-col overflow-hidden">
 
-            {{-- Modal header --}}
             <div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between gap-4">
                 <div class="flex items-center gap-3 min-w-0">
                     <div class="w-9 h-9 rounded-lg flex items-center justify-center flex-shrink-0"
@@ -123,7 +114,6 @@
                 </button>
             </div>
 
-            {{-- Modal body --}}
             <div class="flex-1 overflow-y-auto p-6 space-y-5">
 
                 <div x-show="error" x-cloak role="alert" class="flex items-start gap-3 bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded-xl text-sm">
@@ -131,7 +121,6 @@
                     <span x-text="error"></span>
                 </div>
 
-                {{-- Content form --}}
                 <template x-if="modal.type === 'content' && !result">
                     <div class="space-y-4">
                         <div>
@@ -155,12 +144,11 @@
                     </div>
                 </template>
 
-                {{-- Translate form --}}
                 <template x-if="modal.type === 'translate' && !result">
                     <div class="space-y-4">
                         <div class="flex items-start gap-3 rounded-xl bg-amber-50 border border-amber-100 px-4 py-3">
                             <svg class="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                            <p class="text-xs text-amber-800 leading-relaxed">{{ __('All items of the selected type will be queued for translation. This may take a while and use AI credits.') }}</p>
+                            <p class="text-xs text-amber-800 leading-relaxed">{{ __('All items of the selected type will be translated and saved. This may take a while and use AI credits.') }}</p>
                         </div>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
@@ -182,55 +170,36 @@
                     </div>
                 </template>
 
-                {{-- Content result --}}
                 <template x-if="result && modal.type === 'content'">
-                    <div class="space-y-4">
-                        <div class="bg-emerald-50 text-emerald-800 p-3 rounded-xl text-sm border border-emerald-200 flex items-center gap-2">
-                            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                            {{ __('Content generated successfully. Copy the fields below.') }}
+                    <div class="space-y-4 text-center py-6">
+                        <div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto mb-4">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
                         </div>
-
-                        <template x-for="field in resultFields" :key="field.key">
-                            <div>
-                                <div class="flex items-center justify-between mb-1.5">
-                                    <label class="text-xs font-semibold text-gray-500" x-text="field.label"></label>
-                                    <div class="flex items-center gap-3">
-                                        <span x-show="field.limit" class="text-[11px] tabular-nums"
-                                              :class="field.value.length > field.limit ? 'text-amber-600' : 'text-emerald-600'"
-                                              x-text="field.value.length + '/' + field.limit"></span>
-                                        <button type="button" @click="copyText(field.value, field.key)"
-                                                class="inline-flex items-center gap-1 text-xs font-medium text-gray-500 hover:text-rj-purple transition">
-                                            <svg x-show="copied !== field.key" class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-                                            <svg x-show="copied === field.key" x-cloak class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                                            <span x-text="copied === field.key ? @js(__('Copied')) : @js(__('Copy'))"></span>
-                                        </button>
-                                    </div>
-                                </div>
-                                <div class="p-3 bg-gray-50 rounded-xl border border-gray-200 text-sm text-gray-800 whitespace-pre-line break-words max-h-48 overflow-y-auto"
-                                     :class="field.key === 'title' ? 'font-semibold' : ''" x-text="field.value"></div>
-                            </div>
-                        </template>
+                        <h4 class="text-lg font-bold text-gray-900" x-text="result.message"></h4>
+                        <div class="pt-4">
+                            <a :href="result.redirect" class="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-rj-purple to-rj-pink text-white font-semibold text-sm hover:opacity-90 transition shadow-sm">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                                {{ __('Edit Generated Post') }}
+                            </a>
+                        </div>
                     </div>
                 </template>
 
-                {{-- Translate result --}}
                 <template x-if="result && modal.type === 'translate'">
                     <div class="text-center py-8">
                         <div class="w-16 h-16 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto mb-4">
                             <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
                         </div>
-                        <h4 class="text-lg font-bold text-gray-900">{{ __('Translation Queued') }}</h4>
+                        <h4 class="text-lg font-bold text-gray-900">{{ __('Translation Complete') }}</h4>
                         <p class="text-sm text-gray-500 mt-2" x-text="result.message"></p>
                     </div>
                 </template>
 
-                {{-- Audit: scanning --}}
                 <div x-show="modal.type === 'audit' && loading.audit" x-cloak class="text-center py-12">
                     <svg class="w-10 h-10 animate-spin text-amber-500 mx-auto mb-4" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" opacity=".25"/><path fill="currentColor" d="M4 12a8 8 0 018-8v3a5 5 0 00-5 5H4z"/></svg>
                     <p class="text-sm font-medium text-gray-700">{{ __('Scanning...') }}</p>
                 </div>
 
-                {{-- Audit: results --}}
                 <template x-if="modal.type === 'audit' && auditResult && !loading.audit">
                     <div>
                         <template x-if="auditResult.length === 0">
@@ -266,14 +235,12 @@
                 </template>
             </div>
 
-            {{-- Modal footer --}}
             <div class="px-6 py-4 border-t border-gray-100 bg-gray-50 flex items-center justify-end gap-3 flex-wrap">
                 <button type="button" @click="closeModal()" x-show="!loading.modal"
                         class="px-5 py-2.5 rounded-xl text-sm font-semibold text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition">
                     {{ __('Close') }}
                 </button>
 
-                {{-- Audit: re-scan --}}
                 <button type="button" x-show="modal.type === 'audit' && !loading.audit" x-cloak @click="runAudit()"
                         style="background-color:#d97706;"
                         class="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-white text-sm font-semibold hover:opacity-90 transition shadow-sm">
@@ -281,13 +248,11 @@
                     {{ __('Scan again') }}
                 </button>
 
-                {{-- Result: start over --}}
                 <button type="button" x-show="result && modal.type !== 'audit'" x-cloak @click="resetForm()"
                         class="px-5 py-2.5 rounded-xl text-sm font-semibold text-gray-700 bg-white border border-gray-300 hover:bg-gray-50 transition">
                     {{ __('Start over') }}
                 </button>
 
-                {{-- Submit --}}
                 <button type="button" x-show="modal.type !== 'audit' && !result" x-cloak @click="submitForm()"
                         :disabled="loading.modal || !canSubmit"
                         class="inline-flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-rj-purple to-rj-pink text-white text-sm font-semibold hover:opacity-90 active:scale-[.98] transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed min-w-[130px]">
@@ -297,19 +262,6 @@
             </div>
         </div>
     </div>
-
-    {{-- ============ TOAST ============ --}}
-    <div x-show="toast.show" x-cloak
-         x-transition:enter="transition ease-out duration-200"
-         x-transition:enter-start="opacity-0 translate-y-2"
-         x-transition:enter-end="opacity-100 translate-y-0"
-         x-transition:leave="transition ease-in duration-150"
-         x-transition:leave-start="opacity-100"
-         x-transition:leave-end="opacity-0"
-         class="fixed bottom-6 right-6 z-[60] px-5 py-3 rounded-xl shadow-2xl text-white text-sm font-medium max-w-sm"
-         :style="'background:' + (toast.type === 'error' ? '#dc2626' : '#059669')"
-         x-text="toast.message"></div>
-
 </div>
 
 <script>
@@ -323,25 +275,11 @@ function aiTools() {
         result: null,
         auditResult: null,
         error: '',
-        copied: null,
-        toast: { show: false, message: '', type: 'success' },
-        _toastTimer: null,
-        _copyTimer: null,
 
         get canSubmit() {
             if (this.modal.type === 'content') return this.form.topic.trim().length > 0;
             if (this.modal.type === 'translate') return !!this.form.target_locale;
             return false;
-        },
-
-        get resultFields() {
-            if (!this.result) return [];
-            return [
-                { key: 'title',           label: @js(__('Title')),           value: this.result.title || '',           limit: 0 },
-                { key: 'excerpt',         label: @js(__('Excerpt')),         value: this.result.excerpt || '',         limit: 0 },
-                { key: 'seo_title',       label: @js(__('SEO Title')),       value: this.result.seo_title || '',       limit: 60 },
-                { key: 'seo_description', label: @js(__('SEO Description')), value: this.result.seo_description || '', limit: 160 },
-            ].filter(f => f.value);
         },
 
         firstError(data, fallback) {
@@ -404,7 +342,7 @@ function aiTools() {
                 const data = await res.json().catch(() => ({}));
 
                 if (res.ok && data.success) {
-                    this.result = data.data || data;
+                    this.result = data;
                 } else {
                     this.error = this.firstError(data, @js(__('An error occurred.')));
                 }
@@ -440,43 +378,6 @@ function aiTools() {
             } finally {
                 this.loading.audit = false;
             }
-        },
-
-        async copyText(text, id) {
-            let ok = false;
-
-            try {
-                await navigator.clipboard.writeText(text);
-                ok = true;
-            } catch (e) {
-                try {
-                    const ta = document.createElement('textarea');
-                    ta.value = text;
-                    ta.setAttribute('readonly', '');
-                    ta.style.position = 'fixed';
-                    ta.style.opacity = '0';
-                    document.body.appendChild(ta);
-                    ta.select();
-                    ok = document.execCommand('copy');
-                    document.body.removeChild(ta);
-                } catch (_) {
-                    ok = false;
-                }
-            }
-
-            if (ok) {
-                this.copied = id;
-                clearTimeout(this._copyTimer);
-                this._copyTimer = setTimeout(() => { this.copied = null; }, 1800);
-            } else {
-                this.showToast(@js(__('Could not copy.')), 'error');
-            }
-        },
-
-        showToast(message, type) {
-            this.toast = { show: true, message, type: type || 'success' };
-            clearTimeout(this._toastTimer);
-            this._toastTimer = setTimeout(() => { this.toast.show = false; }, 3500);
         }
     };
 }
