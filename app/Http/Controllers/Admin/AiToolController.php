@@ -5,15 +5,18 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Post;
 use App\Services\OpenRouterService;
+use App\Services\PostService;
 use Illuminate\Http\Request;
 
 class AiToolController extends Controller
 {
     protected OpenRouterService $openRouter;
+    protected PostService $postService;
 
-    public function __construct(OpenRouterService $openRouter)
+    public function __construct(OpenRouterService $openRouter, PostService $postService)
     {
         $this->openRouter = $openRouter;
+        $this->postService = $postService;
     }
 
     public function index()
@@ -42,7 +45,7 @@ class AiToolController extends Controller
                 'model' => rj_get_option('ai_builder_model', 'openai/gpt-4o-mini')
             ]);
 
-            $content = $response['choices'][0]['message']['content'] ?? '{}';
+            $content = $response['content'] ?? '{}';
             
             if (str_starts_with(trim($content), '```')) {
                 $content = preg_replace('/^```(?:json)?\s*/i', '', $content);
@@ -55,7 +58,25 @@ class AiToolController extends Controller
                 return response()->json(['success' => false, 'message' => __('Failed to parse AI response.')], 422);
             }
 
-            return response()->json(['success' => true, 'data' => $data]);
+            $data['type'] = 'post';
+            $data['status'] = 'draft';
+            $data['translations'] = [
+                config('app.locale') => [
+                    'title' => $data['title'],
+                    'content' => $data['content'],
+                    'excerpt' => $data['excerpt'] ?? '',
+                    'seo_title' => $data['seo_title'] ?? '',
+                    'seo_description' => $data['seo_description'] ?? '',
+                ]
+            ];
+
+            $post = $this->postService->create($data, $request);
+
+            return response()->json([
+                'success' => true, 
+                'message' => __('Post created successfully as a draft.'),
+                'redirect' => route('admin.posts.edit', $post->id)
+            ]);
         } catch (\Throwable $e) {
             return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
         }
@@ -73,18 +94,56 @@ class AiToolController extends Controller
             ->get();
 
         $count = 0;
+        set_time_limit(0);
 
         foreach ($posts as $post) {
             if ($post->translations()->where('locale', $validated['target_locale'])->exists()) {
                 continue;
             }
-            
-            $count++;
+
+            try {
+                $prompt = "Translate the following content to language code: {$validated['target_locale']}. Return ONLY valid JSON with keys: title, content, excerpt.\n\n" . 
+                    json_encode([
+                        'title' => $post->title,
+                        'content' => strip_tags($post->content),
+                        'excerpt' => $post->excerpt
+                    ], JSON_UNESCAPED_UNICODE);
+
+                $response = $this->openRouter->chat([
+                    ['role' => 'system', 'content' => 'You are a translator. Return only valid JSON, no markdown.'],
+                    ['role' => 'user', 'content' => $prompt]
+                ], [
+                    'temperature' => 0.3,
+                    'model' => rj_get_option('ai_builder_model', 'openai/gpt-4o-mini')
+                ]);
+
+                $content = $response['content'] ?? '{}';
+                
+                if (str_starts_with(trim($content), '```')) {
+                    $content = preg_replace('/^```(?:json)?\s*/i', '', $content);
+                    $content = preg_replace('/\s*```$/', '', $content);
+                }
+
+                $translated = json_decode($content, true);
+
+                if ($translated && !empty($translated['title'])) {
+                    $this->postService->update($post, [
+                        'translations' => [
+                            $validated['target_locale'] => $translated
+                        ]
+                    ], $request);
+                    
+                    $count++;
+                }
+            } catch (\Throwable $e) {
+                continue;
+            }
         }
 
         return response()->json([
             'success' => true,
-            'message' => __(':n items are ready to be translated. (Queue functionality to be implemented).', ['n' => $count])
+            'count' => $count,
+            'message' => __(':n items have been successfully translated.', ['n' => $count])
         ]);
     }
 
