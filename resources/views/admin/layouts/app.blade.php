@@ -218,24 +218,14 @@
                     <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                     <span>{{ __('Users') }}</span>
                 </a>
-
-                <div>
-                    <button @click="openMenu = openMenu === 'support' ? null : 'support'" class="w-full flex items-center justify-between px-3 py-2 rounded-lg transition {{ request()->routeIs('admin.support.*') ? 'bg-white/10 text-white' : 'hover:bg-white/5 hover:text-white' }}">
-                        <span class="flex items-center gap-3">
-                            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-                            {{ __('Support') }}
-                        </span>
-                        <svg class="w-3.5 h-3.5 opacity-60 transition" :class="openMenu === 'support' ? 'rotate-180' : ''" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
-                    </button>
                     <div x-show="openMenu === 'support'" x-cloak class="pl-11 mt-1 space-y-0.5">
-                        <a href="{{ route('admin.support.tickets') }}" class="block px-3 py-1.5 rounded-md text-gray-400 hover:text-white hover:bg-white/5">{{ __('Tickets') }}</a>
+                        <a href="{{ route('admin.support.index') }}" class="block px-3 py-1.5 rounded-md text-gray-400 hover:text-white hover:bg-white/5">{{ __('Tickets') }}</a>
                         <a href="{{ route('admin.support.chat') }}" class="block px-3 py-1.5 rounded-md text-gray-400 hover:text-white hover:bg-white/5">{{ __('Live Chat') }}</a>
                         <a href="{{ route('admin.support.faq') }}" class="block px-3 py-1.5 rounded-md text-gray-400 hover:text-white hover:bg-white/5">{{ __('FAQ') }}</a>
                         <a href="{{ route('admin.support.contact') }}" class="block px-3 py-1.5 rounded-md text-gray-400 hover:text-white hover:bg-white/5">{{ __('Contact') }}</a>
                         <a href="{{ route('admin.support.docs') }}" class="block px-3 py-1.5 rounded-md text-gray-400 hover:text-white hover:bg-white/5">{{ __('Documentation') }}</a>
                         <a href="{{ route('admin.support.status') }}" class="block px-3 py-1.5 rounded-md text-gray-400 hover:text-white hover:bg-white/5">{{ __('System Status') }}</a>
                     </div>
-                </div>
 
                 <div>
                     <button @click="openMenu = openMenu === 'tools' ? null : 'tools'" class="w-full flex items-center justify-between px-3 py-2 rounded-lg transition {{ request()->routeIs('admin.tools.*') ? 'bg-white/10 text-white' : 'hover:bg-white/5 hover:text-white' }}">
