@@ -29,13 +29,13 @@
 
         .branding {
             position: fixed;
-            top: 60px;
+            bottom: 24px;
             right: 24px;
             z-index: 100;
             display: flex;
             align-items: center;
             gap: 10px;
-            padding: 8px 14px;
+            padding: 10px 16px;
             background: rgba(255, 255, 255, 0.03);
             border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 12px;
@@ -45,54 +45,45 @@
             transition: all 0.3s ease;
         }
         .branding:hover {
-            background: rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.06);
             border-color: rgba(139, 92, 246, 0.4);
         }
-        .branding svg { width: 20px; height: 20px; color: #a855f7; }
+        .branding svg { width: 24px; height: 24px; color: #a855f7; }
         .branding-text { display: flex; flex-direction: column; text-align: left; }
-        .branding-title { font-weight: 900; font-size: 13px; letter-spacing: 0.1em; background: linear-gradient(to right, #d8b4fe, #f9a8d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .branding-sub { font-size: 9px; color: #71717a; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
+        .branding-title { font-weight: 900; font-size: 14px; letter-spacing: 0.1em; background: linear-gradient(to right, #d8b4fe, #f9a8d4); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .branding-sub { font-size: 10px; color: #71717a; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; }
 
         .tape {
             position: fixed; left: -5%; width: 110%;
             background: linear-gradient(90deg, #6d28d9, #db2777);
             color: #fff;
             font-weight: 900; letter-spacing: .25em; text-transform: uppercase;
-            font-size: 11px; white-space: nowrap; overflow: hidden;
-            padding: 10px 0;
+            font-size: 14px; white-space: nowrap; overflow: hidden;
+            padding: 16px 0;
             box-shadow: 0 10px 40px rgba(0, 0, 0, .8);
             z-index: 5;
         }
         .tape::before, .tape::after {
-            content: ''; position: absolute; left: 0; right: 0; height: 4px;
+            content: ''; position: absolute; left: 0; right: 0; height: 7px;
             background: repeating-linear-gradient(-45deg, #111 0 12px, #6d28d9 12px 24px);
         }
         .tape::before { top: 0; }
         .tape::after { bottom: 0; }
-        .tape-top { top: 15px; transform: rotate(-1.5deg); }
-        .tape-bottom { bottom: 15px; transform: rotate(1.5deg); }
+        .tape-top { top: 38px; transform: rotate(-2deg); }
+        .tape-bottom { bottom: 38px; transform: rotate(2deg); }
         .tape-inner { display: inline-block; animation: marquee 22s linear infinite; }
         .tape-bottom .tape-inner { animation-direction: reverse; }
         @keyframes marquee { to { transform: translateX(-50%); } }
 
-        .stage { 
-            position: relative; 
-            z-index: 2; 
-            text-align: center; 
-            padding: 40px 16px; 
-            perspective: 900px; 
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .tilt { transition: transform .15s ease-out; transform-style: preserve-3d; display: flex; flex-direction: column; align-items: center; }
+        .stage { position: relative; z-index: 2; text-align: center; padding: 0 16px; perspective: 900px; }
+        .tilt { transition: transform .15s ease-out; transform-style: preserve-3d; }
 
         .digits {
             display: flex; align-items: center; justify-content: center;
             gap: clamp(.4rem, 2vw, 1.5rem);
-            font-size: clamp(6rem, 18vw, 12rem);
+            font-size: clamp(7rem, 24vw, 16rem);
             line-height: 1; font-weight: 900;
-            padding-top: .3em;
+            padding-top: .6em;
         }
         .digit { position: relative; display: inline-block; }
 
@@ -174,7 +165,7 @@
         }
 
         .title {
-            margin-top: 1rem;
+            margin-top: 1.4rem;
             font-size: clamp(1.4rem, 5vw, 2.6rem);
             font-weight: 900; text-transform: uppercase; letter-spacing: .12em;
         }
@@ -193,7 +184,7 @@
         .desc { margin: 1rem auto 0; max-width: 34rem; color: #a1a1aa; font-size: .95rem; line-height: 1.7; }
 
         .terminal {
-            margin: 1.2rem auto 0; max-width: 26rem; width: 100%;
+            margin: 1.4rem auto 0; max-width: 26rem;
             background: rgba(139, 92, 246, .05);
             border: 1px solid rgba(168, 85, 247, .3);
             border-radius: 10px; padding: 12px 16px; text-align: left;
@@ -205,7 +196,7 @@
         .cursor { display: inline-block; width: 8px; height: 15px; background: #d8b4fe; vertical-align: -2px; margin-left: 2px; animation: blink 1s steps(1) infinite; }
         @keyframes blink { 50% { opacity: 0; } }
 
-        .progress { margin: 1rem auto 0; max-width: 26rem; width: 100%; height: 8px; border-radius: 9999px; overflow: hidden; background: repeating-linear-gradient(-45deg, #27272a 0 10px, #18181b 10px 20px); border: 1px solid #3f3f46; }
+        .progress { margin: 1.2rem auto 0; max-width: 26rem; height: 8px; border-radius: 9999px; overflow: hidden; background: repeating-linear-gradient(-45deg, #27272a 0 10px, #18181b 10px 20px); border: 1px solid #3f3f46; }
         .progress i { display: block; height: 100%; width: 0; background: repeating-linear-gradient(-45deg, #a855f7 0 10px, #111 10px 20px); background-size: 28px 28px; animation: stripes .6s linear infinite; transition: width 1s linear; }
         @keyframes stripes { to { background-position: 28px 0; } }
 
@@ -213,7 +204,7 @@
         .count b { color: #d8b4fe; }
 
         .btn {
-            margin-top: 1.5rem; margin-bottom: 1.5rem; display: inline-flex; align-items: center; gap: .5rem;
+            margin-top: 1.3rem; display: inline-flex; align-items: center; gap: .5rem;
             padding: .8rem 2rem; border: 0; border-radius: 10px; cursor: pointer;
             background: linear-gradient(to right, #8b5cf6, #db2777); color: #fff; font-weight: 900; font-size: .95rem;
             text-transform: uppercase; letter-spacing: .08em; font-family: inherit;
@@ -226,14 +217,13 @@
         .btn:hover svg { transform: rotate(180deg); }
 
         @media (max-height: 760px) {
-            .tape-top { top: 5px; }
-            .tape-bottom { bottom: 5px; }
+            .tape-top { top: 10px; }
+            .tape-bottom { bottom: 10px; }
             .desc { display: none; }
-            .digits { font-size: clamp(4rem, 15vw, 8rem); }
-            .branding { top: 45px; padding: 6px 10px; }
+            .branding { bottom: 10px; right: 10px; padding: 6px 10px; }
             .branding svg { width: 16px; height: 16px; }
-            .branding-title { font-size: 11px; }
-            .btn { margin-bottom: 2rem; }
+            .branding-title { font-size: 12px; }
+            .branding-sub { font-size: 8px; }
         }
         @media (prefers-reduced-motion: reduce) {
             *, *::before, *::after { animation: none !important; transition: none !important; }
