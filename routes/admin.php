@@ -40,6 +40,7 @@ use App\Http\Controllers\Admin\ToolsDiagnosticsController;
 use App\Http\Controllers\Admin\AiCenterController;
 use App\Http\Controllers\Admin\AiToolController;
 use App\Http\Controllers\Admin\AboutController;
+use App\Http\Controllers\Admin\TwoFactorController;
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', fn() => redirect()->route('admin.dashboard'))->name('home');
@@ -53,6 +54,12 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::get('/', [ProfileController::class, 'edit'])->name('edit');
         Route::put('/', [ProfileController::class, 'update'])->name('update');
         Route::put('/password', [ProfileController::class, 'updatePassword'])->name('password');
+    });
+
+    Route::prefix('profile/two-factor')->name('profile.two-factor.')->group(function () {
+        Route::post('/enable', [TwoFactorController::class, 'enable'])->name('enable');
+        Route::post('/confirm', [TwoFactorController::class, 'confirm'])->name('confirm');
+        Route::delete('/disable', [TwoFactorController::class, 'disable'])->name('disable');
     });
 
     Route::resource('users', UserController::class)->except(['show']);

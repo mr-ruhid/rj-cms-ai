@@ -10,7 +10,7 @@
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
         "moe-mizrak/laravel-openrouter": "^2.11",
-        "pragmarx/google2fa": "*"
+        "pragmarx/google2fa": "^9.1"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
