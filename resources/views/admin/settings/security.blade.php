@@ -30,6 +30,7 @@
                     <option value="email" @selected(old('admin_2fa_method', $options['admin_2fa_method'] ?? '') === 'email')>{{ __('Email') }}</option>
                     <option value="sms" @selected(old('admin_2fa_method', $options['admin_2fa_method'] ?? '') === 'sms')>{{ __('SMS') }}</option>
                 </select>
+                <div class="text-xs text-gray-500 mt-1">{{ __('Note: SMS requires an external gateway configuration.') }}</div>
             </div>
         </div>
 
@@ -66,7 +67,7 @@
                     <input type="checkbox" name="frontend_2fa_mobile" value="1" @checked(old('frontend_2fa_mobile', $options['frontend_2fa_mobile'] ?? '0') === '1') class="mt-0.5 rounded border-gray-300 text-rj-purple focus:ring-rj-purple">
                     <div>
                         <div class="text-sm font-medium text-gray-900">{{ __('SMS Code') }}</div>
-                        <div class="text-xs text-gray-500">{{ __('Send code via SMS') }}</div>
+                        <div class="text-xs text-gray-500">{{ __('Requires gateway') }}</div>
                     </div>
                 </label>
 
@@ -77,6 +78,18 @@
                         <div class="text-sm font-medium text-gray-900">{{ __('Authenticator') }}</div>
                         <div class="text-xs text-gray-500">{{ __('Google, Authy and more') }}</div>
                     </div>
+                </label>
+            </div>
+
+            <div class="flex items-center justify-between py-3 border-t border-gray-100">
+                <div>
+                    <div class="text-sm font-medium text-gray-900">{{ __('Require Email Verification') }}</div>
+                    <div class="text-xs text-gray-500">{{ __('Users must verify their email before logging in.') }}</div>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="hidden" name="require_email_verification" value="0">
+                    <input type="checkbox" name="require_email_verification" value="1" @checked(old('require_email_verification', $options['require_email_verification'] ?? '0') === '1') class="sr-only peer">
+                    <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-gradient-to-r peer-checked:from-rj-purple peer-checked:to-rj-pink transition after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5"></div>
                 </label>
             </div>
         </div>
