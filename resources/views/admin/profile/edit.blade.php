@@ -7,15 +7,18 @@
 
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
 
-            <div class="flex border-b border-gray-100">
-                <button @click="tab = 'info'" :class="tab === 'info' ? 'border-b-2 border-rj-purple text-rj-purple' : 'text-gray-500 hover:text-gray-800'" class="px-6 py-4 text-sm font-medium transition">
+            <div class="flex border-b border-gray-100 overflow-x-auto rj-scrollbar">
+                <button @click="tab = 'info'" :class="tab === 'info' ? 'border-b-2 border-rj-purple text-rj-purple' : 'text-gray-500 hover:text-gray-800'" class="px-6 py-4 text-sm font-medium transition whitespace-nowrap">
                     {{ __('Profile Information') }}
                 </button>
-                <button @click="tab = 'password'" :class="tab === 'password' ? 'border-b-2 border-rj-purple text-rj-purple' : 'text-gray-500 hover:text-gray-800'" class="px-6 py-4 text-sm font-medium transition">
+                <button @click="tab = 'password'" :class="tab === 'password' ? 'border-b-2 border-rj-purple text-rj-purple' : 'text-gray-500 hover:text-gray-800'" class="px-6 py-4 text-sm font-medium transition whitespace-nowrap">
                     {{ __('Password') }}
                 </button>
-                <button @click="tab = '2fa'" :class="tab === '2fa' ? 'border-b-2 border-rj-purple text-rj-purple' : 'text-gray-500 hover:text-gray-800'" class="px-6 py-4 text-sm font-medium transition">
+                <button @click="tab = '2fa'" :class="tab === '2fa' ? 'border-b-2 border-rj-purple text-rj-purple' : 'text-gray-500 hover:text-gray-800'" class="px-6 py-4 text-sm font-medium transition whitespace-nowrap">
                     {{ __('Two-Factor Auth') }}
+                </button>
+                <button @click="tab = 'verification'" :class="tab === 'verification' ? 'border-b-2 border-rj-purple text-rj-purple' : 'text-gray-500 hover:text-gray-800'" class="px-6 py-4 text-sm font-medium transition whitespace-nowrap">
+                    {{ __('Email Verification') }}
                 </button>
             </div>
 
@@ -138,6 +141,34 @@
                             </form>
                         </div>
                     @endif
+                </div>
+
+                <div x-show="tab === 'verification'" x-cloak class="rj-fade-in">
+                    <div class="max-w-xl">
+                        @if (auth()->user()->hasVerifiedEmail())
+                            <p class="text-sm text-green-600 font-medium mb-4 flex items-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                                {{ __('Your email address is verified.') }}
+                            </p>
+                        @else
+                            <p class="text-sm text-gray-600 mb-5">
+                                {{ __('Your email address is unverified. Please check your inbox for the verification link.') }}
+                            </p>
+
+                            <form method="POST" action="{{ route('verification.send') }}">
+                                @csrf
+                                <button type="submit" class="bg-gradient-to-r from-rj-purple to-rj-pink text-white px-5 py-2.5 rounded-lg font-medium hover:opacity-90 transition">
+                                    {{ __('Resend Verification Email') }}
+                                </button>
+                            </form>
+
+                            @if (session('status') == 'verification-link-sent')
+                                <div class="mt-4 text-sm text-green-600 bg-green-50 p-3 rounded-lg border border-green-200">
+                                    {{ __('A new verification link has been sent to your email address.') }}
+                                </div>
+                            @endif
+                        @endif
+                    </div>
                 </div>
 
             </div>
