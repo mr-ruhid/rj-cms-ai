@@ -8,6 +8,7 @@ use App\Models\Comment;
 use App\Models\User;
 use App\Models\Media;
 use App\Services\FreeAiService;
+use App\Services\DocSearchService;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
@@ -29,13 +30,17 @@ class DashboardController extends Controller
         return view('admin.dashboard', compact('stats', 'recentPosts', 'recentComments'));
     }
 
-    public function askAi(Request $request, FreeAiService $aiService)
+    public function askAi(Request $request, FreeAiService $aiService, DocSearchService $docSearch)
     {
         $validated = $request->validate([
-            'question' => 'required|string|max:500',
+            'question' => 'required|string|max:1000',
         ]);
 
-        $result = $aiService->ask($validated['question']);
+        $question = $validated['question'];
+
+        $searchResult = $docSearch->getContext($question);
+
+        $result = $aiService->ask($question, $searchResult['context']);
 
         return response()->json($result);
     }
