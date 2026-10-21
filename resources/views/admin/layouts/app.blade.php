@@ -249,50 +249,44 @@
                             @php
                                 $hasChildren = !empty($item['children']);
                                 $itemUrl = $item['url'] ?? ($hasChildren ? $item['children'][0]['url'] : '#');
-                                $activeClass = $hasChildren
-                                    ? 'bg-white/10 text-white'
-                                    : 'bg-gradient-to-r from-rj-purple/30 to-rj-pink/20 text-white border-l-2 border-rj-purple-light';
+                                
+                                $hasActiveChild = false;
+                                if ($hasChildren) {
+                                    foreach ($item['children'] as $child) {
+                                        if (!empty($child['route']) && request()->routeIs($child['route'])) {
+                                            $hasActiveChild = true;
+                                            break;
+                                        }
+                                    }
+                                }
+                                $isParentActive = $item['active'] || $hasActiveChild;
                             @endphp
 
-                            <div class="relative"
-                                 x-data="{
-                                     open: false,
-                                     top: 0,
-                                     show(el) {
-                                         this.open = true;
-                                         const r = el.getBoundingClientRect();
-                                         this.top = r.top;
-                                         this.$nextTick(() => {
-                                             const h = this.$refs.fly ? this.$refs.fly.offsetHeight : 0;
-                                             this.top = Math.max(8, Math.min(r.top, window.innerHeight - h - 8));
-                                         });
-                                     }
-                                 }"
-                                 @mouseenter="{{ $hasChildren ? 'show($el)' : '' }}"
-                                 @mouseleave="open = false">
-
-                                <a href="{{ $itemUrl }}"
-                                   class="flex items-center gap-3 px-3 py-2 rounded-lg transition {{ $item['active'] ? $activeClass : 'hover:bg-white/5 hover:text-white' }}">
-                                    <span class="w-5 h-5 flex-shrink-0 flex items-center justify-center text-current">{!! $item['icon'] !!}</span>
-                                    <span>{{ $item['label'] }}</span>
-                                </a>
-
+                            <div x-data="{ open: {{ $hasActiveChild ? 'true' : 'false' }} }">
                                 @if ($hasChildren)
-                                    <div x-show="open" x-cloak x-ref="fly"
-                                         class="fixed z-[9999] pl-3"
-                                         :style="`top:${top}px; left:16rem;`">
-                                        <div class="min-w-[12rem] overflow-hidden rounded-lg border border-white/10 shadow-2xl py-2 text-sm bg-gradient-to-b from-rj-dark-1 via-rj-dark-2 to-rj-dark-1"
-                                             style="background-color:#14121f;">
-                                            <div class="px-4 pb-1.5 mb-1 border-b border-white/10 text-white font-semibold">{{ $item['label'] }}</div>
-                                            @foreach ($item['children'] as $child)
-                                                @php $childActive = !empty($child['route']) && request()->routeIs($child['route']); @endphp
-                                                <a href="{{ $child['url'] }}"
-                                                   class="block px-4 py-1.5 transition {{ $childActive ? 'text-white bg-white/10' : 'text-gray-400 hover:text-white hover:bg-white/5' }}">
-                                                    {{ $child['label'] }}
-                                                </a>
-                                            @endforeach
+                                    <button @click="open = !open" class="w-full flex items-center justify-between px-3 py-2 rounded-lg transition {{ $isParentActive ? 'bg-white/10 text-white' : 'hover:bg-white/5 hover:text-white' }}">
+                                        <div class="flex items-center gap-3">
+                                            <span class="w-5 h-5 flex-shrink-0 flex items-center justify-center text-current">{!! $item['icon'] !!}</span>
+                                            <span>{{ $item['label'] }}</span>
                                         </div>
+                                        <svg class="w-3.5 h-3.5 opacity-50 transition-transform duration-200" :class="{'rotate-90': open}" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                                    </button>
+                                    
+                                    <div x-show="open" x-transition.opacity class="mt-1 space-y-0.5 ml-4 border-l border-white/10 pl-2">
+                                        @foreach ($item['children'] as $child)
+                                            @php $childActive = !empty($child['route']) && request()->routeIs($child['route']); @endphp
+                                            <a href="{{ $child['url'] }}"
+                                               class="block px-3 py-1.5 rounded-lg text-sm transition {{ $childActive ? 'text-white bg-white/10' : 'text-gray-400 hover:text-white hover:bg-white/5' }}">
+                                                {{ $child['label'] }}
+                                            </a>
+                                        @endforeach
                                     </div>
+                                @else
+                                    <a href="{{ $itemUrl }}"
+                                       class="flex items-center gap-3 px-3 py-2 rounded-lg transition {{ $item['active'] ? 'bg-gradient-to-r from-rj-purple/30 to-rj-pink/20 text-white border-l-2 border-rj-purple-light' : 'hover:bg-white/5 hover:text-white' }}">
+                                        <span class="w-5 h-5 flex-shrink-0 flex items-center justify-center text-current">{!! $item['icon'] !!}</span>
+                                        <span>{{ $item['label'] }}</span>
+                                    </a>
                                 @endif
                             </div>
                         @endforeach
