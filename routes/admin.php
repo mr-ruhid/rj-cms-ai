@@ -195,13 +195,16 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     Route::post('/ai/tools/bulk-translate', [AiToolController::class, 'bulkTranslate'])->name('ai.tools.bulk-translate');
     Route::get('/ai/tools/seo-audit', [AiToolController::class, 'seoAudit'])->name('ai.tools.seo-audit');
 
-    Route::view('/support', 'admin.coming-soon')->name('support.index');
-    Route::view('/support/tickets', 'admin.coming-soon')->name('support.tickets');
-    Route::view('/support/chat', 'admin.coming-soon')->name('support.chat');
-    Route::view('/support/faq', 'admin.coming-soon')->name('support.faq');
-    Route::view('/support/contact', 'admin.coming-soon')->name('support.contact');
-    Route::view('/support/docs', 'admin.coming-soon')->name('support.docs');
-    Route::view('/support/status', 'admin.coming-soon')->name('support.status');
+    Route::prefix('support')->name('support.')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Admin\SupportController::class, 'index'])->name('index');
+        Route::post('/submit', [\App\Http\Controllers\Admin\SupportController::class, 'submit'])->name('submit');
+        Route::get('/faq', [\App\Http\Controllers\Admin\SupportController::class, 'faq'])->name('faq');
+        Route::get('/chat', [\App\Http\Controllers\Admin\SupportController::class, 'chat'])->name('chat');
+
+        Route::redirect('/contact', '/admin/services')->name('contact');
+        Route::redirect('/docs', '/admin/about')->name('docs');
+        Route::redirect('/status', '/admin/tools/diagnostics')->name('status');
+    });
 
     Route::view('/tools', 'admin.coming-soon')->name('tools.index');
 
