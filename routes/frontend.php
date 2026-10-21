@@ -56,3 +56,4 @@ Route::get('/blog/{slug}', [PostController::class, 'show'])->name('frontend.post
 Route::get('/{slug}', [PageController::class, 'show'])
     ->where('slug', '^(?!admin|login|register|logout|password|email|verification|api|rj-preview|rj-form|rj-fonts|theme-assets|plugin-assets|blog|storage|up|sanctum|livewire).*$')
     ->name('frontend.page');
+
