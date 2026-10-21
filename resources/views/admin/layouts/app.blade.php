@@ -109,7 +109,6 @@
             ],
         ];
 
-        // Plugin menu items
         $pluginMenuItems = rj_apply_filters('admin.menu', []) ?? [];
         if (!is_array($pluginMenuItems)) {
             $pluginMenuItems = [];
@@ -224,7 +223,6 @@
 
     <div class="flex min-h-screen" x-data="{ userMenu: false, langMenu: false }">
 
-        {{-- Sidebar: sabit (sticky) --}}
         <aside class="w-64 h-screen sticky top-0 self-start z-30 bg-gradient-to-b from-rj-dark-1 via-rj-dark-2 to-rj-dark-1 text-gray-300 flex-shrink-0 flex flex-col">
             <div class="h-20 flex items-center justify-center px-5 border-b border-white/5 flex-shrink-0">
                 <a href="{{ route('admin.dashboard') }}" class="hover:opacity-90 transition inline-flex items-center">
@@ -280,12 +278,11 @@
                                 </a>
 
                                 @if ($hasChildren)
-                                    {{-- Flyout: fixed olduğu üçün sidebar scroll-undan kəsilmir --}}
                                     <div x-show="open" x-cloak x-ref="fly"
-                                         x-transition.opacity.duration.100ms
-                                         class="fixed z-50 pl-3"
-                                         :style="`top:${top}px; left:15.25rem;`">
-                                        <div class="min-w-[12rem] bg-rj-dark-2 border border-white/10 rounded-lg shadow-2xl py-2 text-sm">
+                                         class="fixed z-[9999] pl-3"
+                                         :style="`top:${top}px; left:16rem;`">
+                                        <div class="min-w-[12rem] overflow-hidden rounded-lg border border-white/10 shadow-2xl py-2 text-sm bg-gradient-to-b from-rj-dark-1 via-rj-dark-2 to-rj-dark-1"
+                                             style="background-color:#14121f;">
                                             <div class="px-4 pb-1.5 mb-1 border-b border-white/10 text-white font-semibold">{{ $item['label'] }}</div>
                                             @foreach ($item['children'] as $child)
                                                 @php $childActive = !empty($child['route']) && request()->routeIs($child['route']); @endphp
