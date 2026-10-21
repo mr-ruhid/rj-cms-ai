@@ -102,15 +102,15 @@ class AiToolController extends Controller
             }
 
             try {
-                $prompt = "Translate the following content to language code: {$validated['target_locale']}. Return ONLY valid JSON with keys: title, content, excerpt.\n\n" . 
+                $prompt = "Translate the following content to language code: {$validated['target_locale']}. CRITICAL RULE: You must preserve ALL HTML tags (like <p>, <a>, <img>, <strong>, <ul>, <li>, etc.) exactly as they are. Only translate the text content inside the tags. Return ONLY valid JSON with keys: title, content, excerpt.\n\n" . 
                     json_encode([
                         'title' => $post->title,
-                        'content' => strip_tags($post->content),
+                        'content' => $post->content,
                         'excerpt' => $post->excerpt
                     ], JSON_UNESCAPED_UNICODE);
 
                 $response = $this->openRouter->chat([
-                    ['role' => 'system', 'content' => 'You are a translator. Return only valid JSON, no markdown.'],
+                    ['role' => 'system', 'content' => 'You are a professional translator. Return only valid JSON, no markdown.'],
                     ['role' => 'user', 'content' => $prompt]
                 ], [
                     'temperature' => 0.3,
