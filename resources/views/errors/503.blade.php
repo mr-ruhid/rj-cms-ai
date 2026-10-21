@@ -206,6 +206,16 @@
 </head>
 <body>
 
+    @php
+        $terminalLines = [
+            __('Updating database...'),
+            __('Clearing cache...'),
+            __('Optimizing assets...'),
+            __('Tightening the bolts...'),
+            __('Almost there...'),
+        ];
+    @endphp
+
     <div class="tape tape-top">
         <div class="tape-inner" data-repeat="{{ __('Maintenance Mode') }} &nbsp;///&nbsp; {{ __('Under Construction') }} &nbsp;///&nbsp; "></div>
     </div>
@@ -232,9 +242,7 @@
                                 </linearGradient>
                             </defs>
                             <g class="gear">
-                                {{-- dişlər --}}
                                 <circle cx="50" cy="50" r="43" stroke="url(#g)" stroke-width="12" stroke-dasharray="9.5 9.5" />
-                                {{-- əsas halqa --}}
                                 <circle cx="50" cy="50" r="33" stroke="url(#g)" stroke-width="14" />
                             </g>
                             <g class="gear-inner">
@@ -272,7 +280,7 @@
     </div>
 
     <script>
-        // Lent yazıları (iki dəfə təkrar, fasiləsiz axsın)
+        // Lent yazıları
         document.querySelectorAll('.tape-inner').forEach(function (el) {
             var t = el.getAttribute('data-repeat');
             var one = '';
@@ -315,13 +323,7 @@
 
         // Terminal yazı effekti
         (function () {
-            var lines = @json([
-                __('Updating database...'),
-                __('Clearing cache...'),
-                __('Optimizing assets...'),
-                __('Tightening the bolts...'),
-                __('Almost there...'),
-            ]);
+            var lines = @json($terminalLines);
             var el = document.getElementById('typed');
             var li = 0, ci = 0, del = false;
             function tick() {
