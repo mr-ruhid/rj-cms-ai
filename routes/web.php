@@ -1,6 +1,6 @@
 <?php
 Route::get('/test_link', function () {
-    abort(401);
+    abort(405);
 });
 
 require __DIR__.'/auth.php';
