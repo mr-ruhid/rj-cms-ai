@@ -3,232 +3,362 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>503 - {{ __('Under Maintenance') }}</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700,900&display=swap" rel="stylesheet" />
+    <title>503 - {{ __('Maintenance Mode') }}</title>
+    <link href="https://fonts.bunny.net/css?family=figtree:400,600,700,900&display=swap" rel="stylesheet" />
     <style>
-        body { font-family: 'Figtree', sans-serif; }
-
-        .bg-main {
-            background-color: #0b1020;
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { height: 100%; }
+        body {
+            font-family: 'Figtree', sans-serif;
+            background-color: #09090f;
             background-image:
-                radial-gradient(at 0% 0%, hsla(253,40%,14%,1) 0, transparent 55%),
-                radial-gradient(at 50% 0%, hsla(225,55%,26%,1) 0, transparent 55%),
-                radial-gradient(at 100% 0%, hsla(339,55%,26%,1) 0, transparent 55%);
+                linear-gradient(rgba(250, 204, 21, .04) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(250, 204, 21, .04) 1px, transparent 1px),
+                radial-gradient(ellipse at 50% 40%, rgba(250, 204, 21, .10), transparent 60%);
+            background-size: 48px 48px, 48px 48px, 100% 100%;
+            color: #fff;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: gridMove 20s linear infinite;
+        }
+        @keyframes gridMove {
+            to { background-position: 48px 48px, 48px 48px, 0 0; }
         }
 
-        .glass {
-            background: rgba(255, 255, 255, 0.06);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            border: 1px solid rgba(255, 255, 255, 0.12);
+        /* ===== Xəbərdarlıq lentləri ===== */
+        .tape {
+            position: fixed; left: -5%; width: 110%;
+            background: #facc15; color: #111;
+            font-weight: 900; letter-spacing: .25em; text-transform: uppercase;
+            font-size: 14px; white-space: nowrap; overflow: hidden;
+            padding: 16px 0;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, .6);
+            z-index: 5;
+        }
+        .tape::before, .tape::after {
+            content: ''; position: absolute; left: 0; right: 0; height: 7px;
+            background: repeating-linear-gradient(-45deg, #111 0 12px, #facc15 12px 24px);
+        }
+        .tape::before { top: 0; }
+        .tape::after { bottom: 0; }
+        .tape-top { top: 38px; transform: rotate(-2deg); }
+        .tape-bottom { bottom: 38px; transform: rotate(2deg); }
+        .tape-inner { display: inline-block; animation: marquee 22s linear infinite; }
+        .tape-bottom .tape-inner { animation-direction: reverse; }
+        @keyframes marquee { to { transform: translateX(-50%); } }
+
+        /* ===== Səhnə ===== */
+        .stage { position: relative; z-index: 2; text-align: center; padding: 0 16px; perspective: 900px; }
+        .tilt { transition: transform .15s ease-out; transform-style: preserve-3d; }
+
+        .digits {
+            display: flex; align-items: center; justify-content: center;
+            gap: clamp(.4rem, 2vw, 1.5rem);
+            font-size: clamp(7rem, 24vw, 16rem);
+            line-height: 1; font-weight: 900;
+            padding-top: .6em;
+        }
+        .digit { position: relative; display: inline-block; }
+
+        .gradient-text {
+            background: linear-gradient(180deg, #fde047 0%, #f59e0b 55%, #b45309 100%);
+            -webkit-background-clip: text; background-clip: text;
+            -webkit-text-fill-color: transparent; color: transparent;
+            filter: drop-shadow(0 8px 0 rgba(0, 0, 0, .55)) drop-shadow(0 0 30px rgba(245, 158, 11, .35));
         }
 
-        
-        .orb { position: absolute; border-radius: 9999px; filter: blur(70px); opacity: .35; transition: transform .4s ease-out; }
-        .orb-1 { width: 380px; height: 380px; background: #7c3aed; top: -120px; left: -100px; animation: drift 14s ease-in-out infinite; }
-        .orb-2 { width: 320px; height: 320px; background: #ec4899; bottom: 10%; right: -80px; animation: drift 17s ease-in-out infinite reverse; }
-        .orb-3 { width: 260px; height: 260px; background: #06b6d4; top: 40%; left: 30%; opacity: .18; animation: drift 20s ease-in-out infinite; }
-        @keyframes drift {
-            0%, 100% { margin: 0 0 0 0; }
-            50% { margin: 40px 0 0 50px; }
+        /* 5: iplərdən asılıb yellənir */
+        .swing {
+            transform-origin: 50% -0.55em;
+            animation: swing 3.4s ease-in-out infinite alternate;
+        }
+        .swing::before, .swing::after {
+            content: ''; position: absolute; top: -.55em; width: 4px; height: .55em;
+            background: repeating-linear-gradient(180deg, #a1a1aa 0 6px, #52525b 6px 12px);
+            border-radius: 2px;
+        }
+        .swing::before { left: 22%; }
+        .swing::after { right: 22%; }
+        @keyframes swing {
+            from { transform: rotate(-9deg); }
+            to   { transform: rotate(9deg); }
         }
 
-        
-        .wave-wrap { position: absolute; left: 0; bottom: 0; width: 100%; height: 220px; overflow: hidden; pointer-events: none; }
-        .wave { position: absolute; left: 0; bottom: 0; width: 200%; height: 100%; }
-        .wave svg { width: 100%; height: 100%; display: block; }
-        .wave-1 { animation: waveMove 14s linear infinite; opacity: .35; }
-        .wave-2 { animation: waveMove 10s linear infinite reverse; opacity: .45; height: 85%; }
-        .wave-3 { animation: waveMove 7s linear infinite; opacity: .7; height: 65%; }
-        @keyframes waveMove {
-            from { transform: translateX(0); }
-            to   { transform: translateX(-50%); }
-        }
-        .wave-bob { animation: bob 6s ease-in-out infinite; }
-        @keyframes bob {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(10px); }
-        }
-
-       
-        .bubble {
-            position: absolute; bottom: -40px; border-radius: 9999px;
-            background: radial-gradient(circle at 30% 30%, rgba(255,255,255,.55), rgba(255,255,255,.08));
-            border: 1px solid rgba(255,255,255,.25);
-            animation: rise linear infinite;
-        }
-        @keyframes rise {
-            0%   { transform: translateY(0) translateX(0); opacity: 0; }
-            10%  { opacity: .9; }
-            50%  { transform: translateY(-50vh) translateX(20px); }
-            100% { transform: translateY(-105vh) translateX(-20px); opacity: 0; }
-        }
-
-        
-        .spin-slow { animation: spin 9s linear infinite; }
-        .spin-rev  { animation: spin 6s linear infinite reverse; }
+        /* 0: dişli çarx */
+        .gear-wrap { width: .86em; height: .86em; position: relative; }
+        .gear-wrap svg { width: 100%; height: 100%; display: block; filter: drop-shadow(0 8px 0 rgba(0, 0, 0, .55)) drop-shadow(0 0 30px rgba(245, 158, 11, .35)); }
+        .gear { transform-origin: 50% 50%; animation: spin 8s linear infinite; }
+        .gear-inner { transform-origin: 50% 50%; animation: spin 5s linear infinite reverse; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-       
-        .text-shimmer {
-            background: linear-gradient(90deg, #a78bfa, #f472b6, #22d3ee, #a78bfa);
-            background-size: 300% 100%;
-            -webkit-background-clip: text; background-clip: text; color: transparent;
-            animation: shimmer 5s linear infinite;
-            filter: drop-shadow(0 0 22px rgba(168, 85, 247, .45));
+        .sparks { position: absolute; inset: 0; pointer-events: none; }
+        .spark {
+            position: absolute; left: 50%; top: 50%; width: 5px; height: 5px;
+            border-radius: 9999px; background: #fde047;
+            box-shadow: 0 0 10px 2px #f59e0b;
+            opacity: 0;
+            animation: spark 1.3s ease-out infinite;
         }
-        @keyframes shimmer { to { background-position: 300% 0; } }
-
-        .float { animation: float 5s ease-in-out infinite; }
-        @keyframes float {
-            0%, 100% { transform: translateY(0) rotate(3deg); }
-            50% { transform: translateY(-10px) rotate(-2deg); }
+        @keyframes spark {
+            0%   { transform: translate(0, 0) scale(1); opacity: 1; }
+            100% { transform: translate(var(--x), var(--y)) scale(0); opacity: 0; }
         }
 
-        .glow-ring { animation: pulseRing 2.4s ease-out infinite; }
-        @keyframes pulseRing {
-            0% { box-shadow: 0 0 0 0 rgba(236, 72, 153, .55); }
-            100% { box-shadow: 0 0 0 28px rgba(236, 72, 153, 0); }
+        /* 3: glitch + xarab neon */
+        .glitch { animation: flicker 4s infinite; }
+        .glitch::before, .glitch::after {
+            content: attr(data-text);
+            position: absolute; left: 0; top: 0; width: 100%;
+            -webkit-text-fill-color: currentColor;
+            background: none;
+            overflow: hidden;
+        }
+        .glitch::before { color: #22d3ee; transform: translate(-5px, 0); animation: glitchA 2.2s infinite steps(1); }
+        .glitch::after  { color: #ec4899; transform: translate(5px, 0);  animation: glitchB 2.8s infinite steps(1); }
+        @keyframes glitchA {
+            0%   { clip-path: inset(0 0 100% 0); }
+            10%  { clip-path: inset(12% 0 70% 0); }
+            20%  { clip-path: inset(60% 0 12% 0); }
+            30%  { clip-path: inset(0 0 100% 0); }
+            55%  { clip-path: inset(35% 0 45% 0); }
+            65%  { clip-path: inset(80% 0 4% 0); }
+            75%, 100% { clip-path: inset(0 0 100% 0); }
+        }
+        @keyframes glitchB {
+            0%   { clip-path: inset(0 0 100% 0); }
+            15%  { clip-path: inset(70% 0 10% 0); }
+            25%  { clip-path: inset(20% 0 60% 0); }
+            35%  { clip-path: inset(0 0 100% 0); }
+            60%  { clip-path: inset(50% 0 30% 0); }
+            70%  { clip-path: inset(5% 0 85% 0); }
+            80%, 100% { clip-path: inset(0 0 100% 0); }
+        }
+        @keyframes flicker {
+            0%, 18%, 22%, 60%, 64%, 100% { opacity: 1; transform: translate(0, 0); }
+            20% { opacity: .35; transform: translate(-3px, 1px); }
+            62% { opacity: .5; transform: translate(3px, -1px); }
+            63% { opacity: 1; transform: translate(-2px, 0); }
         }
 
-        
-        .bar { position: relative; height: 6px; border-radius: 9999px; background: rgba(255,255,255,.1); overflow: hidden; }
-        .bar::before {
-            content: ''; position: absolute; top: 0; bottom: 0; width: 40%;
-            border-radius: 9999px;
-            background: linear-gradient(90deg, #a855f7, #ec4899, #22d3ee);
-            animation: slide 1.6s ease-in-out infinite;
+        /* ===== Yazı ===== */
+        .title {
+            margin-top: 1.4rem;
+            font-size: clamp(1.4rem, 5vw, 2.6rem);
+            font-weight: 900; text-transform: uppercase; letter-spacing: .12em;
         }
-        @keyframes slide {
-            0% { left: -40%; }
-            100% { left: 100%; }
+        .title .ch {
+            display: inline-block;
+            animation: wave 1.8s ease-in-out infinite;
+            text-shadow: 0 0 18px rgba(250, 204, 21, .35);
+        }
+        .title .sp { display: inline-block; width: .5em; }
+        @keyframes wave {
+            0%, 100% { transform: translateY(0); color: #fff; }
+            30% { transform: translateY(-12px); color: #facc15; }
+            60% { transform: translateY(0); color: #fff; }
         }
 
-        .card-in { animation: cardIn .9s cubic-bezier(.2,.8,.2,1) both; }
-        @keyframes cardIn {
-            from { opacity: 0; transform: translateY(30px) scale(.96); }
-            to   { opacity: 1; transform: none; }
+        .desc { margin: 1rem auto 0; max-width: 34rem; color: #a1a1aa; font-size: .95rem; line-height: 1.7; }
+
+        .terminal {
+            margin: 1.4rem auto 0; max-width: 26rem;
+            background: rgba(255, 255, 255, .04);
+            border: 1px solid rgba(250, 204, 21, .25);
+            border-radius: 10px; padding: 12px 16px; text-align: left;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-size: 13px; color: #facc15; min-height: 46px;
         }
+        .terminal .prompt { color: #71717a; }
+        .cursor { display: inline-block; width: 8px; height: 15px; background: #facc15; vertical-align: -2px; margin-left: 2px; animation: blink 1s steps(1) infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
 
-        .dots span { animation: blink 1.4s infinite both; }
-        .dots span:nth-child(2) { animation-delay: .2s; }
-        .dots span:nth-child(3) { animation-delay: .4s; }
-        @keyframes blink { 0%, 80%, 100% { opacity: .15; } 40% { opacity: 1; } }
+        .progress { margin: 1.2rem auto 0; max-width: 26rem; height: 8px; border-radius: 9999px; overflow: hidden; background: repeating-linear-gradient(-45deg, #27272a 0 10px, #18181b 10px 20px); border: 1px solid #3f3f46; }
+        .progress i { display: block; height: 100%; width: 0; background: repeating-linear-gradient(-45deg, #facc15 0 10px, #111 10px 20px); background-size: 28px 28px; animation: stripes .6s linear infinite; transition: width 1s linear; }
+        @keyframes stripes { to { background-position: 28px 0; } }
 
+        .count { margin-top: .7rem; font-size: .75rem; color: #71717a; }
+        .count b { color: #facc15; }
+
+        .btn {
+            margin-top: 1.3rem; display: inline-flex; align-items: center; gap: .5rem;
+            padding: .8rem 2rem; border: 0; border-radius: 10px; cursor: pointer;
+            background: #facc15; color: #111; font-weight: 900; font-size: .95rem;
+            text-transform: uppercase; letter-spacing: .08em; font-family: inherit;
+            box-shadow: 0 6px 0 #a16207, 0 12px 30px rgba(250, 204, 21, .25);
+            transition: transform .12s, box-shadow .12s;
+        }
+        .btn:hover { transform: translateY(2px); box-shadow: 0 4px 0 #a16207, 0 8px 24px rgba(250, 204, 21, .25); }
+        .btn:active { transform: translateY(6px); box-shadow: 0 0 0 #a16207; }
+        .btn svg { width: 18px; height: 18px; transition: transform .5s; }
+        .btn:hover svg { transform: rotate(180deg); }
+
+        @media (max-height: 760px) {
+            .tape-top { top: 10px; }
+            .tape-bottom { bottom: 10px; }
+            .desc { display: none; }
+        }
         @media (prefers-reduced-motion: reduce) {
             *, *::before, *::after { animation: none !important; transition: none !important; }
         }
     </style>
 </head>
-<body class="h-full bg-main text-white antialiased overflow-hidden">
+<body>
 
- 
-    <div class="orb orb-1" data-depth="20"></div>
-    <div class="orb orb-2" data-depth="-30"></div>
-    <div class="orb orb-3" data-depth="40"></div>
-
- 
-    <div id="bubbles" class="absolute inset-0 pointer-events-none"></div>
-
-   
-    <div class="wave-wrap">
-        <div class="wave wave-1 wave-bob">
-            <svg viewBox="0 0 2400 200" preserveAspectRatio="none">
-                <path fill="#6d28d9" d="M0,100 C150,40 450,40 600,100 C750,160 1050,160 1200,100 C1350,40 1650,40 1800,100 C1950,160 2250,160 2400,100 L2400,200 L0,200 Z"/>
-            </svg>
-        </div>
-        <div class="wave wave-2">
-            <svg viewBox="0 0 2400 200" preserveAspectRatio="none">
-                <path fill="#be185d" d="M0,110 C200,50 400,50 600,110 C800,170 1000,170 1200,110 C1400,50 1600,50 1800,110 C2000,170 2200,170 2400,110 L2400,200 L0,200 Z"/>
-            </svg>
-        </div>
-        <div class="wave wave-3">
-            <svg viewBox="0 0 2400 200" preserveAspectRatio="none">
-                <path fill="#0e7490" d="M0,120 C100,80 500,80 600,120 C700,160 1100,160 1200,120 C1300,80 1700,80 1800,120 C1900,160 2300,160 2400,120 L2400,200 L0,200 Z"/>
-            </svg>
-        </div>
+    <div class="tape tape-top">
+        <div class="tape-inner" data-repeat="{{ __('Maintenance Mode') }} &nbsp;///&nbsp; {{ __('Under Construction') }} &nbsp;///&nbsp; "></div>
+    </div>
+    <div class="tape tape-bottom">
+        <div class="tape-inner" data-repeat="{{ __('Be Right Back') }} &nbsp;///&nbsp; {{ __('Maintenance Mode') }} &nbsp;///&nbsp; "></div>
     </div>
 
-    
-    <div class="relative z-10 min-h-full flex items-center justify-center p-4">
-        <div class="glass card-in max-w-lg w-full p-8 md:p-12 rounded-3xl shadow-2xl text-center relative overflow-hidden">
+    <div class="stage">
+        <div class="tilt" id="tilt">
 
-            
-            <svg class="absolute -top-8 -right-8 w-32 h-32 text-white/5 spin-slow" fill="none" stroke="currentColor" stroke-width="1.2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-            </svg>
-            <svg class="absolute -bottom-10 -left-10 w-40 h-40 text-white/5 spin-rev" fill="none" stroke="currentColor" stroke-width="1.2" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-            </svg>
+            <div class="digits" aria-label="503">
+                {{-- 5 --}}
+                <div class="digit swing"><span class="gradient-text">5</span></div>
 
-            <div class="relative z-10">
-                <div class="float glow-ring w-20 h-20 mx-auto bg-gradient-to-tr from-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg mb-6">
-                    <svg class="w-10 h-10 text-white spin-slow" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
-                    </svg>
+                {{-- 0: dişli çarx --}}
+                <div class="digit">
+                    <div class="gear-wrap">
+                        <svg viewBox="0 0 100 100" fill="none">
+                            <defs>
+                                <linearGradient id="g" x1="0" y1="0" x2="0" y2="1">
+                                    <stop offset="0" stop-color="#fde047"/>
+                                    <stop offset=".55" stop-color="#f59e0b"/>
+                                    <stop offset="1" stop-color="#b45309"/>
+                                </linearGradient>
+                            </defs>
+                            <g class="gear">
+                                {{-- dişlər --}}
+                                <circle cx="50" cy="50" r="43" stroke="url(#g)" stroke-width="12" stroke-dasharray="9.5 9.5" />
+                                {{-- əsas halqa --}}
+                                <circle cx="50" cy="50" r="33" stroke="url(#g)" stroke-width="14" />
+                            </g>
+                            <g class="gear-inner">
+                                <circle cx="50" cy="50" r="19" stroke="#f59e0b" stroke-opacity=".35" stroke-width="2" stroke-dasharray="4 6" />
+                            </g>
+                        </svg>
+                        <div class="sparks" id="sparks"></div>
+                    </div>
                 </div>
 
-                <h1 class="text-7xl md:text-8xl font-black text-shimmer mb-3 tracking-tight">503</h1>
-                <h2 class="text-2xl font-bold mb-3">
-                    {{ __('Under Maintenance') }}<span class="dots"><span>.</span><span>.</span><span>.</span></span>
-                </h2>
-                <p class="text-gray-300 text-sm md:text-base mb-6 leading-relaxed">
-                    {{ __('We are currently performing scheduled maintenance. We should be back shortly. Thank you for your patience.') }}
-                </p>
-
-                <div class="bar mb-3"></div>
-                <p class="text-xs text-gray-400 mb-7">
-                    {{ __('Auto refresh in') }} <span id="count" class="font-semibold text-white">30</span>s
-                </p>
-
-                <button onclick="window.location.reload()" class="group inline-flex items-center justify-center gap-2 w-full md:w-auto px-8 py-3 bg-white text-gray-900 rounded-xl font-semibold hover:bg-gray-100 hover:scale-105 active:scale-95 transition duration-200 shadow-lg shadow-pink-500/20">
-                    <svg class="w-5 h-5 transition-transform duration-500 group-hover:rotate-180" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
-                    </svg>
-                    {{ __('Refresh Page') }}
-                </button>
+                {{-- 3 --}}
+                <div class="digit glitch" data-text="3"><span class="gradient-text">3</span></div>
             </div>
+
+            <h1 class="title" id="title" data-text="{{ __('Maintenance Mode') }}">{{ __('Maintenance Mode') }}</h1>
+
+            <p class="desc">
+                {{ __('We are currently performing scheduled maintenance. We should be back shortly. Thank you for your patience.') }}
+            </p>
+
+            <div class="terminal">
+                <span class="prompt">&gt;</span> <span id="typed"></span><span class="cursor"></span>
+            </div>
+
+            <div class="progress"><i id="bar"></i></div>
+            <p class="count">{{ __('Auto refresh in') }} <b id="count">30</b>s</p>
+
+            <button class="btn" onclick="window.location.reload()">
+                <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                </svg>
+                {{ __('Refresh Page') }}
+            </button>
         </div>
     </div>
 
     <script>
-        
+        // Lent yazıları (iki dəfə təkrar, fasiləsiz axsın)
+        document.querySelectorAll('.tape-inner').forEach(function (el) {
+            var t = el.getAttribute('data-repeat');
+            var one = '';
+            for (var i = 0; i < 8; i++) one += t;
+            el.innerHTML = one + one;
+        });
+
+        // Başlıq hərfləri dalğalansın
         (function () {
-            const box = document.getElementById('bubbles');
-            for (let i = 0; i < 22; i++) {
-                const b = document.createElement('span');
-                const size = 8 + Math.random() * 30;
-                b.className = 'bubble';
-                b.style.width = b.style.height = size + 'px';
-                b.style.left = Math.random() * 100 + '%';
-                b.style.animationDuration = (9 + Math.random() * 14) + 's';
-                b.style.animationDelay = (-Math.random() * 20) + 's';
-                box.appendChild(b);
+            var el = document.getElementById('title');
+            var text = el.dataset.text;
+            el.textContent = '';
+            Array.from(text).forEach(function (c, i) {
+                var s = document.createElement('span');
+                if (c === ' ') { s.className = 'sp'; }
+                else {
+                    s.className = 'ch';
+                    s.textContent = c;
+                    s.style.animationDelay = (i * 0.09) + 's';
+                }
+                el.appendChild(s);
+            });
+        })();
+
+        // Qığılcımlar
+        (function () {
+            var box = document.getElementById('sparks');
+            for (var i = 0; i < 14; i++) {
+                var s = document.createElement('i');
+                s.className = 'spark';
+                var a = Math.random() * Math.PI * 2;
+                var d = 70 + Math.random() * 90;
+                s.style.setProperty('--x', Math.cos(a) * d + 'px');
+                s.style.setProperty('--y', Math.sin(a) * d + 'px');
+                s.style.animationDelay = (Math.random() * 1.3) + 's';
+                s.style.animationDuration = (0.8 + Math.random() * 0.9) + 's';
+                box.appendChild(s);
             }
         })();
 
-        
-        document.addEventListener('mousemove', function (e) {
-            const x = (e.clientX / window.innerWidth - 0.5);
-            const y = (e.clientY / window.innerHeight - 0.5);
-            document.querySelectorAll('.orb').forEach(function (el) {
-                const d = parseFloat(el.dataset.depth || 20);
-                el.style.transform = 'translate(' + (x * d * 2) + 'px,' + (y * d * 2) + 'px)';
-            });
-        });
-
-        
+        // Terminal yazı effekti
         (function () {
-            let left = 30;
-            const el = document.getElementById('count');
+            var lines = @json([
+                __('Updating database...'),
+                __('Clearing cache...'),
+                __('Optimizing assets...'),
+                __('Tightening the bolts...'),
+                __('Almost there...'),
+            ]);
+            var el = document.getElementById('typed');
+            var li = 0, ci = 0, del = false;
+            function tick() {
+                var cur = lines[li];
+                if (!del) {
+                    el.textContent = cur.slice(0, ++ci);
+                    if (ci === cur.length) { del = true; return setTimeout(tick, 1400); }
+                    return setTimeout(tick, 55);
+                }
+                el.textContent = cur.slice(0, --ci);
+                if (ci === 0) { del = false; li = (li + 1) % lines.length; return setTimeout(tick, 300); }
+                setTimeout(tick, 25);
+            }
+            tick();
+        })();
+
+        // Mouse ilə 3D əyilmə
+        (function () {
+            var t = document.getElementById('tilt');
+            document.addEventListener('mousemove', function (e) {
+                var x = e.clientX / window.innerWidth - 0.5;
+                var y = e.clientY / window.innerHeight - 0.5;
+                t.style.transform = 'rotateY(' + (x * 14) + 'deg) rotateX(' + (-y * 10) + 'deg)';
+            });
+            document.addEventListener('mouseleave', function () { t.style.transform = ''; });
+        })();
+
+        // Geri sayım + avtomatik yenilənmə
+        (function () {
+            var total = 30, left = total;
+            var c = document.getElementById('count');
+            var bar = document.getElementById('bar');
             setInterval(function () {
                 left--;
                 if (left <= 0) { window.location.reload(); return; }
-                el.textContent = left;
+                c.textContent = left;
+                bar.style.width = ((total - left) / total * 100) + '%';
             }, 1000);
         })();
     </script>
