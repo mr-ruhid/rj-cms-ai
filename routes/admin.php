@@ -44,6 +44,7 @@ use App\Http\Controllers\Admin\AboutController;
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', fn() => redirect()->route('admin.dashboard'))->name('home');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::view('/services', 'admin.services.index')->name('services.index');
     Route::post('/dashboard/ask-ai', [DashboardController::class, 'askAi'])->name('ask-ai');
 
     Route::get('/lang/{locale}', [LangController::class, 'switch'])->name('lang.switch');
@@ -513,10 +514,10 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::post('/cache/clear/{type}', [CacheSettingsController::class, 'clear'])->name('cache.clear');
         Route::get('/social', [SocialSettingsController::class, 'index'])->name('social');
         Route::put('/social', [SocialSettingsController::class, 'update'])->name('social.update');
-        
+
         Route::get('/notifications', [NotificationSettingsController::class, 'index'])->name('notifications');
         Route::put('/notifications', [NotificationSettingsController::class, 'update'])->name('notifications.update');
-        
+
         Route::get('/api', [ApiSettingsController::class, 'index'])->name('api');
         Route::post('/api/generate', [ApiSettingsController::class, 'generate'])->name('api.generate');
         Route::delete('/api/{id}/revoke', [ApiSettingsController::class, 'revoke'])->name('api.revoke');
