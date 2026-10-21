@@ -249,7 +249,7 @@
                             @php
                                 $hasChildren = !empty($item['children']);
                                 $itemUrl = $item['url'] ?? ($hasChildren ? $item['children'][0]['url'] : '#');
-                                
+
                                 $hasActiveChild = false;
                                 if ($hasChildren) {
                                     foreach ($item['children'] as $child) {
@@ -310,23 +310,26 @@
                                             <span>{{ $item['label'] }}</span>
                                         </a>
 
-                                        <div x-show="open" x-cloak x-ref="fly"
-                                             @mouseenter="keep()"
-                                             @mouseleave="hide()"
-                                             class="fixed z-[9999] pl-2"
-                                             :style="`top:${top}px; left:16rem;`">
-                                            <div class="min-w-[12rem] overflow-hidden rounded-lg border border-white/10 shadow-2xl py-2 text-sm bg-gradient-to-b from-rj-dark-1 via-rj-dark-2 to-rj-dark-1"
-                                                 style="background-color:#14121f;">
-                                                <div class="px-4 pb-1.5 mb-1 border-b border-white/10 text-white font-semibold">{{ $item['label'] }}</div>
-                                                @foreach ($item['children'] as $child)
-                                                    @php $childActive = !empty($child['route']) && request()->routeIs($child['route']); @endphp
-                                                    <a href="{{ $child['url'] }}"
-                                                       class="block px-4 py-1.5 transition {{ $childActive ? 'text-white bg-white/10' : 'text-gray-400 hover:text-white hover:bg-white/5' }}">
-                                                        {{ $child['label'] }}
-                                                    </a>
-                                                @endforeach
+                                        {{-- Flyout body-yə teleport olunur ki, content onu örtməsin --}}
+                                        <template x-teleport="body">
+                                            <div x-show="open" x-cloak x-ref="fly"
+                                                 @mouseenter="keep()"
+                                                 @mouseleave="hide()"
+                                                 class="fixed z-[99999] pl-2"
+                                                 :style="`top:${top}px; left:16rem;`">
+                                                <div class="min-w-[12rem] overflow-hidden rounded-lg border border-white/10 shadow-2xl py-2 text-sm bg-gradient-to-b from-rj-dark-1 via-rj-dark-2 to-rj-dark-1"
+                                                     style="background-color:#14121f;">
+                                                    <div class="px-4 pb-1.5 mb-1 border-b border-white/10 text-white font-semibold">{{ $item['label'] }}</div>
+                                                    @foreach ($item['children'] as $child)
+                                                        @php $childActive = !empty($child['route']) && request()->routeIs($child['route']); @endphp
+                                                        <a href="{{ $child['url'] }}"
+                                                           class="block px-4 py-1.5 transition {{ $childActive ? 'text-white bg-white/10' : 'text-gray-400 hover:text-white hover:bg-white/5' }}">
+                                                            {{ $child['label'] }}
+                                                        </a>
+                                                    @endforeach
+                                                </div>
                                             </div>
-                                        </div>
+                                        </template>
                                     </div>
                                 @endif
                             @else
