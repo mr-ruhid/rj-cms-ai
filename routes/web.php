@@ -1,5 +1,7 @@
 <?php
-
+Route::get('/test_link', function () {
+    abort(429);
+});
 
 require __DIR__.'/auth.php';
 require __DIR__.'/admin.php';
