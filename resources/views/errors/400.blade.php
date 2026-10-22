@@ -122,15 +122,16 @@
             position: absolute;
             top: 51%;
             left: 50%;
+            width: 0.2em;
+            height: 0.4em;
             transform: translate(-50%, -50%);
-            width: 0.28em;
-            height: 0.28em;
-            filter: drop-shadow(0 0 12px rgba(236,72,153,.9));
+            overflow: visible;
+            filter: drop-shadow(0 0 14px rgba(236, 72, 153, .9));
             animation: warn 1.8s ease-in-out infinite;
         }
         @keyframes warn {
-            0%, 100% { transform: translate(-50%, -50%) scale(1); filter: drop-shadow(0 0 10px rgba(236,72,153,.7)); }
-            50% { transform: translate(-50%, -50%) scale(1.14); filter: drop-shadow(0 0 22px rgba(236,72,153,1)); }
+            0%, 100% { transform: translate(-50%, -50%) scale(1); filter: drop-shadow(0 0 10px rgba(236, 72, 153, .7)); }
+            50% { transform: translate(-50%, -50%) scale(1.12); filter: drop-shadow(0 0 26px rgba(236, 72, 153, 1)); }
         }
 
         .d3 { position: relative; animation: jitter 4s infinite; }
@@ -306,15 +307,15 @@
             <div class="p" data-depth="-26">
                 <div class="d2-wrap">
                     <span class="digit">0</span>
-                    <svg class="warn-icon" viewBox="0 0 24 24" fill="none" stroke="url(#warnGrad)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+                    <svg class="warn-icon" viewBox="0 0 24 48" fill="url(#warnGrad)">
                         <defs>
                             <linearGradient id="warnGrad" x1="0" y1="0" x2="0" y2="1">
                                 <stop offset="0" stop-color="#f9a8d4"/>
                                 <stop offset="1" stop-color="#db2777"/>
                             </linearGradient>
                         </defs>
-                        <line x1="12" y1="6" x2="12" y2="14"></line>
-                        <line x1="12" y1="19" x2="12.01" y2="19"></line>
+                        <rect x="6" y="0" width="12" height="31" rx="6"/>
+                        <circle cx="12" cy="41" r="6.5"/>
                     </svg>
                 </div>
             </div>
