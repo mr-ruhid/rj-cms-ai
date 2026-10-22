@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ rj_dir() }}" class="h-full">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ rj_dir() }}" class="h-full bg-gray-50">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -13,51 +13,38 @@
     <style>
         body { font-family: 'Figtree', sans-serif; }
         :root { {!! rj_css_variables() !!} }
-
-        .bg-pattern {
-            background-color: #0f0a18;
-            background-image:
-                linear-gradient(rgba(139, 92, 246, .05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(139, 92, 246, .05) 1px, transparent 1px),
-                radial-gradient(ellipse at 50% 40%, rgba(139, 92, 246, .15), transparent 60%);
-            background-size: 48px 48px, 48px 48px, 100% 100%;
-        }
-        .glass {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-        }
     </style>
 </head>
-<body class="h-full bg-pattern text-gray-900 antialiased flex items-center justify-center p-4">
+<body class="h-full text-gray-900 antialiased flex flex-col justify-center items-center p-4">
 
     <div class="w-full max-w-md">
+
         <div class="text-center mb-8">
             <a href="{{ url('/') }}" class="inline-flex items-center justify-center gap-2">
                 @php $logoMask = rj_logo_mask_url(); @endphp
                 @if ($logoMask)
-                    <div class="h-10 w-36 bg-white" style="-webkit-mask-image: url('{{ $logoMask }}'); mask-image: url('{{ $logoMask }}'); -webkit-mask-size: contain; mask-size: contain; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center;"></div>
+                    <div class="h-12 w-40 bg-rj-dark-1" style="-webkit-mask-image: url('{{ $logoMask }}'); mask-image: url('{{ $logoMask }}'); -webkit-mask-size: contain; mask-size: contain; -webkit-mask-repeat: no-repeat; mask-repeat: no-repeat; -webkit-mask-position: center; mask-position: center;"></div>
                 @else
                     <span class="text-3xl font-black bg-clip-text text-transparent bg-gradient-to-r from-rj-purple to-rj-pink">{{ rj_get_option('site_name', 'RJ CMS') }}</span>
                 @endif
             </a>
         </div>
 
-        <div class="glass rounded-3xl shadow-2xl overflow-hidden border border-white/20 p-8">
-            <div class="mb-8 text-center">
-                <h1 class="text-2xl font-bold text-gray-900">{{ __('Welcome back') }}</h1>
-                <p class="text-sm text-gray-500 mt-2">{{ __('Sign in to your account to continue') }}</p>
+        <div class="bg-white rounded-3xl shadow-xl border border-gray-100 overflow-hidden p-8">
+            <div class="mb-8">
+                <h1 class="text-2xl font-bold text-gray-900 text-center">{{ __('Welcome back') }}</h1>
+                <p class="text-sm text-gray-500 mt-2 text-center">{{ __('Sign in to your account to continue') }}</p>
             </div>
 
             @if (session('status'))
-                <div class="mb-4 font-medium text-sm text-green-600 bg-green-50 p-3 rounded-lg border border-green-200 text-center">
+                <div class="mb-6 text-sm font-medium text-green-700 bg-green-50 p-3 rounded-xl border border-green-200 text-center">
                     {{ session('status') }}
                 </div>
             @endif
 
             @if ($errors->any())
-                <div class="mb-4 bg-red-50 text-red-600 p-3 rounded-lg border border-red-200 text-sm">
-                    <ul class="list-disc pl-5">
+                <div class="mb-6 bg-red-50 text-red-600 p-4 rounded-xl border border-red-100 text-sm">
+                    <ul class="list-disc pl-5 space-y-1">
                         @foreach ($errors->all() as $error)
                             <li>{{ $error }}</li>
                         @endforeach
@@ -71,7 +58,7 @@
                 <div>
                     <label for="email" class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Email Address') }}</label>
                     <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus autocomplete="username"
-                           class="w-full rounded-xl border-gray-300 focus:border-rj-purple focus:ring-rj-purple px-4 py-3 bg-white/50"
+                           class="w-full rounded-xl border-gray-300 focus:border-rj-purple focus:ring-rj-purple px-4 py-3 transition"
                            placeholder="name@example.com">
                 </div>
 
@@ -79,17 +66,17 @@
                     <div class="flex items-center justify-between mb-1.5">
                         <label for="password" class="block text-sm font-medium text-gray-700">{{ __('Password') }}</label>
                         @if (Route::has('password.request'))
-                            <a href="{{ route('password.request') }}" class="text-xs font-medium text-rj-purple hover:text-rj-pink transition">
+                            <a href="{{ route('password.request') }}" class="text-xs font-semibold text-rj-purple hover:text-rj-pink transition">
                                 {{ __('Forgot password?') }}
                             </a>
                         @endif
                     </div>
                     <input id="password" type="password" name="password" required autocomplete="current-password"
-                           class="w-full rounded-xl border-gray-300 focus:border-rj-purple focus:ring-rj-purple px-4 py-3 bg-white/50"
+                           class="w-full rounded-xl border-gray-300 focus:border-rj-purple focus:ring-rj-purple px-4 py-3 transition"
                            placeholder="••••••••">
                 </div>
 
-                <div class="flex items-center justify-between">
+                <div class="flex items-center justify-between pt-1">
                     <label for="remember_me" class="inline-flex items-center cursor-pointer">
                         <input id="remember_me" type="checkbox" name="remember"
                                class="rounded border-gray-300 text-rj-purple shadow-sm focus:ring-rj-purple">
@@ -97,23 +84,23 @@
                     </label>
                 </div>
 
-                <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-xl shadow-sm text-sm font-bold text-white bg-gradient-to-r from-rj-purple to-rj-pink hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rj-purple transition-all active:scale-[.98]">
+                <button type="submit" class="w-full flex justify-center py-3.5 px-4 rounded-xl shadow-md text-sm font-bold text-white bg-gradient-to-r from-rj-purple to-rj-pink hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rj-purple transition-all active:scale-[.98]">
                     {{ __('Sign In') }}
                 </button>
             </form>
 
             @if (Route::has('register'))
-                <div class="mt-6 text-center">
+                <div class="mt-8 text-center pt-6 border-t border-gray-100">
                     <p class="text-sm text-gray-600">
                         {{ __("Don't have an account?") }}
-                        <a href="{{ route('register') }}" class="font-semibold text-rj-purple hover:text-rj-pink transition">{{ __('Create one now') }}</a>
+                        <a href="{{ route('register') }}" class="font-bold text-rj-purple hover:text-rj-pink transition ml-1">{{ __('Create one now') }}</a>
                     </p>
                 </div>
             @endif
         </div>
 
         <div class="text-center mt-8">
-            <a href="{{ url('/') }}" class="text-sm text-gray-400 hover:text-white transition inline-flex items-center gap-1">
+            <a href="{{ url('/') }}" class="text-sm font-medium text-gray-500 hover:text-gray-900 transition inline-flex items-center gap-1.5">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
                 {{ __('Back to website') }}
             </a>
