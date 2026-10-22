@@ -3,7 +3,7 @@
 @section('title', __('Add Category'))
 
 @section('content')
-<div class="max-w-4xl mx-auto space-y-6">
+<div class="max-w-6xl mx-auto space-y-6" x-data="{ activeTab: '{{ config('app.locale') }}' }">
 
     <div class="flex items-center gap-4">
         <a href="{{ route('admin.commerce.categories.index') }}" class="p-2 rounded-lg hover:bg-gray-100 transition text-gray-500">
@@ -25,16 +25,56 @@
         </div>
     @endif
 
-    <form method="POST" action="{{ route('admin.commerce.categories.store') }}" enctype="multipart/form-data" class="grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+    <form method="POST" action="{{ route('admin.commerce.categories.store') }}" enctype="multipart/form-data" class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
         @csrf
 
-        <div class="md:col-span-2 space-y-6">
+        <div class="lg:col-span-2 space-y-6">
+            <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                <div class="flex border-b border-gray-100 bg-gray-50 overflow-x-auto">
+                    @foreach($locales as $locale)
+                        <button type="button" @click="activeTab = '{{ $locale }}'" :class="activeTab === '{{ $locale }}' ? 'border-rj-purple text-rj-purple bg-white' : 'border-transparent text-gray-500 hover:text-gray-700 hover:bg-gray-100'" class="px-6 py-4 text-sm font-bold uppercase tracking-wider border-b-2 transition">
+                            {{ $locale }}
+                        </button>
+                    @endforeach
+                </div>
+
+                <div class="p-6 space-y-5">
+                    @foreach($locales as $locale)
+                        <div x-show="activeTab === '{{ $locale }}'" x-cloak class="space-y-5">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Name') }} ({{ strtoupper($locale) }})</label>
+                                <input type="text" name="translations[{{ $locale }}][name]" value="{{ old("translations.$locale.name") }}" class="w-full rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm" placeholder="{{ __('Category name...') }}">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Description') }} ({{ strtoupper($locale) }})</label>
+                                <textarea name="translations[{{ $locale }}][description]" rows="4" class="w-full rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm" placeholder="{{ __('Category description...') }}">{{ old("translations.$locale.description") }}</textarea>
+                            </div>
+
+                            <div class="pt-4 border-t border-gray-100 space-y-4">
+                                <h4 class="text-sm font-semibold text-gray-900">{{ __('SEO Settings') }} ({{ strtoupper($locale) }})</h4>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('SEO Title') }}</label>
+                                    <input type="text" name="translations[{{ $locale }}][seo_title]" value="{{ old("translations.$locale.seo_title") }}" class="w-full rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm">
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('SEO Description') }}</label>
+                                    <textarea name="translations[{{ $locale }}][seo_description]" rows="2" class="w-full rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm">{{ old("translations.$locale.seo_description") }}</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
+
+        <div class="space-y-6">
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-5">
-                <h2 class="text-lg font-semibold text-gray-900 border-b border-gray-100 pb-3">{{ __('Category Details') }}</h2>
+                <h2 class="text-lg font-semibold text-gray-900 border-b border-gray-100 pb-3">{{ __('Publish Settings') }}</h2>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Name') }}</label>
-                    <input type="text" name="name" value="{{ old('name') }}" class="w-full rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm" required placeholder="{{ __('e.g. Perfumes') }}">
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Slug') }}</label>
+                    <input type="text" name="slug" value="{{ old('slug') }}" class="w-full rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm font-mono" placeholder="{{ __('Leave empty to auto-generate') }}">
                 </div>
 
                 <div>
@@ -42,35 +82,24 @@
                     <select name="parent_id" class="w-full rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm">
                         <option value="">{{ __('None (Top Level)') }}</option>
                         @foreach($parents as $parent)
-                            <option value="{{ $parent->id }}" @selected(old('parent_id') == $parent->id)>{{ $parent->name }}</option>
+                            <option value="{{ $parent->id }}" @selected(old('parent_id') == $parent->id)>
+                                {{ $parent->translation()?->name ?? __('(No Name)') }}
+                            </option>
                         @endforeach
                     </select>
                 </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Description') }}</label>
-                    <textarea name="description" rows="4" class="w-full rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm" placeholder="{{ __('Optional description for this category...') }}">{{ old('description') }}</textarea>
-                </div>
-            </div>
-        </div>
-
-        <div class="space-y-6">
-            <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-5">
-                <h2 class="text-lg font-semibold text-gray-900 border-b border-gray-100 pb-3">{{ __('Status') }}</h2>
-
-                <label class="flex items-center gap-2 cursor-pointer">
+                <label class="flex items-center gap-2 cursor-pointer pt-2">
                     <input type="hidden" name="is_active" value="0">
                     <input type="checkbox" name="is_active" value="1" @checked(old('is_active', true)) class="rounded border-gray-300 text-rj-purple focus:ring-rj-purple">
                     <span class="text-sm text-gray-700">{{ __('Active') }}</span>
                 </label>
-                <p class="text-xs text-gray-500 mt-1">{{ __('Inactive categories will not be visible on the frontend.') }}</p>
             </div>
 
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-5">
                 <h2 class="text-lg font-semibold text-gray-900 border-b border-gray-100 pb-3">{{ __('Image') }}</h2>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Category Image') }}</label>
                     <input type="file" name="image" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-rj-purple/10 file:text-rj-purple hover:file:bg-rj-purple/20">
                 </div>
             </div>
