@@ -77,16 +77,15 @@
             to   { transform: rotateY(22deg) rotateZ(4deg) translateY(-3vh); }
         }
 
-        .warn-wrap {
-            width: .8em; height: .8em; position: relative;
-            filter: drop-shadow(0 0 46px rgba(168, 85, 247, .5));
-            animation: float 4s ease-in-out infinite;
-            margin: 0 auto;
-        }
-        .warn-wrap svg { width: 100%; height: 100%; display: block; }
-        @keyframes float {
-            0%, 100% { transform: translateY(0) scale(1); }
-            50% { transform: translateY(-15px) scale(1.05); }
+        .d2-wrap { position: relative; display: flex; justify-content: center; align-items: center; }
+        .warn-icon {
+            position: absolute;
+            top: 51%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 0.28em;
+            height: 0.28em;
+            filter: drop-shadow(0 0 12px rgba(236,72,153,.9));
         }
 
         .d3 { position: relative; animation: jitter 4s infinite; }
@@ -198,19 +197,17 @@
             <div class="p" data-depth="38"><span class="digit d1">4</span></div>
 
             <div class="p" data-depth="-26">
-                <div class="warn-wrap">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="url(#warnGradient)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <div class="d2-wrap">
+                    <span class="digit">0</span>
+                    <svg class="warn-icon" viewBox="0 0 24 24" fill="none" stroke="url(#warnGrad)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
                         <defs>
-                            <linearGradient id="warnGradient" x1="0" y1="0" x2="0" y2="1">
-                                <stop offset="0" stop-color="#f5d0fe"/>
-                                <stop offset=".38" stop-color="#c084fc"/>
-                                <stop offset=".62" stop-color="#a855f7"/>
-                                <stop offset="1" stop-color="#6d28d9"/>
+                            <linearGradient id="warnGrad" x1="0" y1="0" x2="0" y2="1">
+                                <stop offset="0" stop-color="#f9a8d4"/>
+                                <stop offset="1" stop-color="#db2777"/>
                             </linearGradient>
                         </defs>
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <line x1="12" y1="8" x2="12" y2="12"></line>
-                        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        <line x1="12" y1="6" x2="12" y2="14"></line>
+                        <line x1="12" y1="19" x2="12.01" y2="19"></line>
                     </svg>
                 </div>
             </div>
