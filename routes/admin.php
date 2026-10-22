@@ -41,6 +41,7 @@ use App\Http\Controllers\Admin\AiCenterController;
 use App\Http\Controllers\Admin\AiToolController;
 use App\Http\Controllers\Admin\AboutController;
 use App\Http\Controllers\Admin\TwoFactorController;
+use App\Http\Controllers\Admin\KycController;
 
 Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/', fn() => redirect()->route('admin.dashboard'))->name('home');
@@ -63,6 +64,13 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
     });
 
     Route::resource('users', UserController::class)->except(['show']);
+
+    Route::prefix('kyc')->name('kyc.')->group(function () {
+        Route::get('/', [KycController::class, 'index'])->name('index');
+        Route::get('/{verification}', [KycController::class, 'show'])->name('show');
+        Route::post('/{verification}/approve', [KycController::class, 'approve'])->name('approve');
+        Route::post('/{verification}/reject', [KycController::class, 'reject'])->name('reject');
+    });
 
     Route::prefix('posts')->name('posts.')->group(function () {
         Route::get('/', [PostController::class, 'index'])->name('index');
