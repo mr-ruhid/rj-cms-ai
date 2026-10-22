@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Plugin;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Str;
 
 class PluginManager
@@ -141,6 +142,9 @@ class PluginManager
             $this->registerPluginAutoloader($plugin);
             $this->bootPlugin($plugin);
 
+            // AVTOMATİK MİQRASİYA ƏLAVƏ EDİLDİ
+            Artisan::call('migrate', ['--force' => true]);
+
             $plugin->markAsActive();
 
             \App\Widgets\WidgetRegistry::reset();
@@ -265,7 +269,6 @@ class PluginManager
 
             $slug = $manifest['slug'] ?? Str::slug($manifest['name']);
 
-            // DÜZƏLİŞ BURADADIR: Köhnə yeniləmə məlumatlarını qoruyuruq
             $existing = Plugin::where('slug', $slug)->first();
             $oldMeta = $existing ? $existing->metadata() : [];
 
@@ -416,6 +419,7 @@ class PluginManager
 
         return $count;
     }
+
     public function update(Plugin $plugin): array
     {
         $metadata = $plugin->metadata();
@@ -464,19 +468,15 @@ class PluginManager
             $sourceDir = dirname($manifestPath);
             $targetDir = $plugin->path();
 
-            // Köhnə faylları silirik (Update üçün)
             if (File::isDirectory($targetDir)) {
                 File::deleteDirectory($targetDir);
             }
 
-            // Yeni faylları köçürürük
             File::moveDirectory($sourceDir, $targetDir, true);
             File::deleteDirectory($extractPath);
 
-            // Verilənlər bazasını yeniləyirik
             $newMeta = array_merge($metadata, $newManifest);
 
-            // Yeniləmə düyməsinin yox olması üçün keşi təmizləyirik
             unset($newMeta['latest_version']);
             unset($newMeta['download_url']);
 
@@ -485,10 +485,8 @@ class PluginManager
                 'metadata' => $newMeta,
             ]);
 
-            // Yeni migrasiyalar varsa işə salırıq
-            \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+            Artisan::call('migrate', ['--force' => true]);
 
-            // Builder widget-lərini yeniləyirik
             \App\Widgets\WidgetRegistry::reset();
 
             return ['success' => true, 'message' => __('Plugin updated successfully to v:version', ['version' => $plugin->version])];
