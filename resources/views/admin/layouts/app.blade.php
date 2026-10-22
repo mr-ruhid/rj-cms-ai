@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" dir="{{ rj_dir() }}">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -249,7 +249,7 @@
                             @php
                                 $hasChildren = !empty($item['children']);
                                 $itemUrl = $item['url'] ?? ($hasChildren ? $item['children'][0]['url'] : '#');
-
+                                
                                 $hasActiveChild = false;
                                 if ($hasChildren) {
                                     foreach ($item['children'] as $child) {
@@ -269,7 +269,7 @@
                                             <span class="w-5 h-5 flex-shrink-0 flex items-center justify-center text-current">{!! $item['icon'] !!}</span>
                                             <span>{{ $item['label'] }}</span>
                                         </a>
-                                        <div class="mt-1 space-y-0.5 ml-4 border-l border-white/10 pl-2">
+                                        <div class="mt-1 space-y-0.5 ms-4 border-s border-white/10 ps-2">
                                             @foreach ($item['children'] as $child)
                                                 @php $childActive = !empty($child['route']) && request()->routeIs($child['route']); @endphp
                                                 <a href="{{ $child['url'] }}"
@@ -310,31 +310,28 @@
                                             <span>{{ $item['label'] }}</span>
                                         </a>
 
-                                        {{-- Flyout body-yə teleport olunur ki, content onu örtməsin --}}
-                                        <template x-teleport="body">
-                                            <div x-show="open" x-cloak x-ref="fly"
-                                                 @mouseenter="keep()"
-                                                 @mouseleave="hide()"
-                                                 class="fixed z-[99999] pl-2"
-                                                 :style="`top:${top}px; left:16rem;`">
-                                                <div class="min-w-[12rem] overflow-hidden rounded-lg border border-white/10 shadow-2xl py-2 text-sm bg-gradient-to-b from-rj-dark-1 via-rj-dark-2 to-rj-dark-1"
-                                                     style="background-color:#14121f;">
-                                                    <div class="px-4 pb-1.5 mb-1 border-b border-white/10 text-white font-semibold">{{ $item['label'] }}</div>
-                                                    @foreach ($item['children'] as $child)
-                                                        @php $childActive = !empty($child['route']) && request()->routeIs($child['route']); @endphp
-                                                        <a href="{{ $child['url'] }}"
-                                                           class="block px-4 py-1.5 transition {{ $childActive ? 'text-white bg-white/10' : 'text-gray-400 hover:text-white hover:bg-white/5' }}">
-                                                            {{ $child['label'] }}
-                                                        </a>
-                                                    @endforeach
-                                                </div>
+                                        <div x-show="open" x-cloak x-ref="fly"
+                                             @mouseenter="keep()"
+                                             @mouseleave="hide()"
+                                             class="fixed z-[9999] ps-2"
+                                             :style="`top:${top}px; inset-inline-start:16rem;`">
+                                            <div class="min-w-[12rem] overflow-hidden rounded-lg border border-white/10 shadow-2xl py-2 text-sm bg-gradient-to-b from-rj-dark-1 via-rj-dark-2 to-rj-dark-1"
+                                                 style="background-color:#14121f;">
+                                                <div class="px-4 pb-1.5 mb-1 border-b border-white/10 text-white font-semibold">{{ $item['label'] }}</div>
+                                                @foreach ($item['children'] as $child)
+                                                    @php $childActive = !empty($child['route']) && request()->routeIs($child['route']); @endphp
+                                                    <a href="{{ $child['url'] }}"
+                                                       class="block px-4 py-1.5 transition {{ $childActive ? 'text-white bg-white/10' : 'text-gray-400 hover:text-white hover:bg-white/5' }}">
+                                                        {{ $child['label'] }}
+                                                    </a>
+                                                @endforeach
                                             </div>
-                                        </template>
+                                        </div>
                                     </div>
                                 @endif
                             @else
                                 <a href="{{ $itemUrl }}"
-                                   class="flex items-center gap-3 px-3 py-2 rounded-lg transition {{ $item['active'] ? 'bg-gradient-to-r from-rj-purple/30 to-rj-pink/20 text-white border-l-2 border-rj-purple-light' : 'hover:bg-white/5 hover:text-white' }}">
+                                   class="flex items-center gap-3 px-3 py-2 rounded-lg transition {{ $item['active'] ? 'bg-gradient-to-r from-rj-purple/30 to-rj-pink/20 text-white border-s-2 border-rj-purple-light' : 'hover:bg-white/5 hover:text-white' }}">
                                     <span class="w-5 h-5 flex-shrink-0 flex items-center justify-center text-current">{!! $item['icon'] !!}</span>
                                     <span>{{ $item['label'] }}</span>
                                 </a>
@@ -371,7 +368,7 @@
                             <svg class="w-3.5 h-3.5 opacity-60" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                         </button>
 
-                        <div x-show="langMenu" x-cloak x-transition class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1 rj-fade-in z-20">
+                        <div x-show="langMenu" x-cloak x-transition class="absolute end-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 py-1 rj-fade-in z-20">
                             @foreach (rj_available_locales() as $locale)
                                 <a href="{{ route('admin.lang.switch', $locale) }}" class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 {{ app()->getLocale() === $locale ? 'bg-gray-50 font-medium' : '' }}">
                                     @if (file_exists(public_path("images/flags/{$locale}.svg")))
@@ -388,14 +385,14 @@
                             <div class="h-9 w-9 rounded-full bg-gradient-to-br from-rj-purple to-rj-pink flex items-center justify-center text-white text-sm font-semibold">
                                 {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
                             </div>
-                            <div class="hidden sm:block text-left">
+                            <div class="hidden sm:block text-start">
                                 <div class="text-sm font-medium text-gray-900">{{ auth()->user()->name }}</div>
                                 <div class="text-xs text-gray-500">{{ ucfirst(auth()->user()->role) }}</div>
                             </div>
                             <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
                         </button>
 
-                        <div x-show="userMenu" x-cloak x-transition class="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-100 py-1 rj-fade-in z-20">
+                        <div x-show="userMenu" x-cloak x-transition class="absolute end-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-100 py-1 rj-fade-in z-20">
                             <div class="px-4 py-3 border-b border-gray-100">
                                 <div class="text-sm font-medium text-gray-900">{{ auth()->user()->name }}</div>
                                 <div class="text-xs text-gray-500 truncate">{{ auth()->user()->email }}</div>
@@ -428,7 +425,7 @@
 
             <main class="p-6 flex-1">
                 @if ($errors->any())
-                    <div class="mb-4 bg-red-50 border-l-4 border-red-500 text-red-800 px-4 py-3 rounded-r-lg rj-fade-in">
+                    <div class="mb-4 bg-red-50 border-s-4 border-red-500 text-red-800 px-4 py-3 rounded-e-lg rj-fade-in">
                         <ul class="text-sm space-y-1">
                             @foreach ($errors->all() as $error)
                                 <li>{{ $error }}</li>
@@ -438,13 +435,13 @@
                 @endif
 
                 @if (session('success'))
-                    <div class="mb-4 bg-green-50 border-l-4 border-green-500 text-green-800 px-4 py-3 rounded-r-lg rj-fade-in">
+                    <div class="mb-4 bg-green-50 border-s-4 border-green-500 text-green-800 px-4 py-3 rounded-e-lg rj-fade-in">
                         {{ session('success') }}
                     </div>
                 @endif
 
                 @if (session('error'))
-                    <div class="mb-4 bg-red-50 border-l-4 border-red-500 text-red-800 px-4 py-3 rounded-r-lg rj-fade-in">
+                    <div class="mb-4 bg-red-50 border-s-4 border-red-500 text-red-800 px-4 py-3 rounded-e-lg rj-fade-in">
                         {{ session('error') }}
                     </div>
                 @endif
