@@ -29,6 +29,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->web(append: [
             \App\Http\Middleware\CheckMaintenanceMode::class,
+            \App\Http\Middleware\InjectRtlDirection::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
