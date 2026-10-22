@@ -9,9 +9,7 @@ class ProductCategory extends Model
     protected $table = 'rj_product_categories';
 
     protected $fillable = [
-        'name',
         'slug',
-        'description',
         'image',
         'parent_id',
         'sort_order',
@@ -22,6 +20,23 @@ class ProductCategory extends Model
         'is_active' => 'boolean',
         'sort_order' => 'integer',
     ];
+
+    public function translations()
+    {
+        return $this->hasMany(ProductCategoryTranslation::class, 'product_category_id');
+    }
+
+    public function translation(?string $locale = null)
+    {
+        $locale = $locale ?: app()->getLocale();
+        $translation = $this->translations->firstWhere('locale', $locale);
+
+        if (!$translation) {
+            $translation = $this->translations->firstWhere('locale', config('app.locale')) ?: $this->translations->first();
+        }
+
+        return $translation;
+    }
 
     public function parent()
     {
