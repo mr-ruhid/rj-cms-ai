@@ -52,6 +52,22 @@
         .rj-svg.is-closed .rj-white { opacity: 0; }
         .rj-svg.is-closed .rj-lid { opacity: 1; }
 
+        .rj-field-icon, .rj-field-toggle {
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            display: flex;
+            align-items: center;
+            color: #9ca3af;
+        }
+        .rj-field-icon { inset-inline-start: 0; padding-inline-start: 1rem; pointer-events: none; }
+        .rj-field-toggle { inset-inline-end: 0; padding-inline-end: 1rem; background: none; border: 0; cursor: pointer; transition: color .2s ease; }
+        .rj-field-toggle:hover { color: var(--rj-purple, #8b5cf6); }
+        .rj-field-icon svg, .rj-field-toggle svg { width: 1.25rem; height: 1.25rem; flex-shrink: 0; }
+        input.rj-has-icon { padding-inline-start: 3rem; padding-inline-end: 1rem; }
+        input.rj-has-icon.rj-has-toggle { padding-inline-end: 3rem; }
+        .rj-hidden { display: none; }
+
         .rj-input { transition: box-shadow .25s ease, border-color .25s ease; }
         .rj-input:focus { box-shadow: 0 10px 24px -12px rgba(168, 85, 247, .5); }
 
@@ -219,11 +235,11 @@
                     <div class="rj-rise" style="animation-delay:.2s">
                         <label for="email" class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Email Address') }}</label>
                         <div class="relative">
-                            <span class="absolute inset-y-0 start-0 flex items-center ps-4 text-gray-400 pointer-events-none">
+                            <span class="rj-field-icon">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg>
                             </span>
                             <input id="email" type="email" name="email" value="{{ old('email') }}" required autofocus autocomplete="username"
-                                   class="rj-input w-full rounded-xl border-gray-300 focus:border-rj-purple focus:ring-rj-purple ps-12 pe-4 py-3"
+                                   class="rj-input w-full rounded-xl border-gray-300 focus:border-rj-purple focus:ring-rj-purple rj-has-icon py-3"
                                    placeholder="name@example.com">
                         </div>
                     </div>
@@ -238,16 +254,16 @@
                             @endif
                         </div>
                         <div class="relative">
-                            <span class="absolute inset-y-0 start-0 flex items-center ps-4 text-gray-400 pointer-events-none">
+                            <span class="rj-field-icon">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/></svg>
                             </span>
                             <input id="password" type="password" name="password" required autocomplete="current-password"
-                                   class="rj-input w-full rounded-xl border-gray-300 focus:border-rj-purple focus:ring-rj-purple ps-12 pe-12 py-3"
+                                   class="rj-input w-full rounded-xl border-gray-300 focus:border-rj-purple focus:ring-rj-purple rj-has-icon rj-has-toggle py-3"
                                    placeholder="••••••••">
                             <button type="button" id="rj-toggle-pass" aria-label="{{ __('Show password') }}"
-                                    class="absolute inset-y-0 end-0 flex items-center pe-4 text-gray-400 hover:text-rj-purple transition">
-                                <svg id="rj-eye-on" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                                <svg id="rj-eye-off" class="w-5 h-5 hidden" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"/></svg>
+                                    class="rj-field-toggle">
+                                <svg id="rj-eye-on" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.036 12.322a1.012 1.012 0 010-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                                <svg id="rj-eye-off" class="rj-hidden" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.98 8.223A10.477 10.477 0 001.934 12C3.226 16.338 7.244 19.5 12 19.5c.993 0 1.953-.138 2.863-.395M6.228 6.228A10.45 10.45 0 0112 4.5c4.756 0 8.773 3.162 10.065 7.498a10.523 10.523 0 01-4.293 5.774M6.228 6.228L3 3m3.228 3.228l3.65 3.65m7.894 7.894L21 21m-3.228-3.228l-3.65-3.65m0 0a3 3 0 10-4.243-4.243m4.242 4.242L9.88 9.88"/></svg>
                             </button>
                         </div>
                     </div>
@@ -262,7 +278,7 @@
 
                     <div class="rj-rise" style="animation-delay:.5s">
                         <button type="submit" id="rj-submit" class="rj-btn w-full flex justify-center items-center gap-2 py-3.5 px-4 rounded-xl shadow-lg shadow-rj-purple/30 text-sm font-bold text-white bg-gradient-to-r from-rj-purple to-rj-pink hover:opacity-95 hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-rj-purple transition-all active:scale-[.98]">
-                            <svg id="rj-spinner" class="rj-spin w-4 h-4 hidden" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-90" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path></svg>
+                            <svg id="rj-spinner" class="rj-spin rj-hidden" style="width:1rem;height:1rem" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-90" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path></svg>
                             <span id="rj-submit-text">{{ __('Sign In') }}</span>
                         </button>
                     </div>
@@ -392,8 +408,8 @@
             toggle.addEventListener('click', function () {
                 var show = pass.type === 'password';
                 pass.type = show ? 'text' : 'password';
-                eyeOn.classList.toggle('hidden', show);
-                eyeOff.classList.toggle('hidden', !show);
+                eyeOn.classList.toggle('rj-hidden', show);
+                eyeOff.classList.toggle('rj-hidden', !show);
                 pass.focus();
                 render();
             });
@@ -414,7 +430,7 @@
             }
 
             form.addEventListener('submit', function () {
-                spinner.classList.remove('hidden');
+                spinner.classList.remove('rj-hidden');
                 text.textContent = @json(__('Signing in...'));
                 setTimeout(function () { btn.disabled = true; btn.classList.add('opacity-80', 'cursor-wait'); }, 0);
             });
