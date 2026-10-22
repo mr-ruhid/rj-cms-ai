@@ -13,12 +13,8 @@ class TagController extends Controller
     {
         $tags = ProductTag::with('translations')->latest()->paginate(15);
         $locales = rj_available_locales();
-        return view('plugin-rj-commerce::admin.tags.index', compact('tags', 'locales'));
-    }
 
-    public function create()
-    {
-        abort(404);
+        return view('plugin-rj-commerce::admin.tags.index', compact('tags', 'locales'));
     }
 
     public function store(Request $request)
@@ -29,11 +25,24 @@ class TagController extends Controller
             'translations.*.name' => 'nullable|string|max:255',
         ]);
 
-        $baseName = $validated['translations'][config('app.locale')]['name'] ?? array_values($validated['translations'])[0]['name'] ?? 'tag';
-        $slug = $validated['slug'] ?: Str::slug($baseName);
+        $baseName = $validated['translations'][config('app.locale')]['name'] ?? '';
+        if (empty($baseName)) {
+            foreach ($validated['translations'] as $trans) {
+                if (!empty($trans['name'])) {
+                    $baseName = $trans['name'];
+                    break;
+                }
+            }
+        }
 
-        $count = 1;
+        $slug = !empty($validated['slug']) ? Str::slug($validated['slug']) : Str::slug($baseName);
+
+        if (empty($slug)) {
+            $slug = 'tag';
+        }
+
         $originalSlug = $slug;
+        $count = 1;
         while (ProductTag::where('slug', $slug)->exists()) {
             $slug = $originalSlug . '-' . $count++;
         }
@@ -53,11 +62,6 @@ class TagController extends Controller
         }
 
         return back()->with('success', __('Tag created successfully.'));
-    }
-
-    public function edit($id)
-    {
-        abort(404);
     }
 
     public function update(Request $request, ProductTag $tag)
