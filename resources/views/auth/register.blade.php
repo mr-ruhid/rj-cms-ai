@@ -407,7 +407,7 @@
             var bars = [].slice.call(meter.querySelectorAll('.rj-bar'));
             var toggles = [].slice.call(document.querySelectorAll('[data-toggle]'));
             var hasErrors = @json($errors->any());
-            var labels = @json([__('Weak'), __('Fair'), __('Good'), __('Strong')]);
+            var labels = {!! json_encode([__('Weak'), __('Fair'), __('Good'), __('Strong')]) !!};
             var colors = ['#ef4444', '#f97316', '#eab308', '#22c55e'];
             var stateClasses = ['is-name', 'is-email', 'is-pass', 'is-conf', 'is-terms', 'is-submit'];
 
@@ -659,7 +659,7 @@
 
             form.addEventListener('submit', function () {
                 spinner.classList.remove('rj-hidden');
-                submitText.textContent = @json(__('Creating account...'));
+                submitText.textContent = {!! json_encode(__('Creating account...')) !!};
                 setTimeout(function () { submit.disabled = true; submit.classList.add('opacity-80', 'cursor-wait'); }, 0);
             });
 
