@@ -12,7 +12,7 @@
 
 <br/>
 
-[Website](https://rj-nexus.github.io) &nbsp;|&nbsp; [RJ CMS Core](https://github.com/rj-nexus/rj-nexus) &nbsp;|&nbsp; [Packages](#-package-catalog) &nbsp;|&nbsp; [Contribute](#-contributing)
+[Website](https://rj-nexus.github.io) &nbsp;|&nbsp; [RJ CMS Core](https://github.com/rj-nexus/rj-nexus) &nbsp;|&nbsp; [Packages](#package-catalog) &nbsp;|&nbsp; [Contribute](#contributing)
 
 </div>
 
@@ -24,11 +24,11 @@ RJ Nexus is the home of **RJ CMS** and its growing ecosystem. This organization 
 
 **RJ CMS** is a modern, self-hosted content management system built on **Laravel 12**. It is modular by design: plugins and themes are fully isolated from the core, so they can be installed, updated, and removed without touching it. You run it on your own server and keep full ownership of your data.
 
-> **⚠️ Pre-Release Notice.** This is a **Pre-Release (v1.0.0-rc1)** version. Some bugs, incomplete features, and breaking changes are possible. Bug fixes, optimizations, and further improvements will land in the next update, which will be the official release version. Bug reports and feedback from the community are very welcome.
+> **Pre-Release Notice.** This is a **Pre-Release (v1.0.0-rc1)** version. Some bugs, incomplete features, and breaking changes are possible. Bug fixes, optimizations, improved SEO tools, and new languages will land in the next update, which will be the official release version. Bug reports and feedback from the community are very welcome.
 
 <img src="https://raw.githubusercontent.com/rj-nexus/.github/main/assets/divider.svg" alt="" width="100%"/>
 
-## 📸 Screenshots
+## Screenshots
 
 ### Admin Interface & Core Features
 
@@ -39,34 +39,34 @@ RJ Nexus is the home of **RJ CMS** and its growing ecosystem. This organization 
       <img src="https://raw.githubusercontent.com/rj-nexus/rj-nexus.github.io/main/assets/image/screensholt/01.png" alt="Dashboard" width="100%"/>
     </td>
     <td width="50%" align="center">
-      <b>AI Tools & Content Generator</b><br/><br/>
-      <img src="https://raw.githubusercontent.com/rj-nexus/rj-nexus.github.io/main/assets/image/screensholt/02.png" alt="AI Tools" width="100%"/>
-    </td>
-  </tr>
-  <tr>
-    <td width="50%" align="center">
       <b>RJBuilder (Page Builder)</b><br/><br/>
-      <img src="https://raw.githubusercontent.com/rj-nexus/rj-nexus.github.io/main/assets/image/screensholt/03.png" alt="RJBuilder" width="100%"/>
-    </td>
-    <td width="50%" align="center">
-      <b>Posts & Pages Management</b><br/><br/>
-      <img src="https://raw.githubusercontent.com/rj-nexus/rj-nexus.github.io/main/assets/image/screensholt/04.png" alt="Posts" width="100%"/>
+      <img src="https://raw.githubusercontent.com/rj-nexus/rj-nexus.github.io/main/assets/image/screensholt/02.png" alt="RJBuilder" width="100%"/>
     </td>
   </tr>
   <tr>
     <td width="50%" align="center">
-      <b>Security & 2FA</b><br/><br/>
-      <img src="https://raw.githubusercontent.com/rj-nexus/rj-nexus.github.io/main/assets/image/screensholt/05.png" alt="Security" width="100%"/>
+      <b>Posts List</b><br/><br/>
+      <img src="https://raw.githubusercontent.com/rj-nexus/rj-nexus.github.io/main/assets/image/screensholt/03.png" alt="Posts List" width="100%"/>
     </td>
     <td width="50%" align="center">
-      <b>Appearance & Themes</b><br/><br/>
-      <img src="https://raw.githubusercontent.com/rj-nexus/rj-nexus.github.io/main/assets/image/screensholt/06.png" alt="Appearance" width="100%"/>
+      <b>AI Tools</b><br/><br/>
+      <img src="https://raw.githubusercontent.com/rj-nexus/rj-nexus.github.io/main/assets/image/screensholt/04.png" alt="AI Tools" width="100%"/>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" align="center">
+      <b>Settings</b><br/><br/>
+      <img src="https://raw.githubusercontent.com/rj-nexus/rj-nexus.github.io/main/assets/image/screensholt/05.png" alt="Settings" width="100%"/>
+    </td>
+    <td width="50%" align="center">
+      <b>Theme Selection</b><br/><br/>
+      <img src="https://raw.githubusercontent.com/rj-nexus/rj-nexus.github.io/main/assets/image/screensholt/06.png" alt="Theme Selection" width="100%"/>
     </td>
   </tr>
   <tr>
     <td width="100%" colspan="2" align="center">
-      <b>Media Library & Settings</b><br/><br/>
-      <img src="https://raw.githubusercontent.com/rj-nexus/rj-nexus.github.io/main/assets/image/screensholt/07.png" alt="Media" width="70%"/>
+      <b>Settings &rarr; AI (OpenRouter API Connection)</b><br/><br/>
+      <img src="https://raw.githubusercontent.com/rj-nexus/rj-nexus.github.io/main/assets/image/screensholt/07.png" alt="AI Settings" width="70%"/>
     </td>
   </tr>
 </table>
@@ -77,44 +77,44 @@ RJ CMS ships with responsive, standalone error pages for every major HTTP status
 
 <table>
   <tr>
-    <td width="33%" align="center"><b>403 Forbidden</b><br/><br/><img src="https://raw.githubusercontent.com/rj-nexus/rj-nexus.github.io/main/assets/image/screensholt/08.png" alt="403" width="100%"/></td>
-    <td width="33%" align="center"><b>404 Not Found</b><br/><br/><img src="https://raw.githubusercontent.com/rj-nexus/rj-nexus.github.io/main/assets/image/screensholt/09.png" alt="404" width="100%"/></td>
-    <td width="33%" align="center"><b>419 Page Expired</b><br/><br/><img src="https://raw.githubusercontent.com/rj-nexus/rj-nexus.github.io/main/assets/image/screensholt/10.png" alt="419" width="100%"/></td>
+    <td width="33%" align="center"><b>500 Server Error</b><br/><br/><img src="https://raw.githubusercontent.com/rj-nexus/rj-nexus.github.io/main/assets/image/screensholt/08.png" alt="500" width="100%"/></td>
+    <td width="33%" align="center"><b>403 Forbidden</b><br/><br/><img src="https://raw.githubusercontent.com/rj-nexus/rj-nexus.github.io/main/assets/image/screensholt/09.png" alt="403" width="100%"/></td>
+    <td width="33%" align="center"><b>404 Not Found</b><br/><br/><img src="https://raw.githubusercontent.com/rj-nexus/rj-nexus.github.io/main/assets/image/screensholt/10.png" alt="404" width="100%"/></td>
   </tr>
   <tr>
-    <td width="33%" align="center"><b>429 Too Many Requests</b><br/><br/><img src="https://raw.githubusercontent.com/rj-nexus/rj-nexus.github.io/main/assets/image/screensholt/11.png" alt="429" width="100%"/></td>
-    <td width="33%" align="center"><b>500 Server Error</b><br/><br/><img src="https://raw.githubusercontent.com/rj-nexus/rj-nexus.github.io/main/assets/image/screensholt/12.png" alt="500" width="100%"/></td>
-    <td width="33%" align="center"><b>503 Maintenance</b><br/><br/><img src="https://raw.githubusercontent.com/rj-nexus/rj-nexus.github.io/main/assets/image/screensholt/13.png" alt="503" width="100%"/></td>
+    <td width="33%" align="center"><b>405 Invalid Request Method</b><br/><br/><img src="https://raw.githubusercontent.com/rj-nexus/rj-nexus.github.io/main/assets/image/screensholt/11.png" alt="405" width="100%"/></td>
+    <td width="33%" align="center"><b>401 Authentication Required</b><br/><br/><img src="https://raw.githubusercontent.com/rj-nexus/rj-nexus.github.io/main/assets/image/screensholt/12.png" alt="401" width="100%"/></td>
+    <td width="33%" align="center"><b>429 Rate Limit Exceeded</b><br/><br/><img src="https://raw.githubusercontent.com/rj-nexus/rj-nexus.github.io/main/assets/image/screensholt/13.png" alt="429" width="100%"/></td>
   </tr>
 </table>
 
 <img src="https://raw.githubusercontent.com/rj-nexus/.github/main/assets/divider.svg" alt="" width="100%"/>
 
-## ✨ Key Features
+## Key Features
 
-- **🤖 AI Integration (OpenRouter):** Generate full blog posts, bulk translate content (preserving HTML), and audit SEO automatically.
-- **🎨 RJBuilder (Page Builder):** Elementor-like visual builder with drag-and-drop, responsive controls, and dynamic tags.
-- **🔐 Advanced Security:** Two-Factor Authentication (Google Authenticator), Email Verification, and role-based permissions.
-- **🌍 Multi-language & RTL Support:** Built-in translations for 6 languages and automatic Right-to-Left rendering for Arabic, Persian, Hebrew, etc. (`InjectRtlDirection` middleware).
-- **⚡ Performance First:** Lazy loading for images, optimized DB queries, and fast asset compilation via Vite.
-- **🛠️ Maintenance Mode:** Animated 503 page with an easy toggle from the admin panel.
-- **🧩 Modular Plugin System:** Plugins are fully isolated with their own routes, views, migrations, and assets. Updates are delivered through GitHub.
-- **📝 Custom Error Pages:** Professionally designed 403, 404, 419, 429, 500, and 503 pages.
+- <img src="https://raw.githubusercontent.com/rj-nexus/.github/main/assets/icons/ai.svg" width="20" height="20" align="absmiddle" alt=""/> **AI Integration (OpenRouter):** Generate full blog posts, bulk translate content (preserving HTML), and audit SEO automatically.
+- <img src="https://raw.githubusercontent.com/rj-nexus/.github/main/assets/icons/builder.svg" width="20" height="20" align="absmiddle" alt=""/> **RJBuilder (Page Builder):** Elementor-like visual builder with drag-and-drop, responsive controls, and dynamic tags.
+- <img src="https://raw.githubusercontent.com/rj-nexus/.github/main/assets/icons/security.svg" width="20" height="20" align="absmiddle" alt=""/> **Advanced Security:** Two-Factor Authentication (Google Authenticator), Email Verification, and role-based permissions.
+- <img src="https://raw.githubusercontent.com/rj-nexus/.github/main/assets/icons/language.svg" width="20" height="20" align="absmiddle" alt=""/> **Multi-language & RTL Support:** Built-in translations for 6 languages and automatic Right-to-Left rendering for Arabic, Persian, Hebrew, etc. (`InjectRtlDirection` middleware).
+- <img src="https://raw.githubusercontent.com/rj-nexus/.github/main/assets/icons/performance.svg" width="20" height="20" align="absmiddle" alt=""/> **Performance First:** Lazy loading for images, optimized DB queries, and fast asset compilation via Vite.
+- <img src="https://raw.githubusercontent.com/rj-nexus/.github/main/assets/icons/maintenance.svg" width="20" height="20" align="absmiddle" alt=""/> **Maintenance Mode:** Animated 503 page with an easy toggle from the admin panel.
+- <img src="https://raw.githubusercontent.com/rj-nexus/.github/main/assets/icons/plugins.svg" width="20" height="20" align="absmiddle" alt=""/> **Modular Plugin System:** Plugins are fully isolated with their own routes, views, migrations, and assets. Updates are delivered through GitHub.
+- <img src="https://raw.githubusercontent.com/rj-nexus/.github/main/assets/icons/errors.svg" width="20" height="20" align="absmiddle" alt=""/> **Custom Error Pages:** Professionally designed 401, 403, 404, 405, 419, 429, 500, and 503 pages.
 
-## 🌐 Supported Languages
+## Supported Languages
 
 | Flag | Language | File |
 |:----:|----------|------|
-| 🇦🇿 | Azərbaycan dili (Azerbaijani) | `lang/az.json` |
-| 🇬🇧 | English | `lang/en.json` |
-| 🇩🇪 | Deutsch (German) | `lang/de.json` |
-| 🇪🇸 | Español (Spanish) | `lang/es.json` |
-| 🇫🇷 | Français (French) | `lang/fr.json` |
-| 🇵🇹 | Português (Portuguese) | `lang/pt.json` |
+| <img src="https://flagcdn.com/az.svg" width="24" alt="AZ"/> | Azərbaycan dili (Azerbaijani) | `lang/az.json` |
+| <img src="https://flagcdn.com/gb.svg" width="24" alt="EN"/> | English | `lang/en.json` |
+| <img src="https://flagcdn.com/de.svg" width="24" alt="DE"/> | Deutsch (German) | `lang/de.json` |
+| <img src="https://flagcdn.com/es.svg" width="24" alt="ES"/> | Español (Spanish) | `lang/es.json` |
+| <img src="https://flagcdn.com/fr.svg" width="24" alt="FR"/> | Français (French) | `lang/fr.json` |
+| <img src="https://flagcdn.com/pt.svg" width="24" alt="PT"/> | Português (Portuguese) | `lang/pt.json` |
 
 More languages will be added in the next version.
 
-## 📦 What we publish
+## What we publish
 
 <table>
   <tr>
@@ -155,7 +155,7 @@ More languages will be added in the next version.
 
 <img src="https://raw.githubusercontent.com/rj-nexus/.github/main/assets/divider.svg" alt="" width="100%"/>
 
-## 🧩 Package Catalog
+## Package catalog
 
 | Package | Type | Status | Repository |
 |---------|------|--------|------------|
@@ -164,7 +164,7 @@ More languages will be added in the next version.
 | Official themes | Theme | Coming soon | - |
 | More plugins | Plugin | Coming soon | - |
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 | Layer | Technology |
 |-------|------------|
@@ -176,7 +176,7 @@ More languages will be added in the next version.
 
 <img src="https://raw.githubusercontent.com/rj-nexus/.github/main/assets/divider.svg" alt="" width="100%"/>
 
-## 🚀 Installation
+## Installation
 
 Follow these steps to set up RJ CMS in your local development environment.
 
@@ -228,13 +228,13 @@ Follow these steps to set up RJ CMS in your local development environment.
 | Email | `admin@admin.com` |
 | Password | `admin123` |
 
-> **⚠️ Warning:** Change these credentials immediately on any production environment.
+> **Warning:** Change these credentials immediately on any production environment.
 
 <img src="https://raw.githubusercontent.com/rj-nexus/.github/main/assets/divider.svg" alt="" width="100%"/>
 
-## 🗺️ Roadmap
+## Roadmap
 
-### ✅ Completed (v1.0.0-rc1)
+### Completed (v1.0.0-rc1)
 
 - [x] Authentication (Laravel Breeze) and admin middleware
 - [x] Settings management (General, AI, SEO, Security, and more)
@@ -248,11 +248,11 @@ Follow these steps to set up RJ CMS in your local development environment.
 - [x] AI Tools: Content Generator and Bulk Translate (direct DB integration)
 - [x] Security: Two-Factor Authentication (2FA) and Email Verification
 - [x] Performance: lazy load for images, LCP optimization
-- [x] Localization: RTL support, automatic language switching, 6 languages (🇦🇿 🇬🇧 🇩🇪 🇪🇸 🇫🇷 🇵🇹)
+- [x] Localization: RTL support, automatic language switching, 6 languages (AZ, EN, DE, ES, FR, PT)
 - [x] Maintenance Mode: custom animated 503 page
-- [x] Custom Error Pages: 403, 404, 419, 429, 500, 503
+- [x] Custom Error Pages: 401, 403, 404, 405, 419, 429, 500, 503
 
-### 🔄 Next Version (Official Release)
+### Next Version (Official Release)
 
 - [ ] Bug fixes and stability improvements
 - [ ] Performance optimizations
@@ -262,7 +262,7 @@ Follow these steps to set up RJ CMS in your local development environment.
 - [ ] KYC (Know Your Customer) identity verification module
 - [ ] Remaining built-in theme views
 
-### 📅 Planned (Post-Release)
+### Planned (Post-Release)
 
 - [ ] Custom post type builder
 - [ ] Custom fields (ACF alternative)
@@ -270,7 +270,7 @@ Follow these steps to set up RJ CMS in your local development environment.
 
 <img src="https://raw.githubusercontent.com/rj-nexus/.github/main/assets/divider.svg" alt="" width="100%"/>
 
-## 🤝 Contributing
+## Contributing
 
 Contributions of every size are welcome, from bug reports to whole new plugins and themes.
 
