@@ -338,7 +338,7 @@
     @if($post->featured_image)
         <div class="rj-post-featured">
             <img src="{{ Str::startsWith($post->featured_image, 'http') ? $post->featured_image : asset($post->featured_image) }}"
-                 alt="{{ $post->title }}">
+                 alt="{{ $post->title }}" loading="eager" fetchpriority="high">
         </div>
     @endif
 
