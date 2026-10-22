@@ -94,7 +94,7 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6 space-y-5">
+        <div class="bg-white rounded-xl border border-gray-100 shadow-sm p-6 space-y-5" x-data="{ kycDriver: '{{ old('kyc_driver', $options['kyc_driver'] ?? 'manual') }}' }">
             <div>
                 <h2 class="text-lg font-semibold text-gray-900">{{ __('KYC Verification') }}</h2>
                 <p class="text-sm text-gray-500 mt-1">{{ __('Request identity verification from users.') }}</p>
@@ -110,6 +110,31 @@
                     <input type="checkbox" name="kyc_enabled" value="1" @checked(old('kyc_enabled', $options['kyc_enabled'] ?? '0') === '1') class="sr-only peer">
                     <div class="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:bg-gradient-to-r peer-checked:from-rj-purple peer-checked:to-rj-pink transition after:content-[''] after:absolute after:top-0.5 after:left-0.5 after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:after:translate-x-5"></div>
                 </label>
+            </div>
+
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('KYC Driver') }}</label>
+                <select name="kyc_driver" x-model="kycDriver" class="w-full max-w-xs rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple">
+                    <option value="manual">{{ __('Manual Review (Admin)') }}</option>
+                    <option value="api">{{ __('External API (Sumsub, Onfido)') }}</option>
+                </select>
+            </div>
+
+            <div x-show="kycDriver === 'api'" x-cloak class="p-4 bg-gray-50 rounded-xl border border-gray-200 space-y-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('API Endpoint') }}</label>
+                    <input type="url" name="kyc_api_endpoint" value="{{ old('kyc_api_endpoint', $options['kyc_api_endpoint'] ?? '') }}" class="w-full rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple" placeholder="https://api.sumsub.com">
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('API Key') }}</label>
+                        <input type="text" name="kyc_api_key" value="{{ old('kyc_api_key', $options['kyc_api_key'] ?? '') }}" class="w-full rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple font-mono text-sm">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('API Secret') }}</label>
+                        <input type="password" name="kyc_api_secret" value="{{ old('kyc_api_secret', $options['kyc_api_secret'] ?? '') }}" class="w-full rounded-lg border-gray-300 focus:border-rj-purple focus:ring-rj-purple font-mono text-sm">
+                    </div>
+                </div>
             </div>
 
             <div>
