@@ -23,7 +23,7 @@ class KycController extends Controller
             return redirect()->route('frontend.profile')->with('success', __('Your identity is already verified.'));
         }
 
-        return view('frontend.kyc.index', compact('user'));
+        return view('frontend.kyc', compact('user'));
     }
 
     public function submit(Request $request)
