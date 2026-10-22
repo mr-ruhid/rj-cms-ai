@@ -767,3 +767,20 @@ if (!function_exists('rj_widgets_for_context')) {
         return $result;
     }
 }
+
+if (!function_exists('rj_is_rtl')) {
+    function rj_is_rtl(?string $locale = null): bool
+    {
+        $locale = $locale ?: app()->getLocale();
+        $rtlLocales = ['ar', 'fa', 'he', 'ur', 'yi'];
+
+        return in_array(strtolower(substr($locale, 0, 2)), $rtlLocales);
+    }
+}
+
+if (!function_exists('rj_dir')) {
+    function rj_dir(?string $locale = null): string
+    {
+        return rj_is_rtl($locale) ? 'rtl' : 'ltr';
+    }
+}
