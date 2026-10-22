@@ -9,7 +9,7 @@
     "license": "MIT",
     "main": "src/Plugin.php",
     "namespace": "RjCommerce",
-    "provider": "RjCommerce\\Providers\\CommerceServiceProvider",
+    "provider": "RjCommerce\\CommerceServiceProvider",
     "requires": {
         "rj_cms": ">=1.0.0",
         "php": ">=8.2"
