@@ -13,12 +13,12 @@ class ProductController extends Controller
     public function index()
     {
         $products = Product::latest()->paginate(15);
-        return view('rj-commerce::admin.products.index', compact('products'));
+        return view('plugin-rj-commerce::admin.products.index', compact('products'));
     }
 
     public function create()
     {
-        return view('rj-commerce::admin.products.create');
+        return view('plugin-rj-commerce::admin.products.create');
     }
 
     public function store(Request $request)
@@ -65,7 +65,7 @@ class ProductController extends Controller
 
     public function edit(Product $product)
     {
-        return view('rj-commerce::admin.products.edit', compact('product'));
+        return view('plugin-rj-commerce::admin.products.edit', compact('product'));
     }
 
     public function update(Request $request, Product $product)
