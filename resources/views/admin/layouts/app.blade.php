@@ -223,7 +223,7 @@
 
     <div class="flex min-h-screen" x-data="{ userMenu: false, langMenu: false }">
 
-        <aside class="w-64 h-screen sticky top-0 self-start z-30 bg-gradient-to-b from-rj-dark-1 via-rj-dark-2 to-rj-dark-1 text-gray-300 flex-shrink-0 flex flex-col">
+        <aside class="w-64 h-screen sticky top-0 self-start z-50 bg-gradient-to-b from-rj-dark-1 via-rj-dark-2 to-rj-dark-1 text-gray-300 flex-shrink-0 flex flex-col">
             <div class="h-20 flex items-center justify-center px-5 border-b border-white/5 flex-shrink-0">
                 <a href="{{ route('admin.dashboard') }}" class="hover:opacity-90 transition inline-flex items-center">
                     @php $logoMask = rj_logo_mask_url(); @endphp
@@ -249,7 +249,7 @@
                             @php
                                 $hasChildren = !empty($item['children']);
                                 $itemUrl = $item['url'] ?? ($hasChildren ? $item['children'][0]['url'] : '#');
-                                
+
                                 $hasActiveChild = false;
                                 if ($hasChildren) {
                                     foreach ($item['children'] as $child) {
@@ -313,7 +313,7 @@
                                         <div x-show="open" x-cloak x-ref="fly"
                                              @mouseenter="keep()"
                                              @mouseleave="hide()"
-                                             class="fixed z-[9999] ps-2"
+                                             class="fixed z-[99999] ps-2"
                                              :style="`top:${top}px; inset-inline-start:16rem;`">
                                             <div class="min-w-[12rem] overflow-hidden rounded-lg border border-white/10 shadow-2xl py-2 text-sm bg-gradient-to-b from-rj-dark-1 via-rj-dark-2 to-rj-dark-1"
                                                  style="background-color:#14121f;">
@@ -354,8 +354,8 @@
             </div>
         </aside>
 
-        <div class="flex-1 flex flex-col min-w-0">
-            <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 sticky top-0 z-10">
+        <div class="flex-1 flex flex-col min-w-0 relative z-10">
+            <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 sticky top-0 z-40">
                 <div>
                     <h1 class="text-lg font-semibold text-gray-900">@yield('title', __('Dashboard'))</h1>
                 </div>
