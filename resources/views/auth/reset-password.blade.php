@@ -425,8 +425,8 @@
             var meterLabel = document.getElementById('rj-meter-label');
             var bars = [].slice.call(meter.querySelectorAll('.rj-bar'));
             var toggles = [].slice.call(document.querySelectorAll('[data-toggle]'));
-            var hasErrors = @json($errors->any());
-            var labels = @json([__('Weak'), __('Fair'), __('Good'), __('Strong')]);
+            var hasErrors = {!! json_encode($errors->any()) !!};
+            var labels = {!! json_encode([__('Weak'), __('Fair'), __('Good'), __('Strong')]) !!};
             var colors = ['#ef4444', '#f97316', '#eab308', '#22c55e'];
             var stateClasses = ['is-email', 'is-pass', 'is-conf', 'is-submit'];
 
@@ -670,7 +670,7 @@
                 e.preventDefault();
                 submitting = true;
                 spinner.classList.remove('rj-hidden');
-                submitText.textContent = @json(__('Resetting...'));
+                submitText.textContent = {!! json_encode(__('Resetting...')) !!};
                 submit.disabled = true;
                 submit.classList.add('opacity-80', 'cursor-wait');
                 pulse(svg, 'is-cheer', 1000);
