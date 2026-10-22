@@ -15,7 +15,7 @@ class UpdatesController extends Controller
 
     public function __construct()
     {
-        $this->repo = rj_get_option('update_repo', 'mr-ruhid/rj-cms-ai');
+        $this->repo = rj_get_option('update_repo', 'rj-nexus/rj-nexus.github.io');
         $this->currentVersion = rj_get_option('rj_version', '1.0.0');
     }
 
