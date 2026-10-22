@@ -36,6 +36,23 @@
         .row:nth-child(3) span { animation-duration: 32s; }
         @keyframes slide { to { transform: translateX(-50%); } }
 
+        /* Broken request fragments floating in the background */
+        .frags { position: fixed; inset: 0; z-index: 2; pointer-events: none; overflow: hidden; }
+        .frag {
+            position: absolute;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-weight: 700;
+            font-size: clamp(14px, 2.2vmax, 28px);
+            color: rgba(216, 180, 254, .22);
+            text-shadow: 0 0 14px rgba(168, 85, 247, .35);
+            animation: frag 9s ease-in-out infinite;
+        }
+        .frag.pink { color: rgba(249, 168, 212, .22); text-shadow: 0 0 14px rgba(236, 72, 153, .35); }
+        @keyframes frag {
+            0%, 100% { transform: translateY(0) rotate(var(--r, 0deg)); opacity: .35; }
+            50% { transform: translateY(-22px) rotate(calc(var(--r, 0deg) * -1)); opacity: 1; }
+        }
+
         .branding {
             position: fixed; top: 24px; right: 24px; z-index: 100;
             display: flex; align-items: center; gap: 10px;
@@ -54,6 +71,7 @@
         .layout { position: fixed; inset: 0; z-index: 5; display: flex; flex-direction: column; }
 
         .digits {
+            position: relative;
             flex: 1; min-height: 0;
             display: flex; align-items: center; justify-content: center;
             gap: min(2vw, 2rem);
@@ -61,6 +79,28 @@
             font-size: min(54vh, 30vw);
             padding-top: 2vh;
         }
+
+        /* Scan beam: the "validator" sweeping over the digits */
+        .scan {
+            position: absolute;
+            left: 50%;
+            width: min(88vw, 1.9em);
+            height: 2px;
+            transform: translateX(-50%);
+            background: linear-gradient(to right, transparent, #f9a8d4, transparent);
+            box-shadow: 0 0 18px 3px rgba(236, 72, 153, .55);
+            opacity: 0;
+            pointer-events: none;
+            animation: scan 5s ease-in-out infinite;
+            font-size: inherit;
+        }
+        @keyframes scan {
+            0% { top: 14%; opacity: 0; }
+            10% { opacity: .9; }
+            45% { top: 84%; opacity: .9; }
+            55%, 100% { top: 84%; opacity: 0; }
+        }
+
         .p { will-change: transform; transition: transform .25s ease-out; }
         .digit {
             display: block; line-height: .9; font-weight: 900; letter-spacing: -.03em;
@@ -86,6 +126,11 @@
             width: 0.28em;
             height: 0.28em;
             filter: drop-shadow(0 0 12px rgba(236,72,153,.9));
+            animation: warn 1.8s ease-in-out infinite;
+        }
+        @keyframes warn {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); filter: drop-shadow(0 0 10px rgba(236,72,153,.7)); }
+            50% { transform: translate(-50%, -50%) scale(1.14); filter: drop-shadow(0 0 22px rgba(236,72,153,1)); }
         }
 
         .d3 { position: relative; animation: jitter 4s infinite; }
@@ -125,6 +170,13 @@
             backdrop-filter: blur(16px);
             -webkit-backdrop-filter: blur(16px);
             box-shadow: 0 20px 60px rgba(0, 0, 0, .45);
+            animation: shake .6s cubic-bezier(.36, .07, .19, .97) .35s both;
+        }
+        @keyframes shake {
+            10%, 90% { transform: translateX(-2px); }
+            20%, 80% { transform: translateX(4px); }
+            30%, 50%, 70% { transform: translateX(-7px); }
+            40%, 60% { transform: translateX(7px); }
         }
         .pill {
             display: inline-flex; align-items: center; gap: 10px;
@@ -136,6 +188,43 @@
         @keyframes dot { 0%, 100% { opacity: .3; } 50% { opacity: 1; } }
         .title { margin-top: .8rem; font-size: clamp(1.2rem, 3vw, 1.9rem); font-weight: 800; letter-spacing: .16em; text-transform: uppercase; }
         .desc { margin: .5rem auto 0; max-width: 30rem; color: #a1a1aa; font-size: .95rem; line-height: 1.7; }
+
+        /* Request parser terminal */
+        .term {
+            margin: 1rem auto 0;
+            max-width: 32rem;
+            text-align: left;
+            border-radius: 12px;
+            background: rgba(0, 0, 0, .38);
+            border: 1px solid rgba(255, 255, 255, .08);
+            overflow: hidden;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+            font-size: .78rem;
+            line-height: 1.75;
+        }
+        .term-bar {
+            display: flex; align-items: center; gap: 6px;
+            padding: 7px 12px;
+            background: rgba(255, 255, 255, .04);
+            border-bottom: 1px solid rgba(255, 255, 255, .06);
+        }
+        .term-bar i { width: 8px; height: 8px; border-radius: 9999px; background: rgba(255, 255, 255, .16); }
+        .term-bar i:first-child { background: #ec4899; box-shadow: 0 0 8px #ec4899; }
+        .term-bar span { margin-inline-start: auto; font-size: .65rem; letter-spacing: .12em; text-transform: uppercase; color: #71717a; }
+        .term-body { padding: 10px 14px; }
+        .ln { display: block; color: #a1a1aa; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; animation: ln .45s ease both; }
+        .ln:nth-child(1) { animation-delay: .5s; }
+        .ln:nth-child(2) { animation-delay: 1.1s; }
+        .ln:nth-child(3) { animation-delay: 1.7s; }
+        .ln:nth-child(4) { animation-delay: 2.3s; }
+        @keyframes ln { from { opacity: 0; transform: translateX(-8px); } }
+        .ln b { color: #c084fc; font-weight: 700; }
+        .ln .bad { color: #f9a8d4; background: rgba(236, 72, 153, .16); padding: 0 4px; border-radius: 4px; }
+        .ln.err { color: #f9a8d4; }
+        .ln.res { color: #fff; font-weight: 700; }
+        .cursor { display: inline-block; width: .5em; height: 1em; margin-inline-start: 3px; vertical-align: -2px; background: #ec4899; animation: blink 1s steps(1) infinite; }
+        @keyframes blink { 50% { opacity: 0; } }
+
         .actions { margin-top: 1.2rem; display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; }
         .btn {
             display: inline-flex; align-items: center; gap: .55rem;
@@ -154,6 +243,9 @@
         .btn.ghost svg { transition: transform .5s; }
         .btn.ghost:hover svg { transform: rotate(180deg); }
 
+        @media (max-height: 820px) {
+            .term { display: none; }
+        }
         @media (max-height: 720px) {
             .desc { display: none; }
             .panel { padding: 14px 20px; margin-bottom: 2vh; }
@@ -181,6 +273,19 @@
         @endfor
     </div>
 
+    <div class="frags" aria-hidden="true">
+        @php
+            $frags = [
+                ['{', 6, 14, 0, 'p'], ['<', 18, 72, 2, 'k'], ['%', 30, 30, 4, 'p'], ['}', 44, 84, 1, 'k'],
+                ['\\', 58, 10, 3, 'p'], ['0x00', 70, 66, 5, 'k'], ['">', 82, 22, 2, 'p'], ['??', 92, 78, 4, 'k'],
+                ['&', 12, 46, 6, 'k'], [';;', 76, 44, 1, 'p'],
+            ];
+        @endphp
+        @foreach ($frags as $i => $f)
+            <span class="frag {{ $f[4] === 'k' ? 'pink' : '' }}" style="left: {{ $f[1] }}%; top: {{ $f[2] }}%; animation-delay: -{{ $f[3] }}s; --r: {{ $i % 2 ? 8 : -8 }}deg">{{ $f[0] }}</span>
+        @endforeach
+    </div>
+
     <div class="vignette"></div>
 
     <a href="/" class="branding">
@@ -194,6 +299,8 @@
     <div class="layout">
 
         <div class="digits" aria-label="400">
+            <div class="scan"></div>
+
             <div class="p" data-depth="38"><span class="digit d1">4</span></div>
 
             <div class="p" data-depth="-26">
@@ -220,6 +327,19 @@
             <h1 class="title">{{ __('Malformed Request') }}</h1>
             <p class="desc">{{ __('The server cannot process the request due to a client error. Please check your input and try again.') }}</p>
 
+            <div class="term" aria-hidden="true">
+                <div class="term-bar">
+                    <i></i><i></i><i></i>
+                    <span>request.parser</span>
+                </div>
+                <div class="term-body">
+                    <span class="ln"><b>&gt;</b> GET <span id="rj-path">/</span> HTTP/1.1</span>
+                    <span class="ln err">✗ header: invalid character <span class="bad">0x1F</span> at byte 42</span>
+                    <span class="ln err">✗ parser: unexpected token <span class="bad">%</span></span>
+                    <span class="ln res"><b>←</b> 400 Bad Request<span class="cursor"></span></span>
+                </div>
+            </div>
+
             <div class="actions">
                 <a href="{{ url('/') }}" class="btn">
                     <svg fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
@@ -235,6 +355,9 @@
 
     <script>
         (function () {
+            var pathEl = document.getElementById('rj-path');
+            if (pathEl) { pathEl.textContent = window.location.pathname || '/'; }
+
             var items = document.querySelectorAll('.p');
             document.addEventListener('mousemove', function (e) {
                 var x = e.clientX / window.innerWidth - 0.5;
