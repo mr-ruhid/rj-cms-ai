@@ -58,6 +58,10 @@ Route::get('/blog/{slug}', [PostController::class, 'show'])->name('frontend.post
 Route::middleware(['auth'])->group(function () {
     Route::get('/account', [AccountController::class, 'index'])->name('frontend.account.index');
 
+    Route::get('/account/settings', [AccountController::class, 'settings'])->name('frontend.account.settings');
+    Route::put('/account/settings', [AccountController::class, 'updateSettings'])->name('frontend.account.settings.update');
+    Route::put('/account/password', [AccountController::class, 'updatePassword'])->name('frontend.account.password.update');
+
     Route::get('/kyc', [KycController::class, 'index'])->name('frontend.kyc.index');
     Route::post('/kyc', [KycController::class, 'submit'])->name('frontend.kyc.submit');
 });
