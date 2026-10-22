@@ -2,22 +2,17 @@
 
 namespace RjCommerce;
 
-use Illuminate\Support\ServiceProvider;
+use App\Plugins\PluginServiceProvider;
 
-class CommerceServiceProvider extends ServiceProvider
+class CommerceServiceProvider extends PluginServiceProvider
 {
     public function register(): void
     {
-        //
+        parent::register();
     }
 
     public function boot(): void
     {
-        $basePath = dirname(__DIR__);
-
-        $this->loadRoutesFrom($basePath . '/routes/web.php');
-        $this->loadRoutesFrom($basePath . '/routes/admin.php');
-        $this->loadViewsFrom($basePath . '/resources/views', 'rj-commerce');
-        $this->loadMigrationsFrom($basePath . '/database/migrations');
+        parent::boot();
     }
 }
