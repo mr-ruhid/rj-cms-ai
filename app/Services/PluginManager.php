@@ -142,8 +142,11 @@ class PluginManager
             $this->registerPluginAutoloader($plugin);
             $this->bootPlugin($plugin);
 
-            // AVTOMATİK MİQRASİYA ƏLAVƏ EDİLDİ
-            Artisan::call('migrate', ['--force' => true]);
+            // DÜZƏLİŞ: Birbaşa pluginin qovluğuna yönəlmiş migrasiya
+            \Illuminate\Support\Facades\Artisan::call('migrate', [
+                '--path' => 'rj-content/plugins/' . $plugin->folder . '/database/migrations',
+                '--force' => true,
+            ]);
 
             $plugin->markAsActive();
 
