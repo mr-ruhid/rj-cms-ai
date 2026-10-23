@@ -1,7 +1,7 @@
 {
     "name": "RJ Default",
     "slug": "rj-default",
-    "version": "0.0.9",
+    "version": "0.9.0",
     "author": "RJ CMS",
     "author_url": "https://github.com/mr-ruhid",
     "description": "The official default theme for RJ CMS. Clean, minimal, builder-first.",
