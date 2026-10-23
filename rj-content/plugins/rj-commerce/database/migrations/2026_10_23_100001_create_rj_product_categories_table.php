@@ -28,7 +28,7 @@ return new class extends Migration
             $table->text('seo_description')->nullable();
             $table->timestamps();
 
-            $table->unique(['product_category_id', 'locale']);
+            $table->unique(['product_category_id', 'locale'], 'rj_cat_trans_unique');
         });
     }
 
