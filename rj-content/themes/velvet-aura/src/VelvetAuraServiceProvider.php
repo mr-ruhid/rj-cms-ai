@@ -3,6 +3,7 @@
 namespace VelvetAura;
 
 use Illuminate\Support\ServiceProvider;
+use VelvetAura\Widgets\HeroSliderWidget;
 
 class VelvetAuraServiceProvider extends ServiceProvider
 {
@@ -19,7 +20,9 @@ class VelvetAuraServiceProvider extends ServiceProvider
     {
         if (function_exists('rj_add_filter')) {
             rj_add_filter('builder.widgets', function ($existing) {
-                $widgets = [];
+                $widgets = [
+                    new HeroSliderWidget(),
+                ];
                 return array_merge($existing, $widgets);
             });
         }
