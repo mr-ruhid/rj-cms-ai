@@ -24,7 +24,7 @@ return new class extends Migration
             $table->string('name');
             $table->timestamps();
 
-            $table->unique(['product_attribute_id', 'locale']);
+            $table->unique(['product_attribute_id', 'locale'], 'rj_attr_trans_unique');
         });
 
         Schema::create('rj_product_attribute_values', function (Blueprint $table) {
@@ -35,7 +35,7 @@ return new class extends Migration
             $table->integer('sort_order')->default(0);
             $table->timestamps();
 
-            $table->unique(['product_attribute_id', 'slug']);
+            $table->unique(['product_attribute_id', 'slug'], 'rj_attr_val_unique');
         });
 
         Schema::create('rj_product_attribute_value_translations', function (Blueprint $table) {
@@ -45,7 +45,7 @@ return new class extends Migration
             $table->string('name');
             $table->timestamps();
 
-            $table->unique(['product_attribute_value_id', 'locale']);
+            $table->unique(['product_attribute_value_id', 'locale'], 'rj_attr_val_trans_unique');
         });
     }
 
