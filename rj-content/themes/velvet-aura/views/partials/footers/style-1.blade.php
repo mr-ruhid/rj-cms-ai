@@ -8,6 +8,9 @@
     } elseif (\Illuminate\Support\Str::startsWith($logoUrl, 'media/')) {
         $logoUrl = asset($logoUrl);
     }
+
+    $shopMenu = function_exists('rj_menu_tree') ? rj_menu_tree('footer-shop') : [];
+    $careMenu = function_exists('rj_menu_tree') ? rj_menu_tree('footer-care') : [];
 @endphp
 
 <footer class="bg-[#111111] text-slate-300 pt-20 pb-10 border-t border-white/10 mt-auto font-sans">
@@ -38,22 +41,32 @@
             <div>
                 <h4 class="text-white text-xs font-bold tracking-[0.2em] uppercase mb-6">{{ __('Shop') }}</h4>
                 <ul class="space-y-4 text-sm">
-                    @if(function_exists('rj_commerce_url'))
-                        <li><a href="{{ rj_commerce_url('shop') }}" class="hover:text-[#d4af37] transition-colors">{{ __('All Products') }}</a></li>
+                    @if(!empty($shopMenu))
+                        @foreach($shopMenu as $item)
+                            <li><a href="{{ $item->url ?? $item['url'] ?? '#' }}" class="hover:text-[#d4af37] transition-colors">{{ $item->title ?? $item['title'] ?? '' }}</a></li>
+                        @endforeach
+                    @else
+                        @if(function_exists('rj_commerce_url'))
+                            <li><a href="{{ rj_commerce_url('shop') }}" class="hover:text-[#d4af37] transition-colors">{{ __('All Products') }}</a></li>
+                        @endif
+                        <li><a href="#" class="hover:text-[#d4af37] transition-colors">{{ __('New Arrivals') }}</a></li>
+                        <li><a href="#" class="hover:text-[#d4af37] transition-colors">{{ __('Bestsellers') }}</a></li>
                     @endif
-                    <li><a href="#" class="hover:text-[#d4af37] transition-colors">{{ __('New Arrivals') }}</a></li>
-                    <li><a href="#" class="hover:text-[#d4af37] transition-colors">{{ __('Bestsellers') }}</a></li>
-                    <li><a href="#" class="hover:text-[#d4af37] transition-colors">{{ __('Gift Cards') }}</a></li>
                 </ul>
             </div>
 
             <div>
                 <h4 class="text-white text-xs font-bold tracking-[0.2em] uppercase mb-6">{{ __('Customer Care') }}</h4>
                 <ul class="space-y-4 text-sm">
-                    <li><a href="{{ url('/contact') }}" class="hover:text-[#d4af37] transition-colors">{{ __('Contact Us') }}</a></li>
-                    <li><a href="#" class="hover:text-[#d4af37] transition-colors">{{ __('Shipping & Returns') }}</a></li>
-                    <li><a href="#" class="hover:text-[#d4af37] transition-colors">{{ __('FAQ') }}</a></li>
-                    <li><a href="#" class="hover:text-[#d4af37] transition-colors">{{ __('Track Order') }}</a></li>
+                    @if(!empty($careMenu))
+                        @foreach($careMenu as $item)
+                            <li><a href="{{ $item->url ?? $item['url'] ?? '#' }}" class="hover:text-[#d4af37] transition-colors">{{ $item->title ?? $item['title'] ?? '' }}</a></li>
+                        @endforeach
+                    @else
+                        <li><a href="{{ url('/contact') }}" class="hover:text-[#d4af37] transition-colors">{{ __('Contact Us') }}</a></li>
+                        <li><a href="#" class="hover:text-[#d4af37] transition-colors">{{ __('Shipping & Returns') }}</a></li>
+                        <li><a href="#" class="hover:text-[#d4af37] transition-colors">{{ __('FAQ') }}</a></li>
+                    @endif
                 </ul>
             </div>
 
