@@ -26,7 +26,7 @@ class CheckoutController extends Controller
             $subtotal += $item['price'] * $item['quantity'];
         }
 
-        $taxEnabled = rj_get_option('commerce_tax_enabled') === '1';
+        $taxEnabled = rj_get_option('commerce_tax_enabled') == '1';
         $taxRate = $taxEnabled ? (float) rj_get_option('commerce_default_tax_rate', 0) : 0;
         $taxTotal = $subtotal * ($taxRate / 100);
 
@@ -36,14 +36,21 @@ class CheckoutController extends Controller
         $currency = rj_get_option('commerce_currency', 'USD');
         $paymentMethods = [];
 
-        if (rj_get_option('commerce_cod_enabled') === '1') {
+        // == istifadə edirik ki, həm "1", həm də 1 rəqəmi işləsin
+        if (rj_get_option('commerce_cod_enabled', '1') == '1') {
             $paymentMethods['cod'] = __('Cash on Delivery');
         }
-        if (rj_get_option('commerce_stripe_enabled') === '1') {
+        if (rj_get_option('commerce_stripe_enabled', '0') == '1') {
             $paymentMethods['stripe'] = __('Credit Card (Stripe)');
         }
-        if (rj_get_option('commerce_paypal_enabled') === '1') {
+        if (rj_get_option('commerce_paypal_enabled', '0') == '1') {
             $paymentMethods['paypal'] = __('PayPal');
+        }
+        if (rj_get_option('commerce_checkout_enabled', '0') == '1') {
+            $paymentMethods['checkout'] = __('Checkout.com');
+        }
+        if (rj_get_option('commerce_razorpay_enabled', '0') == '1') {
+            $paymentMethods['razorpay'] = __('Razorpay');
         }
 
         $view = 'plugin-rj-commerce::frontend.checkout.index';
@@ -88,7 +95,7 @@ class CheckoutController extends Controller
             $subtotal += $item['price'] * $item['quantity'];
         }
 
-        $taxEnabled = rj_get_option('commerce_tax_enabled') === '1';
+        $taxEnabled = rj_get_option('commerce_tax_enabled') == '1';
         $taxRate = $taxEnabled ? (float) rj_get_option('commerce_default_tax_rate', 0) : 0;
         $taxTotal = $subtotal * ($taxRate / 100);
         $shippingTotal = 0;
