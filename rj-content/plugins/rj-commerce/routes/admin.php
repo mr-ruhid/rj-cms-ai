@@ -1,16 +1,16 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use RjCommerce\Http\Controllers\Admin\ProductController;
-use RjCommerce\Http\Controllers\Admin\OrderController;
-use RjCommerce\Http\Controllers\Admin\CategoryController;
-use RjCommerce\Http\Controllers\Admin\BrandController;
-use RjCommerce\Http\Controllers\Admin\TagController;
-use RjCommerce\Http\Controllers\Admin\AttributeController;
-use RjCommerce\Http\Controllers\Admin\CouponController;
-use RjCommerce\Http\Controllers\Admin\ReviewController;
-use RjCommerce\Http\Controllers\Admin\ShippingController;
-use RjCommerce\Http\Controllers\Admin\SettingsController;
+use RjCommerce\Controllers\ProductController;
+use RjCommerce\Controllers\OrderController;
+use RjCommerce\Controllers\CategoryController;
+use RjCommerce\Controllers\BrandController;
+use RjCommerce\Controllers\TagController;
+use RjCommerce\Controllers\AttributeController;
+use RjCommerce\Controllers\CouponController;
+use RjCommerce\Controllers\ReviewController;
+use RjCommerce\Controllers\ShippingController;
+use RjCommerce\Controllers\SettingsController;
 
 Route::middleware(['web', 'auth', 'admin'])->prefix('admin/commerce')->name('admin.commerce.')->group(function () {
     Route::resource('products', ProductController::class)->except(['show']);
