@@ -168,7 +168,7 @@
                 },
 
                 checkout() {
-                    alert('{{ __('Checkout page is coming in the next step!') }}');
+                    window.location.href = '{{ route('commerce.checkout.index') }}';
                 }
             }
         }
