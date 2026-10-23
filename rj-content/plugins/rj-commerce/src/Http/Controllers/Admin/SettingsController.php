@@ -16,4 +16,9 @@ class SettingsController extends Controller
     {
         return back()->with('success', __('Commerce settings updated successfully.'));
     }
+
+    public function apiDocs()
+    {
+        return view('plugin-rj-commerce::admin.api-docs');
+    }
 }
