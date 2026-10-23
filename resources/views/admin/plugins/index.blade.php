@@ -94,7 +94,6 @@
                 <p class="mt-4 text-sm text-gray-500">{{ __('No plugins installed yet.') }}</p>
             </div>
         @else
-            {{-- Cədvəldə kənar formadan asılı olmayan kütləvi əməliyyat paneli --}}
             <div x-show="selected.length > 0" x-cloak class="px-4 py-2.5 border-b border-gray-100 bg-rj-purple/5 flex items-center gap-3 flex-wrap">
                 <span class="text-xs text-gray-600"><b x-text="selected.length"></b> {{ __('selected') }}</span>
 
@@ -135,7 +134,12 @@
                                 'error' => 'bg-red-50 text-red-700',
                             ];
                             $statusClass = $statusColors[$plugin->status] ?? 'bg-gray-100 text-gray-600';
-                            $hasUpdate = !empty($plugin->metadata()['latest_version']) && version_compare($plugin->metadata()['latest_version'], $plugin->version, '>');
+
+                            $meta = $plugin->metadata();
+                            $hasUpdate = !empty($meta['latest_version']) && version_compare($meta['latest_version'], $plugin->version, '>');
+                            $isUpdatePrerelease = !empty($meta['is_prerelease']);
+
+                            $isInstalledBeta = str_contains(strtolower($plugin->version), 'beta') || str_contains(strtolower($plugin->version), 'alpha') || str_contains(strtolower($plugin->version), 'rc');
                         @endphp
 
                         <tr x-show="search === '' || '{{ strtolower($plugin->name) }}'.includes(search.toLowerCase())"
@@ -170,7 +174,14 @@
                             </td>
 
                             <td class="px-4 py-3 align-top hidden md:table-cell">
-                                <span class="text-sm text-gray-700 font-mono">{{ $plugin->version }}</span>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-sm text-gray-700 font-mono">{{ $plugin->version }}</span>
+                                    @if ($isInstalledBeta)
+                                        <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200 uppercase tracking-wider" title="{{ __('This installed version is a pre-release.') }}">
+                                            Beta
+                                        </span>
+                                    @endif
+                                </div>
                             </td>
 
                             <td class="px-4 py-3 align-top text-center">
@@ -186,7 +197,12 @@
                                             @csrf
                                             <button type="submit" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500 text-white text-xs font-medium hover:bg-amber-600 transition">
                                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                                                {{ __('Update to') }} {{ $plugin->metadata()['latest_version'] }}
+                                                {{ __('Update to') }} {{ $meta['latest_version'] }}
+                                                @if ($isUpdatePrerelease)
+                                                    <span class="ml-1 px-1.5 py-0.5 rounded bg-white/20 text-[10px] font-bold uppercase tracking-wider" title="{{ __('This update is a pre-release (beta).') }}">
+                                                        Beta
+                                                    </span>
+                                                @endif
                                             </button>
                                         </form>
                                     @endif
