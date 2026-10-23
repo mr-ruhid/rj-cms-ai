@@ -21,7 +21,7 @@
             </a>
         </div>
 
-        <div x-show="Object.keys(items).length === 0" x-cloak class="bg-white rounded-3xl border border-slate-200 shadow-xl shadow-slate-200/50 p-16 text-center">
+        <div x-show="Object.keys(items).length === 0" class="bg-white rounded-3xl border border-slate-200 shadow-xl shadow-slate-200/50 p-16 text-center">
             <div class="w-24 h-24 mx-auto bg-slate-50 rounded-full flex items-center justify-center mb-6 ring-1 ring-slate-100">
                 <svg class="w-10 h-10 text-slate-300" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
             </div>
@@ -32,17 +32,21 @@
             </a>
         </div>
 
-        <div x-show="Object.keys(items).length > 0" x-cloak class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div x-show="Object.keys(items).length > 0" class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
 
             <div class="lg:col-span-8 space-y-4">
                 <template x-for="[key, item] in Object.entries(items)" :key="key">
                     <div class="bg-white rounded-3xl border border-slate-200/60 p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow flex flex-col sm:flex-row items-center gap-6">
 
                         <div class="w-28 h-28 flex-shrink-0 bg-slate-50 rounded-2xl overflow-hidden ring-1 ring-slate-900/5">
-                            <img :src="item.image" x-show="item.image" class="w-full h-full object-cover" alt="">
-                            <div x-show="!item.image" class="w-full h-full flex items-center justify-center text-slate-300">
-                                <svg class="w-10 h-10" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-                            </div>
+                            <template x-if="item.image">
+                                <img :src="item.image" class="w-full h-full object-cover" alt="">
+                            </template>
+                            <template x-if="!item.image">
+                                <div class="w-full h-full flex items-center justify-center text-slate-300">
+                                    <svg class="w-10 h-10" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                                </div>
+                            </template>
                         </div>
 
                         <div class="flex-1 text-center sm:text-left">
@@ -117,8 +121,8 @@
 <script>
     function cartPage() {
         return {
-            items: @js($cart),
-            subtotal: {{ $subtotal }},
+            items: @json($cart ?? []),
+            subtotal: {{ $subtotal ?? 0 }},
             csrf: '{{ csrf_token() }}',
             isUpdating: {},
 
