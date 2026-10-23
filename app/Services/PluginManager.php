@@ -142,7 +142,6 @@ class PluginManager
             $this->registerPluginAutoloader($plugin);
             $this->bootPlugin($plugin);
 
-            // DÜZƏLİŞ: Birbaşa pluginin qovluğuna yönəlmiş migrasiya
             \Illuminate\Support\Facades\Artisan::call('migrate', [
                 '--path' => 'rj-content/plugins/' . $plugin->folder . '/database/migrations',
                 '--force' => true,
@@ -281,6 +280,9 @@ class PluginManager
             if (isset($oldMeta['download_url'])) {
                 $manifest['download_url'] = $oldMeta['download_url'];
             }
+            if (isset($oldMeta['is_prerelease'])) {
+                $manifest['is_prerelease'] = $oldMeta['is_prerelease'];
+            }
 
             Plugin::updateOrCreate(
                 ['slug' => $slug],
@@ -376,12 +378,14 @@ class PluginManager
                         $headers['Authorization'] = 'Bearer ' . $token;
                     }
 
-                    $response = \Illuminate\Support\Facades\Http::timeout(10)->withHeaders($headers)->get("https://api.github.com/repos/{$repo}/releases/latest");
+                    $response = \Illuminate\Support\Facades\Http::timeout(10)->withHeaders($headers)->get("https://api.github.com/repos/{$repo}/releases");
 
-                    if (!$response->successful()) continue;
+                    if (!$response->successful() || empty($response->json())) continue;
 
-                    $release = $response->json();
+                    $releases = $response->json();
+                    $release = $releases[0];
                     $latestVersion = ltrim($release['tag_name'] ?? '', 'vV');
+                    $isPrerelease = $release['prerelease'] ?? false;
 
                     if ($latestVersion && version_compare($latestVersion, $plugin->version, '>')) {
                         $zipUrl = null;
@@ -395,6 +399,7 @@ class PluginManager
                         if ($zipUrl) {
                             $metadata['latest_version'] = $latestVersion;
                             $metadata['download_url'] = $zipUrl;
+                            $metadata['is_prerelease'] = $isPrerelease;
                             $plugin->update(['metadata' => $metadata]);
                             $count++;
                         }
@@ -482,6 +487,7 @@ class PluginManager
 
             unset($newMeta['latest_version']);
             unset($newMeta['download_url']);
+            unset($newMeta['is_prerelease']);
 
             $plugin->update([
                 'version' => $newManifest['version'] ?? $plugin->version,
