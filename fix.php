@@ -24,4 +24,4 @@ foreach ($iterator as $file) {
         }
     }
 }
-echo "Bütün namespace-lər uğurla yeniləndi!\n";
+echo "Bütün namespace-lər uğurla yeniləndi!!!\n";
