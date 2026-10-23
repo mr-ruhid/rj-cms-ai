@@ -108,18 +108,27 @@
                             @endif
 
                             @if ($isInstalled)
-                                <span class="absolute top-3 left-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500 text-white text-xs font-semibold shadow-lg">
+                                <span class="absolute top-3 left-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500 text-white text-xs font-semibold shadow-lg z-10">
                                     <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
                                     {{ __('Installed') }}
                                 </span>
                             @endif
 
-                            @if (!empty($plugin['featured']))
-                                <span class="absolute top-3 right-3 inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gradient-to-r from-rj-purple to-rj-pink text-white text-xs font-semibold shadow-lg">
-                                    <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                                    {{ __('Featured') }}
-                                </span>
-                            @endif
+                            <div class="absolute top-3 right-3 flex flex-col items-end gap-1.5 z-10">
+                                @if ($isBeta)
+                                    <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-amber-500 text-white text-[11px] font-bold shadow-lg shadow-amber-500/30 uppercase tracking-wider" title="{{ __('This is a pre-release (beta) version.') }}">
+                                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2L1 21h22L12 2zm0 3.8L19.5 19h-15L12 5.8z"/></svg>
+                                        {{ __('Beta') }}
+                                    </span>
+                                @endif
+
+                                @if (!empty($plugin['featured']))
+                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-gradient-to-r from-rj-purple to-rj-pink text-white text-xs font-semibold shadow-lg">
+                                        <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+                                        {{ __('Featured') }}
+                                    </span>
+                                @endif
+                            </div>
                         </div>
 
                         <div class="p-5 flex-1 flex flex-col">
@@ -135,11 +144,6 @@
                                     </div>
                                     <div class="text-xs text-gray-500 mt-0.5">
                                         v{{ $plugin['version'] }}
-                                        @if ($isBeta)
-                                            <span class="inline-flex items-center ml-1.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200 uppercase tracking-wider" title="{{ __('This is a pre-release (beta) version.') }}">
-                                                {{ __('Beta') }}
-                                            </span>
-                                        @endif
                                         @if (!empty($plugin['author']))
                                             · {{ $plugin['author'] }}
                                         @endif
