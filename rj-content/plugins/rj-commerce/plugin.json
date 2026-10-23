@@ -17,18 +17,20 @@
     "provides": {
         "admin_menu": [
             {
-                "id": "commerce",
+                "id": "rj-commerce",
                 "title": "Commerce",
                 "icon": "shopping-cart",
                 "route": "admin.commerce.products.index",
-                "position": 25
+                "position": 20
             }
         ],
         "routes": {
             "admin": "routes/admin.php",
-            "frontend": "routes/web.php"
+            "frontend": "routes/web.php",
+            "api": "routes/api.php"
         },
         "views": "resources/views",
         "migrations": "database/migrations"
-    }
+    },
+    "update_url": "https://raw.githubusercontent.com/rj-nexus/rj-plugin-commerce/main/plugin.json"
 }
