@@ -7,6 +7,7 @@
     "description": "A premium, modern e-commerce theme exclusively designed for RJ Commerce.",
     "license": "MIT",
     "screenshot": "screenshot.jpg",
+    "namespace": "VelvetAura",
     "provider": "VelvetAura\\VelvetAuraServiceProvider",
     "requires": {
         "rj_cms": ">=1.0.0",
