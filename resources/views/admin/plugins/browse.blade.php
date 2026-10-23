@@ -129,6 +129,11 @@
                                     </div>
                                     <div class="text-xs text-gray-500 mt-0.5">
                                         v{{ $plugin['version'] }}
+                                        @if (!empty($plugin['is_prerelease']))
+                                            <span class="inline-flex items-center ml-1.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200 uppercase tracking-wider" title="{{ __('This is a pre-release (beta) version.') }}">
+                                                {{ __('Beta') }}
+                                            </span>
+                                        @endif
                                         @if (!empty($plugin['author']))
                                             · {{ $plugin['author'] }}
                                         @endif
