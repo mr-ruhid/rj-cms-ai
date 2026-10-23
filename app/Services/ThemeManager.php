@@ -415,6 +415,33 @@ class ThemeManager
         view()->addNamespace('theme', $path);
     }
 
+    public function registerProviders(): void
+    {
+        $theme = $this->activeTheme();
+
+        if (!$theme) {
+            return;
+        }
+
+        $manifest = $theme->metadata();
+        $providerClass = $manifest['provider'] ?? null;
+
+        if (!$providerClass) {
+            return;
+        }
+
+        $className = substr($providerClass, strrpos($providerClass, '\\') + 1);
+        $providerFile = $theme->path() . '/src/' . $className . '.php';
+
+        if (File::exists($providerFile)) {
+            require_once $providerFile;
+        }
+
+        if (class_exists($providerClass)) {
+            app()->register($providerClass);
+        }
+    }
+
     public function renderView(string $view, array $data = [])
     {
         $theme = $this->activeTheme();
