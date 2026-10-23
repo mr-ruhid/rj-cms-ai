@@ -2,6 +2,10 @@
 
 @section('title', __('Shop') . ' — ' . rj_get_option('site_name', config('app.name')))
 
+@push('styles')
+<script src="https://cdn.tailwindcss.com"></script>
+@endpush
+
 @section('content')
 <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
     <div class="mb-8 flex items-end justify-between">
