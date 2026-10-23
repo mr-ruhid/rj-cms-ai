@@ -174,6 +174,7 @@ class WidgetRegistry
             'media' => ['label' => __('Media'), 'icon' => '🖼️'],
             'layout' => ['label' => __('Layout'), 'icon' => '📐'],
             'content' => ['label' => __('Content'), 'icon' => '📝'],
+            'ecommerce' => ['label' => __('E-commerce'), 'icon' => '🛒'],
             'custom' => ['label' => __('Custom'), 'icon' => '🔌'],
         ];
     }
