@@ -1,5 +1,16 @@
 @php
-    $logoUrl = rj_get_option('site_logo');
+    $logoUrl = $customLogo ?? rj_get_option('site_logo');
+
+    if (!$logoUrl) {
+        $logoUrl = asset('rj-content/themes/velvet-aura/assets/images/velvetlogo.png');
+    } elseif (!\Illuminate\Support\Str::startsWith($logoUrl, 'http') && !\Illuminate\Support\Str::startsWith($logoUrl, 'media/') && !\Illuminate\Support\Str::startsWith($logoUrl, '/')) {
+        $logoUrl = \Illuminate\Support\Facades\Storage::url($logoUrl);
+    } elseif (\Illuminate\Support\Str::startsWith($logoUrl, 'media/')) {
+        $logoUrl = asset($logoUrl);
+    }
+
+    $shopMenu = function_exists('rj_menu_tree') ? rj_menu_tree('footer-shop') : [];
+    $careMenu = function_exists('rj_menu_tree') ? rj_menu_tree('footer-care') : [];
 @endphp
 
 <footer class="bg-white border-t border-slate-200 pt-16 pb-8 mt-auto font-sans">
@@ -30,22 +41,32 @@
             <div>
                 <h4 class="text-slate-900 text-sm font-bold mb-5">{{ __('Shop Collections') }}</h4>
                 <ul class="space-y-3 text-sm">
-                    @if(function_exists('rj_commerce_url'))
-                        <li><a href="{{ rj_commerce_url('shop') }}" class="text-slate-500 hover:text-brand-600 transition-colors">{{ __('All Products') }}</a></li>
+                    @if(!empty($shopMenu))
+                        @foreach($shopMenu as $item)
+                            <li><a href="{{ $item->url ?? $item['url'] ?? '#' }}" class="text-slate-500 hover:text-brand-600 transition-colors">{{ $item->title ?? $item['title'] ?? '' }}</a></li>
+                        @endforeach
+                    @else
+                        @if(function_exists('rj_commerce_url'))
+                            <li><a href="{{ rj_commerce_url('shop') }}" class="text-slate-500 hover:text-brand-600 transition-colors">{{ __('All Products') }}</a></li>
+                        @endif
+                        <li><a href="#" class="text-slate-500 hover:text-brand-600 transition-colors">{{ __('New Arrivals') }}</a></li>
+                        <li><a href="#" class="text-slate-500 hover:text-brand-600 transition-colors">{{ __('Best Sellers') }}</a></li>
                     @endif
-                    <li><a href="#" class="text-slate-500 hover:text-brand-600 transition-colors">{{ __('New Arrivals') }}</a></li>
-                    <li><a href="#" class="text-slate-500 hover:text-brand-600 transition-colors">{{ __('Best Sellers') }}</a></li>
-                    <li><a href="#" class="text-slate-500 hover:text-brand-600 transition-colors">{{ __('Special Offers') }}</a></li>
                 </ul>
             </div>
 
             <div>
                 <h4 class="text-slate-900 text-sm font-bold mb-5">{{ __('Support') }}</h4>
                 <ul class="space-y-3 text-sm">
-                    <li><a href="{{ url('/contact') }}" class="text-slate-500 hover:text-brand-600 transition-colors">{{ __('Contact Us') }}</a></li>
-                    <li><a href="#" class="text-slate-500 hover:text-brand-600 transition-colors">{{ __('Shipping Info') }}</a></li>
-                    <li><a href="#" class="text-slate-500 hover:text-brand-600 transition-colors">{{ __('Returns & Exchanges') }}</a></li>
-                    <li><a href="#" class="text-slate-500 hover:text-brand-600 transition-colors">{{ __('FAQ') }}</a></li>
+                    @if(!empty($careMenu))
+                        @foreach($careMenu as $item)
+                            <li><a href="{{ $item->url ?? $item['url'] ?? '#' }}" class="text-slate-500 hover:text-brand-600 transition-colors">{{ $item->title ?? $item['title'] ?? '' }}</a></li>
+                        @endforeach
+                    @else
+                        <li><a href="{{ url('/contact') }}" class="text-slate-500 hover:text-brand-600 transition-colors">{{ __('Contact Us') }}</a></li>
+                        <li><a href="#" class="text-slate-500 hover:text-brand-600 transition-colors">{{ __('Shipping Info') }}</a></li>
+                        <li><a href="#" class="text-slate-500 hover:text-brand-600 transition-colors">{{ __('Returns & Exchanges') }}</a></li>
+                    @endif
                 </ul>
             </div>
 
