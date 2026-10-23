@@ -14,11 +14,6 @@ class CouponController extends Controller
         return view('plugin-rj-commerce::admin.coupons.index', compact('coupons'));
     }
 
-    public function create()
-    {
-        return view('plugin-rj-commerce::admin.coupons.create');
-    }
-
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -39,12 +34,7 @@ class CouponController extends Controller
 
         Coupon::create($validated);
 
-        return redirect()->route('admin.commerce.coupons.index')->with('success', __('Coupon created successfully.'));
-    }
-
-    public function edit(Coupon $coupon)
-    {
-        return view('plugin-rj-commerce::admin.coupons.edit', compact('coupon'));
+        return back()->with('success', __('Coupon created successfully.'));
     }
 
     public function update(Request $request, Coupon $coupon)
@@ -67,7 +57,7 @@ class CouponController extends Controller
 
         $coupon->update($validated);
 
-        return redirect()->route('admin.commerce.coupons.index')->with('success', __('Coupon updated successfully.'));
+        return back()->with('success', __('Coupon updated successfully.'));
     }
 
     public function destroy(Coupon $coupon)
