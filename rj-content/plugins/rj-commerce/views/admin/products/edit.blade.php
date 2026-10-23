@@ -3,7 +3,7 @@
 @section('title', __('Edit Product'))
 
 @section('content')
-<div class="max-w-7xl mx-auto space-y-6" x-data="productEditForm()">
+<div class="max-w-7xl mx-auto space-y-6" x-data="productEditForm()" @media-selected.window="handleMediaSelected($event)">
 
     <div class="flex items-center justify-between">
         <div class="flex items-center gap-4">
@@ -334,25 +334,42 @@
 
             <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-5">
                 <h2 class="text-lg font-semibold text-gray-900 border-b border-gray-100 pb-3">{{ __('Featured Image') }}</h2>
-                <div>
-                    @if($product->featured_image)
-                        <div class="mb-3">
-                            <img src="{{ Storage::url($product->featured_image) }}" class="w-24 h-24 object-cover rounded-lg border border-gray-200">
-                        </div>
-                    @endif
-                    <input type="file" name="featured_image" accept="image/*" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-rj-purple/10 file:text-rj-purple hover:file:bg-rj-purple/20">
-                    <p class="text-xs text-gray-500 mt-1">{{ __('Upload new to replace.') }}</p>
+
+                <div class="space-y-3">
+                    <input type="file" name="featured_image" accept="image/*" @change="previewFeaturedImage($event)" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-rj-purple/10 file:text-rj-purple hover:file:bg-rj-purple/20">
+
+                    <div class="text-center text-xs font-semibold text-gray-400 my-1">{{ __('OR') }}</div>
+
+                    <input type="hidden" name="featured_image_url" x-ref="featuredImageUrl">
+                    <button type="button" @click="$dispatch('open-media-picker', { value: $refs.featuredImageUrl })" class="w-full inline-flex justify-center items-center gap-2 px-4 py-2 bg-gray-900 text-white text-sm font-medium rounded-lg hover:bg-gray-800 transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        {{ __('Select from Library') }}
+                    </button>
+
+                    <div x-show="featuredImagePreview" x-cloak class="mt-3">
+                        <img :src="featuredImagePreview" class="w-24 h-24 object-cover rounded-lg border border-gray-200 shadow-sm">
+                    </div>
                 </div>
+
                 <h2 class="text-sm font-semibold text-gray-900 border-b border-gray-100 pb-2 mt-4">{{ __('Gallery Images') }}</h2>
                 <div>
                     @if(!empty($product->gallery) && is_array($product->gallery))
                         <div class="flex flex-wrap gap-2 mb-3">
                             @foreach($product->gallery as $galleryImage)
-                                <img src="{{ Storage::url($galleryImage) }}" class="w-16 h-16 object-cover rounded-lg border border-gray-200">
+                                @php
+                                    $imgUrl = Str::startsWith($galleryImage, 'http') ? $galleryImage : (Str::startsWith($galleryImage, 'media/') ? asset($galleryImage) : Storage::url($galleryImage));
+                                @endphp
+                                <img src="{{ $imgUrl }}" class="w-16 h-16 object-cover rounded-lg border border-gray-200 shadow-sm">
                             @endforeach
                         </div>
                     @endif
-                    <input type="file" name="gallery[]" accept="image/*" multiple class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200">
+                    <input type="file" name="gallery[]" accept="image/*" multiple @change="previewGallery($event)" class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200">
+
+                    <div x-show="galleryPreviews.length > 0" x-cloak class="flex flex-wrap gap-2 mt-3">
+                        <template x-for="(img, index) in galleryPreviews" :key="index">
+                            <img :src="img" class="w-16 h-16 object-cover rounded-lg border border-gray-200 shadow-sm">
+                        </template>
+                    </div>
                 </div>
             </div>
         </div>
@@ -369,6 +386,9 @@ function productEditForm() {
         },
         attributes: @json($attributes),
         variations: @json($product->variations),
+        featuredImagePreview: '{{ $product->featured_image ? (Str::startsWith($product->featured_image, "http") ? $product->featured_image : (Str::startsWith($product->featured_image, "media/") ? asset($product->featured_image) : Storage::url($product->featured_image))) : "" }}',
+        galleryPreviews: [],
+
         addVariation() {
             this.variations.push({
                 id: null,
@@ -380,6 +400,39 @@ function productEditForm() {
         },
         removeVariation(index) {
             this.variations.splice(index, 1);
+        },
+        previewFeaturedImage(event) {
+            const file = event.target.files[0];
+            if (file) {
+                this.$refs.featuredImageUrl.value = '';
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    this.featuredImagePreview = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            } else {
+                this.featuredImagePreview = '{{ $product->featured_image ? (Str::startsWith($product->featured_image, "http") ? $product->featured_image : (Str::startsWith($product->featured_image, "media/") ? asset($product->featured_image) : Storage::url($product->featured_image))) : "" }}';
+            }
+        },
+        previewGallery(event) {
+            this.galleryPreviews = [];
+            const files = event.target.files;
+            if (files) {
+                Array.from(files).forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        this.galleryPreviews.push(e.target.result);
+                    };
+                    reader.readAsDataURL(file);
+                });
+            }
+        },
+        handleMediaSelected(event) {
+            if (event.detail.target === this.$refs.featuredImageUrl) {
+                this.featuredImagePreview = event.detail.url;
+                const fileInput = document.querySelector('input[name="featured_image"]');
+                if (fileInput) fileInput.value = '';
+            }
         }
     }
 }
