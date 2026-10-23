@@ -5,15 +5,22 @@ namespace RjCommerce\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use App\Models\Post; // Səhifələri çəkmək üçün
 
 class SettingsController extends Controller
 {
     public function index()
     {
+        $pages = Post::where('type', 'page')->where('status', 'published')->get();
+
         $options = [
             'store_name' => rj_get_option('commerce_store_name', rj_get_option('site_name')),
             'currency' => rj_get_option('commerce_currency', 'USD'),
             'weight_unit' => rj_get_option('commerce_weight_unit', 'kg'),
+
+            'page_shop' => rj_get_option('commerce_page_shop'),
+            'page_cart' => rj_get_option('commerce_page_cart'),
+            'page_checkout' => rj_get_option('commerce_page_checkout'),
 
             'stripe_enabled' => rj_get_option('commerce_stripe_enabled', '0'),
             'stripe_pk' => rj_get_option('commerce_stripe_pk', ''),
@@ -46,7 +53,7 @@ class SettingsController extends Controller
             'notification_emails' => rj_get_option('commerce_notification_emails', ''),
         ];
 
-        return view('plugin-rj-commerce::admin.settings.index', compact('options'));
+        return view('plugin-rj-commerce::admin.settings.index', compact('options', 'pages'));
     }
 
     public function update(Request $request)
@@ -58,10 +65,16 @@ class SettingsController extends Controller
                 'store_name' => 'nullable|string|max:255',
                 'currency' => 'required|string|max:3',
                 'weight_unit' => 'required|string|max:10',
+                'page_shop' => 'nullable|exists:rj_posts,id',
+                'page_cart' => 'nullable|exists:rj_posts,id',
+                'page_checkout' => 'nullable|exists:rj_posts,id',
             ]);
             rj_set_option('commerce_store_name', $data['store_name'] ?? '');
             rj_set_option('commerce_currency', $data['currency']);
             rj_set_option('commerce_weight_unit', $data['weight_unit']);
+            rj_set_option('commerce_page_shop', $data['page_shop']);
+            rj_set_option('commerce_page_cart', $data['page_cart']);
+            rj_set_option('commerce_page_checkout', $data['page_checkout']);
         }
         elseif ($tab === 'payments') {
             rj_set_option('commerce_stripe_enabled', $request->boolean('stripe_enabled') ? '1' : '0');
