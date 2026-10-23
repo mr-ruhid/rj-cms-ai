@@ -36,6 +36,9 @@ return new class extends Migration
             $table->integer('download_expiry')->nullable();
             $table->string('external_url')->nullable();
 
+            $table->json('license_keys_pool')->nullable();
+            $table->boolean('auto_generate_license')->default(false);
+
             $table->foreignId('category_id')->nullable()->constrained('rj_product_categories')->nullOnDelete();
             $table->foreignId('brand_id')->nullable()->constrained('rj_product_brands')->nullOnDelete();
             $table->string('featured_image')->nullable();
