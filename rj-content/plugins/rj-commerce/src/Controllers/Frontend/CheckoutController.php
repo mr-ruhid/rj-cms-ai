@@ -9,7 +9,6 @@ use RjCommerce\Models\Product;
 use RjCommerce\Services\OrderMailer;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 class CheckoutController extends Controller
 {
@@ -36,7 +35,6 @@ class CheckoutController extends Controller
         $currency = rj_get_option('commerce_currency', 'USD');
         $paymentMethods = [];
 
-        // == istifadə edirik ki, həm "1", həm də 1 rəqəmi işləsin
         if (rj_get_option('commerce_cod_enabled', '1') == '1') {
             $paymentMethods['cod'] = __('Cash on Delivery');
         }
@@ -45,12 +43,6 @@ class CheckoutController extends Controller
         }
         if (rj_get_option('commerce_paypal_enabled', '0') == '1') {
             $paymentMethods['paypal'] = __('PayPal');
-        }
-        if (rj_get_option('commerce_checkout_enabled', '0') == '1') {
-            $paymentMethods['checkout'] = __('Checkout.com');
-        }
-        if (rj_get_option('commerce_razorpay_enabled', '0') == '1') {
-            $paymentMethods['razorpay'] = __('Razorpay');
         }
 
         $view = 'plugin-rj-commerce::frontend.checkout.index';
