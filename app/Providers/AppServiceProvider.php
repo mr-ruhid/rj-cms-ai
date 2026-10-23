@@ -20,8 +20,14 @@ class AppServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
-        // Xəta olsa ekranda görünsün deyə try-catch-i sildik
-        $this->app->make(ThemeManager::class)->registerViews();
+        $themeManager = $this->app->make(ThemeManager::class);
+
+        $themeManager->registerViews();
+
+        if (method_exists($themeManager, 'registerProviders')) {
+            $themeManager->registerProviders();
+        }
+
         $this->app->make(PluginManager::class)->boot();
     }
 }
