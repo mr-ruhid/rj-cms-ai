@@ -88,6 +88,46 @@
                             </div>
                         </div>
                     </div>
+
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 space-y-6">
+                        <div>
+                            <h2 class="text-lg font-bold text-gray-900">{{ __('Page Assignment') }}</h2>
+                            <p class="text-sm text-gray-500 mt-1">{{ __('Assign system pages to your custom pages. You must add the corresponding shortcodes inside those pages.') }}</p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Shop Page') }}</label>
+                                <select name="page_shop" class="w-full rounded-xl border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm">
+                                    <option value="">{{ __('Default (Built-in)') }}</option>
+                                    @foreach($pages as $page)
+                                        <option value="{{ $page->id }}" @selected($options['page_shop'] == $page->id)>{{ $page->title }}</option>
+                                    @endforeach
+                                </select>
+                                <p class="text-xs text-gray-500 mt-1">{{ __('Use') }} <code>[rj_products]</code> {{ __('shortcode inside.') }}</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Cart Page') }}</label>
+                                <select name="page_cart" class="w-full rounded-xl border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm">
+                                    <option value="">{{ __('Default (Built-in)') }}</option>
+                                    @foreach($pages as $page)
+                                        <option value="{{ $page->id }}" @selected($options['page_cart'] == $page->id)>{{ $page->title }}</option>
+                                    @endforeach
+                                </select>
+                                <p class="text-xs text-gray-500 mt-1">{{ __('Use') }} <code>[rj_cart]</code> {{ __('shortcode inside.') }}</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Checkout Page') }}</label>
+                                <select name="page_checkout" class="w-full rounded-xl border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm">
+                                    <option value="">{{ __('Default (Built-in)') }}</option>
+                                    @foreach($pages as $page)
+                                        <option value="{{ $page->id }}" @selected($options['page_checkout'] == $page->id)>{{ $page->title }}</option>
+                                    @endforeach
+                                </select>
+                                <p class="text-xs text-gray-500 mt-1">{{ __('Use') }} <code>[rj_checkout]</code> {{ __('shortcode inside.') }}</p>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div x-show="tab === 'payments'" x-cloak class="space-y-6">
@@ -340,56 +380,154 @@
                 </div>
 
                 <div x-show="tab === 'shortcodes'" x-cloak class="space-y-6">
-                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 space-y-6">
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 space-y-8">
                         <div>
                             <h2 class="text-lg font-bold text-gray-900">{{ __('Shortcodes') }}</h2>
                             <p class="text-sm text-gray-500 mt-1">{{ __('Copy and paste these shortcodes into any page or post to display commerce elements.') }}</p>
                         </div>
 
-                        <div class="space-y-4">
-                            <div class="p-4 rounded-xl border border-gray-200 bg-gray-50 flex items-center justify-between group">
-                                <div>
-                                    <code class="text-sm font-mono text-rj-purple font-bold">[rj_products]</code>
-                                    <p class="text-xs text-gray-500 mt-1">{{ __('Displays a grid of products.') }}</p>
+                        <div class="space-y-6">
+
+                            <div class="border border-gray-200 rounded-xl overflow-hidden">
+                                <div class="bg-gray-50 px-4 py-3 border-b border-gray-200 flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <code class="text-sm font-mono font-bold text-rj-purple">[rj_products]</code>
+                                        <span class="text-xs text-gray-500">— {{ __('Product Grid') }}</span>
+                                    </div>
+                                    <button type="button" @click="copyText('[rj_products]', 'sc_products')" class="text-xs font-medium text-gray-500 hover:text-rj-purple transition flex items-center gap-1">
+                                        <template x-if="copied !== 'sc_products'">
+                                            <span class="flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg> {{ __('Copy') }}</span>
+                                        </template>
+                                        <template x-if="copied === 'sc_products'">
+                                            <span class="flex items-center gap-1 text-green-600"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> {{ __('Copied') }}</span>
+                                        </template>
+                                    </button>
                                 </div>
-                                <button type="button" @click="copyText('[rj_products]', 'sc1')" class="p-2 rounded-lg bg-white border border-gray-200 text-gray-400 hover:text-rj-purple hover:border-rj-purple transition">
-                                    <span x-show="copied !== 'sc1'"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg></span>
-                                    <span x-show="copied === 'sc1'" x-cloak><svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></span>
-                                </button>
+                                <div class="p-4 bg-white space-y-3">
+                                    <p class="text-sm text-gray-700">{{ __('Displays a grid of published products.') }}</p>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                                        <div class="bg-gray-50 p-2 rounded"><code class="text-rj-purple">limit</code> - {{ __('Number of products (default: 12)') }}</div>
+                                        <div class="bg-gray-50 p-2 rounded"><code class="text-rj-purple">columns</code> - {{ __('Grid columns (default: 4)') }}</div>
+                                        <div class="bg-gray-50 p-2 rounded"><code class="text-rj-purple">category</code> - {{ __('Filter by category slug') }}</div>
+                                        <div class="bg-gray-50 p-2 rounded"><code class="text-rj-purple">brand</code> - {{ __('Filter by brand slug') }}</div>
+                                        <div class="bg-gray-50 p-2 rounded"><code class="text-rj-purple">orderby</code> - {{ __('latest, price_low, price_high') }}</div>
+                                        <div class="bg-gray-50 p-2 rounded"><code class="text-rj-purple">format</code> - {{ __('html or json') }}</div>
+                                    </div>
+                                    <div class="text-xs text-gray-500 font-mono bg-gray-50 p-2 rounded">
+                                        {{ __('Example:') }} [rj_products category="perfumes" limit="8" columns="4"]
+                                    </div>
+                                </div>
                             </div>
 
-                            <div class="p-4 rounded-xl border border-gray-200 bg-gray-50 flex items-center justify-between group">
-                                <div>
-                                    <code class="text-sm font-mono text-rj-purple font-bold">[rj_products category="perfumes" limit="12"]</code>
-                                    <p class="text-xs text-gray-500 mt-1">{{ __('Displays products filtered by category and limit.') }}</p>
+                            <div class="border border-gray-200 rounded-xl overflow-hidden">
+                                <div class="bg-gray-50 px-4 py-3 border-b border-gray-200 flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <code class="text-sm font-mono font-bold text-rj-purple">[rj_categories]</code>
+                                        <span class="text-xs text-gray-500">— {{ __('Categories Grid') }}</span>
+                                    </div>
+                                    <button type="button" @click="copyText('[rj_categories]', 'sc_categories')" class="text-xs font-medium text-gray-500 hover:text-rj-purple transition flex items-center gap-1">
+                                        <template x-if="copied !== 'sc_categories'">
+                                            <span class="flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg> {{ __('Copy') }}</span>
+                                        </template>
+                                        <template x-if="copied === 'sc_categories'">
+                                            <span class="flex items-center gap-1 text-green-600"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> {{ __('Copied') }}</span>
+                                        </template>
+                                    </button>
                                 </div>
-                                <button type="button" @click="copyText('[rj_products category=\'perfumes\' limit=\'12\']', 'sc2')" class="p-2 rounded-lg bg-white border border-gray-200 text-gray-400 hover:text-rj-purple hover:border-rj-purple transition">
-                                    <span x-show="copied !== 'sc2'"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg></span>
-                                    <span x-show="copied === 'sc2'" x-cloak><svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></span>
-                                </button>
+                                <div class="p-4 bg-white space-y-3">
+                                    <p class="text-sm text-gray-700">{{ __('Displays a grid of active product categories.') }}</p>
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                                        <div class="bg-gray-50 p-2 rounded"><code class="text-rj-purple">limit</code> - {{ __('Number of categories (default: 10)') }}</div>
+                                        <div class="bg-gray-50 p-2 rounded"><code class="text-rj-purple">columns</code> - {{ __('Grid columns (default: 4)') }}</div>
+                                    </div>
+                                    <div class="text-xs text-gray-500 font-mono bg-gray-50 p-2 rounded">
+                                        {{ __('Example:') }} [rj_categories limit="6" columns="3"]
+                                    </div>
+                                </div>
                             </div>
 
-                            <div class="p-4 rounded-xl border border-gray-200 bg-gray-50 flex items-center justify-between group">
-                                <div>
-                                    <code class="text-sm font-mono text-rj-purple font-bold">[rj_categories]</code>
-                                    <p class="text-xs text-gray-500 mt-1">{{ __('Displays a grid of product categories.') }}</p>
+                            <div class="border border-gray-200 rounded-xl overflow-hidden">
+                                <div class="bg-gray-50 px-4 py-3 border-b border-gray-200 flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <code class="text-sm font-mono font-bold text-rj-purple">[rj_cart]</code>
+                                        <span class="text-xs text-gray-500">— {{ __('Shopping Cart') }}</span>
+                                    </div>
+                                    <button type="button" @click="copyText('[rj_cart]', 'sc_cart')" class="text-xs font-medium text-gray-500 hover:text-rj-purple transition flex items-center gap-1">
+                                        <template x-if="copied !== 'sc_cart'">
+                                            <span class="flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg> {{ __('Copy') }}</span>
+                                        </template>
+                                        <template x-if="copied === 'sc_cart'">
+                                            <span class="flex items-center gap-1 text-green-600"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> {{ __('Copied') }}</span>
+                                        </template>
+                                    </button>
                                 </div>
-                                <button type="button" @click="copyText('[rj_categories]', 'sc3')" class="p-2 rounded-lg bg-white border border-gray-200 text-gray-400 hover:text-rj-purple hover:border-rj-purple transition">
-                                    <span x-show="copied !== 'sc3'"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg></span>
-                                    <span x-show="copied === 'sc3'" x-cloak><svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></span>
-                                </button>
+                                <div class="p-4 bg-white space-y-3">
+                                    <p class="text-sm text-gray-700">{{ __('Displays the shopping cart. Recommended for the assigned Cart page in General Settings.') }}</p>
+                                </div>
                             </div>
 
-                            <div class="p-4 rounded-xl border border-gray-200 bg-gray-50 flex items-center justify-between group">
-                                <div>
-                                    <code class="text-sm font-mono text-rj-purple font-bold">[rj_add_to_cart id="123"]</code>
-                                    <p class="text-xs text-gray-500 mt-1">{{ __('Displays an Add to Cart button for a specific product ID.') }}</p>
+                            <div class="border border-gray-200 rounded-xl overflow-hidden">
+                                <div class="bg-gray-50 px-4 py-3 border-b border-gray-200 flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <code class="text-sm font-mono font-bold text-rj-purple">[rj_checkout]</code>
+                                        <span class="text-xs text-gray-500">— {{ __('Checkout Form') }}</span>
+                                    </div>
+                                    <button type="button" @click="copyText('[rj_checkout]', 'sc_checkout')" class="text-xs font-medium text-gray-500 hover:text-rj-purple transition flex items-center gap-1">
+                                        <template x-if="copied !== 'sc_checkout'">
+                                            <span class="flex items-center gap-1"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg> {{ __('Copy') }}</span>
+                                        </template>
+                                        <template x-if="copied === 'sc_checkout'">
+                                            <span class="flex items-center gap-1 text-green-600"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg> {{ __('Copied') }}</span>
+                                        </template>
+                                    </button>
                                 </div>
-                                <button type="button" @click="copyText('[rj_add_to_cart id=\'123\']', 'sc4')" class="p-2 rounded-lg bg-white border border-gray-200 text-gray-400 hover:text-rj-purple hover:border-rj-purple transition">
-                                    <span x-show="copied !== 'sc4'"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg></span>
-                                    <span x-show="copied === 'sc4'" x-cloak><svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></span>
-                                </button>
+                                <div class="p-4 bg-white space-y-3">
+                                    <p class="text-sm text-gray-700">{{ __('Displays the checkout form. Recommended for the assigned Checkout page in General Settings.') }}</p>
+                                </div>
                             </div>
+
+                            <div class="border border-indigo-200 bg-indigo-50/30 rounded-xl overflow-hidden mt-8">
+                                <div class="bg-indigo-50 px-4 py-3 border-b border-indigo-200 flex items-center gap-2">
+                                    <svg class="w-5 h-5 text-indigo-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
+                                    <h3 class="text-sm font-bold text-indigo-900">{{ __('Headless / JSON Mode (For Theme Developers)') }}</h3>
+                                </div>
+                                <div class="p-4 space-y-4">
+                                    <p class="text-sm text-indigo-800">{{ __('If you are building a completely custom frontend using Alpine.js, Vue, or React, you can fetch raw JSON data directly from the shortcode and render your own cards.') }}</p>
+
+                                    <div>
+                                        <div class="text-xs font-bold text-indigo-900 mb-1 uppercase tracking-wider">{{ __('1. Use format="json"') }}</div>
+                                        <div class="bg-gray-900 rounded-lg p-3 font-mono text-xs text-green-400 overflow-x-auto">
+                                            [rj_products limit="12" format="json"]
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <div class="text-xs font-bold text-indigo-900 mb-1 uppercase tracking-wider">{{ __('2. Read the JSON with JavaScript') }}</div>
+                                        <div class="bg-gray-900 rounded-lg p-3 font-mono text-xs text-gray-300 overflow-x-auto relative group">
+<pre>&lt;div id="my-custom-grid"&gt;&lt;/div&gt;
+
+&lt;script&gt;
+  const jsonData = document.querySelector('.rj-products-json').innerHTML;
+  const products = JSON.parse(jsonData);
+
+  const grid = document.getElementById('my-custom-grid');
+  products.forEach(product =&gt; {
+      grid.innerHTML += `&lt;div class="my-card"&gt;${product.translations[0].name}&lt;/div&gt;`;
+  });
+&lt;/script&gt;</pre>
+                                            <button type="button" @click="copyText(`<div id=\"my-custom-grid\"></div>\n\n<script>\n  const jsonData = document.querySelector('.rj-products-json').innerHTML;\n  const products = JSON.parse(jsonData);\n\n  const grid = document.getElementById('my-custom-grid');\n  products.forEach(product => {\n      grid.innerHTML += \`<div class=\"my-card\">\${product.translations[0].name}</div>\`;\n  });\n</script>`, 'sc_json_js')" class="absolute top-2 right-2 p-1.5 rounded bg-gray-800 text-gray-400 hover:text-white transition opacity-0 group-hover:opacity-100">
+                                                <template x-if="copied !== 'sc_json_js'">
+                                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                                                </template>
+                                                <template x-if="copied === 'sc_json_js'">
+                                                    <svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                                </template>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
                 </div>
