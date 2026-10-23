@@ -4,12 +4,21 @@ namespace RjCommerce\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
 use RjCommerce\Models\Product;
-use Illuminate\Http\Request;
+use App\Models\Post;
 
 class ShopController extends Controller
 {
     public function index()
     {
+        $assignedPageId = rj_get_option('commerce_page_shop');
+
+        if ($assignedPageId) {
+            $page = Post::find($assignedPageId);
+            if ($page && $page->status === 'published') {
+                return redirect()->to($page->public_url);
+            }
+        }
+
         $products = Product::with(['translations', 'category', 'brand'])
             ->where('status', 'published')
             ->latest()
