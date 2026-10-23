@@ -4,6 +4,7 @@ namespace RjCommerce\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use RjCommerce\Models\Order;
+use RjCommerce\Services\OrderMailer;
 use Illuminate\Http\Request;
 
 class ApiOrderController extends Controller
@@ -44,6 +45,8 @@ class ApiOrderController extends Controller
             'status' => $validated['status']
         ]);
 
+        OrderMailer::send($order, 'updated');
+
         return response()->json([
             'success' => true,
             'message' => __('Order status updated successfully.'),
@@ -74,6 +77,8 @@ class ApiOrderController extends Controller
         $order->update([
             'shipping_address' => $shippingAddress
         ]);
+
+        OrderMailer::send($order, 'updated');
 
         return response()->json([
             'success' => true,
