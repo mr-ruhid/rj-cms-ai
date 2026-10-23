@@ -8,6 +8,11 @@
     } elseif (\Illuminate\Support\Str::startsWith($logoUrl, 'media/')) {
         $logoUrl = asset($logoUrl);
     }
+
+    $menuItems = [];
+    if (function_exists('rj_menu_tree')) {
+        $menuItems = rj_menu_tree('main-menu');
+    }
 @endphp
 
 <header class="bg-[#111111] text-white relative z-50">
@@ -61,15 +66,20 @@
         </div>
 
         <nav class="hidden md:flex items-center justify-center gap-10 pb-6">
-            <a href="{{ url('/') }}" class="text-[11px] font-semibold tracking-[0.15em] uppercase text-white hover:text-slate-400 transition-colors">{{ __('The Cocktails Collection') }}</a>
-            @if(function_exists('rj_commerce_url'))
-                <a href="{{ rj_commerce_url('shop') }}" class="text-[11px] font-semibold tracking-[0.15em] uppercase text-white hover:text-slate-400 transition-colors">{{ __('Discover') }}</a>
+            @if(!empty($menuItems))
+                @foreach($menuItems as $item)
+                    <a href="{{ $item->url ?? $item['url'] ?? '#' }}" class="text-[11px] font-semibold tracking-[0.15em] uppercase text-white hover:text-slate-400 transition-colors">
+                        {{ $item->title ?? $item['title'] ?? '' }}
+                    </a>
+                @endforeach
+            @else
+                <a href="{{ url('/') }}" class="text-[11px] font-semibold tracking-[0.15em] uppercase text-white hover:text-slate-400 transition-colors">{{ __('Home') }}</a>
+                @if(function_exists('rj_commerce_url'))
+                    <a href="{{ rj_commerce_url('shop') }}" class="text-[11px] font-semibold tracking-[0.15em] uppercase text-white hover:text-slate-400 transition-colors">{{ __('Shop') }}</a>
+                @endif
+                <a href="{{ url('/about') }}" class="text-[11px] font-semibold tracking-[0.15em] uppercase text-white hover:text-slate-400 transition-colors">{{ __('About') }}</a>
+                <a href="{{ url('/contact') }}" class="text-[11px] font-semibold tracking-[0.15em] uppercase text-white hover:text-slate-400 transition-colors">{{ __('Contact') }}</a>
             @endif
-            <a href="#" class="text-[11px] font-semibold tracking-[0.15em] uppercase text-white hover:text-slate-400 transition-colors">{{ __('Perfumes') }}</a>
-            <a href="#" class="text-[11px] font-semibold tracking-[0.15em] uppercase text-white hover:text-slate-400 transition-colors">{{ __('Bath & Body') }}</a>
-            <a href="#" class="text-[11px] font-semibold tracking-[0.15em] uppercase text-white hover:text-slate-400 transition-colors">{{ __('Gifts') }}</a>
-            <a href="#" class="text-[11px] font-semibold tracking-[0.15em] uppercase text-white hover:text-slate-400 transition-colors">{{ __('Services') }}</a>
-            <a href="#" class="text-[11px] font-semibold tracking-[0.15em] uppercase text-white hover:text-slate-400 transition-colors">{{ __('The Brand') }}</a>
             <a href="#" class="text-[11px] font-semibold tracking-[0.15em] uppercase text-slate-400 italic hover:text-white transition-colors">{{ __('Need Help ?') }}</a>
         </nav>
     </div>
