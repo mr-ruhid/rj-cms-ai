@@ -59,6 +59,7 @@ class ProductController extends Controller
             'status' => 'required|in:draft,published',
             'is_featured' => 'boolean',
             'featured_image' => 'nullable|image|max:5120',
+            'featured_image_url' => 'nullable|string|max:255',
             'gallery.*' => 'nullable|image|max:5120',
             'downloadable_file' => 'nullable|file|max:102400',
             'translations' => 'required|array',
@@ -94,7 +95,12 @@ class ProductController extends Controller
                 $slug = $originalSlug . '-' . $count++;
             }
 
-            $featuredImage = $request->hasFile('featured_image') ? $request->file('featured_image')->store('products', 'public') : null;
+            $featuredImage = null;
+            if ($request->hasFile('featured_image')) {
+                $featuredImage = $request->file('featured_image')->store('products', 'public');
+            } elseif ($request->filled('featured_image_url')) {
+                $featuredImage = $request->input('featured_image_url');
+            }
 
             $gallery = [];
             if ($request->hasFile('gallery')) {
@@ -222,6 +228,7 @@ class ProductController extends Controller
             'status' => 'required|in:draft,published',
             'is_featured' => 'boolean',
             'featured_image' => 'nullable|image|max:5120',
+            'featured_image_url' => 'nullable|string|max:255',
             'gallery.*' => 'nullable|image|max:5120',
             'downloadable_file' => 'nullable|file|max:102400',
             'translations' => 'required|array',
@@ -245,8 +252,12 @@ class ProductController extends Controller
         DB::transaction(function () use ($request, $validated, $product) {
             $featuredImage = $product->featured_image;
             if ($request->hasFile('featured_image')) {
-                if ($featuredImage) Storage::disk('public')->delete($featuredImage);
+                if ($featuredImage && !Str::startsWith($featuredImage, 'media/')) {
+                    Storage::disk('public')->delete($featuredImage);
+                }
                 $featuredImage = $request->file('featured_image')->store('products', 'public');
+            } elseif ($request->filled('featured_image_url')) {
+                $featuredImage = $request->input('featured_image_url');
             }
 
             $gallery = $product->gallery ?? [];
@@ -352,17 +363,28 @@ class ProductController extends Controller
 
     public function destroy(Product $product)
     {
-        if ($product->featured_image) Storage::disk('public')->delete($product->featured_image);
-        if (!empty($product->gallery)) {
-            foreach ($product->gallery as $img) Storage::disk('public')->delete($img);
+        if ($product->featured_image && !Str::startsWith($product->featured_image, 'media/')) {
+            Storage::disk('public')->delete($product->featured_image);
         }
+
+        if (!empty($product->gallery)) {
+            foreach ($product->gallery as $img) {
+                if (!Str::startsWith($img, 'media/')) {
+                    Storage::disk('public')->delete($img);
+                }
+            }
+        }
+
         if (!empty($product->downloadable_files)) {
             foreach ($product->downloadable_files as $file) {
                 if (isset($file['file'])) Storage::disk('public')->delete($file['file']);
             }
         }
+
         foreach ($product->variations as $var) {
-            if ($var->image) Storage::disk('public')->delete($var->image);
+            if ($var->image && !Str::startsWith($var->image, 'media/')) {
+                Storage::disk('public')->delete($var->image);
+            }
         }
 
         $product->delete();
