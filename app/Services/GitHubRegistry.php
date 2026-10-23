@@ -13,7 +13,7 @@ class GitHubRegistry
 
     public function __construct()
     {
-        $this->registryUrl = rj_get_option('registry_url', 'https://raw.githubusercontent.com/mr-ruhid/rj_cms_theme_and_plugin_list/main/registry.json');
+        $this->registryUrl = rj_get_option('registry_url', 'https://raw.githubusercontent.com/rj-nexus/rj_cms_theme_and_plugin_list/main/registry.json');
         $this->token = rj_get_option('github_token') ?: null;
         $this->cacheMinutes = (int) rj_get_option('registry_cache_minutes', 60);
     }
@@ -127,13 +127,14 @@ class GitHubRegistry
             }
 
             $releaseRes = Http::timeout(15)->withHeaders($headers)
-                ->get("https://api.github.com/repos/{$repo}/releases/latest");
+                ->get("https://api.github.com/repos/{$repo}/releases");
 
-            if (!$releaseRes->successful()) {
+            if (!$releaseRes->successful() || empty($releaseRes->json())) {
                 return null;
             }
 
-            $release = $releaseRes->json();
+            $releases = $releaseRes->json();
+            $release = $releases[0];
             $tag = $release['tag_name'] ?? null;
 
             if (!$tag) {
