@@ -67,5 +67,5 @@ Route::middleware(['auth'])->group(function () {
 });
 
 Route::get('/{slug}', [PageController::class, 'show'])
-    ->where('slug', '^(?!admin|login|register|logout|password|email|verification|api|rj-preview|rj-form|rj-fonts|theme-assets|plugin-assets|blog|account|kyc|profile|storage|up|sanctum|livewire).*$')
+    ->where('slug', '^(?!admin|login|register|logout|password|email|verification|api|rj-preview|rj-form|rj-fonts|theme-assets|plugin-assets|blog|account|kyc|profile|storage|up|sanctum|livewire|shop|cart|checkout|product).*$')
     ->name('frontend.page');
