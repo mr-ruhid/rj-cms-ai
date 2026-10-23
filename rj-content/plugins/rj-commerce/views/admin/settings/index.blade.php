@@ -9,12 +9,17 @@
     paypalEnabled: {{ ($options['paypal_enabled'] ?? '0') === '1' ? 'true' : 'false' }},
     checkoutEnabled: {{ ($options['checkout_enabled'] ?? '0') === '1' ? 'true' : 'false' }},
     razorpayEnabled: {{ ($options['razorpay_enabled'] ?? '0') === '1' ? 'true' : 'false' }},
-    cryptoEnabled: {{ ($options['crypto_enabled'] ?? '0') === '1' ? 'true' : 'false' }}
+    cryptoEnabled: {{ ($options['crypto_enabled'] ?? '0') === '1' ? 'true' : 'false' }},
+    copied: null,
+    copyText(text, id) {
+        navigator.clipboard.writeText(text);
+        this.copied = id;
+        setTimeout(() => this.copied = null, 2000);
+    }
 }">
 
     <div class="flex flex-col lg:flex-row gap-8 items-start">
 
-        <!-- Sol Menyu -->
         <div class="w-full lg:w-64 flex-shrink-0">
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden sticky top-24">
                 <div class="p-4 border-b border-gray-100 bg-gray-50">
@@ -37,17 +42,19 @@
                         <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"/></svg>
                         {{ __('API & Notifications') }}
                     </button>
+                    <button type="button" @click="tab = 'shortcodes'" :class="tab === 'shortcodes' ? 'bg-rj-purple/10 text-rj-purple font-semibold' : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'" class="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition text-start">
+                        <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                        {{ __('Shortcodes') }}
+                    </button>
                 </nav>
             </div>
         </div>
 
-        <!-- Əsas Məzmun -->
         <div class="flex-1 min-w-0">
             <form method="POST" action="{{ route('admin.commerce.settings.update') }}" class="space-y-6">
                 @csrf
                 <input type="hidden" name="tab" :value="tab">
 
-                <!-- General Tab -->
                 <div x-show="tab === 'general'" x-cloak class="space-y-6">
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 space-y-6">
                         <div>
@@ -83,10 +90,7 @@
                     </div>
                 </div>
 
-                <!-- Payments Tab -->
                 <div x-show="tab === 'payments'" x-cloak class="space-y-6">
-
-                    <!-- Stripe -->
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 space-y-4">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-3">
@@ -116,7 +120,6 @@
                         </div>
                     </div>
 
-                    <!-- PayPal -->
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 space-y-4">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-3">
@@ -146,7 +149,6 @@
                         </div>
                     </div>
 
-                    <!-- Checkout.com -->
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 space-y-4">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-3">
@@ -176,7 +178,6 @@
                         </div>
                     </div>
 
-                    <!-- Razorpay -->
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 space-y-4">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-3">
@@ -206,7 +207,6 @@
                         </div>
                     </div>
 
-                    <!-- Crypto -->
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 space-y-4">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-3">
@@ -239,7 +239,6 @@
                         </div>
                     </div>
 
-                    <!-- COD -->
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 space-y-4">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-3">
@@ -260,7 +259,6 @@
                     </div>
                 </div>
 
-                <!-- Tax Tab -->
                 <div x-show="tab === 'tax'" x-cloak class="space-y-6">
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 space-y-6">
                         <div>
@@ -285,9 +283,7 @@
                     </div>
                 </div>
 
-                <!-- API & Notifications Tab -->
                 <div x-show="tab === 'api'" x-cloak class="space-y-6">
-
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 space-y-6">
                         <div class="flex items-start justify-between">
                             <div>
@@ -343,7 +339,62 @@
                     </div>
                 </div>
 
-                <div class="flex justify-end pt-4">
+                <div x-show="tab === 'shortcodes'" x-cloak class="space-y-6">
+                    <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8 space-y-6">
+                        <div>
+                            <h2 class="text-lg font-bold text-gray-900">{{ __('Shortcodes') }}</h2>
+                            <p class="text-sm text-gray-500 mt-1">{{ __('Copy and paste these shortcodes into any page or post to display commerce elements.') }}</p>
+                        </div>
+
+                        <div class="space-y-4">
+                            <div class="p-4 rounded-xl border border-gray-200 bg-gray-50 flex items-center justify-between group">
+                                <div>
+                                    <code class="text-sm font-mono text-rj-purple font-bold">[rj_products]</code>
+                                    <p class="text-xs text-gray-500 mt-1">{{ __('Displays a grid of products.') }}</p>
+                                </div>
+                                <button type="button" @click="copyText('[rj_products]', 'sc1')" class="p-2 rounded-lg bg-white border border-gray-200 text-gray-400 hover:text-rj-purple hover:border-rj-purple transition">
+                                    <span x-show="copied !== 'sc1'"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg></span>
+                                    <span x-show="copied === 'sc1'" x-cloak><svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></span>
+                                </button>
+                            </div>
+
+                            <div class="p-4 rounded-xl border border-gray-200 bg-gray-50 flex items-center justify-between group">
+                                <div>
+                                    <code class="text-sm font-mono text-rj-purple font-bold">[rj_products category="perfumes" limit="12"]</code>
+                                    <p class="text-xs text-gray-500 mt-1">{{ __('Displays products filtered by category and limit.') }}</p>
+                                </div>
+                                <button type="button" @click="copyText('[rj_products category=\'perfumes\' limit=\'12\']', 'sc2')" class="p-2 rounded-lg bg-white border border-gray-200 text-gray-400 hover:text-rj-purple hover:border-rj-purple transition">
+                                    <span x-show="copied !== 'sc2'"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg></span>
+                                    <span x-show="copied === 'sc2'" x-cloak><svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></span>
+                                </button>
+                            </div>
+
+                            <div class="p-4 rounded-xl border border-gray-200 bg-gray-50 flex items-center justify-between group">
+                                <div>
+                                    <code class="text-sm font-mono text-rj-purple font-bold">[rj_categories]</code>
+                                    <p class="text-xs text-gray-500 mt-1">{{ __('Displays a grid of product categories.') }}</p>
+                                </div>
+                                <button type="button" @click="copyText('[rj_categories]', 'sc3')" class="p-2 rounded-lg bg-white border border-gray-200 text-gray-400 hover:text-rj-purple hover:border-rj-purple transition">
+                                    <span x-show="copied !== 'sc3'"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg></span>
+                                    <span x-show="copied === 'sc3'" x-cloak><svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></span>
+                                </button>
+                            </div>
+
+                            <div class="p-4 rounded-xl border border-gray-200 bg-gray-50 flex items-center justify-between group">
+                                <div>
+                                    <code class="text-sm font-mono text-rj-purple font-bold">[rj_add_to_cart id="123"]</code>
+                                    <p class="text-xs text-gray-500 mt-1">{{ __('Displays an Add to Cart button for a specific product ID.') }}</p>
+                                </div>
+                                <button type="button" @click="copyText('[rj_add_to_cart id=\'123\']', 'sc4')" class="p-2 rounded-lg bg-white border border-gray-200 text-gray-400 hover:text-rj-purple hover:border-rj-purple transition">
+                                    <span x-show="copied !== 'sc4'"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg></span>
+                                    <span x-show="copied === 'sc4'" x-cloak><svg class="w-4 h-4 text-green-500" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div x-show="tab !== 'shortcodes'" class="flex justify-end pt-4">
                     <button type="submit" class="inline-flex items-center gap-2 px-8 py-3 rounded-xl bg-gradient-to-r from-rj-purple to-rj-pink text-white text-sm font-bold hover:opacity-90 transition shadow-md">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
                         {{ __('Save Settings') }}
