@@ -1,6 +1,6 @@
 <?php
 
-namespace RjCommerce\Http\Middleware;
+namespace RjCommerce\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;

@@ -1,6 +1,6 @@
 <?php
 
-namespace RjCommerce\Http\Controllers\Api;
+namespace RjCommerce\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use RjCommerce\Models\Order;

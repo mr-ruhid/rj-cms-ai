@@ -1,10 +1,10 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use RjCommerce\Http\Controllers\Api\ApiOrderController;
-use RjCommerce\Http\Controllers\Api\ApiProductController;
+use RjCommerce\Controllers\Api\ApiOrderController;
+use RjCommerce\Controllers\Api\ApiProductController;
 
-Route::middleware(['api', \RjCommerce\Http\Middleware\AuthenticateCommerceApi::class])->prefix('commerce/v1')->group(function () {
+Route::middleware(['api', \RjCommerce\Middleware\AuthenticateCommerceApi::class])->prefix('commerce/v1')->group(function () {
 
     Route::get('/orders', [ApiOrderController::class, 'index']);
     Route::get('/orders/{order}', [ApiOrderController::class, 'show']);
