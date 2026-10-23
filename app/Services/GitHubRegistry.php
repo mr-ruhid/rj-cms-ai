@@ -173,6 +173,7 @@ class GitHubRegistry
                 'author_url' => $manifest['author_url'] ?? ($repoData['owner']['html_url'] ?? ''),
                 'version' => ltrim($tag, 'vV'),
                 'tag' => $tag,
+                'is_prerelease' => (bool) ($release['prerelease'] ?? false),
                 'zip_url' => $zip,
                 'size' => $size,
                 'html_url' => $repoData['html_url'] ?? "https://github.com/{$repo}",
