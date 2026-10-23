@@ -5,6 +5,8 @@ namespace VelvetAura;
 use Illuminate\Support\ServiceProvider;
 use VelvetAura\Widgets\HeroSliderWidget;
 use VelvetAura\Widgets\FeaturedProductsWidget;
+use VelvetAura\Widgets\VelvetHeaderWidget;
+use VelvetAura\Widgets\VelvetFooterWidget;
 
 class VelvetAuraServiceProvider extends ServiceProvider
 {
@@ -24,6 +26,8 @@ class VelvetAuraServiceProvider extends ServiceProvider
                 $widgets = [
                     new HeroSliderWidget(),
                     new FeaturedProductsWidget(),
+                    new VelvetHeaderWidget(),
+                    new VelvetFooterWidget(),
                 ];
                 return array_merge($existing, $widgets);
             });
