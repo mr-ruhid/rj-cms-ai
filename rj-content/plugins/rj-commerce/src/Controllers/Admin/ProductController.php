@@ -8,6 +8,7 @@ use RjCommerce\Models\ProductCategory;
 use RjCommerce\Models\ProductBrand;
 use RjCommerce\Models\ProductTag;
 use RjCommerce\Models\ProductVariation;
+use RjCommerce\Models\ProductAttribute;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
@@ -17,7 +18,7 @@ class ProductController extends Controller
 {
     public function index()
     {
-        $products = Product::with(['translation', 'category', 'brand'])->latest()->paginate(15);
+        $products = Product::with(['translations', 'category', 'brand'])->latest()->paginate(15);
         return view('plugin-rj-commerce::admin.products.index', compact('products'));
     }
 
@@ -27,7 +28,7 @@ class ProductController extends Controller
         $categories = ProductCategory::with('translations')->orderBy('sort_order')->get();
         $brands = ProductBrand::with('translations')->orderBy('id')->get();
         $tags = ProductTag::with('translations')->orderBy('id')->get();
-        $attributes = \RjCommerce\Models\ProductAttribute::with(['translations', 'values.translations'])->where('is_active', true)->get();
+        $attributes = ProductAttribute::with(['translations', 'values.translations'])->where('is_active', true)->get();
 
         return view('plugin-rj-commerce::admin.products.create', compact('locales', 'categories', 'brands', 'tags', 'attributes'));
     }
@@ -190,7 +191,7 @@ class ProductController extends Controller
         $categories = ProductCategory::with('translations')->orderBy('sort_order')->get();
         $brands = ProductBrand::with('translations')->orderBy('id')->get();
         $tags = ProductTag::with('translations')->orderBy('id')->get();
-        $attributes = \RjCommerce\Models\ProductAttribute::with(['translations', 'values.translations'])->where('is_active', true)->get();
+        $attributes = ProductAttribute::with(['translations', 'values.translations'])->where('is_active', true)->get();
 
         return view('plugin-rj-commerce::admin.products.edit', compact('product', 'locales', 'categories', 'brands', 'tags', 'attributes'));
     }
