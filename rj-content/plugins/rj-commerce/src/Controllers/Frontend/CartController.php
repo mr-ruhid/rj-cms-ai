@@ -12,6 +12,15 @@ class CartController extends Controller
 {
     public function index()
     {
+        $assignedPageId = rj_get_option('commerce_page_cart');
+
+        if ($assignedPageId) {
+            $page = \App\Models\Post::find($assignedPageId);
+            if ($page && $page->status === 'published') {
+                return redirect()->to($page->public_url);
+            }
+        }
+
         $cart = session()->get('rj_cart', []);
         $subtotal = 0;
 
