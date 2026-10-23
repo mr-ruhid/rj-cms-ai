@@ -15,15 +15,6 @@
         "php": ">=8.2"
     },
     "provides": {
-        "admin_menu": [
-            {
-                "id": "commerce",
-                "title": "Commerce",
-                "icon": "shopping-cart",
-                "route": "admin.commerce.products.index",
-                "position": 25
-            }
-        ],
         "routes": {
             "admin": "routes/admin.php",
             "frontend": "routes/frontend.php",
