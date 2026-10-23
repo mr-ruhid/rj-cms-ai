@@ -320,7 +320,7 @@ class WidgetRegistry
     {
         $class = get_class($widget);
 
-        if (str_starts_with($class, 'RjPlugins\\') || str_starts_with($class, 'RjCommerce\\')) {
+        if (str_starts_with($class, 'RjPlugins\\') || str_starts_with($class, 'RjCommerce\\') || str_starts_with($class, 'VelvetAura\\')) {
             return 'plugin';
         }
 
