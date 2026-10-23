@@ -1,0 +1,24 @@
+{
+    "name": "VelvetAura",
+    "slug": "velvet-aura",
+    "version": "1.0.0",
+    "author": "RJ Nexus",
+    "author_url": "https://github.com/rj-nexus",
+    "description": "A premium, modern e-commerce theme exclusively designed for RJ Commerce.",
+    "license": "MIT",
+    "screenshot": "screenshot.jpg",
+    "requires": {
+        "rj_cms": ">=1.0.0",
+        "php": ">=8.2"
+    },
+    "supports": [
+        "rj-builder",
+        "rj-commerce",
+        "menus",
+        "widgets"
+    ],
+    "provides": {
+        "views": "views",
+        "assets": "assets"
+    }
+}
