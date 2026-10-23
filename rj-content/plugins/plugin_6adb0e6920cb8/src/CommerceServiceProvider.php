@@ -3,6 +3,11 @@
 namespace RjCommerce;
 
 use App\Plugins\PluginServiceProvider;
+use App\Widgets\WidgetRegistry;
+use RjCommerce\Widgets\ProductGridWidget;
+use RjCommerce\Widgets\CategoriesWidget;
+use RjCommerce\Widgets\SingleProductWidget;
+use RjCommerce\Widgets\CartWidget;
 
 class CommerceServiceProvider extends PluginServiceProvider
 {
@@ -24,5 +29,10 @@ class CommerceServiceProvider extends PluginServiceProvider
         if (file_exists($helpersFile)) {
             require_once $helpersFile;
         }
+
+        WidgetRegistry::register(new ProductGridWidget());
+        WidgetRegistry::register(new CategoriesWidget());
+        WidgetRegistry::register(new SingleProductWidget());
+        WidgetRegistry::register(new CartWidget());
     }
 }
