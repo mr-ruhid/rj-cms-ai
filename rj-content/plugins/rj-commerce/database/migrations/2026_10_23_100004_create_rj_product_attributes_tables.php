@@ -19,7 +19,9 @@ return new class extends Migration
 
         Schema::create('rj_product_attribute_translations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('product_attribute_id')->constrained('rj_product_attributes')->cascadeOnDelete();
+            $table->foreignId('product_attribute_id')
+                  ->constrained('rj_product_attributes', 'id', 'fk_pat_attr')
+                  ->cascadeOnDelete();
             $table->string('locale', 10);
             $table->string('name');
             $table->timestamps();
@@ -29,7 +31,9 @@ return new class extends Migration
 
         Schema::create('rj_product_attribute_values', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('product_attribute_id')->constrained('rj_product_attributes')->cascadeOnDelete();
+            $table->foreignId('product_attribute_id')
+                  ->constrained('rj_product_attributes', 'id', 'fk_pav_attr')
+                  ->cascadeOnDelete();
             $table->string('slug');
             $table->string('color_code')->nullable();
             $table->integer('sort_order')->default(0);
@@ -40,7 +44,9 @@ return new class extends Migration
 
         Schema::create('rj_product_attribute_value_translations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('product_attribute_value_id')->constrained('rj_product_attribute_values')->cascadeOnDelete();
+            $table->foreignId('product_attribute_value_id')
+                  ->constrained('rj_product_attribute_values', 'id', 'fk_pavt_val')
+                  ->cascadeOnDelete();
             $table->string('locale', 10);
             $table->string('name');
             $table->timestamps();
