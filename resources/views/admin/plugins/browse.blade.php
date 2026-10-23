@@ -83,6 +83,12 @@
                 @foreach ($plugins as $plugin)
                     @php
                         $isInstalled = in_array($plugin['slug'] ?? '', $installedSlugs, true);
+
+                        $versionStr = strtolower($plugin['version'] ?? '');
+                        $isBeta = !empty($plugin['is_prerelease'])
+                            || str_contains($versionStr, 'beta')
+                            || str_contains($versionStr, 'alpha')
+                            || str_contains($versionStr, 'rc');
                     @endphp
 
                     <div class="border border-gray-200 rounded-xl overflow-hidden bg-white hover:shadow-lg transition flex flex-col">
@@ -129,7 +135,7 @@
                                     </div>
                                     <div class="text-xs text-gray-500 mt-0.5">
                                         v{{ $plugin['version'] }}
-                                        @if (!empty($plugin['is_prerelease']))
+                                        @if ($isBeta)
                                             <span class="inline-flex items-center ml-1.5 px-1.5 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200 uppercase tracking-wider" title="{{ __('This is a pre-release (beta) version.') }}">
                                                 {{ __('Beta') }}
                                             </span>
