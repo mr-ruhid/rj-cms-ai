@@ -1,7 +1,17 @@
 @php
-    $logoUrl = rj_get_option('site_logo');
+    $logoUrl = $customLogo ?? rj_get_option('site_logo');
+
     if (!$logoUrl) {
         $logoUrl = asset('rj-content/themes/velvet-aura/assets/images/velvetlogo.png');
+    } elseif (!\Illuminate\Support\Str::startsWith($logoUrl, 'http') && !\Illuminate\Support\Str::startsWith($logoUrl, 'media/') && !\Illuminate\Support\Str::startsWith($logoUrl, '/')) {
+        $logoUrl = \Illuminate\Support\Facades\Storage::url($logoUrl);
+    } elseif (\Illuminate\Support\Str::startsWith($logoUrl, 'media/')) {
+        $logoUrl = asset($logoUrl);
+    }
+
+    $menuItems = [];
+    if (function_exists('rj_menu_tree')) {
+        $menuItems = rj_menu_tree('main-menu');
     }
 @endphp
 
@@ -24,11 +34,19 @@
                 </button>
 
                 <nav class="hidden md:flex items-center gap-8">
-                    @if(function_exists('rj_commerce_url'))
-                        <a href="{{ rj_commerce_url('shop') }}" class="text-[11px] font-bold tracking-[0.2em] uppercase text-slate-900 hover:text-[#d4af37] transition-colors">{{ __('Shop') }}</a>
+                    @if(!empty($menuItems))
+                        @foreach($menuItems as $item)
+                            <a href="{{ $item->url ?? $item['url'] ?? '#' }}" class="text-[11px] font-bold tracking-[0.2em] uppercase text-slate-900 hover:text-[#d4af37] transition-colors">
+                                {{ $item->title ?? $item['title'] ?? '' }}
+                            </a>
+                        @endforeach
+                    @else
+                        @if(function_exists('rj_commerce_url'))
+                            <a href="{{ rj_commerce_url('shop') }}" class="text-[11px] font-bold tracking-[0.2em] uppercase text-slate-900 hover:text-[#d4af37] transition-colors">{{ __('Shop') }}</a>
+                        @endif
+                        <a href="{{ url('/collections') }}" class="text-[11px] font-bold tracking-[0.2em] uppercase text-slate-900 hover:text-[#d4af37] transition-colors">{{ __('New Arrivals') }}</a>
+                        <a href="{{ url('/bestsellers') }}" class="text-[11px] font-bold tracking-[0.2em] uppercase text-slate-900 hover:text-[#d4af37] transition-colors">{{ __('Bestsellers') }}</a>
                     @endif
-                    <a href="{{ url('/collections') }}" class="text-[11px] font-bold tracking-[0.2em] uppercase text-slate-900 hover:text-[#d4af37] transition-colors">{{ __('New Arrivals') }}</a>
-                    <a href="{{ url('/bestsellers') }}" class="text-[11px] font-bold tracking-[0.2em] uppercase text-slate-900 hover:text-[#d4af37] transition-colors">{{ __('Bestsellers') }}</a>
                 </nav>
             </div>
 
@@ -63,11 +81,19 @@
 
     <div x-show="mobileMenuOpen" x-cloak x-transition.opacity class="md:hidden bg-[#faf9f6] border-t border-[#e8e4db] absolute w-full shadow-2xl">
         <div class="px-6 pt-4 pb-8 space-y-1">
-            @if(function_exists('rj_commerce_url'))
-                <a href="{{ rj_commerce_url('shop') }}" class="block py-4 border-b border-[#e8e4db] text-sm font-bold tracking-[0.2em] uppercase text-slate-900">{{ __('Shop') }}</a>
+            @if(!empty($menuItems))
+                @foreach($menuItems as $item)
+                    <a href="{{ $item->url ?? $item['url'] ?? '#' }}" class="block py-4 border-b border-[#e8e4db] text-sm font-bold tracking-[0.2em] uppercase text-slate-900">
+                        {{ $item->title ?? $item['title'] ?? '' }}
+                    </a>
+                @endforeach
+            @else
+                @if(function_exists('rj_commerce_url'))
+                    <a href="{{ rj_commerce_url('shop') }}" class="block py-4 border-b border-[#e8e4db] text-sm font-bold tracking-[0.2em] uppercase text-slate-900">{{ __('Shop') }}</a>
+                @endif
+                <a href="{{ url('/collections') }}" class="block py-4 border-b border-[#e8e4db] text-sm font-bold tracking-[0.2em] uppercase text-slate-900">{{ __('New Arrivals') }}</a>
+                <a href="{{ url('/bestsellers') }}" class="block py-4 border-b border-[#e8e4db] text-sm font-bold tracking-[0.2em] uppercase text-slate-900">{{ __('Bestsellers') }}</a>
             @endif
-            <a href="{{ url('/collections') }}" class="block py-4 border-b border-[#e8e4db] text-sm font-bold tracking-[0.2em] uppercase text-slate-900">{{ __('New Arrivals') }}</a>
-            <a href="{{ url('/bestsellers') }}" class="block py-4 border-b border-[#e8e4db] text-sm font-bold tracking-[0.2em] uppercase text-slate-900">{{ __('Bestsellers') }}</a>
             <a href="{{ route('login') }}" class="block py-4 text-sm font-bold tracking-[0.2em] uppercase text-[#d4af37]">{{ __('Login / Register') }}</a>
         </div>
     </div>
