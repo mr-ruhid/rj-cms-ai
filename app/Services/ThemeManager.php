@@ -11,6 +11,7 @@ use Illuminate\Support\Str;
 class ThemeManager
 {
     protected string $themesPath;
+    protected static array $autoloaded = [];
 
     public function __construct()
     {
@@ -425,20 +426,41 @@ class ThemeManager
 
         $manifest = $theme->metadata();
         $providerClass = $manifest['provider'] ?? null;
+        $namespace = $manifest['namespace'] ?? null;
 
-        if (!$providerClass) {
+        if (!$providerClass || !$namespace) {
             return;
         }
 
-        $className = substr($providerClass, strrpos($providerClass, '\\') + 1);
-        $providerFile = $theme->path() . '/src/' . $className . '.php';
+        $srcPath = $theme->path() . '/src';
+        if (File::isDirectory($srcPath)) {
+            $key = 'theme_' . $theme->slug;
+            if (!isset(static::$autoloaded[$key])) {
+                static::$autoloaded[$key] = true;
 
-        if (File::exists($providerFile)) {
-            require_once $providerFile;
+                $namespacePrefix = rtrim($namespace, '\\') . '\\';
+                $srcPath = str_replace('\\', '/', rtrim($srcPath, '/'));
+
+                spl_autoload_register(function ($class) use ($namespacePrefix, $srcPath) {
+                    if (!str_starts_with($class, $namespacePrefix)) {
+                        return;
+                    }
+
+                    $relative = substr($class, strlen($namespacePrefix));
+                    $file = $srcPath . '/' . str_replace('\\', '/', $relative) . '.php';
+
+                    if (File::exists($file)) {
+                        require_once $file;
+                    }
+                });
+            }
         }
 
         if (class_exists($providerClass)) {
-            app()->register($providerClass);
+            try {
+                app()->register($providerClass);
+            } catch (\Throwable $e) {
+            }
         }
     }
 
