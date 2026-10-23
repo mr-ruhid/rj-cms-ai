@@ -4,6 +4,7 @@ namespace VelvetAura;
 
 use Illuminate\Support\ServiceProvider;
 use VelvetAura\Widgets\HeroSliderWidget;
+use VelvetAura\Widgets\FeaturedProductsWidget;
 
 class VelvetAuraServiceProvider extends ServiceProvider
 {
@@ -22,6 +23,7 @@ class VelvetAuraServiceProvider extends ServiceProvider
             rj_add_filter('builder.widgets', function ($existing) {
                 $widgets = [
                     new HeroSliderWidget(),
+                    new FeaturedProductsWidget(),
                 ];
                 return array_merge($existing, $widgets);
             });
