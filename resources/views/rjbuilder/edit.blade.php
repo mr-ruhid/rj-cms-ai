@@ -214,7 +214,9 @@
                             <button type="button" class="rj-sech" @click="toggleSec(sec.key)">
                                 <span x-html="sec.icon"></span>
                                 <span x-text="sec.label"></span>
-                                <span class="rj-chev" :data-open="!isCollapsed(sec.key)">⌄</span>
+                                <span class="rj-chev" :data-open="!isCollapsed(sec.key)">
+                                    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                                </span>
                             </button>
                             <div x-show="!isCollapsed(sec.key)">
                                 <div class="rj-hint" x-show="sec.kind === 'fav' && sec.items.length === 0" x-text="t('Collect favourite elements in one place by clicking the star on any element.')"></div>
@@ -225,7 +227,9 @@
                                              @click.stop="quickAdd(w.id)"
                                              @keydown.enter.prevent="quickAdd(w.id)">
                                             <span class="rj-star" role="button" :data-on="isFav(w.id)" @click.stop="toggleFav(w.id)"
-                                                  :title="isFav(w.id) ? t('Remove from favourites') : t('Add to favourites')" x-text="isFav(w.id) ? '★' : '☆'"></span>
+                                                  :title="isFav(w.id) ? t('Remove from favourites') : t('Add to favourites')">
+                                                <svg width="14" height="14" viewBox="0 0 24 24" :fill="isFav(w.id) ? 'currentColor' : 'none'" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"><path d="M12 3l2.9 5.9 6.5.9-4.7 4.6 1.1 6.5L12 17.8l-5.8 3.1 1.1-6.5L2.6 9.8l6.5-.9L12 3z"/></svg>
+                                            </span>
                                             <div class="rj-ico" x-html="w.icon"></div>
                                             <div x-text="w.name"></div>
                                         </div>
@@ -375,7 +379,9 @@
                 <div class="rj-crumbs" x-show="breadcrumb.length > 1">
                     <template x-for="(c, i) in breadcrumb" :key="c.id">
                         <span style="display:inline-flex; align-items:center;">
-                            <i x-show="i > 0">›</i>
+                            <i x-show="i > 0" style="display:inline-flex; align-items:center;">
+                                <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+                            </i>
                             <button type="button" :data-last="i === breadcrumb.length - 1" @click="selectBlock(c.id)" x-text="blockLabel(c.type)"></button>
                         </span>
                     </template>
@@ -389,7 +395,8 @@
 
                 <div class="rj-pb" @click.stop>
                     <div x-show="editTab === 'content' && templateType === 'page' && locales.length > 1" class="rj-hint" style="text-align:left; border-style:solid; background:rgba(139,92,246,.1); border-color:rgba(139,92,246,.35); color:#c4b5fd;">
-                        🌐 <span x-text="t('Editing in')"></span>: <strong x-text="activeLocale.toUpperCase()"></strong>
+                        <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="display:inline-block; vertical-align:-2px;"><circle cx="12" cy="12" r="9"/><path stroke-linecap="round" stroke-linejoin="round" d="M3 12h18M12 3a14 14 0 010 18M12 3a14 14 0 000 18"/></svg>
+                        <span x-text="t('Editing in')"></span>: <strong x-text="activeLocale.toUpperCase()"></strong>
                         <span x-show="activeLocale !== baseLocale" style="opacity:.8;">— <span x-text="t('fields marked 🌐 are translated; others are shared.')"></span></span>
                     </div>
 
@@ -461,7 +468,9 @@
                                 <div>
                                     <div x-show="currentSettings[field.name]" style="position:relative; margin-bottom:8px; border:1px solid var(--line); border-radius:6px; overflow:hidden;">
                                         <img :src="currentSettings[field.name]" style="width:100%; height:110px; object-fit:cover; display:block;" alt="">
-                                        <button type="button" @click="updateSetting(field.name, '')" style="position:absolute; top:6px; right:6px; width:24px; height:24px; border-radius:50%; background:#dc2626; color:#fff; border:0; cursor:pointer; font-size:11px;">✕</button>
+                                        <button type="button" @click="updateSetting(field.name, '')" style="position:absolute; top:6px; right:6px; width:24px; height:24px; border-radius:50%; background:#dc2626; color:#fff; border:0; cursor:pointer; display:flex; align-items:center; justify-content:center; padding:0;">
+                                            <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                                        </button>
                                     </div>
                                     <button type="button" class="rj-btn" style="width:100%; justify-content:center; border-style:dashed;" @click="openMediaPicker(field.name)" x-text="currentSettings[field.name] ? t('Change Image') : t('Select Image')"></button>
                                 </div>
@@ -519,7 +528,10 @@
                     </template>
 
                     <div x-show="editTab === 'advanced'" style="padding-top:4px;">
-                        <button type="button" class="rj-cta" style="width:100%; justify-content:center; font-size:13px; padding:9px 12px;" @click="playAnimation(selectedBlock)">▶ <span x-text="t('Replay animation')"></span></button>
+                        <button type="button" class="rj-cta" style="width:100%; justify-content:center; gap:6px; font-size:13px; padding:9px 12px;" @click="playAnimation(selectedBlock)">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                            <span x-text="t('Replay animation')"></span>
+                        </button>
                         <p class="rj-help" style="line-height:1.5; margin-top:10px;" x-text="t('Hover effects and scroll-triggered animations are visible in Preview.')"></p>
                     </div>
                 </div>
@@ -532,7 +544,10 @@
             </div>
         </aside>
 
-        <button type="button" class="rj-handle" x-show="!preview" :style="'left:' + (panelOpen ? '340px' : '0px')" @click="panelOpen = !panelOpen" :title="panelOpen ? t('Close panel') : t('Open panel')" x-text="panelOpen ? '‹' : '›'"></button>
+        <button type="button" class="rj-handle" x-show="!preview" :style="'left:' + (panelOpen ? '340px' : '0px')" @click="panelOpen = !panelOpen" :title="panelOpen ? t('Close panel') : t('Open panel')">
+            <svg x-show="panelOpen" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg>
+            <svg x-show="!panelOpen" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+        </button>
 
         <main id="rj-main" class="rj-main" :data-preview="preview" @click="selectedBlock = null" @dragover="autoScroll($event)">
             <div :style="preview ? '' : 'padding:32px 28px 180px;'">
