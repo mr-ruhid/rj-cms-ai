@@ -1,0 +1,84 @@
+{
+    "name": "RJ Commerce",
+    "slug": "rj-commerce",
+    "version": "1.0.0",
+    "author": "RJ Nexus",
+    "author_url": "https://github.com/rj-nexus",
+    "plugin_url": "https://github.com/rj-nexus/rj-plugin-commerce",
+    "description": "A complete e-commerce solution for RJ CMS. Manage products, orders, and storefronts.",
+    "license": "MIT",
+    "main": "src/Plugin.php",
+    "namespace": "RjCommerce",
+    "provider": "RjCommerce\\CommerceServiceProvider",
+    "requires": {
+        "rj_cms": ">=1.0.0",
+        "php": ">=8.2"
+    },
+    "provides": {
+        "admin_menu": [
+            {
+                "id": "commerce",
+                "title": "Commerce",
+                "icon": "shopping-cart",
+                "route": "admin.commerce.products.index",
+                "position": 20
+            },
+            {
+                "id": "commerce-products",
+                "parent": "commerce",
+                "title": "Products",
+                "route": "admin.commerce.products.index",
+                "position": 21
+            },
+            {
+                "id": "commerce-orders",
+                "parent": "commerce",
+                "title": "Orders",
+                "route": "admin.commerce.orders.index",
+                "position": 22
+            },
+            {
+                "id": "commerce-coupons",
+                "parent": "commerce",
+                "title": "Coupons",
+                "route": "admin.commerce.coupons.index",
+                "position": 23
+            },
+            {
+                "id": "commerce-categories",
+                "parent": "commerce",
+                "title": "Categories",
+                "route": "admin.commerce.categories.index",
+                "position": 24
+            },
+            {
+                "id": "commerce-brands",
+                "parent": "commerce",
+                "title": "Brands",
+                "route": "admin.commerce.brands.index",
+                "position": 25
+            },
+            {
+                "id": "commerce-attributes",
+                "parent": "commerce",
+                "title": "Attributes",
+                "route": "admin.commerce.attributes.index",
+                "position": 26
+            },
+            {
+                "id": "commerce-settings",
+                "parent": "commerce",
+                "title": "Settings",
+                "route": "admin.commerce.settings.index",
+                "position": 27
+            }
+        ],
+        "routes": {
+            "admin": "routes/admin.php",
+            "frontend": "routes/frontend.php",
+            "api": "routes/api.php"
+        },
+        "views": "views",
+        "migrations": "src/Migrations"
+    }
+}
