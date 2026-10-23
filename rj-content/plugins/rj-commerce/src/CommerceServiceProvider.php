@@ -15,6 +15,14 @@ class CommerceServiceProvider extends PluginServiceProvider
     {
         parent::boot();
 
+        $basePath = dirname(__DIR__);
+
+        $this->loadRoutesFrom($basePath . '/routes/web.php');
+        $this->loadRoutesFrom($basePath . '/routes/admin.php');
+        $this->loadRoutesFrom($basePath . '/routes/api.php');
+        $this->loadViewsFrom($basePath . '/resources/views', 'rj-commerce');
+        $this->loadMigrationsFrom($basePath . '/database/migrations');
+
         $this->registerAdminMenu();
     }
 
