@@ -5,10 +5,40 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ __('Checkout') }} — {{ rj_get_option('site_name', config('app.name')) }}</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'rj-purple': '#8b5cf6',
+                        'rj-pink': '#db2777',
+                    }
+                }
+            }
+        }
+    </script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <link href="https://fonts.bunny.net/css?family=figtree:400,500,600,700&display=swap" rel="stylesheet" />
-    <style> body { font-family: 'Figtree', sans-serif; } </style>
+    <style>
+        body { font-family: 'Figtree', sans-serif; }
+        /* Inputların sərhədlərini məcburi göstərmək üçün */
+        .rj-input {
+            width: 100%;
+            border: 1px solid #d1d5db;
+            border-radius: 0.75rem;
+            padding: 0.75rem 1rem;
+            font-size: 0.875rem;
+            background-color: #ffffff;
+            transition: border-color 0.15s, box-shadow 0.15s;
+        }
+        .rj-input:focus {
+            outline: none;
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.2);
+        }
+    </style>
 </head>
 <body class="bg-gray-50 min-h-screen" x-data="{ sameAsBilling: true }">
 
@@ -55,11 +85,11 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Email Address') }} <span class="text-red-500">*</span></label>
-                            <input type="email" name="billing_email" value="{{ old('billing_email', auth()->user()?->email) }}" required class="w-full rounded-xl border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm">
+                            <input type="email" name="billing_email" value="{{ old('billing_email', auth()->user()?->email) }}" required class="rj-input" placeholder="you@example.com">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Phone Number') }} <span class="text-red-500">*</span></label>
-                            <input type="text" name="billing_phone" value="{{ old('billing_phone') }}" required class="w-full rounded-xl border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm">
+                            <input type="text" name="billing_phone" value="{{ old('billing_phone') }}" required class="rj-input" placeholder="+1 (555) 000-0000">
                         </div>
                     </div>
                 </div>
@@ -69,27 +99,27 @@
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('First Name') }} <span class="text-red-500">*</span></label>
-                            <input type="text" name="billing_first_name" value="{{ old('billing_first_name', auth()->user()?->name) }}" required class="w-full rounded-xl border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm">
+                            <input type="text" name="billing_first_name" value="{{ old('billing_first_name', auth()->user()?->name) }}" required class="rj-input" placeholder="John">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Last Name') }} <span class="text-red-500">*</span></label>
-                            <input type="text" name="billing_last_name" value="{{ old('billing_last_name') }}" required class="w-full rounded-xl border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm">
+                            <input type="text" name="billing_last_name" value="{{ old('billing_last_name') }}" required class="rj-input" placeholder="Doe">
                         </div>
                         <div class="md:col-span-2">
                             <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Street Address') }} <span class="text-red-500">*</span></label>
-                            <input type="text" name="billing_address_1" value="{{ old('billing_address_1') }}" required class="w-full rounded-xl border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm" placeholder="{{ __('House number and street name') }}">
+                            <input type="text" name="billing_address_1" value="{{ old('billing_address_1') }}" required class="rj-input" placeholder="{{ __('House number and street name') }}">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('City') }} <span class="text-red-500">*</span></label>
-                            <input type="text" name="billing_city" value="{{ old('billing_city') }}" required class="w-full rounded-xl border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm">
+                            <input type="text" name="billing_city" value="{{ old('billing_city') }}" required class="rj-input" placeholder="Baku">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Postal Code') }} <span class="text-red-500">*</span></label>
-                            <input type="text" name="billing_postal_code" value="{{ old('billing_postal_code') }}" required class="w-full rounded-xl border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm">
+                            <input type="text" name="billing_postal_code" value="{{ old('billing_postal_code') }}" required class="rj-input" placeholder="AZ 1000">
                         </div>
                         <div class="md:col-span-2">
                             <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Country') }} <span class="text-red-500">*</span></label>
-                            <input type="text" name="billing_country" value="{{ old('billing_country') }}" required class="w-full rounded-xl border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm">
+                            <input type="text" name="billing_country" value="{{ old('billing_country') }}" required class="rj-input" placeholder="Azerbaijan">
                         </div>
                     </div>
                 </div>
@@ -98,7 +128,7 @@
                     <div class="flex items-center justify-between border-b border-gray-100 pb-3">
                         <h2 class="text-lg font-bold text-gray-900">{{ __('Shipping Details') }}</h2>
                         <label class="flex items-center gap-2 cursor-pointer text-sm text-gray-600">
-                            <input type="checkbox" x-model="sameAsBilling" class="rounded border-gray-300 text-rj-purple focus:ring-rj-purple">
+                            <input type="checkbox" x-model="sameAsBilling" class="rounded border-gray-300 text-rj-purple focus:ring-rj-purple w-4 h-4">
                             {{ __('Same as billing') }}
                         </label>
                     </div>
@@ -106,27 +136,27 @@
                     <div x-show="!sameAsBilling" x-cloak x-collapse class="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('First Name') }}</label>
-                            <input type="text" name="shipping_first_name" value="{{ old('shipping_first_name') }}" class="w-full rounded-xl border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm">
+                            <input type="text" name="shipping_first_name" value="{{ old('shipping_first_name') }}" class="rj-input" placeholder="John">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Last Name') }}</label>
-                            <input type="text" name="shipping_last_name" value="{{ old('shipping_last_name') }}" class="w-full rounded-xl border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm">
+                            <input type="text" name="shipping_last_name" value="{{ old('shipping_last_name') }}" class="rj-input" placeholder="Doe">
                         </div>
                         <div class="md:col-span-2">
                             <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Street Address') }}</label>
-                            <input type="text" name="shipping_address_1" value="{{ old('shipping_address_1') }}" class="w-full rounded-xl border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm">
+                            <input type="text" name="shipping_address_1" value="{{ old('shipping_address_1') }}" class="rj-input" placeholder="{{ __('House number and street name') }}">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('City') }}</label>
-                            <input type="text" name="shipping_city" value="{{ old('shipping_city') }}" class="w-full rounded-xl border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm">
+                            <input type="text" name="shipping_city" value="{{ old('shipping_city') }}" class="rj-input" placeholder="Baku">
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Postal Code') }}</label>
-                            <input type="text" name="shipping_postal_code" value="{{ old('shipping_postal_code') }}" class="w-full rounded-xl border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm">
+                            <input type="text" name="shipping_postal_code" value="{{ old('shipping_postal_code') }}" class="rj-input" placeholder="AZ 1000">
                         </div>
                         <div class="md:col-span-2">
                             <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Country') }}</label>
-                            <input type="text" name="shipping_country" value="{{ old('shipping_country') }}" class="w-full rounded-xl border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm">
+                            <input type="text" name="shipping_country" value="{{ old('shipping_country') }}" class="rj-input" placeholder="Azerbaijan">
                         </div>
                     </div>
                 </div>
@@ -135,17 +165,19 @@
                     <h2 class="text-lg font-bold text-gray-900 border-b border-gray-100 pb-3">{{ __('Payment Method') }}</h2>
 
                     <div class="space-y-3">
-                        @foreach($paymentMethods as $key => $method)
+                        @forelse($paymentMethods as $key => $method)
                             <label class="flex items-center gap-3 p-4 border border-gray-200 rounded-xl cursor-pointer hover:bg-gray-50 transition">
-                                <input type="radio" name="payment_method" value="{{ $key }}" required class="text-rj-purple focus:ring-rj-purple" {{ $loop->first ? 'checked' : '' }}>
+                                <input type="radio" name="payment_method" value="{{ $key }}" required class="text-rj-purple focus:ring-rj-purple w-4 h-4" {{ $loop->first ? 'checked' : '' }}>
                                 <span class="text-sm font-medium text-gray-900">{{ $method }}</span>
                             </label>
-                        @endforeach
+                        @empty
+                            <div class="text-red-500 text-sm">{{ __('No payment methods are enabled. Please contact the administrator.') }}</div>
+                        @endforelse
                     </div>
 
                     <div class="pt-4 border-t border-gray-100">
                         <label class="block text-sm font-medium text-gray-700 mb-1.5">{{ __('Order Notes') }} ({{ __('Optional') }})</label>
-                        <textarea name="customer_note" rows="3" class="w-full rounded-xl border-gray-300 focus:border-rj-purple focus:ring-rj-purple text-sm" placeholder="{{ __('Notes about your order, e.g. special notes for delivery.') }}">{{ old('customer_note') }}</textarea>
+                        <textarea name="customer_note" rows="3" class="rj-input" placeholder="{{ __('Notes about your order, e.g. special notes for delivery.') }}">{{ old('customer_note') }}</textarea>
                     </div>
                 </div>
 
@@ -158,7 +190,7 @@
                     <div class="space-y-4 mb-6 max-h-[40vh] overflow-y-auto pr-2">
                         @foreach($cart as $key => $item)
                             <div class="flex items-center gap-4">
-                                <div class="w-16 h-16 flex-shrink-0 bg-gray-50 rounded-lg overflow-hidden border border-gray-100">
+                                <div class="w-16 h-16 flex-shrink-0 bg-gray-50 rounded-lg overflow-hidden border border-gray-200">
                                     @if($item['image'])
                                         <img src="{{ $item['image'] }}" class="w-full h-full object-cover">
                                     @else
@@ -168,7 +200,7 @@
                                     @endif
                                 </div>
                                 <div class="flex-1">
-                                    <div class="text-sm font-medium text-gray-900 line-clamp-1">{{ $item['name'] }}</div>
+                                    <div class="text-sm font-bold text-gray-900 line-clamp-1">{{ $item['name'] }}</div>
                                     @if($item['variation_name'])
                                         <div class="text-xs text-gray-500">{{ $item['variation_name'] }}</div>
                                     @endif
@@ -203,7 +235,7 @@
                         </div>
                     </div>
 
-                    <button type="submit" class="w-full py-4 rounded-xl bg-gradient-to-r from-rj-purple to-rj-pink text-white font-bold text-sm hover:opacity-90 transition shadow-lg flex items-center justify-center gap-2">
+                    <button type="submit" class="w-full py-4 rounded-xl bg-gray-900 text-white font-bold text-sm hover:bg-gray-800 transition shadow-lg flex items-center justify-center gap-2">
                         {{ __('Place Order') }}
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3"/></svg>
                     </button>
