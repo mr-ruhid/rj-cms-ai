@@ -19,4 +19,5 @@ Route::middleware(['web', 'auth', 'admin'])->prefix('admin/commerce')->name('adm
 
     Route::get('settings', [SettingsController::class, 'index'])->name('settings.index');
     Route::post('settings', [SettingsController::class, 'update'])->name('settings.update');
+    Route::get('api-docs', [SettingsController::class, 'apiDocs'])->name('api.docs');
 });
