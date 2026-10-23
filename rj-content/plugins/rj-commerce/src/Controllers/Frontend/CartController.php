@@ -62,7 +62,6 @@ class CartController extends Controller
         }
 
         $cartKey = $product->id . ($variationId ? '_' . $variationId : '');
-
         $cart = session()->get('rj_cart', []);
 
         if (isset($cart[$cartKey])) {
@@ -101,7 +100,6 @@ class CartController extends Controller
         if (isset($cart[$validated['cart_key']])) {
             $cart[$validated['cart_key']]['quantity'] = $validated['quantity'];
             session()->put('rj_cart', $cart);
-
             return response()->json(['success' => true, 'message' => __('Cart updated.')]);
         }
 
