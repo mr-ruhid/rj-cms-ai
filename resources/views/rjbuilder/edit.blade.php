@@ -212,7 +212,7 @@
                     <template x-for="sec in widgetSections" :key="sec.key">
                         <div>
                             <button type="button" class="rj-sech" @click="toggleSec(sec.key)">
-                                <span x-text="sec.icon"></span>
+                                <span x-html="sec.icon"></span>
                                 <span x-text="sec.label"></span>
                                 <span class="rj-chev" :data-open="!isCollapsed(sec.key)">⌄</span>
                             </button>
