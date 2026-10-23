@@ -1,6 +1,6 @@
 <?php
 
-namespace RjCommerce\Controllers;
+namespace RjCommerce\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use RjCommerce\Models\Review;
