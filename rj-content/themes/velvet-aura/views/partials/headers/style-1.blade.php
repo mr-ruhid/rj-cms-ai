@@ -1,7 +1,12 @@
 @php
-    $logoUrl = rj_get_option('site_logo');
+    $logoUrl = $customLogo ?? rj_get_option('site_logo');
+
     if (!$logoUrl) {
         $logoUrl = asset('rj-content/themes/velvet-aura/assets/images/velvetlogo.png');
+    } elseif (!\Illuminate\Support\Str::startsWith($logoUrl, 'http') && !\Illuminate\Support\Str::startsWith($logoUrl, 'media/') && !\Illuminate\Support\Str::startsWith($logoUrl, '/')) {
+        $logoUrl = \Illuminate\Support\Facades\Storage::url($logoUrl);
+    } elseif (\Illuminate\Support\Str::startsWith($logoUrl, 'media/')) {
+        $logoUrl = asset($logoUrl);
     }
 @endphp
 
