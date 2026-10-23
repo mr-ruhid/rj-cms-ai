@@ -14,6 +14,15 @@ class CheckoutController extends Controller
 {
     public function index()
     {
+        $assignedPageId = rj_get_option('commerce_page_checkout');
+
+        if ($assignedPageId) {
+            $page = \App\Models\Post::find($assignedPageId);
+            if ($page && $page->status === 'published') {
+                return redirect()->to($page->public_url);
+            }
+        }
+
         $cart = session()->get('rj_cart', []);
 
         if (empty($cart)) {
