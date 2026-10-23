@@ -4,6 +4,7 @@ namespace RjCommerce\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use RjCommerce\Models\Order;
+use RjCommerce\Services\OrderMailer;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller
@@ -29,6 +30,8 @@ class OrderController extends Controller
         $order->update([
             'status' => $validated['status']
         ]);
+
+        OrderMailer::send($order, 'updated');
 
         return back()->with('success', __('Order status updated successfully.'));
     }
