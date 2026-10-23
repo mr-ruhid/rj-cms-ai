@@ -1,7 +1,17 @@
 @php
-    $logoUrl = rj_get_option('site_logo');
+    $logoUrl = $customLogo ?? rj_get_option('site_logo');
+
     if (!$logoUrl) {
         $logoUrl = asset('rj-content/themes/velvet-aura/assets/images/velvetlogo.png');
+    } elseif (!\Illuminate\Support\Str::startsWith($logoUrl, 'http') && !\Illuminate\Support\Str::startsWith($logoUrl, 'media/') && !\Illuminate\Support\Str::startsWith($logoUrl, '/')) {
+        $logoUrl = \Illuminate\Support\Facades\Storage::url($logoUrl);
+    } elseif (\Illuminate\Support\Str::startsWith($logoUrl, 'media/')) {
+        $logoUrl = asset($logoUrl);
+    }
+
+    $menuItems = [];
+    if (function_exists('rj_menu_tree')) {
+        $menuItems = rj_menu_tree('main-menu');
     }
 @endphp
 
@@ -22,13 +32,21 @@
             </div>
 
             <nav class="hidden md:flex flex-1 items-center justify-center gap-10">
-                <a href="{{ url('/') }}" class="text-[11px] font-bold tracking-[0.15em] uppercase text-slate-800 hover:text-brand-600 transition-colors">{{ __('Home') }}</a>
-                @if(function_exists('rj_commerce_url'))
-                    <a href="{{ rj_commerce_url('shop') }}" class="text-[11px] font-bold tracking-[0.15em] uppercase text-slate-800 hover:text-brand-600 transition-colors">{{ __('Shop') }}</a>
+                @if(!empty($menuItems))
+                    @foreach($menuItems as $item)
+                        <a href="{{ $item->url ?? $item['url'] ?? '#' }}" class="text-[11px] font-bold tracking-[0.15em] uppercase text-slate-800 hover:text-brand-600 transition-colors">
+                            {{ $item->title ?? $item['title'] ?? '' }}
+                        </a>
+                    @endforeach
+                @else
+                    <a href="{{ url('/') }}" class="text-[11px] font-bold tracking-[0.15em] uppercase text-slate-800 hover:text-brand-600 transition-colors">{{ __('Home') }}</a>
+                    @if(function_exists('rj_commerce_url'))
+                        <a href="{{ rj_commerce_url('shop') }}" class="text-[11px] font-bold tracking-[0.15em] uppercase text-slate-800 hover:text-brand-600 transition-colors">{{ __('Shop') }}</a>
+                    @endif
+                    <a href="{{ url('/collections') }}" class="text-[11px] font-bold tracking-[0.15em] uppercase text-slate-800 hover:text-brand-600 transition-colors">{{ __('Collections') }}</a>
+                    <a href="{{ url('/about') }}" class="text-[11px] font-bold tracking-[0.15em] uppercase text-slate-800 hover:text-brand-600 transition-colors">{{ __('Our Story') }}</a>
+                    <a href="{{ url('/contact') }}" class="text-[11px] font-bold tracking-[0.15em] uppercase text-slate-800 hover:text-brand-600 transition-colors">{{ __('Contact') }}</a>
                 @endif
-                <a href="{{ url('/collections') }}" class="text-[11px] font-bold tracking-[0.15em] uppercase text-slate-800 hover:text-brand-600 transition-colors">{{ __('Collections') }}</a>
-                <a href="{{ url('/about') }}" class="text-[11px] font-bold tracking-[0.15em] uppercase text-slate-800 hover:text-brand-600 transition-colors">{{ __('Our Story') }}</a>
-                <a href="{{ url('/contact') }}" class="text-[11px] font-bold tracking-[0.15em] uppercase text-slate-800 hover:text-brand-600 transition-colors">{{ __('Contact') }}</a>
             </nav>
 
             <div class="flex-1 flex items-center justify-end gap-5 sm:gap-7">
@@ -74,13 +92,21 @@
 
     <div x-show="mobileMenuOpen" x-cloak x-transition class="md:hidden bg-white border-t border-slate-100 absolute w-full shadow-2xl h-screen">
         <div class="px-6 pt-4 pb-20 space-y-2">
-            <a href="{{ url('/') }}" class="block py-3 border-b border-slate-50 text-sm font-bold tracking-widest uppercase text-slate-900">{{ __('Home') }}</a>
-            @if(function_exists('rj_commerce_url'))
-                <a href="{{ rj_commerce_url('shop') }}" class="block py-3 border-b border-slate-50 text-sm font-bold tracking-widest uppercase text-slate-900">{{ __('Shop') }}</a>
+            @if(!empty($menuItems))
+                @foreach($menuItems as $item)
+                    <a href="{{ $item->url ?? $item['url'] ?? '#' }}" class="block py-3 border-b border-slate-50 text-sm font-bold tracking-widest uppercase text-slate-900">
+                        {{ $item->title ?? $item['title'] ?? '' }}
+                    </a>
+                @endforeach
+            @else
+                <a href="{{ url('/') }}" class="block py-3 border-b border-slate-50 text-sm font-bold tracking-widest uppercase text-slate-900">{{ __('Home') }}</a>
+                @if(function_exists('rj_commerce_url'))
+                    <a href="{{ rj_commerce_url('shop') }}" class="block py-3 border-b border-slate-50 text-sm font-bold tracking-widest uppercase text-slate-900">{{ __('Shop') }}</a>
+                @endif
+                <a href="{{ url('/collections') }}" class="block py-3 border-b border-slate-50 text-sm font-bold tracking-widest uppercase text-slate-900">{{ __('Collections') }}</a>
+                <a href="{{ url('/about') }}" class="block py-3 border-b border-slate-50 text-sm font-bold tracking-widest uppercase text-slate-900">{{ __('Our Story') }}</a>
+                <a href="{{ url('/contact') }}" class="block py-3 border-b border-slate-50 text-sm font-bold tracking-widest uppercase text-slate-900">{{ __('Contact') }}</a>
             @endif
-            <a href="{{ url('/collections') }}" class="block py-3 border-b border-slate-50 text-sm font-bold tracking-widest uppercase text-slate-900">{{ __('Collections') }}</a>
-            <a href="{{ url('/about') }}" class="block py-3 border-b border-slate-50 text-sm font-bold tracking-widest uppercase text-slate-900">{{ __('Our Story') }}</a>
-            <a href="{{ url('/contact') }}" class="block py-3 border-b border-slate-50 text-sm font-bold tracking-widest uppercase text-slate-900">{{ __('Contact') }}</a>
             <a href="{{ route('login') }}" class="block py-3 text-sm font-bold tracking-widest uppercase text-brand-600">{{ __('Login / Register') }}</a>
         </div>
     </div>
