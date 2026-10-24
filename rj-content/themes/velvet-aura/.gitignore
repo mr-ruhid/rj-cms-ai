@@ -1,0 +1,24 @@
+# Dependencies
+/vendor
+/node_modules
+
+# Environment & System Files
+.env
+.env.backup
+.DS_Store
+Thumbs.db
+
+# IDE & Editor
+.idea
+.vscode
+*.sublime-project
+*.sublime-workspace
+
+# Logs & Cache
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Compiled Assets (if you compile them locally)
+/public
