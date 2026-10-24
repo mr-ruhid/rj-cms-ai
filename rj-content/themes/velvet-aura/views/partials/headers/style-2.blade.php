@@ -2,12 +2,21 @@
     $logoUrl = $customLogo ?? rj_get_option('site_logo');
 
     if (!$logoUrl) {
-        $logoUrl = 'https://raw.githubusercontent.com/rj-nexus/velvet-aura/main/assets/images/velvetlogo_dark.png';
+        $logoUrl = 'https://raw.githubusercontent.com/rj-nexus/velvet-aura/main/assets/images/velvetlogo.png';
     }
 
+    $allMenus = function_exists('rj_menu_tree') ? rj_menu_tree() : [];
     $menuItems = [];
-    if (function_exists('rj_menu_tree')) {
-        $menuItems = rj_menu_tree('main-menu');
+
+    foreach ($allMenus as $menu) {
+        if (in_array(strtolower($menu['location'] ?? ''), ['header', 'main', 'primary'])) {
+            $menuItems = $menu['items'];
+            break;
+        }
+    }
+
+    if (empty($menuItems) && !empty($allMenus)) {
+        $menuItems = reset($allMenus)['items'] ?? [];
     }
 @endphp
 
@@ -30,8 +39,8 @@
             <nav class="hidden md:flex flex-1 items-center justify-center gap-10">
                 @if(!empty($menuItems))
                     @foreach($menuItems as $item)
-                        <a href="{{ $item->url ?? $item['url'] ?? '#' }}" class="text-[11px] font-bold tracking-[0.15em] uppercase text-slate-800 hover:text-brand-600 transition-colors">
-                            {{ $item->title ?? $item['title'] ?? '' }}
+                        <a href="{{ $item['url'] ?? '#' }}" target="{{ $item['target'] ?? '_self' }}" class="text-[11px] font-bold tracking-[0.15em] uppercase text-slate-800 hover:text-brand-600 transition-colors">
+                            {{ $item['label'] ?? '' }}
                         </a>
                     @endforeach
                 @else
@@ -40,8 +49,6 @@
                         <a href="{{ rj_commerce_url('shop') }}" class="text-[11px] font-bold tracking-[0.15em] uppercase text-slate-800 hover:text-brand-600 transition-colors">{{ __('Shop') }}</a>
                     @endif
                     <a href="{{ url('/collections') }}" class="text-[11px] font-bold tracking-[0.15em] uppercase text-slate-800 hover:text-brand-600 transition-colors">{{ __('Collections') }}</a>
-                    <a href="{{ url('/about') }}" class="text-[11px] font-bold tracking-[0.15em] uppercase text-slate-800 hover:text-brand-600 transition-colors">{{ __('Our Story') }}</a>
-                    <a href="{{ url('/contact') }}" class="text-[11px] font-bold tracking-[0.15em] uppercase text-slate-800 hover:text-brand-600 transition-colors">{{ __('Contact') }}</a>
                 @endif
             </nav>
 
@@ -90,8 +97,8 @@
         <div class="px-6 pt-4 pb-20 space-y-2">
             @if(!empty($menuItems))
                 @foreach($menuItems as $item)
-                    <a href="{{ $item->url ?? $item['url'] ?? '#' }}" class="block py-3 border-b border-slate-50 text-sm font-bold tracking-widest uppercase text-slate-900">
-                        {{ $item->title ?? $item['title'] ?? '' }}
+                    <a href="{{ $item['url'] ?? '#' }}" target="{{ $item['target'] ?? '_self' }}" class="block py-3 border-b border-slate-50 text-sm font-bold tracking-widest uppercase text-slate-900">
+                        {{ $item['label'] ?? '' }}
                     </a>
                 @endforeach
             @else
@@ -100,8 +107,6 @@
                     <a href="{{ rj_commerce_url('shop') }}" class="block py-3 border-b border-slate-50 text-sm font-bold tracking-widest uppercase text-slate-900">{{ __('Shop') }}</a>
                 @endif
                 <a href="{{ url('/collections') }}" class="block py-3 border-b border-slate-50 text-sm font-bold tracking-widest uppercase text-slate-900">{{ __('Collections') }}</a>
-                <a href="{{ url('/about') }}" class="block py-3 border-b border-slate-50 text-sm font-bold tracking-widest uppercase text-slate-900">{{ __('Our Story') }}</a>
-                <a href="{{ url('/contact') }}" class="block py-3 border-b border-slate-50 text-sm font-bold tracking-widest uppercase text-slate-900">{{ __('Contact') }}</a>
             @endif
             <a href="{{ route('login') }}" class="block py-3 text-sm font-bold tracking-widest uppercase text-brand-600">{{ __('Login / Register') }}</a>
         </div>
