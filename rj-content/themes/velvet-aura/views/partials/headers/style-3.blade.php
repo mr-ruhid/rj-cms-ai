@@ -2,12 +2,21 @@
     $logoUrl = $customLogo ?? rj_get_option('site_logo');
 
     if (!$logoUrl) {
-        $logoUrl = 'https://raw.githubusercontent.com/rj-nexus/velvet-aura/main/assets/images/velvetlogo_dark.png';
+        $logoUrl = 'https://raw.githubusercontent.com/rj-nexus/velvet-aura/main/assets/images/velvetlogo.png';
     }
 
+    $allMenus = function_exists('rj_menu_tree') ? rj_menu_tree() : [];
     $menuItems = [];
-    if (function_exists('rj_menu_tree')) {
-        $menuItems = rj_menu_tree('main-menu');
+
+    foreach ($allMenus as $menu) {
+        if (in_array(strtolower($menu['location'] ?? ''), ['header', 'main', 'primary'])) {
+            $menuItems = $menu['items'];
+            break;
+        }
+    }
+
+    if (empty($menuItems) && !empty($allMenus)) {
+        $menuItems = reset($allMenus)['items'] ?? [];
     }
 @endphp
 
@@ -32,8 +41,8 @@
                 <nav class="hidden md:flex items-center gap-8">
                     @if(!empty($menuItems))
                         @foreach($menuItems as $item)
-                            <a href="{{ $item->url ?? $item['url'] ?? '#' }}" class="text-[11px] font-bold tracking-[0.2em] uppercase text-slate-900 hover:text-[#d4af37] transition-colors">
-                                {{ $item->title ?? $item['title'] ?? '' }}
+                            <a href="{{ $item['url'] ?? '#' }}" target="{{ $item['target'] ?? '_self' }}" class="text-[11px] font-bold tracking-[0.2em] uppercase text-slate-900 hover:text-[#d4af37] transition-colors">
+                                {{ $item['label'] ?? '' }}
                             </a>
                         @endforeach
                     @else
@@ -41,7 +50,6 @@
                             <a href="{{ rj_commerce_url('shop') }}" class="text-[11px] font-bold tracking-[0.2em] uppercase text-slate-900 hover:text-[#d4af37] transition-colors">{{ __('Shop') }}</a>
                         @endif
                         <a href="{{ url('/collections') }}" class="text-[11px] font-bold tracking-[0.2em] uppercase text-slate-900 hover:text-[#d4af37] transition-colors">{{ __('New Arrivals') }}</a>
-                        <a href="{{ url('/bestsellers') }}" class="text-[11px] font-bold tracking-[0.2em] uppercase text-slate-900 hover:text-[#d4af37] transition-colors">{{ __('Bestsellers') }}</a>
                     @endif
                 </nav>
             </div>
@@ -79,8 +87,8 @@
         <div class="px-6 pt-4 pb-8 space-y-1">
             @if(!empty($menuItems))
                 @foreach($menuItems as $item)
-                    <a href="{{ $item->url ?? $item['url'] ?? '#' }}" class="block py-4 border-b border-[#e8e4db] text-sm font-bold tracking-[0.2em] uppercase text-slate-900">
-                        {{ $item->title ?? $item['title'] ?? '' }}
+                    <a href="{{ $item['url'] ?? '#' }}" target="{{ $item['target'] ?? '_self' }}" class="block py-4 border-b border-[#e8e4db] text-sm font-bold tracking-[0.2em] uppercase text-slate-900">
+                        {{ $item['label'] ?? '' }}
                     </a>
                 @endforeach
             @else
@@ -88,7 +96,6 @@
                     <a href="{{ rj_commerce_url('shop') }}" class="block py-4 border-b border-[#e8e4db] text-sm font-bold tracking-[0.2em] uppercase text-slate-900">{{ __('Shop') }}</a>
                 @endif
                 <a href="{{ url('/collections') }}" class="block py-4 border-b border-[#e8e4db] text-sm font-bold tracking-[0.2em] uppercase text-slate-900">{{ __('New Arrivals') }}</a>
-                <a href="{{ url('/bestsellers') }}" class="block py-4 border-b border-[#e8e4db] text-sm font-bold tracking-[0.2em] uppercase text-slate-900">{{ __('Bestsellers') }}</a>
             @endif
             <a href="{{ route('login') }}" class="block py-4 text-sm font-bold tracking-[0.2em] uppercase text-[#d4af37]">{{ __('Login / Register') }}</a>
         </div>
