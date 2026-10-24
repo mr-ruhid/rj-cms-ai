@@ -39,13 +39,34 @@
 </head>
 <body class="font-sans antialiased bg-slate-50 text-slate-900 flex flex-col min-h-screen selection:bg-brand-500 selection:text-white">
 
-    @include('theme::partials.header')
+    @php
+        $resolver = app(\App\Services\ThemeResolver::class);
+        $headerTemplate = $resolver->header();
+    @endphp
+
+    @if($headerTemplate)
+        <header id="rj-builder-header">
+            {!! rj_render_template($headerTemplate) !!}
+        </header>
+    @else
+        @include('theme::partials.header')
+    @endif
 
     <main class="flex-grow">
         @yield('content')
     </main>
 
-    @include('theme::partials.footer')
+    @php
+        $footerTemplate = $resolver->footer();
+    @endphp
+
+    @if($footerTemplate)
+        <footer id="rj-builder-footer">
+            {!! rj_render_template($footerTemplate) !!}
+        </footer>
+    @else
+        @include('theme::partials.footer')
+    @endif
 
     @stack('scripts')
 </body>
