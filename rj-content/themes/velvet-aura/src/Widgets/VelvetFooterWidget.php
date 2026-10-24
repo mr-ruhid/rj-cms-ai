@@ -28,26 +28,55 @@ class VelvetFooterWidget extends BaseWidget
 
     public function description(): string
     {
-        return __('Load a static footer and optionally override the logo.');
+        return __('Load a static footer and optionally override the content.');
     }
 
     public function schema(): array
     {
+        $baseUrl = 'https://raw.githubusercontent.com/rj-nexus/velvet-aura/main/assets/images/';
+
         return [
             [
+                'name' => 'description',
+                'type' => 'textarea',
+                'label' => __('Company Description'),
+                'default' => __('Curating exceptional fragrances and premium essentials for the modern individual. Experience the art of fine living.'),
+            ],
+            [
+                'name' => 'copyright',
+                'type' => 'text',
+                'label' => __('Copyright Text'),
+                'default' => '© ' . date('Y') . ' VelvetAura. All rights reserved.',
+            ],
+            [
+                'name' => 'bg_text',
+                'type' => 'text',
+                'label' => __('Background Text (Style 3 only)'),
+                'default' => 'VelvetAura',
+            ],
+            [
                 'name' => 'style',
-                'type' => 'select',
+                'type' => 'image_select',
                 'label' => __('Footer Style'),
                 'default' => 'style-1',
                 'options' => [
-                    'style-1' => __('Style 1 (Dark Luxury)'),
-                    'style-2' => __('Style 2 (Light Minimal)'),
-                    'style-3' => __('Style 3 (Editorial)'),
+                    'style-1' => [
+                        'image' => $baseUrl . 'footer1.png',
+                        'label' => __('Style 1 (Dark Luxury)'),
+                    ],
+                    'style-2' => [
+                        'image' => $baseUrl . 'footer2.png',
+                        'label' => __('Style 2 (Light Minimal)'),
+                    ],
+                    'style-3' => [
+                        'image' => $baseUrl . 'footer3.png',
+                        'label' => __('Style 3 (Editorial)'),
+                    ],
                 ],
             ],
             [
                 'name' => 'logo',
-                'type' => 'image',
+                'type' => 'media',
                 'label' => __('Custom Logo (Override)'),
                 'default' => '',
             ],
@@ -65,6 +94,6 @@ class VelvetFooterWidget extends BaseWidget
             $view = 'theme::partials.footers.style-1';
         }
 
-        return view($view, compact('customLogo'))->render();
+        return view($view, compact('customLogo', 'settings'))->render();
     }
 }
