@@ -1,5 +1,6 @@
 @php
     $logoUrl = $customLogo ?? rj_get_option('site_logo');
+
     if (!$logoUrl) {
         $logoUrl = 'https://raw.githubusercontent.com/rj-nexus/velvet-aura/main/assets/images/velvetlogo.png';
     }
@@ -22,7 +23,7 @@
 <header class="bg-[#111111] text-white relative z-50">
     <div class="bg-black text-center py-2 px-4">
         <p class="text-[10px] tracking-[0.2em] uppercase font-medium text-slate-300">
-            {{ rj_get_option('header_announcement', 'Enjoy 2 samples and complimentary shipping with every order.') }}
+            {{ $announcement ?? rj_get_option('header_announcement', 'Enjoy 2 samples and complimentary shipping with every order.') }}
         </p>
     </div>
 
@@ -40,12 +41,8 @@
             </div>
 
             <div class="flex justify-center">
-                <a href="{{ url('/') }}" class="block relative text-center">
-                    @if($logoUrl)
-                        <img src="{{ $logoUrl }}" alt="{{ rj_get_option('site_name', 'VelvetAura') }}" class="h-12 w-auto object-contain brightness-0 invert mx-auto">
-                    @else
-                        <span class="text-2xl font-black text-white tracking-tighter">{{ rj_get_option('site_name', 'VelvetAura') }}<span class="text-[#d4af37]">.</span></span>
-                    @endif
+                <a href="{{ url('/') }}" class="block">
+                    <img src="{{ $logoUrl }}" alt="{{ rj_get_option('site_name', 'VelvetAura') }}" class="h-12 w-auto object-contain brightness-0 invert">
                 </a>
             </div>
 
@@ -86,6 +83,7 @@
                     <a href="{{ rj_commerce_url('shop') }}" class="text-[11px] font-semibold tracking-[0.15em] uppercase text-white hover:text-slate-400 transition-colors">{{ __('Shop') }}</a>
                 @endif
                 <a href="{{ url('/about') }}" class="text-[11px] font-semibold tracking-[0.15em] uppercase text-white hover:text-slate-400 transition-colors">{{ __('About') }}</a>
+                <a href="{{ url('/contact') }}" class="text-[11px] font-semibold tracking-[0.15em] uppercase text-white hover:text-slate-400 transition-colors">{{ __('Contact') }}</a>
             @endif
             <a href="#" class="text-[11px] font-semibold tracking-[0.15em] uppercase text-slate-400 italic hover:text-white transition-colors">{{ __('Need Help ?') }}</a>
         </nav>
