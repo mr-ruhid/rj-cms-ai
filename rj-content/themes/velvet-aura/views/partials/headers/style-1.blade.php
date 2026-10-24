@@ -2,11 +2,10 @@
     $logoUrl = $customLogo ?? rj_get_option('site_logo');
 
     if (!$logoUrl) {
-        $logoUrl = asset('rj-content/themes/velvet-aura/assets/images/velvetlogo.png');
-    } elseif (!\Illuminate\Support\Str::startsWith($logoUrl, 'http') && !\Illuminate\Support\Str::startsWith($logoUrl, 'media/') && !\Illuminate\Support\Str::startsWith($logoUrl, '/')) {
-        $logoUrl = \Illuminate\Support\Facades\Storage::url($logoUrl);
-    } elseif (\Illuminate\Support\Str::startsWith($logoUrl, 'media/')) {
-        $logoUrl = asset($logoUrl);
+        $theme = app(\App\Services\ThemeManager::class)->activeTheme();
+        if ($theme) {
+            $logoUrl = $theme->assetUrl('images/velvetlogo.png');
+        }
     }
 
     $menuItems = [];
@@ -36,8 +35,12 @@
             </div>
 
             <div class="flex justify-center">
-                <a href="{{ url('/') }}" class="block">
-                    <img src="{{ $logoUrl }}" alt="{{ rj_get_option('site_name', 'VelvetAura') }}" class="h-12 w-auto object-contain brightness-0 invert">
+                <a href="{{ url('/') }}" class="block relative text-center">
+                    @if($logoUrl)
+                        <img src="{{ $logoUrl }}" alt="{{ rj_get_option('site_name', 'VelvetAura') }}" class="h-12 w-auto object-contain brightness-0 invert mx-auto">
+                    @else
+                        <span class="text-2xl font-black text-white tracking-tighter">{{ rj_get_option('site_name', 'VelvetAura') }}<span class="text-[#d4af37]">.</span></span>
+                    @endif
                 </a>
             </div>
 
