@@ -2,10 +2,7 @@
     $logoUrl = $customLogo ?? rj_get_option('site_logo');
 
     if (!$logoUrl) {
-        $theme = app(\App\Services\ThemeManager::class)->activeTheme();
-        if ($theme) {
-            $logoUrl = $theme->assetUrl('assets/images/velvetlogo.png');
-        }
+        $logoUrl = 'https://raw.githubusercontent.com/rj-nexus/velvet-aura/main/assets/images/velvetlogo.png';
     }
 
     $menuItems = [];
