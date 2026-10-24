@@ -461,12 +461,18 @@
                             </template>
 
                             <template x-if="field.type === 'image_select'">
-                                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
+                                <div style="display: flex; flex-direction: column; gap: 12px;">
                                     <template x-for="(opt, val) in field.options" :key="val">
-                                        <label style="cursor: pointer; border: 2px solid transparent; border-radius: 6px; overflow: hidden; display: block; transition: all 0.2s;" :style="String(fieldValue(field)) === String(val) ? 'border-color: #8b5cf6;' : 'border-color: var(--line);'">
+                                        <label style="cursor: pointer; border: 2px solid transparent; border-radius: 8px; overflow: hidden; display: block; transition: all 0.2s; position: relative;"
+                                               :style="String(fieldValue(field)) === String(val) ? 'border-color: #8b5cf6; box-shadow: 0 0 0 1px #8b5cf6;' : 'border-color: var(--line);'">
                                             <input type="radio" :value="val" :checked="String(fieldValue(field)) === String(val)" @change="updateSetting(field.name, val)" style="display: none;">
-                                            <img :src="opt.image" style="width: 100%; height: 70px; object-fit: cover; display: block;" />
-                                            <div style="text-align: center; font-size: 11px; padding: 6px; background: var(--bg2); color: var(--text);" x-text="opt.label"></div>
+
+                                            <div x-show="String(fieldValue(field)) === String(val)" style="position: absolute; top: 8px; right: 8px; background: #8b5cf6; color: #fff; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; z-index: 10; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
+                                                <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                                            </div>
+
+                                            <img :src="opt.image" style="width: 100%; height: auto; display: block;" />
+                                            <div style="text-align: center; font-size: 12px; font-weight: 600; padding: 10px; background: var(--bg2); color: var(--text); border-top: 1px solid var(--line);" x-text="opt.label"></div>
                                         </label>
                                     </template>
                                 </div>
