@@ -1,12 +1,25 @@
 @php
     $logoUrl = $customLogo ?? rj_get_option('site_logo');
-
     if (!$logoUrl) {
-        $logoUrl = 'https://raw.githubusercontent.com/rj-nexus/velvet-aura/main/assets/images/velvetlogo_dark.png';
+        $logoUrl = 'https://raw.githubusercontent.com/rj-nexus/velvet-aura/main/assets/images/velvetlogo.png';
     }
 
-    $shopMenu = function_exists('rj_menu_tree') ? rj_menu_tree('footer-shop') : [];
-    $companyMenu = function_exists('rj_menu_tree') ? rj_menu_tree('footer-company') : [];
+    $allMenus = function_exists('rj_menu_tree') ? rj_menu_tree() : [];
+    $shopMenu = [];
+    $companyMenu = [];
+
+    foreach ($allMenus as $menu) {
+        $loc = strtolower($menu['location'] ?? '');
+        if (in_array($loc, ['footer-shop', 'shop', 'footer-1'])) {
+            $shopMenu = $menu['items'];
+        } elseif (in_array($loc, ['footer-company', 'company', 'footer-3', 'footer-care', 'care'])) {
+            $companyMenu = $menu['items'];
+        }
+    }
+
+    if (empty($shopMenu) && !empty($allMenus)) {
+        $shopMenu = reset($allMenus)['items'] ?? [];
+    }
 @endphp
 
 <footer class="bg-[#f4f1ea] border-t border-[#e5dfd3] pt-16 mt-auto font-sans relative overflow-hidden">
@@ -30,7 +43,7 @@
                 <ul class="space-y-3 text-sm text-slate-600">
                     @if(!empty($shopMenu))
                         @foreach($shopMenu as $item)
-                            <li><a href="{{ $item->url ?? $item['url'] ?? '#' }}" class="hover:text-[#d4af37] transition-colors">{{ $item->title ?? $item['title'] ?? '' }}</a></li>
+                            <li><a href="{{ $item['url'] ?? '#' }}" target="{{ $item['target'] ?? '_self' }}" class="hover:text-[#d4af37] transition-colors">{{ $item['label'] ?? '' }}</a></li>
                         @endforeach
                     @else
                         @if(function_exists('rj_commerce_url'))
@@ -47,7 +60,7 @@
                 <ul class="space-y-3 text-sm text-slate-600">
                     @if(!empty($companyMenu))
                         @foreach($companyMenu as $item)
-                            <li><a href="{{ $item->url ?? $item['url'] ?? '#' }}" class="hover:text-[#d4af37] transition-colors">{{ $item->title ?? $item['title'] ?? '' }}</a></li>
+                            <li><a href="{{ $item['url'] ?? '#' }}" target="{{ $item['target'] ?? '_self' }}" class="hover:text-[#d4af37] transition-colors">{{ $item['label'] ?? '' }}</a></li>
                         @endforeach
                     @else
                         <li><a href="{{ url('/about') }}" class="hover:text-[#d4af37] transition-colors">{{ __('Our Story') }}</a></li>
