@@ -33,6 +33,8 @@ class VelvetHeaderWidget extends BaseWidget
 
     public function schema(): array
     {
+        $baseUrl = 'https://raw.githubusercontent.com/rj-nexus/velvet-aura/main/assets/images/';
+
         return [
             [
                 'name' => 'style',
@@ -40,9 +42,9 @@ class VelvetHeaderWidget extends BaseWidget
                 'label' => __('Header Style'),
                 'default' => 'style-1',
                 'options' => [
-                    'style-1' => __('Style 1 (Luxury Dark)'),
-                    'style-2' => __('Style 2 (Elegant Light)'),
-                    'style-3' => __('Style 3 (Editorial)'),
+                    'style-1' => '<div style="display:flex; align-items:center; gap:10px;"><img src="' . $baseUrl . 'header1.png" style="width:60px; height:40px; object-fit:cover; border-radius:4px;" /> Style 1 (Luxury Dark)</div>',
+                    'style-2' => '<div style="display:flex; align-items:center; gap:10px;"><img src="' . $baseUrl . 'header2.png" style="width:60px; height:40px; object-fit:cover; border-radius:4px;" /> Style 2 (Elegant Light)</div>',
+                    'style-3' => '<div style="display:flex; align-items:center; gap:10px;"><img src="' . $baseUrl . 'header3.png" style="width:60px; height:40px; object-fit:cover; border-radius:4px;" /> Style 3 (Editorial)</div>',
                 ],
             ],
             [
