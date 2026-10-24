@@ -1,7 +1,7 @@
 @php
     $logoUrl = $customLogo ?? rj_get_option('site_logo');
     if (!$logoUrl) {
-        $logoUrl = 'https://raw.githubusercontent.com/rj-nexus/velvet-aura/main/assets/images/velvetlogo.png';
+        $logoUrl = 'https://raw.githubusercontent.com/rj-nexus/velvet-aura/main/assets/images/velvetlogo_dark.png';
     }
 
     $allMenus = function_exists('rj_menu_tree') ? rj_menu_tree() : [];
