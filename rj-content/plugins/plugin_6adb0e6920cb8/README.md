@@ -28,6 +28,8 @@ A complete, self-hosted e-commerce solution for RJ CMS. RJ Commerce provides a r
 - **Payments:** Built-in support for Cash on Delivery (COD), Stripe, PayPal, Razorpay, and Crypto.
 - **Multi-language:** Built-in translation support for products, categories, and brands.
 - **REST API:** Comprehensive API for external integrations.
+- **RJBuilder Widgets:** Out-of-the-box widgets for your page builder (Product Grid, Categories, Single Product, Cart).
+- **Modern UI:** Premium, responsive, and accessible frontend design (Vanilla JS & Tailwind CSS).
 
 ## Theme Integration
 
@@ -40,6 +42,15 @@ RJ Commerce looks for views in your active theme before falling back to its defa
 - `resources/views/commerce/checkout/success.blade.php` - Order Success Page
 - `resources/views/partials/commerce/products.blade.php` - Shortcode Products Grid
 - `resources/views/partials/commerce/categories.blade.php` - Shortcode Categories Grid
+
+## RJBuilder Widgets
+
+If you are using the RJBuilder, you can drag and drop the following commerce elements into your pages:
+
+- **Product Grid:** Displays a customizable grid of products with filtering options.
+- **Single Product:** Highlights a specific product with a detailed card.
+- **Categories:** Displays a grid of active product categories.
+- **Cart:** Displays a cart icon with a live item count or a mini-cart summary.
 
 ## Shortcodes
 
@@ -95,6 +106,20 @@ All API requests must include the following headers:
 - `GET /products/{slug}` - Get a specific product by slug.
 - `GET /categories` - List product categories.
 - `GET /brands` - List product brands.
+
+## Screenshots
+
+| Storefront | Product Page |
+| :---: | :---: |
+| ![Storefront](https://raw.githubusercontent.com/rj-nexus/rj-commerce/main/assets/images/screenshot01.png) | ![Product Page](https://raw.githubusercontent.com/rj-nexus/rj-commerce/main/assets/images/screenshot02.png) |
+
+| Shopping Cart | Checkout |
+| :---: | :---: |
+| ![Shopping Cart](https://raw.githubusercontent.com/rj-nexus/rj-commerce/main/assets/images/screenshot03.png) | ![Checkout](https://raw.githubusercontent.com/rj-nexus/rj-commerce/main/assets/images/screenshot04.png) |
+
+| Order Success | Admin Dashboard |
+| :---: | :---: |
+| ![Order Success](https://raw.githubusercontent.com/rj-nexus/rj-commerce/main/assets/images/screenshot05.png) | ![Admin Dashboard](https://raw.githubusercontent.com/rj-nexus/rj-commerce/main/assets/images/screenshot06.png) |
 
 ## License
 
