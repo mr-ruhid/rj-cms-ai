@@ -460,6 +460,18 @@
                                 </select>
                             </template>
 
+                            <template x-if="field.type === 'image_select'">
+                                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
+                                    <template x-for="(opt, val) in field.options" :key="val">
+                                        <label style="cursor: pointer; border: 2px solid transparent; border-radius: 6px; overflow: hidden; display: block; transition: all 0.2s;" :style="String(fieldValue(field)) === String(val) ? 'border-color: #8b5cf6;' : 'border-color: var(--line);'">
+                                            <input type="radio" :value="val" :checked="String(fieldValue(field)) === String(val)" @change="updateSetting(field.name, val)" style="display: none;">
+                                            <img :src="opt.image" style="width: 100%; height: 70px; object-fit: cover; display: block;" />
+                                            <div style="text-align: center; font-size: 11px; padding: 6px; background: var(--bg2); color: var(--text);" x-text="opt.label"></div>
+                                        </label>
+                                    </template>
+                                </div>
+                            </template>
+
                             @include('rjbuilder.partials.fields.color')
 
                             @include('rjbuilder.partials.fields.font')
