@@ -1,5 +1,6 @@
 @php
     $logoUrl = $customLogo ?? rj_get_option('site_logo');
+
     if (!$logoUrl) {
         $logoUrl = 'https://raw.githubusercontent.com/rj-nexus/velvet-aura/main/assets/images/velvetlogo_dark.png';
     }
@@ -20,6 +21,10 @@
     if (empty($shopMenu) && !empty($allMenus)) {
         $shopMenu = reset($allMenus)['items'] ?? [];
     }
+
+    $descText = $settings['description'] ?? __('Elevating everyday essentials with a touch of modern luxury. Discover our carefully curated collections.');
+    $copyText = $settings['copyright'] ?? '&copy; ' . date('Y') . ' ' . rj_get_option('site_name', 'VelvetAura') . '. ' . __('All rights reserved.');
+    $bgText = $settings['bg_text'] ?? rj_get_option('site_name', 'VelvetAura');
 @endphp
 
 <footer class="bg-[#f4f1ea] border-t border-[#e5dfd3] pt-16 mt-auto font-sans relative overflow-hidden">
@@ -34,7 +39,7 @@
                     <span class="text-3xl font-serif font-bold text-slate-900 tracking-tight">{{ rj_get_option('site_name', 'VelvetAura') }}</span>
                 @endif
                 <p class="text-sm leading-relaxed text-slate-600 max-w-sm">
-                    {{ __('Elevating everyday essentials with a touch of modern luxury. Discover our carefully curated collections.') }}
+                    {{ $descText }}
                 </p>
             </div>
 
@@ -85,7 +90,7 @@
 
         <div class="py-8 flex flex-col md:flex-row items-center justify-between gap-4 relative z-10">
             <p class="text-xs text-slate-500">
-                &copy; {{ date('Y') }} {{ rj_get_option('site_name', 'VelvetAura') }}. {{ __('All rights reserved.') }}
+                {!! $copyText !!}
             </p>
             <div class="flex items-center gap-6 text-xs text-slate-500 font-medium">
                 <a href="#" class="hover:text-slate-900 transition-colors">{{ __('Privacy') }}</a>
@@ -96,7 +101,7 @@
 
     <div class="absolute bottom-0 left-0 w-full overflow-hidden leading-none flex justify-center opacity-5 pointer-events-none translate-y-1/4">
         <span class="text-[15vw] font-serif font-black text-slate-900 tracking-tighter whitespace-nowrap">
-            {{ rj_get_option('site_name', 'VelvetAura') }}
+            {{ $bgText }}
         </span>
     </div>
 </footer>
