@@ -1,13 +1,21 @@
 @php
     $logoUrl = $customLogo ?? rj_get_option('site_logo');
-
     if (!$logoUrl) {
         $logoUrl = 'https://raw.githubusercontent.com/rj-nexus/velvet-aura/main/assets/images/velvetlogo.png';
     }
 
+    $allMenus = function_exists('rj_menu_tree') ? rj_menu_tree() : [];
     $menuItems = [];
-    if (function_exists('rj_menu_tree')) {
-        $menuItems = rj_menu_tree('main-menu');
+
+    foreach ($allMenus as $menu) {
+        if (in_array(strtolower($menu['location'] ?? ''), ['header', 'main', 'primary'])) {
+            $menuItems = $menu['items'];
+            break;
+        }
+    }
+
+    if (empty($menuItems) && !empty($allMenus)) {
+        $menuItems = reset($allMenus)['items'] ?? [];
     }
 @endphp
 
@@ -68,8 +76,8 @@
         <nav class="hidden md:flex items-center justify-center gap-10 pb-6">
             @if(!empty($menuItems))
                 @foreach($menuItems as $item)
-                    <a href="{{ $item->url ?? $item['url'] ?? '#' }}" class="text-[11px] font-semibold tracking-[0.15em] uppercase text-white hover:text-slate-400 transition-colors">
-                        {{ $item->title ?? $item['title'] ?? '' }}
+                    <a href="{{ $item['url'] ?? '#' }}" target="{{ $item['target'] ?? '_self' }}" class="text-[11px] font-semibold tracking-[0.15em] uppercase text-white hover:text-slate-400 transition-colors">
+                        {{ $item['label'] ?? '' }}
                     </a>
                 @endforeach
             @else
@@ -78,7 +86,6 @@
                     <a href="{{ rj_commerce_url('shop') }}" class="text-[11px] font-semibold tracking-[0.15em] uppercase text-white hover:text-slate-400 transition-colors">{{ __('Shop') }}</a>
                 @endif
                 <a href="{{ url('/about') }}" class="text-[11px] font-semibold tracking-[0.15em] uppercase text-white hover:text-slate-400 transition-colors">{{ __('About') }}</a>
-                <a href="{{ url('/contact') }}" class="text-[11px] font-semibold tracking-[0.15em] uppercase text-white hover:text-slate-400 transition-colors">{{ __('Contact') }}</a>
             @endif
             <a href="#" class="text-[11px] font-semibold tracking-[0.15em] uppercase text-slate-400 italic hover:text-white transition-colors">{{ __('Need Help ?') }}</a>
         </nav>
