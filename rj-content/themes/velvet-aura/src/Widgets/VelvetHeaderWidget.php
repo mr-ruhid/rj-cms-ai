@@ -37,19 +37,34 @@ class VelvetHeaderWidget extends BaseWidget
 
         return [
             [
+                'name' => 'announcement',
+                'type' => 'text',
+                'label' => __('Announcement Bar Text'),
+                'default' => __('Enjoy 2 samples and complimentary shipping with every order.'),
+            ],
+            [
                 'name' => 'style',
-                'type' => 'select',
+                'type' => 'image_select',
                 'label' => __('Header Style'),
                 'default' => 'style-1',
                 'options' => [
-                    'style-1' => '<div style="display:flex; align-items:center; gap:10px;"><img src="' . $baseUrl . 'header1.png" style="width:60px; height:40px; object-fit:cover; border-radius:4px;" /> Style 1 (Luxury Dark)</div>',
-                    'style-2' => '<div style="display:flex; align-items:center; gap:10px;"><img src="' . $baseUrl . 'header2.png" style="width:60px; height:40px; object-fit:cover; border-radius:4px;" /> Style 2 (Elegant Light)</div>',
-                    'style-3' => '<div style="display:flex; align-items:center; gap:10px;"><img src="' . $baseUrl . 'header3.png" style="width:60px; height:40px; object-fit:cover; border-radius:4px;" /> Style 3 (Editorial)</div>',
+                    'style-1' => [
+                        'image' => $baseUrl . 'header1.png',
+                        'label' => __('Style 1 (Luxury Dark)'),
+                    ],
+                    'style-2' => [
+                        'image' => $baseUrl . 'header2.png',
+                        'label' => __('Style 2 (Elegant Light)'),
+                    ],
+                    'style-3' => [
+                        'image' => $baseUrl . 'header3.png',
+                        'label' => __('Style 3 (Editorial)'),
+                    ],
                 ],
             ],
             [
                 'name' => 'logo',
-                'type' => 'image',
+                'type' => 'media',
                 'label' => __('Custom Logo (Override)'),
                 'default' => '',
             ],
@@ -60,6 +75,7 @@ class VelvetHeaderWidget extends BaseWidget
     {
         $style = $settings['style'] ?? 'style-1';
         $customLogo = $settings['logo'] ?? '';
+        $announcement = $settings['announcement'] ?? rj_get_option('header_announcement', __('Enjoy 2 samples and complimentary shipping with every order.'));
 
         $view = 'theme::partials.headers.' . $style;
 
@@ -67,6 +83,6 @@ class VelvetHeaderWidget extends BaseWidget
             $view = 'theme::partials.headers.style-1';
         }
 
-        return view($view, compact('customLogo'))->render();
+        return view($view, compact('customLogo', 'announcement'))->render();
     }
 }
