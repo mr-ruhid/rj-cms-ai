@@ -1,5 +1,6 @@
 @php
     $logoUrl = $customLogo ?? rj_get_option('site_logo');
+
     if (!$logoUrl) {
         $logoUrl = 'https://raw.githubusercontent.com/rj-nexus/velvet-aura/main/assets/images/velvetlogo.png';
     }
@@ -20,6 +21,9 @@
     if (empty($shopMenu) && !empty($allMenus)) {
         $shopMenu = reset($allMenus)['items'] ?? [];
     }
+
+    $descText = $settings['description'] ?? __('Curating exceptional fragrances and premium essentials for the modern individual. Experience the art of fine living.');
+    $copyText = $settings['copyright'] ?? '&copy; ' . date('Y') . ' ' . rj_get_option('site_name', 'VelvetAura') . '. ' . __('All rights reserved.');
 @endphp
 
 <footer class="bg-[#111111] text-slate-300 pt-20 pb-10 border-t border-white/10 mt-auto font-sans">
@@ -35,7 +39,7 @@
                     @endif
                 </a>
                 <p class="text-sm leading-relaxed text-slate-400">
-                    {{ __('Curating exceptional fragrances and premium essentials for the modern individual. Experience the art of fine living.') }}
+                    {{ $descText }}
                 </p>
                 <div class="flex items-center gap-4 pt-2">
                     <a href="#" class="w-10 h-10 rounded-full border border-white/20 flex items-center justify-center text-white hover:border-[#d4af37] hover:text-[#d4af37] transition-colors">
@@ -94,7 +98,7 @@
 
         <div class="border-t border-white/10 pt-8 flex flex-col md:flex-row items-center justify-between gap-4">
             <p class="text-xs text-slate-500">
-                &copy; {{ date('Y') }} {{ rj_get_option('site_name', 'VelvetAura') }}. {{ __('All rights reserved.') }}
+                {!! $copyText !!}
             </p>
             <div class="flex items-center gap-6 text-xs text-slate-500">
                 <a href="#" class="hover:text-white transition-colors">{{ __('Privacy Policy') }}</a>
