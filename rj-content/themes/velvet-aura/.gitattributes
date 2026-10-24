@@ -1,0 +1,14 @@
+* text=auto eol=lf
+
+*.blade.php text eol=lf
+*.php text eol=lf
+*.js text eol=lf
+*.css text eol=lf
+*.json text eol=lf
+*.svg text eol=lf
+
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
