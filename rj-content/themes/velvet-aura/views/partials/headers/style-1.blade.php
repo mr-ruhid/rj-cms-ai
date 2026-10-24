@@ -4,7 +4,7 @@
     if (!$logoUrl) {
         $theme = app(\App\Services\ThemeManager::class)->activeTheme();
         if ($theme) {
-            $logoUrl = $theme->assetUrl('images/velvetlogo.png');
+            $logoUrl = $theme->assetUrl('assets/images/velvetlogo.png');
         }
     }
 
