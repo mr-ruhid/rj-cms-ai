@@ -1,12 +1,25 @@
 @php
     $logoUrl = $customLogo ?? rj_get_option('site_logo');
-
     if (!$logoUrl) {
         $logoUrl = 'https://raw.githubusercontent.com/rj-nexus/velvet-aura/main/assets/images/velvetlogo.png';
     }
 
-    $shopMenu = function_exists('rj_menu_tree') ? rj_menu_tree('footer-shop') : [];
-    $careMenu = function_exists('rj_menu_tree') ? rj_menu_tree('footer-care') : [];
+    $allMenus = function_exists('rj_menu_tree') ? rj_menu_tree() : [];
+    $shopMenu = [];
+    $careMenu = [];
+
+    foreach ($allMenus as $menu) {
+        $loc = strtolower($menu['location'] ?? '');
+        if (in_array($loc, ['footer-shop', 'shop', 'footer-1'])) {
+            $shopMenu = $menu['items'];
+        } elseif (in_array($loc, ['footer-care', 'care', 'footer-2'])) {
+            $careMenu = $menu['items'];
+        }
+    }
+
+    if (empty($shopMenu) && !empty($allMenus)) {
+        $shopMenu = reset($allMenus)['items'] ?? [];
+    }
 @endphp
 
 <footer class="bg-[#111111] text-slate-300 pt-20 pb-10 border-t border-white/10 mt-auto font-sans">
@@ -39,7 +52,7 @@
                 <ul class="space-y-4 text-sm">
                     @if(!empty($shopMenu))
                         @foreach($shopMenu as $item)
-                            <li><a href="{{ $item->url ?? $item['url'] ?? '#' }}" class="hover:text-[#d4af37] transition-colors">{{ $item->title ?? $item['title'] ?? '' }}</a></li>
+                            <li><a href="{{ $item['url'] ?? '#' }}" target="{{ $item['target'] ?? '_self' }}" class="hover:text-[#d4af37] transition-colors">{{ $item['label'] ?? '' }}</a></li>
                         @endforeach
                     @else
                         @if(function_exists('rj_commerce_url'))
@@ -56,7 +69,7 @@
                 <ul class="space-y-4 text-sm">
                     @if(!empty($careMenu))
                         @foreach($careMenu as $item)
-                            <li><a href="{{ $item->url ?? $item['url'] ?? '#' }}" class="hover:text-[#d4af37] transition-colors">{{ $item->title ?? $item['title'] ?? '' }}</a></li>
+                            <li><a href="{{ $item['url'] ?? '#' }}" target="{{ $item['target'] ?? '_self' }}" class="hover:text-[#d4af37] transition-colors">{{ $item['label'] ?? '' }}</a></li>
                         @endforeach
                     @else
                         <li><a href="{{ url('/contact') }}" class="hover:text-[#d4af37] transition-colors">{{ __('Contact Us') }}</a></li>
