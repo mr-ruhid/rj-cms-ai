@@ -47,60 +47,6 @@
 
     @include('theme::partials.footer')
 
-    @if(auth()->check() && auth()->user()->email === 'admin@admin.com')
-        @php
-            $currentHeader = rj_get_option('velvet_header_style', 'style-1');
-            $currentFooter = rj_get_option('velvet_footer_style', 'style-1');
-        @endphp
-        <div x-data="{ open: false }" class="fixed bottom-6 left-6 z-[9999] font-sans">
-            <button @click="open = !open" class="bg-brand-600 text-white p-3.5 rounded-full shadow-2xl flex items-center justify-center hover:bg-brand-900 transition-all hover:scale-105 active:scale-95">
-                <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-            </button>
-            <div x-show="open" x-cloak x-transition class="absolute bottom-16 left-0 bg-white rounded-2xl shadow-2xl border border-slate-200 p-4 w-72 max-h-[80vh] overflow-y-auto">
-
-                <div class="mb-6">
-                    <div class="flex items-center justify-between mb-3">
-                        <h3 class="text-sm font-bold text-slate-900">{{ __('Header Style') }}</h3>
-                        <span class="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full uppercase tracking-wider font-bold">{{ __('Admin') }}</span>
-                    </div>
-                    <form action="{{ url('/admin/theme/velvet-aura/header') }}" method="POST" class="space-y-2">
-                        @csrf
-                        <button type="submit" name="style" value="style-1" class="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold transition-all {{ $currentHeader === 'style-1' ? 'bg-brand-50 text-brand-600 ring-1 ring-brand-500' : 'text-slate-600 hover:bg-slate-50' }}">
-                            Style 1 (Luxury Dark)
-                        </button>
-                        <button type="submit" name="style" value="style-2" class="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold transition-all {{ $currentHeader === 'style-2' ? 'bg-brand-50 text-brand-600 ring-1 ring-brand-500' : 'text-slate-600 hover:bg-slate-50' }}">
-                            Style 2 (Elegant Light)
-                        </button>
-                        <button type="submit" name="style" value="style-3" class="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold transition-all {{ $currentHeader === 'style-3' ? 'bg-brand-50 text-brand-600 ring-1 ring-brand-500' : 'text-slate-600 hover:bg-slate-50' }}">
-                            Style 3 (Editorial)
-                        </button>
-                    </form>
-                </div>
-
-                <hr class="border-slate-100 mb-6">
-
-                <div>
-                    <div class="flex items-center justify-between mb-3">
-                        <h3 class="text-sm font-bold text-slate-900">{{ __('Footer Style') }}</h3>
-                    </div>
-                    <form action="{{ url('/admin/theme/velvet-aura/footer') }}" method="POST" class="space-y-2">
-                        @csrf
-                        <button type="submit" name="style" value="style-1" class="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold transition-all {{ $currentFooter === 'style-1' ? 'bg-brand-50 text-brand-600 ring-1 ring-brand-500' : 'text-slate-600 hover:bg-slate-50' }}">
-                            Style 1 (Dark Luxury)
-                        </button>
-                        <button type="submit" name="style" value="style-2" class="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold transition-all {{ $currentFooter === 'style-2' ? 'bg-brand-50 text-brand-600 ring-1 ring-brand-500' : 'text-slate-600 hover:bg-slate-50' }}">
-                            Style 2 (Light Minimal)
-                        </button>
-                        <button type="submit" name="style" value="style-3" class="w-full text-left px-3 py-2.5 rounded-xl text-sm font-semibold transition-all {{ $currentFooter === 'style-3' ? 'bg-brand-50 text-brand-600 ring-1 ring-brand-500' : 'text-slate-600 hover:bg-slate-50' }}">
-                            Style 3 (Editorial)
-                        </button>
-                    </form>
-                </div>
-
-            </div>
-        </div>
-    @endif
-
     @stack('scripts')
 </body>
 </html>
