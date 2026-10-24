@@ -23,7 +23,7 @@
 <header class="bg-[#faf9f6] border-b border-[#e8e4db] relative z-50" x-data="{ mobileMenuOpen: false }">
     <div class="bg-[#1a1a1a] text-[#d4af37] text-center py-2 px-4">
         <p class="text-[10px] tracking-[0.3em] uppercase font-bold">
-            {{ rj_get_option('header_announcement', 'Complimentary Worldwide Express Shipping') }}
+            {{ $announcement ?? rj_get_option('header_announcement', 'Complimentary Worldwide Express Shipping') }}
         </p>
     </div>
 

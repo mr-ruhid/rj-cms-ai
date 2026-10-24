@@ -23,7 +23,7 @@
 <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-slate-200/80 transition-all duration-300" x-data="{ mobileMenuOpen: false, searchOpen: false }">
     <div class="bg-[#f8f6f0] text-center py-2 px-4 border-b border-slate-200/50">
         <p class="text-[10px] tracking-[0.2em] uppercase font-semibold text-slate-700">
-            {{ rj_get_option('header_announcement', 'Complimentary shipping on all orders over $150') }}
+            {{ $announcement ?? rj_get_option('header_announcement', 'Complimentary shipping on all orders over $150') }}
         </p>
     </div>
 
