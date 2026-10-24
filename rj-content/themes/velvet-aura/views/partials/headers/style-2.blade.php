@@ -3,10 +3,6 @@
 
     if (!$logoUrl) {
         $logoUrl = 'https://raw.githubusercontent.com/rj-nexus/velvet-aura/main/assets/images/velvetlogo.png';
-    } elseif (!\Illuminate\Support\Str::startsWith($logoUrl, 'http') && !\Illuminate\Support\Str::startsWith($logoUrl, 'media/') && !\Illuminate\Support\Str::startsWith($logoUrl, '/')) {
-        $logoUrl = \Illuminate\Support\Facades\Storage::url($logoUrl);
-    } elseif (\Illuminate\Support\Str::startsWith($logoUrl, 'media/')) {
-        $logoUrl = asset($logoUrl);
     }
 
     $menuItems = [];
